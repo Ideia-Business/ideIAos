@@ -1,6 +1,6 @@
 ---
 name: cursor-continuation
-description: "Lê o estado do Cursor (planos, todos, git, memória Claude) e entrega handoff estruturado para continuar o trabalho no Claude Code. Use proactively quando o usuário pedir retomar trabalho do Cursor, dar continuidade, ou mencionar que estava trabalhando no Cursor."
+description: "Lê o estado do Cursor (planos, todos, git, memória Claude) e entrega handoff estruturado para continuar o trabalho no Claude Code. Use proactively: (1) ao iniciar qualquer sessão em projeto com .planning/ — ler STATE.md antes de sugerir próximos passos; (2) quando o usuário pedir retomar trabalho do Cursor, dar continuidade, ou mencionar que estava trabalhando no Cursor."
 allowed-tools:
   - Read
   - Bash

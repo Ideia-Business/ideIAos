@@ -125,6 +125,24 @@ Máximo 1–2 perguntas, apenas se bloqueado para continuar.
 
 ---
 
+### Fase de encerramento — Atualizar STATE.md
+
+Ao concluir a execução de planos no Cursor (antes ou logo após commitar o trabalho):
+
+1. Abrir `.planning/STATE.md` no repo atual.
+2. Atualizar a tabela de Fases: marcar fase concluída como `✅ Complete`.
+3. Adicionar hashes dos commits em "Evidências Recentes" (formato: `` `{hash}` — {mensagem} ``).
+4. Remover da tabela "Pendências Conhecidas" os itens resolvidos.
+5. Commitar o STATE.md junto com ou imediatamente após o trabalho:
+   ```bash
+   git add .planning/STATE.md
+   git commit -m "docs(state): mark phase X complete"
+   ```
+
+**Por quê:** O STATE.md é o canal de handoff entre Cursor e Claude Code. Se não estiver atualizado, o Claude Code inicia a próxima sessão com contexto desatualizado e sugere retrabalho.
+
+---
+
 ## Regras de comportamento
 
 - Tratar `.planning/` como fonte primária de continuidade; JSONL é complemento.
@@ -134,6 +152,7 @@ Máximo 1–2 perguntas, apenas se bloqueado para continuar.
 - Não colar dumps de JSONL na resposta — sintetizar.
 - Continuidade é interpretativa: sempre cruzar memória/sessão com o estado atual do código.
 - Se o usuário pedir execução (não só resumo), executar após validar o repo.
+- **Sempre atualizar `.planning/STATE.md` após executar planos** — é o canal de handoff com o Claude Code.
 
 ---
 
