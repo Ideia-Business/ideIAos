@@ -6,7 +6,7 @@ Configura o ambiente de IA para qualquer projeto da equipe em um único comando.
 
 | Componente | O que faz |
 |-----------|-----------|
-| **AIOX Core** | Orquestrador de agentes IA — base de tudo |
+| **AIOX Core** | Orquestrador de agentes IA — base de tudo (https://github.com/SynkraAI/aiox-core) |
 | **Agente Cursor** (`claude-continuation`) | No Cursor: retoma automaticamente o que você estava fazendo no Claude Code |
 | **Skill Claude Code** (`cursor-continuation`) | No Claude Code: retoma automaticamente o que você estava fazendo no Cursor |
 
