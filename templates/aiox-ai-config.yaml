@@ -1,0 +1,33 @@
+# AIOX AI Provider Configuration
+# Primary: Claude Code (conversação principal)
+# Simple tasks + fallback: OpenRouter (gratuito/barato)
+
+ai_providers:
+  primary: claude
+  fallback: openrouter
+  routing:
+    simple_tasks: openrouter       # formatação, refactors simples
+    documentation: openrouter      # alto volume, velocidade importa
+    code_generation: openrouter    # balance velocidade/qualidade
+    testing: openrouter            # tarefas diretas
+    complex_tasks: claude          # arquitetura, decisões críticas
+    code_review: claude            # qualidade importa
+    security: claude               # raciocínio crítico obrigatório
+
+claude:
+  model: claude-sonnet-4-6
+  timeout: 300000
+  maxRetries: 3
+  dangerouslySkipPermissions: false
+
+# OpenRouter — compatível com OpenAI, centenas de modelos
+# Modelos gratuitos: sufixo :free (ex: meta-llama/llama-3.1-8b-instruct:free)
+# Modelos baratos:   deepseek/deepseek-chat (~$0.14/M tokens)
+openrouter:
+  provider: openai-compatible
+  baseURL: https://openrouter.ai/api/v1
+  endpoint: /chat/completions
+  apiKeyEnv: OPENROUTER_API_KEY
+  model: deepseek/deepseek-chat
+  timeout: 300000
+  maxRetries: 3
