@@ -561,6 +561,64 @@ done
 echo "     Uso: /dev-setup em qualquer projeto novo. Idempotente."
 
 # ─────────────────────────────────────────────────────────────────────────────
+step "5.8) Hook Claude Code — dev-setup-readme-reminder"
+# Lembra a IA de atualizar o README do dev-setup quando modifica componentes.
+# Reforço pelo lado da IA antes do pre-commit Git bloquear no commit.
+
+README_HOOK="$HOOK_DIR/dev-setup-readme-reminder.sh"
+README_HOOK_TEMPLATE="$SETUP_DIR/hooks/dev-setup-readme-reminder.sh"
+
+if [ -f "$README_HOOK" ]; then
+  if diff -q "$README_HOOK_TEMPLATE" "$README_HOOK" &>/dev/null; then
+    ok "Hook dev-setup-readme-reminder já está na versão mais recente"
+  else
+    cp "$README_HOOK_TEMPLATE" "$README_HOOK"
+    chmod +x "$README_HOOK"
+    ok "Hook dev-setup-readme-reminder atualizado"
+  fi
+else
+  cp "$README_HOOK_TEMPLATE" "$README_HOOK"
+  chmod +x "$README_HOOK"
+  ok "Hook dev-setup-readme-reminder instalado → $README_HOOK"
+fi
+
+if [ -f "$SETTINGS_FILE" ] && grep -q "dev-setup-readme-reminder.sh" "$SETTINGS_FILE" 2>/dev/null; then
+  ok "Hook dev-setup-readme-reminder registrado em ~/.claude/settings.json"
+else
+  warn "Hook dev-setup-readme-reminder NÃO registrado — adicione em hooks.PostToolUse:"
+  cat <<'SNIPPET'
+
+       {
+         "matcher": "Edit|Write|MultiEdit",
+         "hooks": [
+           {
+             "type": "command",
+             "command": "bash \"/Users/<você>/.claude/hooks/dev-setup-readme-reminder.sh\"",
+             "timeout": 3
+           }
+         ]
+       }
+SNIPPET
+fi
+
+# ─────────────────────────────────────────────────────────────────────────────
+step "5.9) Pre-commit Git no clone do dev-setup (se aplicável)"
+# Só dispara se estamos rodando dentro de um clone do dev-setup.
+
+if [ "$SETUP_DIR" = "$PWD" ] || git -C "$SETUP_DIR" rev-parse --git-dir &>/dev/null; then
+  PRECOMMIT_FILE="$SETUP_DIR/.git/hooks/pre-commit"
+  if [ -f "$PRECOMMIT_FILE" ] && grep -qF "dev-setup-readme-sync-hook" "$PRECOMMIT_FILE" 2>/dev/null; then
+    ok "Pre-commit hook do dev-setup já instalado"
+  else
+    warn "Pre-commit hook do dev-setup NÃO instalado. Para ativar:"
+    echo "       bash \"$SETUP_DIR/scripts/install-git-hooks.sh\""
+    echo "       (Bloqueia commits ao dev-setup que mexem em componentes sem atualizar README)"
+  fi
+else
+  ok "Não estamos em clone do dev-setup — pulando pre-commit hook"
+fi
+
+# ─────────────────────────────────────────────────────────────────────────────
 step "6) Skills Claude Code — recall-learnings + extract-learnings"
 # Loop de aprendizado contínuo (universal — qualquer projeto)
 
