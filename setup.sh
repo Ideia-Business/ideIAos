@@ -65,6 +65,37 @@ step() { echo -e "\n${CYAN}${BOLD}==> $*${NC}"; }
 
 encoded_path() { echo "$1" | sed 's|/|-|g' | sed 's|^-||'; }
 
+# Verifica se .gitignore já cobre uma entrada essencial — aceita variações
+# comuns (com/sem barra final, globs equivalentes, sub-paths que sinalizam
+# gestão manual) para não adicionar duplicatas. Idempotente: rodar 2x
+# seguidas não adiciona nada após a primeira.
+# Uso: gitignore_has_pattern <file> <entry>
+gitignore_has_pattern() {
+  local file="$1" entry="$2"
+  [ -f "$file" ] || return 1
+  case "$entry" in
+    ".env")
+      # Cobre: .env exato, *.env, .env*, ou * (ignora tudo)
+      grep -qE '^\s*(\.env|\*\.env|\.env\*|\*)\s*(#.*)?$' "$file" 2>/dev/null
+      ;;
+    ".env.local")
+      # Cobre: .env.local, .env*, *.local, *.env.local, ou *
+      grep -qE '^\s*(\.env\.local|\.env\*|\*\.local|\*\.env\.local|\*)\s*(#.*)?$' "$file" 2>/dev/null
+      ;;
+    "node_modules/")
+      # Cobre: node_modules ou node_modules/
+      grep -qE '^\s*node_modules/?\s*(#.*)?$' "$file" 2>/dev/null
+      ;;
+    ".aiox/")
+      # Cobre: .aiox, .aiox/, ou qualquer .aiox/sub-path (sinaliza gestão manual)
+      grep -qE '^\s*\.aiox(/|/.+)?\s*(#.*)?$' "$file" 2>/dev/null
+      ;;
+    *)
+      grep -qF "$entry" "$file" 2>/dev/null
+      ;;
+  esac
+}
+
 # ── Detector Lovable ──────────────────────────────────────────────────────────
 # Procura sinais determinísticos no projeto: lovable.config.*, .lovable/, ou
 # marker explícito no AGENTS.md. NUNCA assume — falha aberta exige confirmação.
@@ -483,10 +514,18 @@ MEMMD
 
   # .gitignore — proteções mínimas
   if [ ! -f ".gitignore" ]; then touch .gitignore; fi
+  added=0
   for entry in ".env" ".env.local" "node_modules/" ".aiox/"; do
-    grep -qF "$entry" .gitignore 2>/dev/null || echo "$entry" >> .gitignore
+    if ! gitignore_has_pattern ".gitignore" "$entry"; then
+      echo "$entry" >> .gitignore
+      added=$((added + 1))
+    fi
   done
-  ok ".gitignore com proteções essenciais"
+  if [ "$added" -gt 0 ]; then
+    ok ".gitignore: $added proteção(ões) essencial(is) adicionada(s)"
+  else
+    ok ".gitignore: proteções essenciais já cobertas"
+  fi
 
   # Estrutura híbrida de continuidade (main + planning)
   PROJECT_NAME="$(basename "$PROJECT_DIR")"
