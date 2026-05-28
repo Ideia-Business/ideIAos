@@ -22,11 +22,16 @@ set -euo pipefail
 SETUP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$PWD"
 PROJECT_ONLY=0
+WITH_AIOX_PROJECT=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --project-only)
       PROJECT_ONLY=1
+      shift
+      ;;
+    --with-aiox-core-project)
+      WITH_AIOX_PROJECT=1
       shift
       ;;
     *)
@@ -177,6 +182,29 @@ else
     warn "Configure OPENROUTER_API_KEY no .env para habilitar fallback de IA"
   else
     ok ".aiox-ai-config.yaml já existe no projeto"
+  fi
+
+  # AIOX Core no projeto (opcional: pode ser interativo dependendo da versão)
+  if [ -d ".aiox-core" ]; then
+    ok ".aiox-core já existe no projeto"
+  else
+    if [ "$WITH_AIOX_PROJECT" -eq 1 ]; then
+      if command -v npx &>/dev/null; then
+        if npx aiox-core@latest install; then
+          if [ -d ".aiox-core" ]; then
+            ok "AIOX Core inicializado no projeto (.aiox-core)"
+          else
+            warn "AIOX Core executado, mas .aiox-core não foi criado automaticamente"
+          fi
+        else
+          warn "Falha ao inicializar AIOX Core no projeto (setup segue normalmente)"
+        fi
+      else
+        warn "npx não disponível — não foi possível inicializar AIOX Core no projeto"
+      fi
+    else
+      warn ".aiox-core ausente. Para inicializar no projeto, rode: bash setup.sh --with-aiox-core-project \"$PROJECT_DIR\""
+    fi
   fi
 
   # Memória Claude Code para este projeto

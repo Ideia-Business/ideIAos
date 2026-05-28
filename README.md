@@ -40,7 +40,7 @@ Pronto. Os agentes ficam instalados globalmente e funcionam em **qualquer projet
 
 ## Configurar um projeto específico
 
-Para aplicar o setup em um projeto existente (cria `.aiox-ai-config.yaml`, memória Claude, estrutura `.planning/`):
+Para aplicar o setup em um projeto existente (cria `.aiox-ai-config.yaml`, memória Claude e estrutura `.planning/`):
 
 ```bash
 bash setup.sh /caminho/para/o/projeto
@@ -53,6 +53,12 @@ Modo somente projeto (não instala/atualiza componentes globais):
 
 ```bash
 bash setup.sh --project-only /caminho/para/o/projeto
+```
+
+Inicializar também o **AIOX Core local** do projeto (`.aiox-core`) no mesmo comando:
+
+```bash
+bash setup.sh --with-aiox-core-project /caminho/para/o/projeto
 ```
 
 ---
@@ -105,6 +111,8 @@ Ao configurar um projeto, o script cria (apenas se não existirem):
 Esse conjunto padroniza retomada entre Cursor/Claude/Lovable:
 - operacional no `main` (`STATE` + handoff),
 - estratégico no `planning` (quando o projeto usa `.planning/`).
+
+Se quiser inicializar também o **AIOX Core local do projeto** (`.aiox-core`), use a flag `--with-aiox-core-project`.
 
 ---
 
