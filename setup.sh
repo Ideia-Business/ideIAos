@@ -20,7 +20,21 @@
 set -euo pipefail
 
 SETUP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_DIR="${1:-$PWD}"
+PROJECT_DIR="$PWD"
+PROJECT_ONLY=0
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --project-only)
+      PROJECT_ONLY=1
+      shift
+      ;;
+    *)
+      PROJECT_DIR="$1"
+      shift
+      ;;
+  esac
+done
 
 # Se rodou de dentro do próprio dev-setup, não usa ele como projeto alvo
 if [ "$PROJECT_DIR" = "$SETUP_DIR" ]; then
@@ -36,6 +50,23 @@ err()  { echo -e "${RED}  ✗${NC} $*"; }
 step() { echo -e "\n${CYAN}${BOLD}==> $*${NC}"; }
 
 encoded_path() { echo "$1" | sed 's|/|-|g' | sed 's|^-||'; }
+
+ensure_file_from_template() {
+  local template_path="$1"
+  local target_path="$2"
+  local project_name="$3"
+  local today
+  today="$(date +%Y-%m-%d)"
+
+  if [ -f "$target_path" ]; then
+    ok "$target_path já existe"
+    return 0
+  fi
+
+  mkdir -p "$(dirname "$target_path")"
+  sed -e "s|__PROJECT_NAME__|$project_name|g" -e "s|__DATE__|$today|g" "$template_path" > "$target_path"
+  ok "$target_path criado"
+}
 
 # ─────────────────────────────────────────────────────────────────────────────
 echo -e "\n${CYAN}${BOLD}╔══════════════════════════════════════════════════════╗"
@@ -68,6 +99,7 @@ command -v cursor &>/dev/null \
   || warn "Claude Code não encontrado — instale em https://claude.ai/code"
 
 # ─────────────────────────────────────────────────────────────────────────────
+if [ "$PROJECT_ONLY" -eq 0 ]; then
 step "2) AIOX Core (orquestrador de agentes IA)"
 
 if command -v npx &>/dev/null; then
@@ -124,6 +156,10 @@ else
 fi
 
 echo "     Uso no Claude Code: /cursor-continuation"
+else
+  step "2-4) Setup global"
+  warn "Modo --project-only ativo: pulando AIOX Core + instalação global de agentes/skills"
+fi
 
 # ─────────────────────────────────────────────────────────────────────────────
 step "5) Configurar projeto: $PROJECT_DIR"
@@ -179,6 +215,14 @@ MEMMD
     grep -qF "$entry" .gitignore 2>/dev/null || echo "$entry" >> .gitignore
   done
   ok ".gitignore com proteções essenciais"
+
+  # Estrutura híbrida de continuidade (main + planning)
+  PROJECT_NAME="$(basename "$PROJECT_DIR")"
+  ensure_file_from_template "$SETUP_DIR/templates/hybrid/AGENTS.md.tmpl" "$PROJECT_DIR/AGENTS.md" "$PROJECT_NAME"
+  ensure_file_from_template "$SETUP_DIR/templates/hybrid/CLAUDE.md.tmpl" "$PROJECT_DIR/CLAUDE.md" "$PROJECT_NAME"
+  ensure_file_from_template "$SETUP_DIR/templates/hybrid/STATE.md.tmpl" "$PROJECT_DIR/STATE.md" "$PROJECT_NAME"
+  ensure_file_from_template "$SETUP_DIR/templates/hybrid/CONTINUATION_HANDOFF.md.tmpl" "$PROJECT_DIR/docs/CONTINUATION_HANDOFF.md" "$PROJECT_NAME"
+  ensure_file_from_template "$SETUP_DIR/templates/hybrid/session-continuation.mdc.tmpl" "$PROJECT_DIR/.cursor/rules/session-continuation.mdc" "$PROJECT_NAME"
 fi
 
 # ─────────────────────────────────────────────────────────────────────────────

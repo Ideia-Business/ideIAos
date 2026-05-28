@@ -49,6 +49,12 @@ bash setup.sh /caminho/para/o/projeto
 bash setup.sh ~/Projects/meu-projeto
 ```
 
+Modo somente projeto (não instala/atualiza componentes globais):
+
+```bash
+bash setup.sh --project-only /caminho/para/o/projeto
+```
+
 ---
 
 ## Como usar no dia a dia
@@ -83,6 +89,22 @@ bash setup.sh
 ```
 
 O script detecta automaticamente se há diferença e atualiza só o que mudou.
+
+---
+
+## Padrão híbrido de continuidade (instalado pelo setup)
+
+Ao configurar um projeto, o script cria (apenas se não existirem):
+
+- `AGENTS.md`
+- `CLAUDE.md`
+- `STATE.md`
+- `docs/CONTINUATION_HANDOFF.md`
+- `.cursor/rules/session-continuation.mdc`
+
+Esse conjunto padroniza retomada entre Cursor/Claude/Lovable:
+- operacional no `main` (`STATE` + handoff),
+- estratégico no `planning` (quando o projeto usa `.planning/`).
 
 ---
 
