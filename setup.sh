@@ -363,6 +363,39 @@ fi
 echo "     Uso no Cursor: mencione @claude-continuation ou 'retoma o que estava no Claude'"
 
 # ─────────────────────────────────────────────────────────────────────────────
+step "3.5) Agente Cursor — setup-checker"
+# Espelho da skill /dev-setup do Claude Code. Audita + completa setup do projeto.
+
+SETUP_CHECKER="$CURSOR_AGENTS_DIR/setup-checker.md"
+SETUP_CHECKER_TEMPLATE="$SETUP_DIR/agents/setup-checker.md"
+
+if [ -f "$SETUP_CHECKER" ]; then
+  if diff -q "$SETUP_CHECKER_TEMPLATE" "$SETUP_CHECKER" &>/dev/null; then
+    ok "Agente Cursor setup-checker já está na versão mais recente"
+  else
+    cp "$SETUP_CHECKER_TEMPLATE" "$SETUP_CHECKER"
+    ok "Agente Cursor setup-checker atualizado"
+  fi
+else
+  cp "$SETUP_CHECKER_TEMPLATE" "$SETUP_CHECKER"
+  ok "Agente Cursor setup-checker instalado → $SETUP_CHECKER"
+fi
+
+echo "     Uso no Cursor: mencione @setup-checker em projeto novo"
+
+# ─────────────────────────────────────────────────────────────────────────────
+step "3.6) Alias 'idea-setup' no shell (opcional)"
+# Atalho terminal idempotente. Detecta zsh/bash; opt-in via prompt.
+
+if ! grep -qF "alias idea-setup=" "$HOME/.zshrc" 2>/dev/null && ! grep -qF "alias idea-setup=" "$HOME/.bashrc" 2>/dev/null; then
+  warn "Alias 'idea-setup' não está configurado. Para adicionar, rode:"
+  echo "       bash \"$SETUP_DIR/scripts/install-alias.sh\""
+  echo "       (idempotente — detecta shell automaticamente)"
+else
+  ok "Alias 'idea-setup' já configurado"
+fi
+
+# ─────────────────────────────────────────────────────────────────────────────
 step "4) Skill Claude Code — cursor-continuation"
 # Permite retomar no Claude Code o que estava sendo feito no Cursor
 
