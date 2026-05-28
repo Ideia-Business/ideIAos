@@ -58,7 +58,16 @@ E você não precisa decorar nem isso, porque **o sistema te avisa quando precis
 | **Skill Claude `/dev-setup`** | `~/.claude/skills/` | Audita + completa setup do projeto no Claude Code |
 | **Hook Claude `extract-learnings-reminder`** | `~/.claude/hooks/` | Após cada `git commit`, lembra de aplicar gate triplo de learning |
 | **Hook Claude `dev-setup-detector`** | `~/.claude/hooks/` | Detecta projeto sem Fase A no início da sessão e sugere `/dev-setup` |
+| **Hook Claude `dev-setup-readme-reminder.sh`** | `~/.claude/hooks/` | Após Edit/Write em `hooks/skills/agents/scripts/templates/` do dev-setup, lembra de atualizar o README |
 | **Alias `idea-setup`** | `~/.zshrc` ou `~/.bashrc` (via `install-alias.sh`) | Atalho terminal — `cd projeto && idea-setup` |
+
+### Manutenção do próprio dev-setup (rodados manualmente)
+
+| Script | O que faz |
+|--------|-----------|
+| `scripts/install-alias.sh` | Adiciona alias `idea-setup` ao seu shell rc (zsh/bash) |
+| `scripts/install-git-hooks.sh` | Instala pre-commit hook que BLOQUEIA commits sem README sincronizado |
+| `scripts/check-readme-sync.sh` | Audita se README menciona todos os componentes do repo |
 
 ### Componentes do projeto (instalados quando você roda em projeto específico)
 
