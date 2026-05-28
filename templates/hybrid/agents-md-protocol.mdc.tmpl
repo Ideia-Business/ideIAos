@@ -66,8 +66,37 @@ Se **3 sim** → criar `docs/learnings/YYYY-MM-DD-<slug-do-padrão>.md` usando `
 Se algum **não** → preencher bloco 7 como:
 
 ```
-📚 Sessão sem learning registrável (operacional / óbvio / efêmero).
+📚 Sessão sem learning registrável. Motivo: <qual gate falhou e por quê>.
 ```
+
+NUNCA marcar como "sem learning" sem aplicar o gate triplo explicitamente. Auto-invocação sob pressão falha — disciplina explícita > intenção implícita.
+
+## Padrões obrigatórios de debugging em produção
+
+### 1. "Bug persiste após fix" → check deploy ANTES de mexer no código
+
+Antes de propor MAIS código quando bug parece persistir:
+1. Confirmar timestamp do deploy vs commit (Lovable → Last updated; `git log -1 --format='%cI <hash>'`)
+2. Sintoma é fresh ou estado armazenado (data dos registros vs deploy)?
+3. Logs do edge exercitam o caminho do fix?
+4. Hash deployado == hash do main?
+5. Só depois: mexer no código.
+
+Em 80%+ dos casos é deploy drift, não código errado.
+
+### 2. Schema-first verification antes de UPDATE/INSERT em produção
+
+Antes de SQL `UPDATE/INSERT` ou edge code que escreve em tabela:
+1. Validar via `SELECT id, <colunas_que_vou_escrever> FROM <tabela> LIMIT 1` — se der `column does not exist`, UPDATE também daria
+2. Em código TS: usar `Database['public']['Tables']['X']['Update']` ao invés de `as any`
+3. Não confiar em types desatualizados / intuição semântica
+
+### 3. Hotfixes inline em sistemas externos → sync explícito pro repo
+
+Quando Lovable/IA externa corrigir bug no edge deployado sem passar pelo Git:
+1. `git fetch origin main && git log HEAD..origin/main` — sync automático rodou?
+2. Se não: pedir trecho exato, aplicar no repo, audit grep, commit com referência
+3. NÃO fechar incidente sem confirmar que está no main — senão o bug volta no próximo redeploy
 
 ## Arquivos protegidos (se este projeto é Lovable)
 

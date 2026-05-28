@@ -61,6 +61,49 @@ Saída: bloco compacto "🧠 Contexto carregado" com 3-5 bullets do que é relev
 
 Se a sessão gerou aprendizado **replicável, não-óbvio e estável**, criar `docs/learnings/YYYY-MM-DD-<slug>.md` seguindo `docs/learnings/_TEMPLATE.md`. Se `applies_to_projects: [global]`, promover para memória Claude global.
 
+> **Enforcement (Claude Code):** hook PostToolUse em `~/.claude/hooks/extract-learnings-reminder.sh` injeta gate triplo após cada `git commit` em projeto com este arquivo. Sem ele, auto-invocação falha sob pressão (memória `feedback_extract_learning_under_pressure`).
+
+## Padrões obrigatórios de debugging em produção
+
+Estes 3 padrões emergiram de incidentes recorrentes em produção e devem ser aplicados antes de qualquer mexida adicional no código:
+
+### 1. "Bug persiste após fix" → check deploy ANTES de mexer no código
+
+Quando bug que parece já corrigido (commit no `main`, fix aparente) continua aparecendo em produção, antes de propor MAIS código:
+
+1. **Confirmar timestamp do deploy** vs timestamp do commit (`git log -1 --format='%cI <hash>'`). Lovable Cloud → Edge Functions → Last updated.
+2. **Confirmar que sintoma é fresh**, não estado armazenado (data dos registros vs deploy).
+3. **Validar via logs do edge** se o caminho do fix está sendo exercitado.
+4. **Comparar código deployado vs main** (hash check).
+5. **Última hipótese**: mexer no código.
+
+Em 80%+ desses casos é **deploy drift**, não código errado. Espiral de "mais código pra resolver o que já está resolvido" é o anti-padrão.
+
+### 2. Schema-first verification antes de UPDATE/INSERT em produção
+
+Antes de qualquer SQL `UPDATE/INSERT` em produção (cleanup, fix-up manual, migration ad-hoc):
+
+1. **Validar schema real** via `SELECT` correspondente:
+   ```sql
+   SELECT id, <colunas_que_vou_escrever> FROM <tabela> WHERE <condição> LIMIT 1;
+   ```
+   Se der `column does not exist`, o UPDATE também daria.
+2. **Em código de edge function**: usar `Database['public']['Tables']['X']['Update']` explícito ao invés de `as any` — o TS pega antes do runtime.
+3. **Não confiar em types desatualizados** ou intuição semântica ("coluna `cancelled_at` deveria existir"). Schema real > inferência.
+
+### 3. Hotfixes inline em sistemas externos → sync explícito pro repo
+
+Quando outro sistema (Lovable chat, painel cloud, IA externa) corrigir bug no código deployado **sem passar pelo Git**:
+
+1. **Confirmar via** `git fetch origin main && git log HEAD..origin/main` — sync automático rodou?
+2. **Se não**: pedir o trecho exato (linha + contexto) ao operador externo.
+3. **Aplicar no repo manualmente**, auditar padrões similares (grep), commit com referência à origem do hotfix.
+4. **Não fechar incidente** sem confirmar que está no `main`.
+
+Sem essa disciplina, o débito técnico se acumula invisível: o próximo redeploy a partir do `main` re-introduz o bug.
+
+> Esses 3 padrões têm versão expandida em [[learning-bug-persists-check-deploy-first]], [[learning-schema-first-verification]], [[learning-inline-hotfixes-need-sync]] na memória Claude global, e cópias em `docs/learnings/` do repo.
+
 ## Modelo de resposta de conclusão de implantação
 
 Toda implantação não-trivial encerra com a resposta no formato canônico definido em:

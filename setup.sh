@@ -411,6 +411,56 @@ fi
 echo "     Uso no Claude Code: /lovable-handoff (em projeto Lovable)"
 
 # ─────────────────────────────────────────────────────────────────────────────
+step "5.5) Hook Claude Code — extract-learnings-reminder"
+# Barreira ativa: injeta gate triplo após cada git commit em projeto Fase A.
+# Específico do Claude Code (Cursor/Codex/Gemini têm enforcement via rules+AGENTS.md).
+
+HOOK_DIR="$HOME/.claude/hooks"
+HOOK_FILE="$HOOK_DIR/extract-learnings-reminder.sh"
+HOOK_TEMPLATE="$SETUP_DIR/hooks/extract-learnings-reminder.sh"
+
+mkdir -p "$HOOK_DIR"
+
+if [ -f "$HOOK_FILE" ]; then
+  if diff -q "$HOOK_TEMPLATE" "$HOOK_FILE" &>/dev/null; then
+    ok "Hook extract-learnings-reminder já está na versão mais recente"
+  else
+    cp "$HOOK_TEMPLATE" "$HOOK_FILE"
+    chmod +x "$HOOK_FILE"
+    ok "Hook extract-learnings-reminder atualizado"
+  fi
+else
+  cp "$HOOK_TEMPLATE" "$HOOK_FILE"
+  chmod +x "$HOOK_FILE"
+  ok "Hook extract-learnings-reminder instalado → $HOOK_FILE"
+fi
+
+# Verificar se está registrado em ~/.claude/settings.json
+SETTINGS_FILE="$HOME/.claude/settings.json"
+if [ -f "$SETTINGS_FILE" ] && grep -q "extract-learnings-reminder.sh" "$SETTINGS_FILE" 2>/dev/null; then
+  ok "Hook registrado em ~/.claude/settings.json"
+else
+  warn "Hook NÃO está registrado em ~/.claude/settings.json — adicione manualmente:"
+  cat <<'SNIPPET'
+       Adicione esta entrada em hooks.PostToolUse do ~/.claude/settings.json:
+
+       {
+         "matcher": "Bash",
+         "hooks": [
+           {
+             "type": "command",
+             "command": "bash \"/Users/<você>/.claude/hooks/extract-learnings-reminder.sh\"",
+             "timeout": 5
+           }
+         ]
+       }
+SNIPPET
+fi
+
+echo "     Comportamento: após cada 'git commit' em projeto com AGENTS.md Fase A,"
+echo "     injeta gate triplo no contexto da IA (lembra criar learning se replicável)."
+
+# ─────────────────────────────────────────────────────────────────────────────
 step "6) Skills Claude Code — recall-learnings + extract-learnings"
 # Loop de aprendizado contínuo (universal — qualquer projeto)
 
