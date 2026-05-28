@@ -74,6 +74,7 @@ E você não precisa decorar nem isso, porque **o sistema te avisa quando precis
 | Componente | Arquivo |
 |------------|---------|
 | `AGENTS.md` com seção Lovable + Fase A | Raiz do projeto (idempotente — atualizável) |
+| `CONTRIBUTING.md` (via `CONTRIBUTING.md.tmpl`) | Guia de contribuição para devs novos (setup, comandos por IA, workflow, padrões de debug, troubleshooting) |
 | `.cursor/rules/agents-md-protocol.mdc` | Rule sempre-ativa para Cursor |
 | `.cursor/rules/session-continuation.mdc` | Rule de retomada |
 | `.cursor/rules/planning-branch.mdc` | Rule de branch planning isolada |

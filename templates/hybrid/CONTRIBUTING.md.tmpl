@@ -1,0 +1,168 @@
+# Contribuindo com __PROJECT_NAME__
+
+Este projeto usa o **Ideia Business dev-setup** para padronizar o ambiente de IA (Claude Code, Cursor, terminal) com loop de aprendizado, padrões de debugging em produção e enforcement automático.
+
+Se você acabou de clonar, **antes de qualquer mudança**, garanta que o setup está completo.
+
+---
+
+## 🚀 Setup do ambiente (uma vez por máquina)
+
+### Pré-requisitos
+- Node.js 18+, Git
+- Claude Code CLI ([claude.ai/code](https://claude.ai/code)) e/ou Cursor IDE ([cursor.sh](https://cursor.sh))
+
+### Instalação
+
+```bash
+# 1. Clone o dev-setup (uma vez, fora deste projeto)
+git clone git@github.com:Ideia-Business/dev-setup.git ~/Projects/dev-setup
+
+# 2. Instale globalmente (uma vez)
+cd ~/Projects/dev-setup
+bash setup.sh
+
+# 3. (Opcional) adicione alias de terminal
+bash scripts/install-alias.sh
+source ~/.zshrc  # ou ~/.bashrc
+```
+
+### Configurar este projeto
+
+Já está configurado se você clonou e os arquivos do dev-setup estão presentes (veja [Verificar](#-verificar-se-est%C3%A1-tudo-ok)). Caso precise rodar de novo:
+
+```bash
+cd /caminho/para/__PROJECT_NAME__
+bash ~/Projects/dev-setup/setup.sh --project-only --lovable .
+```
+
+(O `setup.sh` é **idempotente** — roda 1x ou 100x, dá o mesmo resultado.)
+
+---
+
+## 📖 Como usar no dia a dia
+
+| Onde | Comando | Faz |
+|------|---------|-----|
+| **Claude Code** (chat) | `/dev-setup` | Audita + completa setup deste projeto |
+| **Claude Code** (chat) | `/lovable-handoff` | Playbook de implantação (typecheck → commit → push → handoff) |
+| **Claude Code** (chat) | `/recall-learnings` | Carrega contexto de aprendizados antes de planejar |
+| **Cursor** (chat) | `@setup-checker` | Audita + completa setup (espelho do `/dev-setup`) |
+| **Terminal** | `idea-setup` (se alias configurado) | Atalho do `setup.sh --lovable .` |
+
+**Se você esquecer:** o sistema te avisa. Hooks automáticos do Claude Code disparam quando detectarem que o setup está incompleto.
+
+---
+
+## ✅ Verificar se está tudo OK
+
+```bash
+# No Claude Code
+/dev-setup
+
+# No Cursor
+@setup-checker
+
+# No terminal
+ls AGENTS.md docs/playbook-implantacao.md docs/lovable/conclusao-implantacao.md docs/learnings/_TEMPLATE.md .cursor/rules/agents-md-protocol.mdc
+# (todos devem existir)
+```
+
+---
+
+## 🧠 Loop de aprendizado contínuo (Fase A)
+
+Toda implantação não-trivial passa por 3 momentos:
+
+1. **Antes do plano:** `/recall-learnings` lê AGENTS.md + 5 learnings mais recentes + postmortems relevantes
+2. **Durante a sessão:** marcar mentalmente candidatos a aprendizado
+3. **Ao concluir:** `/extract-learnings` aplica gate triplo (replicável + não-óbvio + estável) e cria `docs/learnings/YYYY-MM-DD-<slug>.md` se passar
+
+**Enforcement Claude Code:** hook PostToolUse injeta lembrete do gate triplo após cada `git commit`. Sem isso, sob pressão a IA atalha o passo.
+
+**Enforcement Cursor:** rule `.cursor/rules/agents-md-protocol.mdc` carrega em todo turno.
+
+---
+
+## 🌊 Camada Lovable (deploy via Lovable Cloud)
+
+Este projeto tem seu deploy final na **Lovable Cloud** — `main` é sincronizada automaticamente, e build/deploy acontecem lá.
+
+**Implicações inegociáveis** (também documentadas em `AGENTS.md`):
+
+- Migrations DDL → Lovable Cloud (SQL Editor)
+- Edge Functions → deploy via Lovable
+- Secrets/env → painel Lovable Cloud (não editar `.env` de produção)
+
+**Arquivos protegidos (não editar localmente):**
+
+- `src/integrations/supabase/client.ts`
+- `src/integrations/supabase/types.ts`
+- `.env`
+- `supabase/config.toml`
+
+**Playbook completo:** `docs/playbook-implantacao.md`
+**Modelo de resposta de conclusão:** `docs/lovable/conclusao-implantacao.md`
+
+---
+
+## 🛠️ Padrões obrigatórios de debugging em produção
+
+Estes 3 padrões emergiram de incidentes recorrentes. Aplicar antes de mexer no código:
+
+1. **"Bug persiste após fix" → check deploy ANTES de mexer no código** — 80%+ é deploy drift, não código errado
+2. **Schema-first verification** — antes de UPDATE/INSERT em produção, validar schema real via SELECT
+3. **Hotfixes inline (Lovable/IA externa) → sync explícito pro repo** — sem isso, bug volta no próximo redeploy
+
+Detalhes em `docs/learnings/` deste projeto (versão expandida) ou na memória Claude global.
+
+---
+
+## 🤝 Workflow de mudança
+
+1. `git pull origin main` antes de começar
+2. Branch local: `git checkout -b feat/sua-feature` (opcional para fixes pequenos diretos em main)
+3. Mude código + testes
+4. `npx tsc --noEmit` (typecheck)
+5. `git add` + `git commit -m "tipo(area): descrição"` (conventional commits)
+6. Hook Claude vai disparar gate triplo de learning — aplique
+7. `git push origin <branch>`
+8. (Se houve DDL/edge/secret) criar handoff em `docs/lovable/`
+9. Se foi bug recorrente: postmortem em `docs/postmortems/`
+10. Resposta final no formato canônico de 8 blocos (ver `docs/lovable/conclusao-implantacao.md`)
+
+---
+
+## ❓ Dúvidas / problemas comuns
+
+**"Hooks do Claude Code não disparam"**
+→ Confira se estão registrados em `~/.claude/settings.json` (snippet no README do dev-setup).
+
+**"Cursor não sugere setup automaticamente"**
+→ Confira se `.cursor/rules/agents-md-protocol.mdc` está presente neste projeto.
+
+**"Setup já rodou mas não tenho certeza"**
+→ Roda de novo. É idempotente — não estraga nada.
+
+**"Sou novo na equipe, por onde começo?"**
+1. Clone este projeto
+2. Clone o dev-setup (acima)
+3. Roda `bash setup.sh` no dev-setup uma vez
+4. Volta neste projeto e abre Claude Code OU Cursor
+5. O sistema te avisa o que falta. Segue as instruções.
+
+---
+
+## 📚 Referências
+
+- **dev-setup** (este ecossistema): https://github.com/Ideia-Business/dev-setup
+- **AGENTS.md** deste projeto: regras invioláveis, stack, deploy
+- **docs/playbook-implantacao.md**: fluxo obrigatório de implantação
+- **docs/lovable/conclusao-implantacao.md**: modelo canônico de resposta
+- **docs/learnings/**: aprendizados acumulados (lidos automaticamente no início de toda sessão IA)
+- **docs/postmortems/**: histórias de incidentes anteriores
+
+---
+
+*Última atualização deste documento: __DATE__*
+*Mantido sincronizado com [dev-setup](https://github.com/Ideia-Business/dev-setup) — se algum comando aqui diverge do que o setup.sh faz, o dev-setup é a fonte da verdade.*
