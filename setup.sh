@@ -23,6 +23,7 @@ SETUP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$PWD"
 PROJECT_ONLY=0
 WITH_AIOX_PROJECT=0
+LOVABLE_MODE="auto"  # auto | force | skip
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -32,6 +33,14 @@ while [[ $# -gt 0 ]]; do
       ;;
     --with-aiox-core-project)
       WITH_AIOX_PROJECT=1
+      shift
+      ;;
+    --lovable)
+      LOVABLE_MODE="force"
+      shift
+      ;;
+    --no-lovable)
+      LOVABLE_MODE="skip"
       shift
       ;;
     *)
@@ -55,6 +64,122 @@ err()  { echo -e "${RED}  ✗${NC} $*"; }
 step() { echo -e "\n${CYAN}${BOLD}==> $*${NC}"; }
 
 encoded_path() { echo "$1" | sed 's|/|-|g' | sed 's|^-||'; }
+
+# ── Detector Lovable ──────────────────────────────────────────────────────────
+# Procura sinais determinísticos no projeto: lovable.config.*, .lovable/, ou
+# marker explícito no AGENTS.md. NUNCA assume — falha aberta exige confirmação.
+detect_lovable_project() {
+  local dir="$1"
+  if compgen -G "$dir/lovable.config.*" > /dev/null 2>&1; then
+    echo "marker:lovable.config"
+    return 0
+  fi
+  if [ -d "$dir/.lovable" ]; then
+    echo "marker:.lovable/"
+    return 0
+  fi
+  if [ -f "$dir/AGENTS.md" ] && grep -q "lovable-deploy-section" "$dir/AGENTS.md" 2>/dev/null; then
+    echo "marker:AGENTS.md"
+    return 0
+  fi
+  if [ -f "$dir/AGENTS.md" ] && grep -qi "Deploy:\s*Lovable\s*Cloud" "$dir/AGENTS.md" 2>/dev/null; then
+    echo "marker:AGENTS.md (declaração textual)"
+    return 0
+  fi
+  return 1
+}
+
+# Anexa fragmento Lovable ao AGENTS.md (idempotente via marcadores BEGIN/END).
+append_lovable_to_agents_md() {
+  local agents_md="$1"
+  local fragment="$2"
+
+  if [ ! -f "$agents_md" ]; then
+    cat "$fragment" > "$agents_md"
+    ok "AGENTS.md criado com seção Lovable"
+    return 0
+  fi
+
+  if grep -q "BEGIN: lovable-deploy-section" "$agents_md" 2>/dev/null; then
+    ok "AGENTS.md já tem seção Lovable"
+    return 0
+  fi
+
+  printf "\n" >> "$agents_md"
+  cat "$fragment" >> "$agents_md"
+  ok "AGENTS.md atualizado com seção Lovable (anexada)"
+}
+
+# Setup completo Lovable num projeto.
+setup_lovable_project() {
+  local project_dir="$1"
+  local project_name="$2"
+  local today
+  today="$(date +%Y-%m-%d)"
+
+  step "6) Camada Lovable (deploy via Lovable Cloud)"
+
+  # Confirmação humana se modo == auto e nenhum marker
+  if [ "$LOVABLE_MODE" = "auto" ]; then
+    local detected
+    if detected="$(detect_lovable_project "$project_dir")"; then
+      ok "Projeto Lovable detectado ($detected)"
+    else
+      warn "Nenhum marker Lovable encontrado em $project_dir"
+      warn "Pulando setup Lovable. Para forçar: bash setup.sh --lovable \"$project_dir\""
+      return 0
+    fi
+  elif [ "$LOVABLE_MODE" = "skip" ]; then
+    warn "Modo --no-lovable: pulando setup Lovable"
+    return 0
+  else
+    ok "Modo --lovable forçado"
+  fi
+
+  # 1. Anexa fragmento ao AGENTS.md
+  append_lovable_to_agents_md \
+    "$project_dir/AGENTS.md" \
+    "$SETUP_DIR/templates/lovable/AGENTS.lovable.md.tmpl"
+
+  # 2. Playbook em docs/
+  if [ ! -f "$project_dir/docs/playbook-implantacao.md" ]; then
+    mkdir -p "$project_dir/docs"
+    sed -e "s|__PROJECT_NAME__|$project_name|g" -e "s|__DATE__|$today|g" \
+      "$SETUP_DIR/templates/lovable/playbook-implantacao.md.tmpl" \
+      > "$project_dir/docs/playbook-implantacao.md"
+    ok "docs/playbook-implantacao.md criado"
+  else
+    ok "docs/playbook-implantacao.md já existe"
+  fi
+
+  # 3. Template de handoff em docs/lovable/
+  if [ ! -f "$project_dir/docs/lovable/_TEMPLATE.md" ]; then
+    mkdir -p "$project_dir/docs/lovable"
+    sed -e "s|__PROJECT_NAME__|$project_name|g" -e "s|__DATE__|$today|g" \
+      "$SETUP_DIR/templates/lovable/_TEMPLATE.md.tmpl" \
+      > "$project_dir/docs/lovable/_TEMPLATE.md"
+    ok "docs/lovable/_TEMPLATE.md criado"
+  else
+    ok "docs/lovable/_TEMPLATE.md já existe"
+  fi
+
+  # 4. Estrutura mínima de postmortems
+  if [ ! -d "$project_dir/docs/postmortems" ]; then
+    mkdir -p "$project_dir/docs/postmortems"
+    touch "$project_dir/docs/postmortems/.gitkeep"
+    ok "docs/postmortems/ criado"
+  fi
+
+  # 5. Marker explícito em .aiox-ai-config.yaml
+  local config="$project_dir/.aiox-ai-config.yaml"
+  if [ -f "$config" ] && ! grep -q "^deploy:" "$config" 2>/dev/null; then
+    {
+      printf "\n# Lovable Cloud (managed by dev-setup)\n"
+      printf "deploy:\n  platform: lovable-cloud\n  sync: github-main\n  configured_at: %s\n" "$today"
+    } >> "$config"
+    ok ".aiox-ai-config.yaml marcado como Lovable Cloud"
+  fi
+}
 
 ensure_file_from_template() {
   local template_path="$1"
@@ -161,8 +286,33 @@ else
 fi
 
 echo "     Uso no Claude Code: /cursor-continuation"
+
+# ─────────────────────────────────────────────────────────────────────────────
+step "5) Skill Claude Code — lovable-handoff"
+# Executa playbook de implantação Lovable (typecheck → commit → push → handoff)
+
+LOVABLE_SKILL_DIR="$HOME/.claude/skills/lovable-handoff"
+LOVABLE_SKILL="$LOVABLE_SKILL_DIR/SKILL.md"
+LOVABLE_TEMPLATE="$SETUP_DIR/skills/lovable-handoff/SKILL.md"
+
+mkdir -p "$LOVABLE_SKILL_DIR"
+
+if [ -f "$LOVABLE_SKILL" ]; then
+  if diff -q "$LOVABLE_TEMPLATE" "$LOVABLE_SKILL" &>/dev/null; then
+    ok "Skill lovable-handoff já está na versão mais recente"
+  else
+    cp "$LOVABLE_TEMPLATE" "$LOVABLE_SKILL"
+    ok "Skill lovable-handoff atualizada"
+  fi
 else
-  step "2-4) Setup global"
+  cp "$LOVABLE_TEMPLATE" "$LOVABLE_SKILL"
+  ok "Skill lovable-handoff instalada → $LOVABLE_SKILL"
+fi
+
+echo "     Uso no Claude Code: /lovable-handoff (em projeto Lovable)"
+
+else
+  step "2-5) Setup global"
   warn "Modo --project-only ativo: pulando AIOX Core + instalação global de agentes/skills"
 fi
 
@@ -251,6 +401,9 @@ MEMMD
   ensure_file_from_template "$SETUP_DIR/templates/hybrid/STATE.md.tmpl" "$PROJECT_DIR/STATE.md" "$PROJECT_NAME"
   ensure_file_from_template "$SETUP_DIR/templates/hybrid/CONTINUATION_HANDOFF.md.tmpl" "$PROJECT_DIR/docs/CONTINUATION_HANDOFF.md" "$PROJECT_NAME"
   ensure_file_from_template "$SETUP_DIR/templates/hybrid/session-continuation.mdc.tmpl" "$PROJECT_DIR/.cursor/rules/session-continuation.mdc" "$PROJECT_NAME"
+
+  # Camada Lovable (detector + flags --lovable / --no-lovable)
+  setup_lovable_project "$PROJECT_DIR" "$PROJECT_NAME"
 fi
 
 # ─────────────────────────────────────────────────────────────────────────────

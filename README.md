@@ -9,8 +9,10 @@ Configura o ambiente de IA para qualquer projeto da equipe em um único comando.
 | **AIOX Core** | Orquestrador de agentes IA — base de tudo (https://github.com/SynkraAI/aiox-core) |
 | **Agente Cursor** (`claude-continuation`) | No Cursor: retoma automaticamente o que você estava fazendo no Claude Code |
 | **Skill Claude Code** (`cursor-continuation`) | No Claude Code: retoma automaticamente o que você estava fazendo no Cursor |
+| **Skill Claude Code** (`lovable-handoff`) | No Claude Code: executa playbook de implantação em projetos Lovable Cloud (typecheck → commit → push → handoff → postmortem) com gate de segurança |
+| **Templates Lovable** | Em projetos Lovable: instala `AGENTS.md` (seção deploy), `docs/playbook-implantacao.md`, `docs/lovable/_TEMPLATE.md` e `docs/postmortems/` |
 
-Os dois agentes formam um par que mantém o contexto entre as duas ferramentas, sem precisar re-explicar o trabalho a cada sessão.
+Os dois agentes formam um par que mantém o contexto entre as duas ferramentas, sem precisar re-explicar o trabalho a cada sessão. A skill `lovable-handoff` adiciona um terceiro pilar: padroniza o fechamento de implantação em projetos da Lovable Cloud, evitando esquecer typecheck/commit/push/handoff.
 
 ---
 
@@ -60,6 +62,21 @@ Inicializar também o **AIOX Core local** do projeto (`.aiox-core`) no mesmo com
 ```bash
 bash setup.sh --with-aiox-core-project /caminho/para/o/projeto
 ```
+
+### Projeto Lovable Cloud
+
+Para projetos cujo **deploy final acontece na Lovable Cloud**, adicione `--lovable` para instalar a camada de implantação (AGENTS.md com seção deploy, playbook, template de handoff, `docs/postmortems/`):
+
+```bash
+bash setup.sh --lovable /caminho/para/o/projeto
+
+# Ou para projeto já configurado (idempotente):
+bash setup.sh --project-only --lovable /caminho/para/o/projeto
+```
+
+Sem a flag, o setup **detecta automaticamente** se o projeto é Lovable (procura `lovable.config.*`, `.lovable/`, ou marker no `AGENTS.md`). Se detectar, aplica. Se não detectar, pula silenciosamente — você pode forçar com `--lovable` ou desabilitar com `--no-lovable`.
+
+> **Por que existe esse gate?** Aplicar o playbook Lovable em projeto não-Lovable cria handoffs/instruções erradas. O detector + flag explícita evita esse erro.
 
 ---
 

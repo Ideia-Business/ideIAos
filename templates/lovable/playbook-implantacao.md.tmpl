@@ -1,0 +1,100 @@
+# Playbook de implantação — __PROJECT_NAME__ (Lovable)
+
+> Este projeto é gerenciado pela **Lovable Cloud**. Todo deploy final acontece lá.
+> Cursor/Claude/qualquer IA editora opera em código fonte e cria artefatos —
+> mas **não aplica DDL nem deploya edge functions**.
+
+## Fluxo obrigatório (toda implantação significativa)
+
+```
+implementação → typecheck → commit → push → handoff Lovable (se houver DDL/edges/secrets) → postmortem (se recorrente)
+```
+
+### 1. Implementação
+
+- Edite código em branch (`feat/...`, `fix/...`).
+- Para mudanças de schema: criar arquivo em `supabase/migrations/` com nome `YYYYMMDDHHMMSS_<slug>.sql`.
+- Para edges: criar/editar em `supabase/functions/<nome>/index.ts`. Não rode `supabase functions deploy`.
+
+### 2. Typecheck
+
+```bash
+npx tsc --noEmit
+```
+
+(Ou comando equivalente: `bun run typecheck`, `pnpm typecheck`, etc.) **Bloqueia o commit se falhar.**
+
+### 3. Commit
+
+- Mensagem em conventional commits: `fix(area): descrição curta`.
+- Corpo do commit explica **causa raiz** se for bug fix.
+- Co-author quando aplicável (Cursor/Claude/etc.).
+
+### 4. Push
+
+```bash
+git push origin <branch>
+```
+
+**Imediatamente após o commit, sem esperar pergunta do usuário.**
+
+### 5. Handoff Lovable (condicional)
+
+**Quando criar:** se a implantação envolve **qualquer** de:
+- Migration nova em `supabase/migrations/`
+- Edge function nova ou modificada
+- Mudança de secret/env var
+- Mudança que requer reapply em produção
+
+**Como criar:** copiar `docs/lovable/_TEMPLATE.md` para `docs/lovable/<SLUG>_LOVABLE_HANDOFF.md` e preencher:
+- Migrations a aplicar (ordem)
+- Edges a redeployar
+- Secrets a configurar
+- Queries SQL de verificação (`pg_policies`, `pg_proc`, etc.)
+- Procedimento de UAT
+
+### 6. Postmortem (condicional)
+
+**Quando criar:** se o bug:
+- Já foi reportado/corrigido antes (recorrência)
+- Tem causa raiz não-óbvia
+- Envolveu múltiplas tentativas de fix
+
+**Onde:** `docs/postmortems/<INC-NN>-<slug>.md`. Estrutura:
+- Sintoma
+- Causa raiz (com evidência: linhas de código, queries, logs)
+- Correção (commits, migrations, arquivos)
+- UAT
+- Lições aprendidas (regras para o futuro)
+
+### 7. Comunicação final ao usuário
+
+Sempre encerrar uma implantação informando explicitamente:
+
+- ✅ Typecheck passou (ou falhou — bloqueia)
+- ✅ Commit `<hash>` em `<branch>`
+- ✅ Push em `origin/<branch>` (Lovable pode puxar)
+- ⚠️ **Lovable precisa fazer X?** (puxar main? aplicar migration? redeployar edge? configurar secret?)
+  - Se **não**: dizer "Lovable puxará automaticamente, sem ação manual necessária".
+  - Se **sim**: linkar o handoff e listar ações.
+
+## Arquivos protegidos
+
+Estes arquivos são gerenciados pela Lovable. **Não editar localmente** sob nenhuma circunstância:
+
+- `src/integrations/supabase/client.ts`
+- `src/integrations/supabase/types.ts`
+- `.env`
+- `supabase/config.toml`
+
+## Coordenação com Lovable
+
+- Não editar o mesmo arquivo simultaneamente com Lovable aberto.
+- Sempre `git pull origin main` antes de começar — Lovable pode ter sincronizado código.
+- Migrations criadas localmente: avisar Lovable para aplicar (handoff faz isso).
+
+## Exceções
+
+- Se o usuário **explicitamente** pedir para pular typecheck/commit/push, respeitar.
+- Para fixes triviais de doc-only sem código, handoff/postmortem opcionais.
+- Para experimentos descartáveis em branch isolada, fluxo simplificado é OK.

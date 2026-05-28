@@ -1,0 +1,43 @@
+<!-- BEGIN: lovable-deploy-section (managed by dev-setup) -->
+## Deploy & Stack
+
+**Deploy:** Lovable Cloud — sync via GitHub `main` → Lovable build → produção.
+
+**Implicações inegociáveis:**
+
+| Camada | Onde rodar | NUNCA fazer localmente |
+|--------|-----------|------------------------|
+| Migrations DDL | Lovable Cloud (SQL Editor / Plano) | `supabase db push`, `supabase migration up` |
+| Edge Functions | Lovable Cloud (deploy via chat) | `supabase functions deploy` |
+| Secrets (env) | Lovable Cloud (painel) | editar `.env` em produção |
+| Frontend | Lovable build (após push em `main`) | publish manual |
+
+**Arquivos protegidos (não editar):**
+
+- `src/integrations/supabase/client.ts`
+- `src/integrations/supabase/types.ts`
+- `.env` (gerenciado pela Lovable Cloud)
+- `supabase/config.toml`
+
+## Playbook de implantação (obrigatório)
+
+Ao concluir qualquer implantação significativa, executar **em sequência, sem esperar ser perguntado**:
+
+1. **Typecheck** — `npx tsc --noEmit` (ou equivalente do projeto) → bloqueia se falhar.
+2. **Commit** — mensagem descritiva, causa raiz no corpo se for fix.
+3. **Push** — `git push origin <branch>` imediatamente.
+4. **Handoff Lovable** (se houve DDL, edge function nova, ou mudança de secret):
+   - Criar `docs/lovable/<INCIDENTE_OU_FEATURE>_LOVABLE_HANDOFF.md` a partir de `docs/lovable/_TEMPLATE.md`.
+   - Listar migrations a aplicar, edges a redeploy, queries SQL de verificação.
+5. **Postmortem** (se bug recorrente ou não óbvio): `docs/postmortems/<INC-NN>-<slug>.md` com causa raiz + correção + UAT.
+6. **Alertar Lovable na conversa final:** sempre informar explicitamente se a Lovable precisa puxar `main` ou aplicar migration manualmente.
+
+Detalhes completos: [`docs/playbook-implantacao.md`](docs/playbook-implantacao.md).
+
+## Coordenação multi-IA
+
+- Schema/migrations/edges → fonte da verdade = Lovable. Cursor/Claude criam migration files em `supabase/migrations/`, mas a aplicação no Cloud é feita pela Lovable.
+- UI/lib refactors locais → branch + PR.
+- Nunca editar o mesmo arquivo simultaneamente com Lovable aberto na mesma área.
+
+<!-- END: lovable-deploy-section (managed by dev-setup) -->
