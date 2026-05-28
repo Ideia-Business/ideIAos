@@ -1,0 +1,84 @@
+---
+description: 'Protocolo IA (__PROJECT_NAME__) — loop de aprendizado + modelo de resposta de conclusão'
+alwaysApply: true
+---
+
+# Protocolo de IA para __PROJECT_NAME__
+
+Esta rule é carregada automaticamente em toda conversa do Cursor neste repo. Não duplica o `AGENTS.md` — aponta o que ler e quando.
+
+## Antes de propor qualquer plano (implementação / correção / investigação)
+
+Ler **na ordem**:
+
+1. `AGENTS.md` — identidade, regras invioláveis, declaração de stack/deploy.
+2. `STATE.md` + `docs/CONTINUATION_HANDOFF.md` — estado operacional.
+3. **5 arquivos mais recentes em `docs/learnings/`** — padrões aprendidos.
+4. Postmortems relevantes ao pedido em `docs/postmortems/` — histórias passadas.
+5. Se o pedido cita arquivo de migration, edge function ou secret: ler `docs/playbook-implantacao.md` (existe se este é projeto Lovable).
+
+Após ler, apresentar um bloco compacto **"🧠 Contexto carregado"** com 3-5 bullets do que é relevante. Não despejar tudo no chat.
+
+## Durante a sessão
+
+Marcar mentalmente candidatos a aprendizado (causas raiz surpreendentes, gotchas, decisões arquiteturais). Não interromper o trabalho para escrever.
+
+## Ao concluir uma implantação não-trivial
+
+### 1. Fluxo obrigatório (se o projeto tem `docs/playbook-implantacao.md`)
+
+`typecheck → commit → push origin <branch>` — nesta ordem, **sem esperar pergunta**.
+
+Se houve mudança em `supabase/migrations/`, `supabase/functions/` ou secrets: criar handoff em `docs/lovable/<SLUG>_LOVABLE_HANDOFF.md` baseado em `docs/lovable/_TEMPLATE.md`.
+
+Se bug recorrente ou causa raiz não-óbvia: criar postmortem em `docs/postmortems/`.
+
+### 2. Resposta no formato canônico
+
+Se existe `docs/lovable/conclusao-implantacao.md`, seguir os **8 blocos**:
+
+1. Cabeçalho — `# ✅ <INC|FEATURE> — <título>` + commit/branch/tipo
+2. Entendimento do problema — sintoma + evidência (sintetizar, não copiar pedido)
+3. Causa raiz — com `arquivo:linha`, separar `Gap A / Gap B` se cumulativos
+4. Correção aplicada — tabela `arquivo | mudança | porquê`
+5. Verificação executada — checklist literal (typecheck/testes/commit/push/handoff/postmortem)
+6. **Ação necessária ⚠️** — OBRIGATÓRIO mesmo quando resposta é "nenhuma"; sempre explicitar SIM/NÃO se Lovable/humano precisa agir
+7. Aprendizado registrado (condicional, ver passo 3 abaixo)
+8. Próximo passo sugerido (opcional, 1 frase)
+
+Tamanho-alvo: 30-60 linhas. Tom: direto, sem narrativa, sem bloco "Resumo" redundante.
+
+### 3. Extrair aprendizado (gate triplo)
+
+Após o bloco 6, perguntar mentalmente:
+
+- **Replicável?** outro agente ganharia tempo lendo isso?
+- **Não-óbvio?** a regra seria adivinhada lendo só o código?
+- **Estável?** sobreviverá às próximas 5 mudanças?
+
+Se **3 sim** → criar `docs/learnings/YYYY-MM-DD-<slug-do-padrão>.md` usando `docs/learnings/_TEMPLATE.md`. Preencher bloco 7 da resposta:
+
+```
+📚 Learning registrado: `docs/learnings/YYYY-MM-DD-<slug>.md` — <título>
+   Tags: [tag1, tag2]  ·  Aplica-se a: [__PROJECT_NAME__ | global]
+```
+
+Se algum **não** → preencher bloco 7 como:
+
+```
+📚 Sessão sem learning registrável (operacional / óbvio / efêmero).
+```
+
+## Arquivos protegidos (se este projeto é Lovable)
+
+Verificar em `AGENTS.md` (seção `lovable-deploy-section`). Tipicamente:
+`src/integrations/supabase/{client,types}.ts`, `.env`, `supabase/config.toml`.
+**Nunca** editar localmente. Migrations DDL e edges deployam via Lovable Cloud, não localmente.
+
+## Anti-padrões
+
+- ❌ Começar a editar código sem ler learnings/postmortems relevantes
+- ❌ Esquecer o bloco 6 (Ação necessária) no fim da resposta
+- ❌ Criar learning para todo bug — usar gate triplo
+- ❌ Bloco "Resumo final" duplicando blocos 1-5
+- ❌ Esperar usuário perguntar "commitou?" / "fez push?" — fluxo é automático
