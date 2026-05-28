@@ -1,0 +1,40 @@
+---
+description: 'Planning branch convention — .planning/ never committed to main'
+alwaysApply: true
+---
+
+# Regra: `.planning/` só existe no branch `planning`
+
+O diretório `.planning/` está no `.gitignore` do branch `main` e é versionado **exclusivamente** no branch `planning`.
+
+## Por que isso existe
+
+A Lovable (ou qualquer outra ferramenta de deploy automático) faz commits no `main`. Para evitar conflitos entre Claude, Cursor e o sistema de deploy, os artefatos de planejamento vivem isolados em branch separado.
+
+## Como ler sem trocar de branch
+
+```bash
+git show planning:.planning/STATE.md
+git show planning:.planning/ROADMAP.md
+git show planning:.planning/PROJECT.md
+```
+
+## Como sincronizar após uma sessão
+
+```bash
+git checkout planning
+git pull origin planning
+# editar arquivos em .planning/
+git add .planning/
+git commit -m "docs(planning): sync após [descrição]"
+git push origin planning
+git checkout main
+```
+
+## Proibido
+
+- Nunca fazer `git add .planning/` estando no branch `main`
+- Nunca mergear o branch `planning` no `main`
+- Nunca commitar no `main` arquivos de `.planning/`
+
+Guia completo (quando existir): `git show planning:.planning/SYNC.md`.

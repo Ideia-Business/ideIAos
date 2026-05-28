@@ -496,6 +496,7 @@ MEMMD
   ensure_file_from_template "$SETUP_DIR/templates/hybrid/CONTINUATION_HANDOFF.md.tmpl" "$PROJECT_DIR/docs/CONTINUATION_HANDOFF.md" "$PROJECT_NAME"
   ensure_file_from_template "$SETUP_DIR/templates/hybrid/session-continuation.mdc.tmpl" "$PROJECT_DIR/.cursor/rules/session-continuation.mdc" "$PROJECT_NAME"
   ensure_file_from_template "$SETUP_DIR/templates/hybrid/agents-md-protocol.mdc.tmpl" "$PROJECT_DIR/.cursor/rules/agents-md-protocol.mdc" "$PROJECT_NAME"
+  ensure_file_from_template "$SETUP_DIR/templates/hybrid/planning-branch.mdc.tmpl" "$PROJECT_DIR/.cursor/rules/planning-branch.mdc" "$PROJECT_NAME"
 
   # Camada Lovable (detector + flags --lovable / --no-lovable)
   setup_lovable_project "$PROJECT_DIR" "$PROJECT_NAME"
