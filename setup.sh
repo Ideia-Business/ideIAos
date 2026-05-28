@@ -461,6 +461,73 @@ echo "     Comportamento: após cada 'git commit' em projeto com AGENTS.md Fase 
 echo "     injeta gate triplo no contexto da IA (lembra criar learning se replicável)."
 
 # ─────────────────────────────────────────────────────────────────────────────
+step "5.6) Hook SessionStart Claude Code — dev-setup-detector"
+# Detecta projeto Lovable sem Fase A no início da sessão e sugere /dev-setup.
+# Idempotente: silencia se Fase A já instalada, projeto não é Lovable, ou é dev-setup.
+
+DETECTOR_FILE="$HOOK_DIR/dev-setup-detector.sh"
+DETECTOR_TEMPLATE="$SETUP_DIR/hooks/dev-setup-detector.sh"
+
+if [ -f "$DETECTOR_FILE" ]; then
+  if diff -q "$DETECTOR_TEMPLATE" "$DETECTOR_FILE" &>/dev/null; then
+    ok "Hook dev-setup-detector já está na versão mais recente"
+  else
+    cp "$DETECTOR_TEMPLATE" "$DETECTOR_FILE"
+    chmod +x "$DETECTOR_FILE"
+    ok "Hook dev-setup-detector atualizado"
+  fi
+else
+  cp "$DETECTOR_TEMPLATE" "$DETECTOR_FILE"
+  chmod +x "$DETECTOR_FILE"
+  ok "Hook dev-setup-detector instalado → $DETECTOR_FILE"
+fi
+
+# Verificar se registrado em settings.json (SessionStart event)
+if [ -f "$SETTINGS_FILE" ] && grep -q "dev-setup-detector.sh" "$SETTINGS_FILE" 2>/dev/null; then
+  ok "Hook dev-setup-detector registrado em ~/.claude/settings.json"
+else
+  warn "Hook dev-setup-detector NÃO está registrado — adicione em hooks.SessionStart:"
+  cat <<'SNIPPET'
+
+       {
+         "hooks": [
+           {
+             "type": "command",
+             "command": "bash \"/Users/<você>/.claude/hooks/dev-setup-detector.sh\"",
+             "timeout": 3
+           }
+         ]
+       }
+SNIPPET
+fi
+
+# ─────────────────────────────────────────────────────────────────────────────
+step "5.7) Skill Claude Code — /dev-setup"
+# Ponto de entrada único pra rodar o setup. Idempotente, audita antes de aplicar.
+
+for SKILL_NAME in dev-setup; do
+  S_DIR="$HOME/.claude/skills/$SKILL_NAME"
+  S_FILE="$S_DIR/SKILL.md"
+  S_TEMPLATE="$SETUP_DIR/skills/$SKILL_NAME/SKILL.md"
+
+  mkdir -p "$S_DIR"
+
+  if [ -f "$S_FILE" ]; then
+    if diff -q "$S_TEMPLATE" "$S_FILE" &>/dev/null; then
+      ok "Skill $SKILL_NAME já está na versão mais recente"
+    else
+      cp "$S_TEMPLATE" "$S_FILE"
+      ok "Skill $SKILL_NAME atualizada"
+    fi
+  else
+    cp "$S_TEMPLATE" "$S_FILE"
+    ok "Skill $SKILL_NAME instalada → $S_FILE"
+  fi
+done
+
+echo "     Uso: /dev-setup em qualquer projeto novo. Idempotente."
+
+# ─────────────────────────────────────────────────────────────────────────────
 step "6) Skills Claude Code — recall-learnings + extract-learnings"
 # Loop de aprendizado contínuo (universal — qualquer projeto)
 
