@@ -89,7 +89,9 @@ detect_lovable_project() {
   return 1
 }
 
-# Anexa fragmento Lovable ao AGENTS.md (idempotente via marcadores BEGIN/END).
+# Anexa/atualiza fragmento Lovable ao AGENTS.md (idempotente via marcadores BEGIN/END).
+# Se markers existem, substitui o bloco entre eles pelo conteúdo atual do fragment —
+# permite refresh do padrão quando o template é atualizado no dev-setup.
 append_lovable_to_agents_md() {
   local agents_md="$1"
   local fragment="$2"
@@ -101,7 +103,28 @@ append_lovable_to_agents_md() {
   fi
 
   if grep -q "BEGIN: lovable-deploy-section" "$agents_md" 2>/dev/null; then
-    ok "AGENTS.md já tem seção Lovable"
+    # Já tem markers — comparar conteúdo e atualizar se diferente
+    local current new tmp
+    current="$(awk '/BEGIN: lovable-deploy-section/,/END: lovable-deploy-section/' "$agents_md")"
+    new="$(cat "$fragment")"
+    if [ "$current" = "$new" ]; then
+      ok "AGENTS.md já tem seção Lovable atualizada"
+      return 0
+    fi
+    # Substituir bloco BEGIN..END pelo conteúdo do fragment (awk preserva resto do arquivo)
+    tmp="$(mktemp)"
+    awk -v frag="$fragment" '
+      /BEGIN: lovable-deploy-section/ {
+        while ((getline line < frag) > 0) print line
+        close(frag)
+        skip = 1
+        next
+      }
+      skip && /END: lovable-deploy-section/ { skip = 0; next }
+      !skip { print }
+    ' "$agents_md" > "$tmp"
+    mv "$tmp" "$agents_md"
+    ok "AGENTS.md: seção Lovable atualizada (refresh do template)"
     return 0
   fi
 
@@ -170,7 +193,17 @@ setup_lovable_project() {
     ok "docs/postmortems/ criado"
   fi
 
-  # 5. Marker explícito em .aiox-ai-config.yaml
+  # 5. Modelo de resposta de conclusão (referência canônica)
+  if [ ! -f "$project_dir/docs/lovable/conclusao-implantacao.md" ]; then
+    sed -e "s|__PROJECT_NAME__|$project_name|g" -e "s|__DATE__|$today|g" \
+      "$SETUP_DIR/templates/lovable/conclusao-implantacao.md.tmpl" \
+      > "$project_dir/docs/lovable/conclusao-implantacao.md"
+    ok "docs/lovable/conclusao-implantacao.md criado (modelo de resposta final)"
+  else
+    ok "docs/lovable/conclusao-implantacao.md já existe"
+  fi
+
+  # 6. Marker explícito em .aiox-ai-config.yaml
   local config="$project_dir/.aiox-ai-config.yaml"
   if [ -f "$config" ] && ! grep -q "^deploy:" "$config" 2>/dev/null; then
     {
@@ -178,6 +211,41 @@ setup_lovable_project() {
       printf "deploy:\n  platform: lovable-cloud\n  sync: github-main\n  configured_at: %s\n" "$today"
     } >> "$config"
     ok ".aiox-ai-config.yaml marcado como Lovable Cloud"
+  fi
+}
+
+# Setup da camada de aprendizado (universal — qualquer projeto, não só Lovable).
+setup_learnings_layer() {
+  local project_dir="$1"
+  local project_name="$2"
+  local today
+  today="$(date +%Y-%m-%d)"
+
+  step "7) Camada de aprendizado contínuo (docs/learnings/)"
+
+  # 1. Pasta + README
+  if [ ! -d "$project_dir/docs/learnings" ]; then
+    mkdir -p "$project_dir/docs/learnings"
+    ok "docs/learnings/ criado"
+  fi
+
+  if [ ! -f "$project_dir/docs/learnings/README.md" ]; then
+    sed -e "s|__PROJECT_NAME__|$project_name|g" -e "s|__DATE__|$today|g" \
+      "$SETUP_DIR/templates/learnings/README.md.tmpl" \
+      > "$project_dir/docs/learnings/README.md"
+    ok "docs/learnings/README.md criado"
+  else
+    ok "docs/learnings/README.md já existe"
+  fi
+
+  # 2. Template de learning (esqueleto referencial — não é um learning, é o modelo)
+  if [ ! -f "$project_dir/docs/learnings/_TEMPLATE.md" ]; then
+    sed -e "s|__PROJECT_NAME__|$project_name|g" -e "s|__DATE__|$today|g" \
+      "$SETUP_DIR/templates/learnings/_TEMPLATE.md.tmpl" \
+      > "$project_dir/docs/learnings/_TEMPLATE.md"
+    ok "docs/learnings/_TEMPLATE.md criado"
+  else
+    ok "docs/learnings/_TEMPLATE.md já existe"
   fi
 }
 
@@ -311,8 +379,34 @@ fi
 
 echo "     Uso no Claude Code: /lovable-handoff (em projeto Lovable)"
 
+# ─────────────────────────────────────────────────────────────────────────────
+step "6) Skills Claude Code — recall-learnings + extract-learnings"
+# Loop de aprendizado contínuo (universal — qualquer projeto)
+
+for SKILL_NAME in recall-learnings extract-learnings; do
+  L_DIR="$HOME/.claude/skills/$SKILL_NAME"
+  L_FILE="$L_DIR/SKILL.md"
+  L_TEMPLATE="$SETUP_DIR/skills/$SKILL_NAME/SKILL.md"
+
+  mkdir -p "$L_DIR"
+
+  if [ -f "$L_FILE" ]; then
+    if diff -q "$L_TEMPLATE" "$L_FILE" &>/dev/null; then
+      ok "Skill $SKILL_NAME já está na versão mais recente"
+    else
+      cp "$L_TEMPLATE" "$L_FILE"
+      ok "Skill $SKILL_NAME atualizada"
+    fi
+  else
+    cp "$L_TEMPLATE" "$L_FILE"
+    ok "Skill $SKILL_NAME instalada → $L_FILE"
+  fi
+done
+
+echo "     Uso: /recall-learnings (auto no início) · /extract-learnings (auto no fim)"
+
 else
-  step "2-5) Setup global"
+  step "2-6) Setup global"
   warn "Modo --project-only ativo: pulando AIOX Core + instalação global de agentes/skills"
 fi
 
@@ -404,6 +498,9 @@ MEMMD
 
   # Camada Lovable (detector + flags --lovable / --no-lovable)
   setup_lovable_project "$PROJECT_DIR" "$PROJECT_NAME"
+
+  # Camada de aprendizado contínuo (universal — qualquer projeto)
+  setup_learnings_layer "$PROJECT_DIR" "$PROJECT_NAME"
 fi
 
 # ─────────────────────────────────────────────────────────────────────────────

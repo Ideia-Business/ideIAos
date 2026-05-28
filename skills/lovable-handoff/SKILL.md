@@ -114,25 +114,37 @@ Se obrigatório:
 **Onde:** `docs/postmortems/<INC-NN>-<slug>.md`.
 **Estrutura:** sintoma → causa raiz (com evidência) → correção → UAT → lições.
 
-### Passo 6 — Comunicação final ao usuário
+### Passo 6 — Comunicação final ao usuário (modelo canônico)
 
-Sempre encerrar com um bloco assim:
+**Sempre** seguir o formato canônico em `docs/lovable/conclusao-implantacao.md` do projeto.
+São 6 blocos obrigatórios + 1 condicional + 1 opcional:
 
-```
-✅ Typecheck: passou
-✅ Commit: <hash> em <branch> ("<mensagem>")
-✅ Push: origin/<branch>
-{condicional}
-✅ Handoff Lovable: docs/lovable/<SLUG>_LOVABLE_HANDOFF.md
-✅ Postmortem: docs/postmortems/<INC-NN>-<slug>.md
+1. **Cabeçalho** — `# ✅ <INC-NN | FEATURE> — <título>` + linha commit/branch/tipo
+2. **Entendimento do problema** — sintoma + evidência confirmada (não copiar pedido literal)
+3. **Causa raiz** — com `arquivo:linha`, separar `Gap A / Gap B` se cumulativos
+4. **Correção aplicada** — tabela `arquivo | mudança | porquê`, matriz de comportamento se aplicável
+5. **Verificação executada** — checklist literal (typecheck, testes, commit, push, handoff, postmortem)
+6. **Ação necessária ⚠️** — tabela `Quem | O quê | Onde`. **OBRIGATÓRIO mesmo quando "Nenhuma"** —
+   sempre explicitar SIM/NÃO se Lovable/humano precisa fazer algo (memória `feedback-lovable-deploy-alert`).
+7. **Aprendizado registrado** (condicional) — preenchido pelo Passo 7 abaixo se houve learning
+8. **Próximo passo sugerido** (opcional) — 1 frase, só se houver ação imediata
 
-⚠️ Lovable precisa fazer alguma ação manual?
-  → SIM: <ação concreta — aplicar migration X, redeployar edge Y, configurar secret Z>
-  → NÃO: puxará main automaticamente, sem ação manual necessária.
-```
+Tamanho-alvo: 30-60 linhas. Tom: direto, técnico, sem narrativa. Sem bloco "Resumo" redundante.
 
-A linha "Lovable precisa fazer X?" é **obrigatória** mesmo quando a resposta é "não" — o usuário
-quer ver explicitamente que você considerou esse ponto (memória `feedback-lovable-deploy-alert`).
+### Passo 7 — Extrair aprendizado (`/extract-learnings`)
+
+Após o bloco 6 da resposta, invocar a skill `extract-learnings` (ou aplicar seu pipeline):
+
+1. **Gate** — replicável? não-óbvio? estável? Se as 3 = sim, prosseguir; senão, registrar
+   `📚 Sessão sem aprendizado registrável (operacional / óbvio / efêmero).`
+2. **Extrair padrão abstrato** (não citar nomes específicos de tabelas/colunas — abstrair).
+3. **Gravar** `docs/learnings/YYYY-MM-DD-<slug>.md` usando `docs/learnings/_TEMPLATE.md`.
+4. **Decidir promoção** — se `applies_to_projects: [global]`, sincronizar com memória Claude global.
+5. **Preencher bloco 7** da resposta final:
+   ```
+   📚 Learning registrado: `docs/learnings/YYYY-MM-DD-<slug>.md` — <título curto>
+      Tags: [tag1, tag2]  ·  Aplica-se a: [<projeto> | global]
+   ```
 
 ---
 

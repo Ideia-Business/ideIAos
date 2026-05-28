@@ -40,4 +40,33 @@ Detalhes completos: [`docs/playbook-implantacao.md`](docs/playbook-implantacao.m
 - UI/lib refactors locais → branch + PR.
 - Nunca editar o mesmo arquivo simultaneamente com Lovable aberto na mesma área.
 
+## Loop de aprendizado contínuo (obrigatório)
+
+Toda sessão da IA deve seguir este ritual de 3 momentos:
+
+**1. Antes do planejamento — `/recall-learnings`** (automático em todo pedido de implementação/correção):
+
+A IA lê obrigatoriamente, antes de propor qualquer plano:
+- `AGENTS.md` (este arquivo) e `STATE.md`
+- 5 arquivos mais recentes em `docs/learnings/`
+- Postmortems relacionados em `docs/postmortems/`
+- Memória Claude global (`~/.claude/projects/.../memory/`)
+- (Se conectado) Obsidian Vault via MCP
+
+Saída: bloco compacto "🧠 Contexto carregado" com 3-5 bullets do que é relevante.
+
+**2. Durante a sessão:** marcar mentalmente candidatos a aprendizado (causas raiz surpreendentes, gotchas, decisões arquiteturais não-óbvias). Não interromper o trabalho.
+
+**3. Ao concluir — `/extract-learnings`** (automático no bloco 7 do modelo de resposta):
+
+Se a sessão gerou aprendizado **replicável, não-óbvio e estável**, criar `docs/learnings/YYYY-MM-DD-<slug>.md` seguindo `docs/learnings/_TEMPLATE.md`. Se `applies_to_projects: [global]`, promover para memória Claude global.
+
+## Modelo de resposta de conclusão de implantação
+
+Toda implantação não-trivial encerra com a resposta no formato canônico definido em:
+
+→ [`docs/lovable/conclusao-implantacao.md`](docs/lovable/conclusao-implantacao.md)
+
+**Estrutura obrigatória:** 6 blocos fixos (Cabeçalho · Entendimento · Causa raiz · Correção · Verificação · Ação necessária ⚠️) + bloco 7 condicional (Aprendizado registrado) + bloco 8 opcional (Próximo passo). O bloco 6 é obrigatório **mesmo quando a resposta é "Lovable não precisa fazer nada"** — sempre explicitar SIM/NÃO.
+
 <!-- END: lovable-deploy-section (managed by dev-setup) -->
