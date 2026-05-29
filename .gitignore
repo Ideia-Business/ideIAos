@@ -1,0 +1,18 @@
+.env
+.env.local
+node_modules/
+.aiox/
+
+# Sistema
+.DS_Store
+
+# Artefatos gerados quando setup.sh é rodado dentro do próprio repo
+# (o dev-setup não é um "projeto IdeiaOS" — é o provedor dos templates)
+# Patterns ancorados em / pra só ignorar na raiz, não em subdiretórios.
+/.aiox-ai-config.yaml
+/IDEIAOS.md
+/CONTRIBUTING.md
+/docs/ideiaos/
+/docs/learnings/
+/.cursor/rules/agents-md-protocol.mdc
+/.cursor/rules/planning-branch.mdc

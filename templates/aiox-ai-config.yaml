@@ -1,6 +1,10 @@
-# AIOX AI Provider Configuration
+# AIOX AI Provider Configuration — IdeiaOS-enabled
 # Primary: Claude Code (conversação principal)
 # Simple tasks + fallback: OpenRouter (gratuito/barato)
+#
+# Este projeto opera sob IdeiaOS — Sistema Operacional unificado da Ideia Business.
+# Veja IDEIAOS.md (raiz) para visão geral e docs/ideiaos/ para guias detalhados.
+# Comando de entrada recomendado: /idea <pedido em linguagem natural>
 
 ai_providers:
   primary: claude

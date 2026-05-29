@@ -42,15 +42,46 @@ bash ~/Projects/dev-setup/setup.sh --project-only --lovable .
 
 ## 📖 Como usar no dia a dia
 
+Este projeto opera sob **IdeiaOS** — Sistema Operacional unificado da Ideia Business.
+Visão geral em `IDEIAOS.md` (raiz). Guias detalhados em `docs/ideiaos/`.
+
+### 🎯 Comando único de entrada (recomendado)
+
+```
+/idea <pedido em linguagem natural>
+```
+
+Exemplos:
+- `/idea quero implementar autenticação OAuth`
+- `/idea retoma de onde parei ontem`
+- `/idea publicar isso na Lovable`
+- `/idea debugar esse bug recorrente`
+
+O `/idea` roteia automaticamente para a camada certa (GSD para execução, AIOX para personas, Lovable para deploy, Fase A para aprendizado, Continuation para retomada).
+
+### 📋 Comandos diretos por contexto
+
 | Onde | Comando | Faz |
 |------|---------|-----|
-| **Claude Code** (chat) | `/dev-setup` | Audita + completa setup deste projeto |
-| **Claude Code** (chat) | `/lovable-handoff` | Playbook de implantação (typecheck → commit → push → handoff) |
-| **Claude Code** (chat) | `/recall-learnings` | Carrega contexto de aprendizados antes de planejar |
+| **Claude Code** | `/idea <pedido>` | **Recomendado** — orquestrador IdeiaOS |
+| **Claude Code** | `/dev-setup` | Audita + completa setup deste projeto |
+| **Claude Code** | `/lovable-handoff` | Playbook de implantação (typecheck → commit → push → handoff) |
+| **Claude Code** | `/recall-learnings` | Carrega contexto de aprendizados antes de planejar |
+| **Claude Code** | `/extract-learnings` | Registra aprendizado pós-trabalho (gate triplo) |
+| **Claude Code** | `/cursor-continuation` | Retoma trabalho que estava no Cursor |
+| **Claude Code** | `/gsd-do <pedido>` | Roteamento GSD (quick/plan-phase/execute-phase) |
+| **Claude Code** | `/gsd-quick` | Tarefa rápida (1-3 arquivos) |
+| **Claude Code** | `/gsd-plan-phase` | Plano detalhado antes de executar |
+| **Claude Code** | `/gsd-execute-phase` | Execução wave-based |
+| **Claude Code** | `/gsd-debug` | Debugging método científico |
+| **Claude Code** | `@dev`, `@qa`, `@pm`, `@po`, `@sm`, `@architect`, `@devops` | Personas AIOX |
 | **Cursor** (chat) | `@setup-checker` | Audita + completa setup (espelho do `/dev-setup`) |
+| **Cursor** (chat) | `@claude-continuation` | Retoma trabalho que estava no Claude Code |
 | **Terminal** | `idea-setup` (se alias configurado) | Atalho do `setup.sh --lovable .` |
 
 **Se você esquecer:** o sistema te avisa. Hooks automáticos do Claude Code disparam quando detectarem que o setup está incompleto.
+
+📚 Tabela completa de comandos: `docs/ideiaos/DECISION-MATRIX.md`
 
 ---
 

@@ -1,0 +1,224 @@
+# IdeiaOS — Guia para Humanos · __PROJECT_NAME__
+
+> Tudo o que você precisa saber para operar no projeto com o IdeiaOS.
+> Atualizado em: __DATE__
+
+---
+
+## Primeira vez aqui? Comece em 3 minutos
+
+1. Garanta que você instalou o **dev-setup** uma vez na sua máquina (veja `CONTRIBUTING.md`).
+2. Abra Claude Code dentro deste projeto. Aguarde 1 segundo. Se aparecer aviso de setup, digite:
+   ```
+   /dev-setup
+   ```
+3. Pronto. Você está no IdeiaOS.
+
+---
+
+## A única coisa que você precisa decorar: chamar a "Deia"
+
+A **Deia** é a assistente do IdeiaOS. Você fala com ela em português natural:
+
+```
+Deia, <o que você precisa>
+```
+
+Ela detecta o pedido, decide qual camada do sistema vai usar (GSD, AIOX, Lovable, Fase A, Continuation) e executa — sempre mostrando antes qual comando real está chamando.
+
+### Os 5 comandos que você precisa decorar (caso prefira direto)
+
+| Comando | Quando | Equivalente com Deia |
+|---------|--------|----------------------|
+| `Deia, <pedido>` ou `/idea <pedido>` | Sempre que estiver em dúvida. Roteia automaticamente. | — |
+| `/dev-setup` | Setup incompleto ou projeto novo | `Deia, roda o setup` |
+| `/cursor-continuation` | Quando trocou de IDE (no Claude Code) | `Deia, retoma do Cursor` |
+| `/lovable-handoff` | Pra publicar mudança na Lovable Cloud | `Deia, publica na Lovable` |
+| `/recall-learnings` | Antes de planejar algo grande | `Deia, carrega contexto` |
+
+No Cursor, os equivalentes são: `@setup-checker`, `@claude-continuation`. E no terminal: `idea-setup`.
+
+---
+
+## Fluxos do dia a dia
+
+### Cheguei agora — o que faço?
+
+```
+/idea retoma onde paramos
+```
+
+O sistema lê CONTINUATION_HANDOFF.md, STATE.md, AGENTS.md e te mostra o próximo passo executável.
+
+### Tenho uma ideia nova, quero implementar
+
+```
+/idea quero implementar <descrição da feature>
+```
+
+O `/idea` detecta a complexidade e roteia:
+- **Simples** (1-3 arquivos): vai pra `/gsd-quick` direto
+- **Média**: cria PLAN.md via `/gsd-plan-phase`, te mostra, pede aval, executa
+- **Complexa**: pede pra você dividir em fases ou criar story formal via `@po`
+
+### Surgiu um bug
+
+```
+/idea esse bug acontece quando <descreva>
+```
+
+Roteamento:
+- Bug isolado e reprodutível → `/gsd-debug` (método científico)
+- Bug recorrente que volta → `/gsd-debug` + **obrigatoriamente** `docs/postmortems/`
+- Bug em produção Lovable → primeiro checar deploy drift (regra do "bug persiste"), depois investigar código
+
+### Vou subir pra produção (Lovable)
+
+```
+/idea publica isso na Lovable
+```
+
+`/lovable-handoff` roda automaticamente:
+1. `npx tsc --noEmit` (typecheck)
+2. `git add` + `git commit` (conventional)
+3. `git push origin main`
+4. Handoff em `docs/lovable/`
+5. Resposta final no formato canônico de 8 blocos
+
+### Concluí algo importante
+
+```
+/idea registra esse aprendizado
+```
+
+Aplica o gate triplo da Fase A:
+- **Replicável?** Vai acontecer de novo?
+- **Não-óbvio?** Alguém faria diferente sem saber?
+- **Estável?** Vai durar mais que 1 mês?
+
+Se passar nos 3 → `docs/learnings/YYYY-MM-DD-<slug>.md`.
+
+---
+
+## Quando o sistema te avisa proativamente
+
+Você não precisa lembrar de nada — o sistema te chama:
+
+| Evento | Aviso |
+|--------|-------|
+| Sessão inicia em projeto sem Fase A | "🔧 Setup detector — projeto sem Fase A → /dev-setup" |
+| `git commit` em projeto Fase A | "💡 Lembre do gate triplo — /extract-learnings se replicável" |
+| Editou skill/hook no dev-setup | "📝 README precisa sync" |
+| Edge function Lovable detectada | "🌊 Hotfix inline detectado — sync pro repo necessário" |
+
+---
+
+## Como saber qual camada está ativa em qual situação
+
+Pergunte ao próprio `/idea`:
+
+```
+/idea o que você usaria pra <descreva a tarefa>
+```
+
+Ele mostra o roteamento sem executar. Útil pra aprender o sistema.
+
+Ou consulte `docs/ideiaos/DECISION-MATRIX.md` — matriz completa "tarefa → camada → comando".
+
+---
+
+## Boas práticas para humanos
+
+### Confie no sistema, mas verifique
+
+- O `/idea` é transparente — sempre mostra o que vai fazer ANTES de fazer
+- Se o roteamento parecer errado, fale: "esse roteamento não me serviu, prefiro X"
+- O sistema aprende com seus feedbacks (vai pra memória global Claude)
+
+### Não pule a Fase A
+
+Sob pressão, é tentador pular `/recall-learnings` e `/extract-learnings`. Não pule:
+- Sem `/recall`, você pode recriar bug que já foi documentado
+- Sem `/extract`, o aprendizado morre na sua cabeça e o time se machuca de novo
+
+### Atualize o STATE.md no final
+
+Toda sessão termina com:
+```
+/idea fim de sessão
+```
+
+Isso roda:
+1. Atualiza STATE.md
+2. Atualiza CONTINUATION_HANDOFF.md
+3. Se houve aprendizado, /extract-learnings
+4. Se foi planning estratégico, sync com branch `planning`
+
+### Confie nas barreiras ativas
+
+- Pre-commit hook vai bloquear commit sem README sync
+- Hooks Claude vão lembrar de coisas
+- Cursor rules vão sugerir setup
+- **Não desligue isso.** Sob pressão, são essas barreiras que te salvam.
+
+---
+
+## Quando algo dá errado
+
+### "O comando que `/idea` rodou não era o que eu queria"
+
+Diga: "estranho, eu queria X, refaz como Y". O Claude pivota.
+
+### "Esqueci qual era o comando direto"
+
+```
+/idea me lembra os comandos do <camada>
+```
+
+Lista todos os comandos da camada (GSD, AIOX, Lovable, etc).
+
+### "Trabalhei muito e não consigo dar push"
+
+Push é exclusivo do `@devops` (Gage) no AIOX, mas em projeto Lovable simples o `/lovable-handoff` faz direto. Se nada funciona:
+```bash
+git push origin main
+```
+(Direto. Sistema não bloqueia comandos manuais — só sugere o caminho automatizado.)
+
+### "Setup quebrou alguma coisa"
+
+Setup é idempotente — rodar de novo não estraga. Se realmente quebrou:
+```bash
+cd ~/Projects/dev-setup && git pull
+bash setup.sh --project-only .
+```
+
+---
+
+## Glossário rápido
+
+| Termo | Significado |
+|-------|------------|
+| **IdeiaOS** | Sistema Operacional unificado da Ideia Business — combina 5 camadas |
+| **AIOX-Core** | Framework story-driven com personas (@dev, @qa, @pm…) |
+| **GSD** | Get Stuff Done — execução goal-backward com phases/atomic commits |
+| **Lovable** | Plataforma de deploy onde main = produção |
+| **Fase A** | Loop de aprendizado contínuo (recall + extract) |
+| **Continuation** | Retomada cross-IDE (Cursor ↔ Claude Code) |
+| **Story** | Unidade de trabalho do AIOX em `docs/stories/` |
+| **Phase** | Unidade de trabalho do GSD em `.planning/phases/` |
+| **Constitution** | Regras invioláveis do AIOX em `.aiox-core/constitution.md` |
+| **Gate** | Verificação bloqueante (QA Gate, Goal Gate, Lint Gate) |
+
+---
+
+## Próximos passos para você
+
+1. Leia `IDEIAOS.md` (raiz) — visão geral do sistema
+2. Rode `/idea retoma` agora pra ver o sistema em ação
+3. Quando esquecer algo, sempre `/idea me lembra...`
+4. Contribua: se identificar comando faltante, melhoria de roteamento, ou padrão recorrente → `/extract-learnings`
+
+---
+
+*Guia atualizado em __DATE__ · Sincronizado com dev-setup*

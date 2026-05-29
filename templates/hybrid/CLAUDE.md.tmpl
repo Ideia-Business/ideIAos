@@ -1,12 +1,18 @@
 # CLAUDE.md — __PROJECT_NAME__
 
+> Este projeto opera sob **IdeiaOS** — Sistema Operacional unificado de desenvolvimento da Ideia Business.
+> Comando de entrada recomendado: `/idea <pedido em linguagem natural>` (roteia para a camada certa)
+> Visão geral em `IDEIAOS.md` (raiz) · Guia operacional para IAs em `docs/ideiaos/GUIDE-AI.md`
+
 ## Início de sessão
 
 Leia nesta ordem:
 
-1. `AGENTS.md`
-2. `docs/CONTINUATION_HANDOFF.md`
-3. `STATE.md`
+1. `IDEIAOS.md` (manifesto operacional)
+2. `AGENTS.md` (identidade do projeto + Fase A)
+3. `docs/CONTINUATION_HANDOFF.md` (próximo passo executável)
+4. `STATE.md` (snapshot operacional curto)
+5. `docs/ideiaos/GUIDE-AI.md` (instruções operacionais detalhadas — IA)
 
 Se o projeto usar branch `planning`, também ler:
 
@@ -15,8 +21,23 @@ git show planning:.planning/STATE.md
 git show planning:.planning/ROADMAP.md
 ```
 
+Para fluxo GSD, validar:
+
+```bash
+ls .planning/phases/   # fases ativas
+ls .planning/intel/    # codebase intelligence
+```
+
+Executar `/recall-learnings` antes de qualquer planejamento não-trivial.
+
+## Roteamento de pedidos
+
+Quando o usuário pedir algo, classificar via matriz IdeiaOS (`docs/ideiaos/DECISION-MATRIX.md`) ou usar `/idea <pedido>` para roteamento automático.
+
 ## Fechamento de sessão (obrigatório)
 
-1. Atualizar `STATE.md`.
+1. Atualizar `STATE.md` com estado real.
 2. Atualizar `docs/CONTINUATION_HANDOFF.md` com pendências e próximo passo.
 3. Se houve decisão estratégica, sincronizar `.planning/*` no branch `planning` (quando aplicável).
+4. Aplicar `/extract-learnings` (gate triplo: replicável + não-óbvio + estável).
+5. Se foi implantação Lovable: resposta final no formato 8 blocos (`docs/lovable/conclusao-implantacao.md`).

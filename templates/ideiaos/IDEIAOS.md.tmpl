@@ -1,0 +1,204 @@
+# IDEIAOS.md — __PROJECT_NAME__
+
+> **Este projeto opera sob o IdeiaOS** — Sistema Operacional unificado de desenvolvimento da Ideia Business.
+> Instalado em: __DATE__ · Versão: 1.0
+
+---
+
+## TL;DR — o que isso significa pra você
+
+Você não precisa decorar 30 comandos. Em qualquer dúvida, fale com a **Deia** — a assistente do IdeiaOS:
+
+```
+Deia, <o que você quer fazer em português>
+```
+
+Exemplos:
+- `Deia, implementa autenticação OAuth`
+- `Deia, retoma de onde parei ontem`
+- `Deia, preciso debugar esse bug que volta sempre`
+- `Deia, publica isso na Lovable`
+
+Ou se preferir o comando explícito: `/idea <pedido>`. Ambos invocam o mesmo orquestrador e roteiam para a camada certa.
+
+---
+
+## As 5 camadas do IdeiaOS
+
+Cada camada tem um propósito específico. Não competem — se complementam.
+
+### 1. AIOX-Core — Personas e governance
+Story-driven development com agentes especializados.
+
+| Persona | Função | Comando |
+|---------|--------|---------|
+| `@pm` (Morgan) | Product Management, epics, spec pipeline | `*create-epic`, `*execute-epic` |
+| `@po` (Pax) | Product Owner, stories, validação 10 pontos | `*validate-story-draft` |
+| `@sm` (River) | Scrum Master, criação de stories | `*create-story`, `*draft` |
+| `@dev` (Dex) | Implementação de código | `*develop-story` |
+| `@qa` (Quinn) | Quality Assurance, gate 7 checks, QA Loop | `*qa-gate`, `*qa-loop` |
+| `@architect` (Aria) | Decisões arquiteturais, complexidade | `*assess-complexity` |
+| `@data-engineer` (Dara) | Schema, RLS, migrations, queries | DDL detalhado |
+| `@ux-design-expert` (Uma) | UX/UI design | Wireframes, fluxos |
+| `@devops` (Gage) | CI/CD, git push, PRs (EXCLUSIVO) | `*push`, `*pr-create` |
+| `@aiox-master` | Governança framework, override de gates | Casos extremos |
+
+**Quando usar:** trabalho story-driven, com múltiplas pessoas/papéis, com Constitution gates formais.
+
+### 2. GSD (Get Stuff Done) — Execução goal-backward
+Sistema de fases com planejamento explícito, execução paralela e verificação contra objetivo.
+
+| Comando | Função |
+|---------|--------|
+| `/gsd-do <pedido>` | Roteia automaticamente para o comando GSD certo |
+| `/gsd-new-project` | Inicializa projeto novo com roadmap |
+| `/gsd-quick` | Tarefa rápida com guarantees mínimas (commit atômico, state) |
+| `/gsd-plan-phase` | Cria PLAN.md detalhado com verificação de plano |
+| `/gsd-execute-phase` | Executa plano em waves paralelas |
+| `/gsd-verify-work` | Verificação goal-backward pós-execução |
+| `/gsd-debug` | Sessão de debugging com método científico |
+| `/gsd-code-review` | Review estruturado com REVIEW.md |
+| `/gsd-resume-work` | Retoma trabalho com contexto restaurado |
+| `/gsd-manager` | Command center para múltiplas fases |
+
+**Quando usar:** execução técnica de qualquer escopo, especialmente quando você quer commits atômicos e verificação automática.
+
+### 3. Lovable Handoff — Deploy via Lovable Cloud
+*Ativo apenas em projetos com `lovable.config.*` ou marker `lovable-deploy-section`.*
+
+| Comando | Função |
+|---------|--------|
+| `/lovable-handoff` | Playbook completo: typecheck → commit → push → handoff |
+| `docs/lovable/_TEMPLATE.md` | Esqueleto para handoff manual |
+| `docs/lovable/conclusao-implantacao.md` | Modelo canônico de resposta (8 blocos) |
+
+**Quando usar:** após qualquer mudança que precise ir pra produção via Lovable Cloud.
+
+### 4. Fase A — Loop de aprendizado contínuo
+Captura padrões replicáveis ao longo de cada sessão.
+
+| Comando | Quando |
+|---------|--------|
+| `/recall-learnings` | **Início** de toda sessão não-trivial |
+| `/extract-learnings` | **Fim** — aplica gate triplo (replicável + não-óbvio + estável) |
+
+Hook automático: após cada `git commit` em projeto Fase A, o Claude Code injeta lembrete do gate triplo.
+
+### 5. Continuation — Cross-IDE handoff
+Retomar trabalho entre Cursor ↔ Claude Code sem perda de contexto.
+
+| Comando | Onde | Função |
+|---------|------|--------|
+| `/cursor-continuation` | Claude Code | Lê estado do Cursor (planos, todos, git, memória) |
+| `@claude-continuation` | Cursor | Lê handoff do Claude Code |
+| `/dev-setup` | Claude Code | Audita + completa setup |
+| `@setup-checker` | Cursor | Idem (espelho) |
+
+---
+
+## Fluxos típicos
+
+### Feature nova (do zero ao deploy)
+```
+/idea quero adicionar feature X
+  → /gsd-do detecta complexidade
+    → Se simples: /gsd-quick → commit atômico
+    → Se complexa:
+        → /gsd-plan-phase → PLAN.md
+        → /gsd-execute-phase → executa wave-based
+        → /gsd-verify-work → VERIFICATION.md
+→ /lovable-handoff (se Lovable)
+→ /extract-learnings (se replicável)
+```
+
+### Bug recorrente
+```
+/idea esse bug volta toda semana
+  → /gsd-debug → sessão científica
+    → Hipótese → teste → fix → verifica
+  → /extract-learnings (sempre — bug recorrente é padrão)
+  → docs/postmortems/YYYY-MM-DD-<slug>.md
+```
+
+### Retomar trabalho
+```
+/idea retoma
+  → Detecta IDE anterior:
+      Cursor → Claude: /cursor-continuation
+      Claude → Cursor: @claude-continuation
+  → Lê: AGENTS.md + STATE.md + CONTINUATION_HANDOFF.md
+  → Mostra próximo passo executável
+```
+
+### Implantação Lovable
+```
+/idea publica isso na Lovable
+  → /lovable-handoff
+    → typecheck (npx tsc --noEmit)
+    → commit (conventional)
+    → push origin main
+    → handoff em docs/lovable/
+    → resposta 8 blocos
+```
+
+---
+
+## Pré-condições inegociáveis
+
+Antes de qualquer operação destrutiva ou de deploy:
+
+1. **`git pull origin main`** — nunca trabalhar com working tree desatualizado em projeto Lovable
+2. **Schema-first verification** — antes de UPDATE/INSERT em produção, validar via SELECT
+3. **Bug persiste após fix → check deploy ANTES de mexer no código** — 80%+ é deploy drift
+4. **Hotfixes inline (Lovable/IA externa) → sync explícito pro repo** — sem isso, bug volta no próximo redeploy
+
+Esses padrões estão em `docs/learnings/` (versão expandida) e na memória global Claude.
+
+---
+
+## Arquivos protegidos (NUNCA editar localmente)
+
+*Projeto Lovable apenas:*
+
+- `src/integrations/supabase/client.ts`
+- `src/integrations/supabase/types.ts`
+- `.env`
+- `supabase/config.toml`
+
+Estes são gerados/mantidos pela Lovable Cloud. Edição local = drift garantido no próximo redeploy.
+
+---
+
+## Documentação de referência
+
+| Documento | Para quem | Onde |
+|-----------|-----------|------|
+| `IDEIAOS.md` (este arquivo) | Todos — visão rápida | Raiz do projeto |
+| `docs/ideiaos/GUIDE-HUMANS.md` | Devs humanos — guia detalhado | docs/ideiaos/ |
+| `docs/ideiaos/GUIDE-AI.md` | IAs — instruções operacionais | docs/ideiaos/ |
+| `docs/ideiaos/DECISION-MATRIX.md` | Decisão "qual ferramenta para qual tarefa" | docs/ideiaos/ |
+| `AGENTS.md` | IAs (Cursor lê automático) — identidade do projeto | Raiz |
+| `CLAUDE.md` | Claude Code (auto-load) — instruções início/fim de sessão | Raiz |
+| `STATE.md` | Snapshot operacional curto | Raiz |
+| `docs/CONTINUATION_HANDOFF.md` | Detalhes da retomada | docs/ |
+| `docs/playbook-implantacao.md` | Fluxo Lovable obrigatório | docs/ (se Lovable) |
+| `docs/learnings/` | Padrões replicáveis acumulados | docs/ |
+| `docs/postmortems/` | Histórias de incidentes | docs/ |
+| `.planning/ROADMAP.md` | Visão GSD do projeto | .planning/ |
+| `.planning/phases/` | Fases GSD ativas | .planning/ |
+
+---
+
+## Como atualizar este projeto pra última versão do IdeiaOS
+
+```bash
+cd ~/Projects/dev-setup && git pull
+cd /caminho/para/__PROJECT_NAME__
+bash ~/Projects/dev-setup/setup.sh --project-only --lovable .
+```
+
+Idempotente — pula tudo que já está, atualiza só o que mudou.
+
+---
+
+*Manifesto criado em __DATE__ · Mantido por dev-setup ([github.com/Ideia-Business/dev-setup](https://github.com/Ideia-Business/dev-setup))*

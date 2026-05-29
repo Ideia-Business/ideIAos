@@ -280,6 +280,58 @@ setup_learnings_layer() {
   fi
 }
 
+# Setup da camada IdeiaOS (orquestração GSD + AIOX + Lovable + Fase A).
+# Cria IDEIAOS.md no projeto + estrutura .planning/ + verifica GSD readiness.
+# Universal — vale pra qualquer projeto da Ideia Business.
+setup_ideiaos_layer() {
+  local project_dir="$1"
+  local project_name="$2"
+  local today
+  today="$(date +%Y-%m-%d)"
+
+  step "8) Camada IdeiaOS (orquestração unificada: GSD + AIOX + Lovable + Fase A)"
+
+  # 1. Estrutura .planning/ (GSD workspace)
+  if [ ! -d "$project_dir/.planning" ]; then
+    mkdir -p "$project_dir/.planning/phases" "$project_dir/.planning/intel" "$project_dir/.planning/research"
+    ok ".planning/ criado (phases + intel + research) — pronto para /gsd-new-project"
+  else
+    mkdir -p "$project_dir/.planning/phases" "$project_dir/.planning/intel" "$project_dir/.planning/research"
+    ok ".planning/ presente (subpastas asseguradas)"
+  fi
+
+  # 2. IDEIAOS.md (manifesto do sistema operacional na raiz do projeto)
+  if [ ! -f "$project_dir/IDEIAOS.md" ]; then
+    sed -e "s|__PROJECT_NAME__|$project_name|g" -e "s|__DATE__|$today|g" \
+      "$SETUP_DIR/templates/ideiaos/IDEIAOS.md.tmpl" \
+      > "$project_dir/IDEIAOS.md"
+    ok "IDEIAOS.md criado (manifesto na raiz)"
+  else
+    ok "IDEIAOS.md já existe"
+  fi
+
+  # 3. Guias humanos + IA em docs/ideiaos/
+  mkdir -p "$project_dir/docs/ideiaos"
+  ensure_file_from_template "$SETUP_DIR/templates/ideiaos/GUIDE-HUMANS.md.tmpl" "$project_dir/docs/ideiaos/GUIDE-HUMANS.md" "$project_name"
+  ensure_file_from_template "$SETUP_DIR/templates/ideiaos/GUIDE-AI.md.tmpl" "$project_dir/docs/ideiaos/GUIDE-AI.md" "$project_name"
+  ensure_file_from_template "$SETUP_DIR/templates/ideiaos/DECISION-MATRIX.md.tmpl" "$project_dir/docs/ideiaos/DECISION-MATRIX.md" "$project_name"
+
+  # 4. Marker em .aiox-ai-config.yaml (registra que projeto está sob IdeiaOS)
+  local config="$project_dir/.aiox-ai-config.yaml"
+  if [ -f "$config" ] && ! grep -q "^ideiaos:" "$config" 2>/dev/null; then
+    {
+      printf "\n# IdeiaOS — Sistema Operacional unificado (managed by dev-setup)\n"
+      printf "ideiaos:\n  version: 1.0\n  enabled: true\n  configured_at: %s\n  layers:\n" "$today"
+      printf "    - aiox-core           # personas, stories, governance\n"
+      printf "    - gsd                 # phases, goal-backward, atomic commits\n"
+      printf "    - lovable             # deploy/handoff (se aplicável)\n"
+      printf "    - learning-loop       # Fase A — recall + extract\n"
+      printf "    - continuation        # cross-IDE session handoff\n"
+    } >> "$config"
+    ok ".aiox-ai-config.yaml marcado como IdeiaOS-enabled"
+  fi
+}
+
 ensure_file_from_template() {
   local template_path="$1"
   local target_path="$2"
@@ -619,6 +671,94 @@ else
 fi
 
 # ─────────────────────────────────────────────────────────────────────────────
+step "5.12) Hook Claude Code — deia-trigger (UserPromptSubmit)"
+# Detecta "Deia, …" no início de mensagens e injeta orientação para ativar
+# /idea. Permite que o usuário chame o orquestrador IdeiaOS por nome
+# ("Deia, faz X") em vez do comando /idea.
+
+DEIA_HOOK="$HOOK_DIR/deia-trigger.sh"
+DEIA_HOOK_TEMPLATE="$SETUP_DIR/hooks/deia-trigger.sh"
+
+if [ -f "$DEIA_HOOK" ]; then
+  if diff -q "$DEIA_HOOK_TEMPLATE" "$DEIA_HOOK" &>/dev/null; then
+    ok "Hook deia-trigger já está na versão mais recente"
+  else
+    cp "$DEIA_HOOK_TEMPLATE" "$DEIA_HOOK"
+    chmod +x "$DEIA_HOOK"
+    ok "Hook deia-trigger atualizado"
+  fi
+else
+  cp "$DEIA_HOOK_TEMPLATE" "$DEIA_HOOK"
+  chmod +x "$DEIA_HOOK"
+  ok "Hook deia-trigger instalado → $DEIA_HOOK"
+fi
+
+if [ -f "$SETTINGS_FILE" ] && grep -q "deia-trigger.sh" "$SETTINGS_FILE" 2>/dev/null; then
+  ok "Hook deia-trigger registrado em ~/.claude/settings.json"
+else
+  warn "Hook deia-trigger NÃO registrado — adicione em hooks.UserPromptSubmit:"
+  cat <<'SNIPPET'
+
+       {
+         "hooks": [
+           {
+             "type": "command",
+             "command": "bash \"/Users/<você>/.claude/hooks/deia-trigger.sh\"",
+             "timeout": 2
+           }
+         ]
+       }
+SNIPPET
+fi
+
+echo "     Comportamento: prefixo 'Deia,' ou 'Deia ' no início da mensagem"
+echo "     ativa automaticamente a skill /idea (orquestrador IdeiaOS)."
+
+# ─────────────────────────────────────────────────────────────────────────────
+step "5.10) Skill Claude Code — /idea (orquestrador IdeiaOS)"
+# Comando único de entrada do IdeiaOS — roteia entre GSD/AIOX/Lovable/Fase A
+# automaticamente baseado no que o usuário pediu.
+
+IDEA_SKILL_DIR="$HOME/.claude/skills/idea"
+IDEA_SKILL="$IDEA_SKILL_DIR/SKILL.md"
+IDEA_TEMPLATE="$SETUP_DIR/skills/idea/SKILL.md"
+
+mkdir -p "$IDEA_SKILL_DIR"
+
+if [ -f "$IDEA_SKILL" ]; then
+  if diff -q "$IDEA_TEMPLATE" "$IDEA_SKILL" &>/dev/null; then
+    ok "Skill /idea já está na versão mais recente"
+  else
+    cp "$IDEA_TEMPLATE" "$IDEA_SKILL"
+    ok "Skill /idea atualizada"
+  fi
+else
+  cp "$IDEA_TEMPLATE" "$IDEA_SKILL"
+  ok "Skill /idea instalada → $IDEA_SKILL"
+fi
+
+echo "     Uso: /idea <pedido em linguagem natural> — roteia automaticamente"
+echo "          Ex: /idea quero adicionar autenticação OAuth"
+echo "          Ex: /idea preciso retomar de onde parei"
+
+# ─────────────────────────────────────────────────────────────────────────────
+step "5.11) GSD readiness check (orquestração goal-backward)"
+# GSD vem com o ambiente Claude Code (skills /gsd-* globais). Aqui só verificamos
+# disponibilidade e avisamos se faltar — não instalamos nada (vem por padrão).
+
+GSD_SKILLS_DIR="$HOME/.claude/skills"
+GSD_DETECTED=0
+if compgen -G "$GSD_SKILLS_DIR/gsd-*" > /dev/null 2>&1; then
+  GSD_COUNT="$(ls -d "$GSD_SKILLS_DIR"/gsd-* 2>/dev/null | wc -l | tr -d ' ')"
+  ok "GSD detectado: $GSD_COUNT skills /gsd-* disponíveis"
+  GSD_DETECTED=1
+else
+  warn "GSD não detectado em $GSD_SKILLS_DIR"
+  warn "GSD vem com Claude Code via plugins — instale via /plugins ou habilite o pacote GSD"
+  echo "       Skills esperadas: /gsd-do, /gsd-quick, /gsd-plan-phase, /gsd-execute-phase, /gsd-new-project"
+fi
+
+# ─────────────────────────────────────────────────────────────────────────────
 step "6) Skills Claude Code — recall-learnings + extract-learnings"
 # Loop de aprendizado contínuo (universal — qualquer projeto)
 
@@ -712,12 +852,14 @@ MEMMD
     ok "Memória Claude Code já existe"
   fi
 
-  # .planning/ para GSD
+  # .planning/ para GSD (camada IdeiaOS — orquestração goal-backward)
   if [ ! -d ".planning" ]; then
-    mkdir -p .planning/phases
-    ok ".planning/ criado — rode /gsd-new-project no Claude Code para inicializar"
+    mkdir -p .planning/phases .planning/intel .planning/research
+    ok ".planning/ criado (com phases/intel/research) — rode /gsd-new-project no Claude Code"
   else
-    ok ".planning/ já existe"
+    # Garante subpastas mínimas mesmo em projetos legados
+    mkdir -p .planning/phases .planning/intel .planning/research
+    ok ".planning/ já existe (subpastas asseguradas)"
   fi
 
   # .gitignore — proteções mínimas
@@ -751,28 +893,39 @@ MEMMD
 
   # Camada de aprendizado contínuo (universal — qualquer projeto)
   setup_learnings_layer "$PROJECT_DIR" "$PROJECT_NAME"
+
+  # Camada IdeiaOS (orquestração GSD + AIOX + Lovable + Fase A)
+  setup_ideiaos_layer "$PROJECT_DIR" "$PROJECT_NAME"
 fi
 
 # ─────────────────────────────────────────────────────────────────────────────
 echo -e "\n${GREEN}${BOLD}╔══════════════════════════════════════════════════════╗"
-echo    "║                  Setup concluído! ✓                 ║"
+echo    "║          IdeiaOS — Setup concluído! ✓               ║"
 echo -e "╚══════════════════════════════════════════════════════╝${NC}"
 echo ""
-echo -e "  ${BOLD}O que foi instalado globalmente:${NC}"
-echo "  • Agente Cursor    → ~/.cursor/agents/claude-continuation.md"
-echo "  • Skill Claude     → ~/.claude/skills/cursor-continuation/SKILL.md"
-echo "  • AIOX Core        → disponível via npx aiox-core"
+echo -e "  ${BOLD}IdeiaOS: Sistema Operacional unificado para dev IA${NC}"
+echo "  Camadas ativas: AIOX-Core + GSD + Lovable + Fase A + Continuation"
 echo ""
-echo -e "  ${BOLD}Como usar no dia a dia:${NC}"
+echo -e "  ${BOLD}Comando único de entrada (recomendado):${NC}"
+echo "  → ${BOLD}/idea <pedido em linguagem natural>${NC}  (Claude Code)"
+echo "       Roteia automaticamente para a camada certa:"
+echo "       /gsd-* (execução), @dev/@qa/@pm (AIOX), /lovable-handoff, etc"
 echo ""
-echo "  No Cursor:"
-echo "  → Diga: 'retoma o que estava no Claude Code'"
-echo "  → Ou mencione @claude-continuation no chat"
+echo -e "  ${BOLD}Comandos diretos por contexto:${NC}"
+echo "  • Setup de projeto         → /dev-setup  (Claude)  ·  @setup-checker  (Cursor)"
+echo "  • Continuar trabalho       → /cursor-continuation  ·  @claude-continuation"
+echo "  • Implantação Lovable      → /lovable-handoff"
+echo "  • Loop de aprendizado      → /recall-learnings (início) · /extract-learnings (fim)"
+echo "  • Execução goal-backward   → /gsd-do, /gsd-quick, /gsd-plan-phase"
+echo "  • Personas AIOX            → @dev, @qa, @pm, @architect, @po, @sm, @devops"
 echo ""
-echo "  No Claude Code:"
-echo "  → Digite: /cursor-continuation"
-echo "  → Ou diga: 'retoma o contexto do Cursor'"
+echo -e "  ${BOLD}Documentação no projeto:${NC}"
+echo "  • IDEIAOS.md                       (manifesto na raiz)"
+echo "  • docs/ideiaos/GUIDE-HUMANS.md     (guia para devs)"
+echo "  • docs/ideiaos/GUIDE-AI.md         (guia para IAs)"
+echo "  • docs/ideiaos/DECISION-MATRIX.md  (qual ferramenta para qual tarefa)"
 echo ""
-echo -e "  ${BOLD}Para um novo projeto:${NC}"
-echo "  → bash $SETUP_DIR/setup.sh /caminho/do/projeto"
+echo -e "  ${BOLD}Para outro projeto:${NC}"
+echo "  → bash $SETUP_DIR/setup.sh --project-only /caminho/do/projeto"
+echo "  → ou (com alias): cd projeto && idea-setup"
 echo ""

@@ -1,0 +1,242 @@
+# IdeiaOS — Decision Matrix · __PROJECT_NAME__
+
+> Tabela canônica: "tarefa que eu quero fazer → camada → comando exato".
+> Use isto quando `/idea` não estiver disponível ou quando quiser aprender o caminho direto.
+> Atualizado em: __DATE__
+
+---
+
+## 1. Início de sessão
+
+| Quero... | Camada | Comando |
+|----------|--------|---------|
+| Retomar onde parei (mesma IDE) | Continuation | Ler `STATE.md` + `docs/CONTINUATION_HANDOFF.md` |
+| Retomar do Cursor no Claude Code | Continuation | `/cursor-continuation` |
+| Retomar do Claude no Cursor | Continuation | `@claude-continuation` |
+| Saber o estado do projeto | Direto | Ler `STATE.md` (curto) |
+| Saber próximo passo executável | Direto | Ler `docs/CONTINUATION_HANDOFF.md` |
+| Carregar aprendizados antes de planejar | Fase A | `/recall-learnings` |
+| Verificar se setup está completo | dev-setup | `/dev-setup` ou `@setup-checker` |
+
+---
+
+## 2. Planejamento
+
+| Quero... | Camada | Comando |
+|----------|--------|---------|
+| Criar projeto novo do zero | GSD | `/gsd-new-project` |
+| Criar milestone novo no projeto | GSD | `/gsd-new-milestone` |
+| Planejar uma fase antes de executar | GSD | `/gsd-plan-phase` |
+| Adicionar fase ao final do roadmap | GSD | `/gsd-add-phase` |
+| Inserir fase urgente entre 2 existentes | GSD | `/gsd-insert-phase` |
+| Remover fase do roadmap | GSD | `/gsd-remove-phase` |
+| Pesquisar antes de planejar (deep research) | GSD | `/gsd-research-phase` |
+| Discutir abordagem antes de planejar | GSD | `/gsd-discuss-phase` |
+| Listar suposições do Claude sobre uma fase | GSD | `/gsd-list-phase-assumptions` |
+| Explorar ideia sem comprometimento | GSD | `/gsd-explore` |
+| Criar epic com personas (AIOX) | AIOX | `@pm *create-epic` |
+| Criar story formal a partir de epic | AIOX | `@sm *draft` |
+| Validar story criada (10-point) | AIOX | `@po *validate-story-draft` |
+
+---
+
+## 3. Execução
+
+| Quero... | Camada | Comando |
+|----------|--------|---------|
+| Executar tarefa rápida (1-3 arquivos) | GSD | `/gsd-quick` |
+| Executar uma fase planejada | GSD | `/gsd-execute-phase` |
+| Executar plano único (sem fase) | GSD | `/gsd-do <pedido>` |
+| Implementar story validada | AIOX | `@dev *develop-story` |
+| Executar sem gates opcionais (mais rápido, menos seguro) | GSD | `/gsd-fast` |
+| Modo autônomo (sem perguntas) | GSD | `/gsd-autonomous` |
+| Executar workstream (múltiplas fases) | GSD | `/gsd-workstreams` |
+
+---
+
+## 4. Verificação e qualidade
+
+| Quero... | Camada | Comando |
+|----------|--------|---------|
+| Verificar se fase atingiu o goal | GSD | `/gsd-verify-work` ou `/gsd-validate-phase` |
+| Code review estruturado | GSD | `/gsd-code-review` |
+| Aplicar fixes do code review | GSD | `/gsd-code-review-fix` |
+| Review do diff atual (rápido) | Direto | `/code-review` (low/medium/high/max/ultra) |
+| QA Gate formal (AIOX) | AIOX | `@qa *qa-gate` |
+| QA Loop iterativo (review → fix → re-review) | AIOX | `@qa *qa-loop` |
+| Auditoria de UI (visual) | GSD | `/gsd-ui-review` |
+| Auditoria de UI antes de aprovar | GSD | `/gsd-ui-phase` |
+| Auditoria de evals em fase de IA | GSD | `/gsd-eval-review` |
+| Verificar mitigações de segurança | GSD | `/gsd-secure-phase` |
+| Audit completo de milestone | GSD | `/gsd-audit-milestone` |
+| Audit do UAT (testes de aceitação) | GSD | `/gsd-audit-uat` |
+| Validar com gsd-doc-verifier | GSD | Subagente via `/gsd-verify-work` |
+
+---
+
+## 5. Debugging
+
+| Quero... | Camada | Comando |
+|----------|--------|---------|
+| Investigar bug isolado | GSD | `/gsd-debug` |
+| Bug recorrente em produção | GSD + docs | `/gsd-debug` + `docs/postmortems/` |
+| Bug pode ser deploy drift | Direto | Ler timestamp deploy vs commit ANTES de mexer no código |
+| Bug em schema (DB) | AIOX | `@data-engineer` |
+| Forensics de mudança suspeita | GSD | `/gsd-forensics` |
+
+---
+
+## 6. Deploy e versionamento
+
+| Quero... | Camada | Comando |
+|----------|--------|---------|
+| Implantar no Lovable Cloud | Lovable | `/lovable-handoff` |
+| Commit local | Direto | `git add` + `git commit` |
+| Push para remote | AIOX | DELEGAR para `@devops *push` |
+| Criar Pull Request | AIOX | DELEGAR para `@devops *pr-create` |
+| Merge PR | AIOX | DELEGAR para `@devops *pr-merge` |
+| Criar branch isolada para planning | Convenção | Branch `planning` (rule planning-branch.mdc) |
+| Reaplicar patches perdidos | GSD | `/gsd-reapply-patches` |
+
+---
+
+## 7. Documentação e contexto
+
+| Quero... | Camada | Comando |
+|----------|--------|---------|
+| Atualizar docs após mudanças | GSD | `/gsd-docs-update` |
+| Sumário de milestone para review | GSD | `/gsd-milestone-summary` |
+| Sumário de sessão atual | GSD | `/gsd-session-report` |
+| Mapear codebase (intel) | GSD | `/gsd-map-codebase` |
+| Consultar intel já mapeado | GSD | `/gsd-intel` |
+| Graph de conhecimento do projeto | GSD | `/gsd-graphify` |
+| Estatísticas de uso/progresso | GSD | `/gsd-stats` ou `/gsd-progress` |
+| Healthcheck do projeto | GSD | `/gsd-health` |
+| Setar profile do usuário | GSD | `/gsd-set-profile` ou `/gsd-profile-user` |
+| Inicializar CLAUDE.md | Direto | `/init` |
+
+---
+
+## 8. Aprendizado contínuo (Fase A)
+
+| Quero... | Camada | Comando |
+|----------|--------|---------|
+| Carregar contexto antes de planejar | Fase A | `/recall-learnings` |
+| Registrar aprendizado pós-trabalho | Fase A | `/extract-learnings` |
+| Listar todos os learnings | Direto | `ls docs/learnings/` |
+| Buscar learning sobre tópico X | Direto | `grep -r "tópico" docs/learnings/` |
+| Atualizar memória Claude global | Auto | Ocorre automaticamente em `extract` |
+
+---
+
+## 9. Cross-IDE e continuação
+
+| Quero... | Onde | Comando |
+|----------|------|---------|
+| Trocar Claude → Cursor | Cursor | `@claude-continuation` |
+| Trocar Cursor → Claude | Claude | `/cursor-continuation` |
+| Salvar estado antes de pausa | Direto | Atualizar `STATE.md` + `CONTINUATION_HANDOFF.md` |
+| Pausar trabalho explicitamente | GSD | `/gsd-pause-work` |
+| Resumir trabalho pausado | GSD | `/gsd-resume-work` |
+| Listar workspaces ativos | GSD | `/gsd-list-workspaces` |
+
+---
+
+## 10. Estrutura e governance
+
+| Quero... | Camada | Comando |
+|----------|--------|---------|
+| Listar todos os comandos GSD | Direto | `/gsd-help` |
+| Help de uma skill específica | Direto | Ler `~/.claude/skills/<nome>/SKILL.md` |
+| Listar comandos AIOX | AIOX | `@aiox-master *help` |
+| Cleanup de fases antigas | GSD | `/gsd-cleanup` |
+| Completar milestone | GSD | `/gsd-complete-milestone` |
+| Backlog review | GSD | `/gsd-review-backlog` |
+| Adicionar item ao backlog | GSD | `/gsd-add-backlog` |
+| Adicionar TODO no contexto | GSD | `/gsd-add-todo` |
+| Notas livres | GSD | `/gsd-note` |
+
+---
+
+## 11. Quando usar a Deia (`/idea`) vs comando direto
+
+**Chame a Deia** (`Deia, ...` ou `/idea ...`):
+- Não tem certeza qual camada
+- Pedido em linguagem natural
+- Está aprendendo o sistema
+- Quer ver o roteamento antes de agir
+
+**Use comando direto:**
+- Sabe exatamente o que quer
+- Tarefa repetitiva conhecida
+- Quer evitar 1 turno de roteamento
+
+> A "Deia" é apenas o nome amigável do orquestrador `/idea`. Ambos invocam a mesma skill — o sistema reconhece prefixos "Deia,", "Deia ", "deia,", "Déia," via hook UserPromptSubmit + matching de description da skill.
+
+---
+
+## 12. Quando usar `/gsd-quick` vs `/gsd-do` vs `/gsd-plan-phase`
+
+| Característica | `/gsd-quick` | `/gsd-do` | `/gsd-plan-phase` |
+|----------------|------------|-----------|--------------------|
+| Escopo | 1-3 arquivos | Varia (auto-detect) | 3+ arquivos |
+| Plano explícito | ❌ | ❌ (Quick auto) | ✅ PLAN.md |
+| Verificação goal-backward | Parcial | Parcial | ✅ Completa |
+| Wave-based parallelization | ❌ | Parcial | ✅ Em `execute-phase` |
+| Atomic commits | ✅ | ✅ | ✅ |
+| Roteamento automático | ❌ | ✅ | ❌ |
+| Tempo médio | <5 min | 5-30 min | 30 min - 4 h |
+
+---
+
+## 13. Combinações canônicas (pipelines)
+
+### Pipeline 1 — Feature completa do zero ao deploy
+```
+/recall-learnings
+  → /gsd-plan-phase (PLAN.md)
+    → /gsd-execute-phase (waves)
+      → /gsd-verify-work (VERIFICATION.md)
+        → /code-review (current diff)
+          → /lovable-handoff (typecheck → commit → push → handoff)
+            → /extract-learnings (gate triplo)
+```
+
+### Pipeline 2 — Fix rápido em produção
+```
+/idea bug X
+  → /gsd-quick
+    → /lovable-handoff
+      → /extract-learnings (se replicável)
+```
+
+### Pipeline 3 — Story formal (AIOX)
+```
+@pm *create-epic
+  → @sm *draft (story)
+    → @po *validate-story-draft
+      → @dev *develop-story
+        → @qa *qa-gate
+          → @devops *push
+```
+
+### Pipeline 4 — Debugging de incidente
+```
+/recall-learnings
+  → /gsd-debug
+    → docs/postmortems/YYYY-MM-DD-<slug>.md
+      → /extract-learnings (sempre — incidente é padrão)
+        → atualizar AGENTS.md se necessário
+```
+
+---
+
+## 14. Atalhos de terminal
+
+| Atalho | Equivalente |
+|--------|-------------|
+| `idea-setup` | `bash ~/Projects/dev-setup/setup.sh --lovable .` |
+
+---
+
+*Matriz mantida pelo dev-setup. Se você identificar um caminho recorrente não documentado, /extract-learnings → vira atualização desta matriz no próximo refresh.*

@@ -1,12 +1,17 @@
 # AGENTS.md — dev-setup
 
+> Este repositório é a **implementação do IdeiaOS** — Sistema Operacional unificado de desenvolvimento da Ideia Business.
+> Documento canônico de design: [`docs/IDEIAOS.md`](docs/IDEIAOS.md).
+> Mudanças aqui afetam **todos os projetos** que usam o setup. Trate com cuidado.
+
 ## Continue / resume (padrão híbrido)
 
 Quando o pedido for genérico ("continuar", "retomar", etc.), leia nesta ordem:
 
-1. `docs/CONTINUATION_HANDOFF.md` (estado operacional no `main`)
-2. `STATE.md` (snapshot curto)
-3. `planning:.planning/STATE.md` e `planning:.planning/ROADMAP.md` (quando existir no projeto-alvo)
+1. `docs/IDEIAOS.md` (especificação canônica — sempre primeiro neste repo)
+2. `docs/CONTINUATION_HANDOFF.md` (estado operacional no `main`)
+3. `STATE.md` (snapshot curto)
+4. `planning:.planning/STATE.md` e `planning:.planning/ROADMAP.md` (quando existir no projeto-alvo)
 
 ## Fechamento de sessão (obrigatório)
 
