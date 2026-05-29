@@ -2,7 +2,7 @@
 
 > **Configura o ambiente de IA da equipe em um único comando.**
 > O IdeiaOS combina 5 camadas (AIOX-Core, GSD, Lovable, Fase A, Continuation) em um sistema único, com **um comando de entrada** (`/idea`) que roteia para a camada certa.
-> Implementado como `dev-setup` — instalável, idempotente, com enforcement automático para você não ter que lembrar de nada.
+> Implementado como `IdeiaOS` — instalável, idempotente, com enforcement automático para você não ter que lembrar de nada.
 
 ---
 
@@ -10,8 +10,8 @@
 
 ```bash
 # 1. Clone
-git clone git@github.com:Ideia-Business/dev-setup.git
-cd dev-setup
+git clone git@github.com:Ideia-Business/IdeiaOS.git
+cd IdeiaOS
 
 # 2. Instale globalmente (uma vez na vida)
 bash setup.sh
@@ -26,7 +26,7 @@ Pronto. Em qualquer projeto, você precisa decorar **um comando** — ou apenas 
 | Onde | Como chamar | Função |
 |------|-------------|--------|
 | Claude Code | `Deia, <pedido>` ou `/idea <pedido>` | **Orquestrador IdeiaOS** — roteia para a camada certa |
-| Cursor | `@setup-checker` | Audita setup do projeto |
+| Cursor | `@ideiaos-checker` | Audita setup do projeto |
 | Terminal | `idea-setup` | Roda setup do projeto atual |
 
 A **Deia** é a assistente IdeiaOS — basta começar a mensagem com `Deia,` (ou `deia,` / `Déia,`) e ela ativa automaticamente. Reforçada por hook `UserPromptSubmit` para máxima confiabilidade.
@@ -72,20 +72,20 @@ Comparativo com ecossistema GitHub (60+ projetos analisados): [`../mapa-github-a
 | **AIOX Core** | npm global via `npx aiox-core` | Orquestrador de agentes IA — base do AIOX |
 | **GSD skills** | `~/.claude/skills/gsd-*` | Suite com 60+ comandos GSD (vem com Claude Code via plugins) |
 | **Skill Claude `/idea`** | `~/.claude/skills/idea/` | **Orquestrador IdeiaOS** — comando único de entrada |
-| **Skill Claude `/dev-setup`** | `~/.claude/skills/dev-setup/` | Audita + completa setup do projeto |
+| **Skill Claude `/ideiaos-setup`** | `~/.claude/skills/ideiaos-setup/` | Audita + completa setup do projeto |
 | **Skill Claude `/cursor-continuation`** | `~/.claude/skills/cursor-continuation/` | Retoma no Claude Code o trabalho do Cursor |
 | **Skill Claude `/lovable-handoff`** | `~/.claude/skills/lovable-handoff/` | Playbook de implantação Lovable |
 | **Skill Claude `/recall-learnings`** | `~/.claude/skills/recall-learnings/` | Lê aprendizados antes de propor plano |
 | **Skill Claude `/extract-learnings`** | `~/.claude/skills/extract-learnings/` | Registra aprendizado pós-trabalho |
 | **Agente Cursor `@claude-continuation`** | `~/.cursor/agents/` | Retoma no Cursor o trabalho do Claude Code |
-| **Agente Cursor `@setup-checker`** | `~/.cursor/agents/` | Audita + completa setup do projeto no Cursor |
+| **Agente Cursor `@ideiaos-checker`** | `~/.cursor/agents/` | Audita + completa setup do projeto no Cursor |
 | **Hook Claude `extract-learnings-reminder`** | `~/.claude/hooks/` | Após `git commit`, lembra de gate triplo |
-| **Hook Claude `dev-setup-detector`** | `~/.claude/hooks/` | SessionStart — detecta projeto sem IdeiaOS |
-| **Hook Claude `dev-setup-readme-reminder.sh`** | `~/.claude/hooks/` | PostToolUse Edit/Write — lembra de sync README |
+| **Hook Claude `ideiaos-detector`** | `~/.claude/hooks/` | SessionStart — detecta projeto sem IdeiaOS |
+| **Hook Claude `ideiaos-readme-reminder.sh`** | `~/.claude/hooks/` | PostToolUse Edit/Write — lembra de sync README |
 | **Hook Claude `deia-trigger.sh`** | `~/.claude/hooks/` | UserPromptSubmit — detecta "Deia," e ativa `/idea` |
 | **Alias `idea-setup`** | `~/.zshrc` ou `~/.bashrc` (via `install-alias.sh`) | Atalho terminal — `cd projeto && idea-setup` |
 
-### Manutenção do próprio dev-setup (rodados manualmente)
+### Manutenção do próprio IdeiaOS (rodados manualmente)
 
 | Script | O que faz |
 |--------|-----------|
@@ -148,7 +148,7 @@ O `/idea` roteia automaticamente para a camada certa e mostra qual comando está
 1. Abra o Claude Code dentro da pasta do projeto
 2. Aguarde 1 segundo. Se aparecer um aviso `🔧 Setup detector — projeto sem IdeiaOS`, digite:
    ```
-   /dev-setup
+   /ideiaos-setup
    ```
 3. A IA lista o que está faltando, pergunta se aplica. Responda **"sim"**.
 4. Pronto. Use `/idea <pedido>` daqui em diante.
@@ -159,7 +159,7 @@ Não aparece aviso. Pode pedir o que quiser direto via `/idea`.
 
 #### Se você esquecer:
 
-Digita `/dev-setup`. Idempotente — pula tudo que já tem, instala só o que falta.
+Digita `/ideiaos-setup`. Idempotente — pula tudo que já tem, instala só o que falta.
 
 ---
 
@@ -169,9 +169,9 @@ Digita `/dev-setup`. Idempotente — pula tudo que já tem, instala só o que fa
 
 1. Abra o projeto no Cursor
 2. Abra o chat lateral (Cmd+L ou ícone do chat)
-3. Peça qualquer coisa. Se a IA disser `🔧 Setup incompleto detectado — Considere @setup-checker`, digite:
+3. Peça qualquer coisa. Se a IA disser `🔧 Setup incompleto detectado — Considere @ideiaos-checker`, digite:
    ```
-   @setup-checker
+   @ideiaos-checker
    ```
 4. O agente lista, confirma, aplica.
 
@@ -181,7 +181,7 @@ IA não sugere setup. Pode trabalhar direto.
 
 #### Se você esquecer:
 
-Digita `@setup-checker` no chat **ou** abre terminal embutido e roda `idea-setup`.
+Digita `@ideiaos-checker` no chat **ou** abre terminal embutido e roda `idea-setup`.
 
 ---
 
@@ -195,7 +195,7 @@ idea-setup
 
 Sem alias:
 ```bash
-bash "$HOME/.../dev-setup/setup.sh" --lovable "$PWD"
+bash "$HOME/.../ideiaos-setup/setup.sh" --lovable "$PWD"
 ```
 
 ---
@@ -205,11 +205,11 @@ bash "$HOME/.../dev-setup/setup.sh" --lovable "$PWD"
 | Lugar | Comando | Função |
 |-------|---------|--------|
 | Claude Code | `/idea <pedido>` | **Orquestrador IdeiaOS** — único comando real necessário |
-| Claude Code (setup) | `/dev-setup` | Quando suspeitar que setup está incompleto |
-| Cursor | `@setup-checker` | Equivalente no Cursor |
+| Claude Code (setup) | `/ideiaos-setup` | Quando suspeitar que setup está incompleto |
+| Cursor | `@ideiaos-checker` | Equivalente no Cursor |
 | Terminal | `idea-setup` | Atalho do `setup.sh --lovable .` |
 
-**Só isso.** Se você esquecer, o próprio sistema te lembra. Se ainda assim esquecer, rode `/dev-setup` ou `@setup-checker` — não estraga nada.
+**Só isso.** Se você esquecer, o próprio sistema te lembra. Se ainda assim esquecer, rode `/ideiaos-setup` ou `@ideiaos-checker` — não estraga nada.
 
 📚 Tabela completa de comandos por camada: cada projeto IdeiaOS recebe `docs/ideiaos/DECISION-MATRIX.md`.
 
@@ -295,7 +295,7 @@ Cada implantação não-trivial passa por 3 momentos:
 Quando houver melhorias:
 
 ```bash
-cd dev-setup
+cd IdeiaOS
 git pull
 bash setup.sh
 ```
@@ -311,22 +311,22 @@ bash setup.sh --project-only --lovable /caminho/do/projeto
 ## 📁 Estrutura do repositório
 
 ```
-dev-setup/
+IdeiaOS/
 ├── setup.sh                                ← script principal, idempotente
 ├── agents/
 │   ├── claude-continuation.md              ← Cursor agent — Cursor lê do Claude
-│   └── setup-checker.md                    ← Cursor agent — audita setup
+│   └── ideiaos-checker.md                    ← Cursor agent — audita setup
 ├── skills/
 │   ├── idea/SKILL.md                       ← Claude — ORQUESTRADOR IdeiaOS
 │   ├── cursor-continuation/SKILL.md        ← Claude — retoma do Cursor
 │   ├── lovable-handoff/SKILL.md            ← Claude — playbook Lovable
 │   ├── recall-learnings/SKILL.md           ← Claude — load context
 │   ├── extract-learnings/SKILL.md          ← Claude — registra aprendizado
-│   └── dev-setup/SKILL.md                  ← Claude — audita setup
+│   └── ideiaos-setup/SKILL.md                  ← Claude — audita setup
 ├── hooks/
 │   ├── extract-learnings-reminder.sh       ← Claude PostToolUse Bash
-│   ├── dev-setup-detector.sh               ← Claude SessionStart
-│   ├── dev-setup-readme-reminder.sh        ← Claude PostToolUse Edit/Write
+│   ├── ideiaos-detector.sh               ← Claude SessionStart
+│   ├── ideiaos-readme-reminder.sh        ← Claude PostToolUse Edit/Write
 │   └── deia-trigger.sh                     ← Claude UserPromptSubmit — gatilho "Deia,"
 ├── scripts/
 │   ├── install-alias.sh                    ← Instala alias idea-setup
@@ -359,9 +359,9 @@ dev-setup/
 ├── docs/
 │   ├── IDEIAOS.md                          ← Especificação canônica do IdeiaOS
 │   └── CONTINUATION_HANDOFF.md
-├── AGENTS.md                               ← Identidade do dev-setup
-├── CLAUDE.md                               ← Instruções Claude para dev-setup
-├── STATE.md                                ← Estado do dev-setup
+├── AGENTS.md                               ← Identidade do IdeiaOS
+├── CLAUDE.md                               ← Instruções Claude para IdeiaOS
+├── STATE.md                                ← Estado do IdeiaOS
 └── README.md                               ← Este arquivo
 ```
 
@@ -391,7 +391,7 @@ Snippet pra adicionar manualmente:
         "matcher": "Edit|Write|MultiEdit",
         "hooks": [{
           "type": "command",
-          "command": "bash \"/Users/<você>/.claude/hooks/dev-setup-readme-reminder.sh\"",
+          "command": "bash \"/Users/<você>/.claude/hooks/ideiaos-readme-reminder.sh\"",
           "timeout": 3
         }]
       }
@@ -400,7 +400,7 @@ Snippet pra adicionar manualmente:
       {
         "hooks": [{
           "type": "command",
-          "command": "bash \"/Users/<você>/.claude/hooks/dev-setup-detector.sh\"",
+          "command": "bash \"/Users/<você>/.claude/hooks/ideiaos-detector.sh\"",
           "timeout": 3
         }]
       }
@@ -419,12 +419,12 @@ A rule `.cursor/rules/agents-md-protocol.mdc` precisa estar no projeto. Confira 
 ls -la .cursor/rules/agents-md-protocol.mdc
 ```
 
-Se não existir, roda `@setup-checker` no chat ou `idea-setup` no terminal.
+Se não existir, roda `@ideiaos-checker` no chat ou `idea-setup` no terminal.
 
 ### "Como sei se o setup está completo?"
 
-No Claude Code: `/dev-setup` → mostra ✅/❌ por camada do IdeiaOS.
-No Cursor: `@setup-checker` → idem.
+No Claude Code: `/ideiaos-setup` → mostra ✅/❌ por camada do IdeiaOS.
+No Cursor: `@ideiaos-checker` → idem.
 No terminal: roda setup e ele lista o que foi feito vs pulado.
 
 ### "Posso rodar várias vezes seguidas sem estragar nada?"
@@ -464,7 +464,7 @@ Os padrões emergentes do trabalho real estão capturados como **learnings** com
 | `protocol-discipline-needs-hooks-not-guidelines` | Antes de desenhar protocolo "obrigatório" para IA |
 | `idempotency-enables-multi-entry-tooling` | Antes de adicionar segunda forma de invocar ferramenta |
 
-Versões expandidas em `docs/learnings/` de qualquer projeto Lovable do setup. Espelhos em memória Claude global de quem clonou o dev-setup.
+Versões expandidas em `docs/learnings/` de qualquer projeto Lovable do setup. Espelhos em memória Claude global de quem clonou o IdeiaOS.
 
 ### Documentação canônica do IdeiaOS
 

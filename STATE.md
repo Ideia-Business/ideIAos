@@ -1,4 +1,4 @@
-# Estado do projeto — dev-setup
+# Estado do projeto — IdeiaOS
 
 **Atualizado:** 2026-05-29 · **Branch:** `main` · **Versão IdeiaOS:** 1.0
 
@@ -10,8 +10,8 @@
 | Especificação canônica | ✅ `docs/IDEIAOS.md` |
 | Orquestrador `/idea` | ✅ `skills/idea/SKILL.md` |
 | Templates IdeiaOS | ✅ `templates/ideiaos/` (4 arquivos: IDEIAOS, GUIDE-HUMANS, GUIDE-AI, DECISION-MATRIX) |
-| Skill `/dev-setup` | ✅ Atualizada para verificar IdeiaOS (5 camadas) |
-| Agent `@setup-checker` | ✅ Atualizado para verificar IdeiaOS (5 camadas) |
+| Skill `/ideiaos-setup` | ✅ Atualizada para verificar IdeiaOS (5 camadas) |
+| Agent `@ideiaos-checker` | ✅ Atualizado para verificar IdeiaOS (5 camadas) |
 | Templates híbridos | ✅ AGENTS, CLAUDE, CONTRIBUTING referenciam IdeiaOS |
 | Setup de continuidade híbrida | ✅ Instalado |
 | Arquivos operacionais | ✅ `STATE.md` + `docs/CONTINUATION_HANDOFF.md` |
@@ -25,8 +25,8 @@
 - Skill `/idea` criada em `skills/idea/SKILL.md` — comando único de entrada com matriz de roteamento
 - 4 templates IdeiaOS criados em `templates/ideiaos/`
 - `setup.sh` ganhou etapa 5.10 (instalação `/idea`), 5.11 (GSD readiness check), 8 (camada IdeiaOS no projeto)
-- Skill `/dev-setup` reescrita para auditar as 5 camadas IdeiaOS
-- Agent `@setup-checker` (Cursor) reescrito para espelhar a skill
+- Skill `/ideiaos-setup` reescrita para auditar as 5 camadas IdeiaOS
+- Agent `@ideiaos-checker` (Cursor) reescrito para espelhar a skill
 - README.md reescrito com IdeiaOS na frente, mantendo backward compatibility
 
 ## Nota

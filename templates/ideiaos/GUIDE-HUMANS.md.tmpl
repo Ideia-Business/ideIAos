@@ -7,10 +7,10 @@
 
 ## Primeira vez aqui? Comece em 3 minutos
 
-1. Garanta que você instalou o **dev-setup** uma vez na sua máquina (veja `CONTRIBUTING.md`).
+1. Garanta que você instalou o **IdeiaOS** uma vez na sua máquina (veja `CONTRIBUTING.md`).
 2. Abra Claude Code dentro deste projeto. Aguarde 1 segundo. Se aparecer aviso de setup, digite:
    ```
-   /dev-setup
+   /ideiaos-setup
    ```
 3. Pronto. Você está no IdeiaOS.
 
@@ -31,12 +31,12 @@ Ela detecta o pedido, decide qual camada do sistema vai usar (GSD, AIOX, Lovable
 | Comando | Quando | Equivalente com Deia |
 |---------|--------|----------------------|
 | `Deia, <pedido>` ou `/idea <pedido>` | Sempre que estiver em dúvida. Roteia automaticamente. | — |
-| `/dev-setup` | Setup incompleto ou projeto novo | `Deia, roda o setup` |
+| `/ideiaos-setup` | Setup incompleto ou projeto novo | `Deia, roda o setup` |
 | `/cursor-continuation` | Quando trocou de IDE (no Claude Code) | `Deia, retoma do Cursor` |
 | `/lovable-handoff` | Pra publicar mudança na Lovable Cloud | `Deia, publica na Lovable` |
 | `/recall-learnings` | Antes de planejar algo grande | `Deia, carrega contexto` |
 
-No Cursor, os equivalentes são: `@setup-checker`, `@claude-continuation`. E no terminal: `idea-setup`.
+No Cursor, os equivalentes são: `@ideiaos-checker`, `@claude-continuation`. E no terminal: `idea-setup`.
 
 ---
 
@@ -106,9 +106,9 @@ Você não precisa lembrar de nada — o sistema te chama:
 
 | Evento | Aviso |
 |--------|-------|
-| Sessão inicia em projeto sem Fase A | "🔧 Setup detector — projeto sem Fase A → /dev-setup" |
+| Sessão inicia em projeto sem Fase A | "🔧 Setup detector — projeto sem Fase A → /ideiaos-setup" |
 | `git commit` em projeto Fase A | "💡 Lembre do gate triplo — /extract-learnings se replicável" |
-| Editou skill/hook no dev-setup | "📝 README precisa sync" |
+| Editou skill/hook no IdeiaOS | "📝 README precisa sync" |
 | Edge function Lovable detectada | "🌊 Hotfix inline detectado — sync pro repo necessário" |
 
 ---
@@ -189,7 +189,7 @@ git push origin main
 
 Setup é idempotente — rodar de novo não estraga. Se realmente quebrou:
 ```bash
-cd ~/Projects/dev-setup && git pull
+cd ~/Projects/IdeiaOS && git pull
 bash setup.sh --project-only .
 ```
 
@@ -221,4 +221,4 @@ bash setup.sh --project-only .
 
 ---
 
-*Guia atualizado em __DATE__ · Sincronizado com dev-setup*
+*Guia atualizado em __DATE__ · Sincronizado com IdeiaOS*

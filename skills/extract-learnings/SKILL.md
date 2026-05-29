@@ -94,7 +94,7 @@ Se o postmortem do incidente existir, adicionar linha no fim dele:
 ### Passo 6 — Anunciar no bloco 7 da resposta final
 
 No modelo de resposta de conclusão de implantação (definido em
-`docs/lovable/conclusao-implantacao.md` ou `dev-setup/templates/lovable/conclusao-implantacao.md.tmpl`),
+`docs/lovable/conclusao-implantacao.md` ou `IdeiaOS/templates/lovable/conclusao-implantacao.md.tmpl`),
 preencher o bloco 7:
 
 ```

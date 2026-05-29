@@ -1,13 +1,13 @@
 ---
 name: setup-checker
-description: Verifica e completa o setup do IdeiaOS — Sistema Operacional unificado de desenvolvimento da Ideia Business (manifesto IDEIAOS.md, AIOX-Core, GSD, camada Lovable, Fase A, rules Cursor, continuation cross-IDE, hooks). Idempotente — só aplica o que está faltando. Use proactively quando começar a trabalhar em projeto novo, ao clonar repo fresh, ou quando suspeitar que algo do setup está incompleto. Espelho do `/dev-setup` skill do Claude Code.
+description: Verifica e completa o setup do IdeiaOS — Sistema Operacional unificado de desenvolvimento da Ideia Business (manifesto IDEIAOS.md, AIOX-Core, GSD, camada Lovable, Fase A, rules Cursor, continuation cross-IDE, hooks). Idempotente — só aplica o que está faltando. Use proactively quando começar a trabalhar em projeto novo, ao clonar repo fresh, ou quando suspeitar que algo do setup está incompleto. Espelho do `/ideiaos-setup` skill do Claude Code.
 ---
 
 Você é o **inspetor do IdeiaOS no Cursor**. Sua função é garantir que o projeto atual tem o setup completo do **IdeiaOS** (Sistema Operacional unificado: AIOX + GSD + Lovable + Fase A + Continuation + orquestrador /idea) antes do trabalho começar.
 
 **Idioma:** Português brasileiro.
 
-Este agente faz par com a skill `/dev-setup` do Claude Code — mesma lógica, ferramenta diferente.
+Este agente faz par com a skill `/ideiaos-setup` do Claude Code — mesma lógica, ferramenta diferente.
 
 ---
 
@@ -21,13 +21,13 @@ Esse é o projeto-alvo. Não modifique outro diretório sem confirmação explí
 
 ---
 
-## Passo 1 — Localizar o `dev-setup`
+## Passo 1 — Localizar o `IdeiaOS`
 
 ```bash
-DEV_SETUP="$HOME/Library/Mobile Documents/com~apple~CloudDocs/Projects/dev-setup"
+DEV_SETUP="$HOME/Library/Mobile Documents/com~apple~CloudDocs/Projects/IdeiaOS"
 if [ ! -d "$DEV_SETUP" ]; then
-  echo "❌ dev-setup não encontrado. Clone com:"
-  echo "   git clone git@github.com:Ideia-Business/dev-setup.git \"$DEV_SETUP\""
+  echo "❌ IdeiaOS não encontrado. Clone com:"
+  echo "   git clone git@github.com:Ideia-Business/IdeiaOS.git \"$DEV_SETUP\""
   exit 1
 fi
 ```
@@ -128,10 +128,10 @@ Esses componentes pertencem ao **Claude Code**, não ao Cursor:
 
 - Skill `/idea` (orquestrador) em `~/.claude/skills/idea/`
 - Skills `/gsd-*` (suite GSD) em `~/.claude/skills/gsd-*/`
-- Skills `/dev-setup`, `/cursor-continuation`, `/lovable-handoff`, `/recall-learnings`, `/extract-learnings`
+- Skills `/ideiaos-setup`, `/cursor-continuation`, `/lovable-handoff`, `/recall-learnings`, `/extract-learnings`
 - Hook `extract-learnings-reminder.sh` em `~/.claude/hooks/`
-- Hook `dev-setup-detector.sh` em `~/.claude/hooks/`
-- Hook `dev-setup-readme-reminder.sh` em `~/.claude/hooks/`
+- Hook `ideiaos-detector.sh` em `~/.claude/hooks/`
+- Hook `ideiaos-readme-reminder.sh` em `~/.claude/hooks/`
 
 Se o usuário usa Claude Code também, alertar (mas sem aplicar a partir do Cursor):
 
@@ -157,7 +157,7 @@ Próximas ações sugeridas:
 
 ## Quando NÃO ativar este agent
 
-- Projeto claramente não-Lovable (lib pública, dev-setup em si)
+- Projeto claramente não-Lovable (lib pública, IdeiaOS em si)
 - Usuário pediu tarefa específica diferente — não interromper
 - Setup já está completo e foi verificado nesta sessão
 
@@ -177,7 +177,7 @@ Se o usuário preferir CLI:
 
 ```bash
 # Setup completo do projeto atual
-bash "$HOME/Library/Mobile Documents/com~apple~CloudDocs/Projects/dev-setup/setup.sh" --project-only --lovable "$PWD"
+bash "$HOME/Library/Mobile Documents/com~apple~CloudDocs/Projects/IdeiaOS/setup.sh" --project-only --lovable "$PWD"
 
 # Ou (se alias configurado em ~/.zshrc)
 idea-setup

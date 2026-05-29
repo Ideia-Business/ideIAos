@@ -24,7 +24,7 @@ Execute esta sequência mentalmente, sem perguntar ao usuário:
 
 ```
 1. ls IDEIAOS.md && cat IDEIAOS.md
-   → Se ausente: sugerir /dev-setup ANTES de qualquer outra coisa.
+   → Se ausente: sugerir /ideiaos-setup ANTES de qualquer outra coisa.
 
 2. cat AGENTS.md
    → Identidade do projeto, padrões invioláveis, marker Lovable.
@@ -71,7 +71,7 @@ Sinais: "retoma", "continua", "estava fazendo", "onde parei", "ontem eu...", "an
 ### Setup
 
 Sinais: "primeira vez", "config inicial", "setup", "tá faltando coisa", "estranho não funcionar"
-→ `/dev-setup` (Claude) ou `@setup-checker` (Cursor)
+→ `/ideiaos-setup` (Claude) ou `@ideiaos-checker` (Cursor)
 
 ### Execução de feature/fix (GSD)
 
@@ -190,8 +190,8 @@ Você está sujeito a hooks que injetam contexto. Ignore-os é perder enforcemen
 | Hook | Quando dispara | O que faz |
 |------|---------------|-----------|
 | `extract-learnings-reminder` | Após `git commit` | Injeta lembrete do gate triplo |
-| `dev-setup-detector` | SessionStart | Detecta projeto sem Fase A e sugere `/dev-setup` |
-| `dev-setup-readme-reminder` | Edit/Write em hooks/skills/agents/scripts/templates do dev-setup | Lembra de sync README |
+| `ideiaos-detector` | SessionStart | Detecta projeto sem Fase A e sugere `/ideiaos-setup` |
+| `ideiaos-readme-reminder` | Edit/Write em hooks/skills/agents/scripts/templates do IdeiaOS | Lembra de sync README |
 
 ---
 
@@ -275,4 +275,4 @@ Você tem memória persistente em `~/.claude/projects/<encoded-path>/memory/`. U
 
 *Este guia é instrução, não filosofia. Cada item aqui resolve um modo de falha real observado. Trate como contrato.*
 
-*Mantido sincronizado com dev-setup ([github.com/Ideia-Business/dev-setup](https://github.com/Ideia-Business/dev-setup)).*
+*Mantido sincronizado com IdeiaOS ([github.com/Ideia-Business/IdeiaOS](https://github.com/Ideia-Business/IdeiaOS)).*

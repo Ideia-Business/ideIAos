@@ -24,7 +24,7 @@ Antes de fazer **qualquer coisa**, valide que este projeto é Lovable. Execute n
 # Marker mais forte: arquivo config Lovable
 ls lovable.config.* 2>/dev/null
 
-# Marker padrão dev-setup: seção lovable-deploy-section no AGENTS.md
+# Marker padrão IdeiaOS: seção lovable-deploy-section no AGENTS.md
 grep -l "lovable-deploy-section" AGENTS.md 2>/dev/null
 
 # Marker fraco: declaração textual no AGENTS.md
@@ -40,7 +40,7 @@ grep -A2 "^deploy:" .aiox-ai-config.yaml 2>/dev/null | grep -i "lovable"
 |-----------|------|
 | Marker forte encontrado | Prosseguir com o playbook |
 | Apenas marker fraco | Pedir confirmação explícita ao usuário antes de prosseguir |
-| Nenhum marker | **BLOQUEAR** — informar ao usuário e pedir confirmação textual ou rodar `bash dev-setup/setup.sh --lovable <projeto>` antes |
+| Nenhum marker | **BLOQUEAR** — informar ao usuário e pedir confirmação textual ou rodar `bash IdeiaOS/setup.sh --lovable <projeto>` antes |
 
 **Nunca** assuma que o projeto é Lovable só porque parece ser (Supabase + Vite ≠ Lovable). O gate
 existe para evitar aplicar o playbook em projetos não-Lovable e gerar handoffs/instruções erradas.

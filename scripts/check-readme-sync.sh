@@ -14,8 +14,8 @@
 #   Exit code: 0 se sincronizado, 1 se faltar algo.
 #
 # Uso:
-#   bash scripts/check-readme-sync.sh          # rodar na raiz do dev-setup
-#   bash scripts/check-readme-sync.sh /caminho # explicitar dir do dev-setup
+#   bash scripts/check-readme-sync.sh          # rodar na raiz do IdeiaOS
+#   bash scripts/check-readme-sync.sh /caminho # explicitar dir do IdeiaOS
 
 set -uo pipefail
 

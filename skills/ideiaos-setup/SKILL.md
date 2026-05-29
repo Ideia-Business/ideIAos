@@ -1,9 +1,9 @@
 ---
-name: dev-setup
+name: IdeiaOS
 description: Ponto de entrada único para garantir que o projeto atual tem o setup completo do IdeiaOS — Sistema Operacional unificado de desenvolvimento da Ideia Business (AIOX Core, GSD, camada Lovable, Fase A — loop de aprendizado, hooks Claude Code, rules Cursor, padrões de debugging em produção, orquestrador /idea). Idempotente — pula tudo que já está instalado. Use no início de qualquer projeto novo (clone fresh, primeiro acesso, ou quando suspeitar que algo está faltando). Detecta automaticamente o projeto atual via cwd.
 ---
 
-# Skill: dev-setup
+# Skill: IdeiaOS
 
 Você é responsável por garantir que o projeto atual está com o setup completo do **IdeiaOS** — Sistema Operacional unificado da Ideia Business. Isso cobre 5 camadas: AIOX-Core, GSD, Lovable, Fase A (loop de aprendizado), Continuation cross-IDE.
 
@@ -13,7 +13,7 @@ Você é responsável por garantir que o projeto atual está com o setup complet
 
 ## Quando esta skill é invocada
 
-- `/dev-setup` (explícito) — você invoca manualmente
+- `/ideiaos-setup` (explícito) — você invoca manualmente
 - Sugestão automática via hook SessionStart quando projeto sem IdeiaOS
 - Quando você diz "configura aqui" / "roda o setup" / "isso aqui está com tudo?"
 - Sugestão automática do `/idea` quando detecta `IDEIAOS.md` ausente
@@ -30,15 +30,15 @@ Esse é o projeto-alvo. Não faça setup em outro diretório sem confirmação e
 
 ---
 
-## Passo 1 — Localizar o `dev-setup`
+## Passo 1 — Localizar o `IdeiaOS`
 
 ```bash
-ls "$HOME/Library/Mobile Documents/com~apple~CloudDocs/Projects/dev-setup/setup.sh" 2>/dev/null \
-  || ls "$HOME/Projects/dev-setup/setup.sh" 2>/dev/null \
-  || ls "$HOME/dev-setup/setup.sh" 2>/dev/null
+ls "$HOME/Library/Mobile Documents/com~apple~CloudDocs/Projects/IdeiaOS/setup.sh" 2>/dev/null \
+  || ls "$HOME/Projects/IdeiaOS/setup.sh" 2>/dev/null \
+  || ls "$HOME/ideiaos-setup/setup.sh" 2>/dev/null
 ```
 
-Se nenhum encontrar: instruir o usuário a clonar `git clone git@github.com:Ideia-Business/dev-setup.git` em local conveniente.
+Se nenhum encontrar: instruir o usuário a clonar `git clone git@github.com:Ideia-Business/IdeiaOS.git` em local conveniente.
 
 ---
 
@@ -131,7 +131,7 @@ Apresentar ao usuário em formato compacto. Se tudo ✅ → terminar com "Setup 
 
 Se houver pelo menos 1 ❌ ou ⚠️, perguntar **uma vez** antes de aplicar:
 
-> "Detectei gaps no setup IdeiaOS. Aplicar agora via `bash dev-setup/setup.sh --project-only --lovable $PWD`? (idempotente — pula o que já está instalado)"
+> "Detectei gaps no setup IdeiaOS. Aplicar agora via `bash IdeiaOS/setup.sh --project-only --lovable $PWD`? (idempotente — pula o que já está instalado)"
 
 Se sim, executar:
 
@@ -165,7 +165,7 @@ Adicione estas entradas em ~/.claude/settings.json:
         "matcher": "Edit|Write|MultiEdit",
         "hooks": [{
           "type": "command",
-          "command": "bash \"/Users/<você>/.claude/hooks/dev-setup-readme-reminder.sh\"",
+          "command": "bash \"/Users/<você>/.claude/hooks/ideiaos-readme-reminder.sh\"",
           "timeout": 3
         }]
       }
@@ -174,7 +174,7 @@ Adicione estas entradas em ~/.claude/settings.json:
       {
         "hooks": [{
           "type": "command",
-          "command": "bash \"/Users/<você>/.claude/hooks/dev-setup-detector.sh\"",
+          "command": "bash \"/Users/<você>/.claude/hooks/ideiaos-detector.sh\"",
           "timeout": 3
         }]
       }

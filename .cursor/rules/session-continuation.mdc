@@ -1,9 +1,9 @@
 ---
-description: 'Hybrid session continuity for dev-setup'
+description: 'Hybrid session continuity for IdeiaOS'
 alwaysApply: true
 ---
 
-# Continuidade de sessão (dev-setup)
+# Continuidade de sessão (IdeiaOS)
 
 Para pedidos de continuidade sem escopo novo:
 

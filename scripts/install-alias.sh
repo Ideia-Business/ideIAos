@@ -4,7 +4,7 @@
 
 set -euo pipefail
 
-DEV_SETUP="$HOME/Library/Mobile Documents/com~apple~CloudDocs/Projects/dev-setup"
+DEV_SETUP="$HOME/Library/Mobile Documents/com~apple~CloudDocs/Projects/IdeiaOS"
 ALIAS_LINE="alias idea-setup='bash \"$DEV_SETUP/setup.sh\" --lovable \"\$PWD\"'"
 
 # Detectar shell rc
@@ -36,7 +36,7 @@ fi
 
 # Adicionar
 {
-  printf "\n# Ideia Business dev-setup (adicionado em %s)\n" "$(date +%Y-%m-%d)"
+  printf "\n# Ideia Business IdeiaOS (adicionado em %s)\n" "$(date +%Y-%m-%d)"
   echo "$ALIAS_LINE"
 } >> "$RC"
 

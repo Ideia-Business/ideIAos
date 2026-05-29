@@ -1,6 +1,6 @@
 # IdeiaOS — Especificação do Sistema Operacional Unificado de Desenvolvimento
 
-> **Documento canônico de design.** Quem mantém o dev-setup mantém este documento.
+> **Documento canônico de design.** Quem mantém o IdeiaOS mantém este documento.
 > Versão: 1.0 · Status: Lançado · Última atualização: 2026-05-29
 
 ---
@@ -21,7 +21,7 @@ Antes do IdeiaOS, o dev precisava decorar:
 - Comandos Lovable (`/lovable-handoff`)
 - Loop de aprendizado (`/recall-learnings`, `/extract-learnings`)
 - Continuation cross-IDE (`/cursor-continuation`, `@claude-continuation`)
-- Setup (`/dev-setup`, `@setup-checker`, `idea-setup`)
+- Setup (`/ideiaos-setup`, `@ideiaos-checker`, `idea-setup`)
 
 Sob pressão, o dev pulava etapas e perdia governance. O IdeiaOS resolve isso com roteamento automático + documentação de decisão clara.
 
@@ -82,18 +82,18 @@ Sob pressão, o dev pulava etapas e perdia governance. O IdeiaOS resolve isso co
 | Tipo | Nome | Localização | Função |
 |------|------|------------|--------|
 | Skill | `/idea` | `~/.claude/skills/idea/SKILL.md` | Orquestrador IdeiaOS |
-| Skill | `/dev-setup` | `~/.claude/skills/dev-setup/SKILL.md` | Audita + completa setup |
+| Skill | `/ideiaos-setup` | `~/.claude/skills/ideiaos-setup/SKILL.md` | Audita + completa setup |
 | Skill | `/cursor-continuation` | `~/.claude/skills/cursor-continuation/SKILL.md` | Cursor → Claude |
 | Skill | `/lovable-handoff` | `~/.claude/skills/lovable-handoff/SKILL.md` | Deploy Lovable |
 | Skill | `/recall-learnings` | `~/.claude/skills/recall-learnings/SKILL.md` | Fase A — recall |
 | Skill | `/extract-learnings` | `~/.claude/skills/extract-learnings/SKILL.md` | Fase A — extract |
 | Skill | `/gsd-*` (suite) | `~/.claude/skills/gsd-*` | 60+ comandos GSD (via Claude Code plugins) |
 | Agent | `@claude-continuation` | `~/.cursor/agents/claude-continuation.md` | Claude → Cursor |
-| Agent | `@setup-checker` | `~/.cursor/agents/setup-checker.md` | Setup audit no Cursor |
+| Agent | `@ideiaos-checker` | `~/.cursor/agents/ideiaos-checker.md` | Setup audit no Cursor |
 | Personas | `@dev`, `@qa`, `@pm`, `@po`, `@sm`, `@architect`, `@data-engineer`, `@ux-design-expert`, `@devops`, `@analyst`, `@aiox-master` | via AIOX-Core | Personas story-driven |
 | Hook | `extract-learnings-reminder.sh` | `~/.claude/hooks/` | PostToolUse Bash — gate triplo |
-| Hook | `dev-setup-detector.sh` | `~/.claude/hooks/` | SessionStart — detecta Fase A |
-| Hook | `dev-setup-readme-reminder.sh` | `~/.claude/hooks/` | PostToolUse Edit/Write — README sync |
+| Hook | `ideiaos-detector.sh` | `~/.claude/hooks/` | SessionStart — detecta Fase A |
+| Hook | `ideiaos-readme-reminder.sh` | `~/.claude/hooks/` | PostToolUse Edit/Write — README sync |
 | CLI | `idea-setup` | alias em `~/.zshrc`/`~/.bashrc` | Atalho terminal |
 | Engine | AIOX Core | `npx aiox-core` | Orquestrador de agentes |
 
@@ -180,7 +180,7 @@ Estes padrões emergem de incidentes reais documentados em `docs/learnings/`. To
 | `git pull` antes de editar | Sempre, especialmente em projeto Lovable ou com colaborador |
 | Idempotência em scripts de config | Detector deve reconhecer variações equivalentes |
 | Schema-first sempre antes de UPDATE/INSERT em prod | Não confiar em "deveria existir" |
-| Pre-commit hook bloqueia commit sem README sync | dev-setup específico |
+| Pre-commit hook bloqueia commit sem README sync | IdeiaOS específico |
 | Hooks > guidelines | Protocolo "obrigatório" para IA = barreira ativa, não doc passiva |
 
 ### 5.3 UX e UAT

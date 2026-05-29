@@ -11,7 +11,7 @@ set -euo pipefail
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 HOOKS_DIR="$REPO_DIR/.git/hooks"
 PRECOMMIT="$HOOKS_DIR/pre-commit"
-MARKER="# dev-setup-readme-sync-hook"
+MARKER="# ideiaos-readme-sync-hook"
 
 if [ ! -d "$HOOKS_DIR" ]; then
   echo "❌ $HOOKS_DIR não existe. Estamos em um clone Git válido?"
@@ -28,7 +28,7 @@ fi
 
 cat > "$PRECOMMIT" <<'HOOK'
 #!/bin/bash
-# dev-setup-readme-sync-hook
+# ideiaos-readme-sync-hook
 # Bloqueia commits que mexam em hooks/, skills/, agents/, scripts/ ou templates/
 # se o README.md não estiver incluído (presumindo que precisa atualizar) OU
 # se o check-readme-sync.sh falhar.

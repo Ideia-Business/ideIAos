@@ -50,7 +50,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-# Se rodou de dentro do próprio dev-setup, não usa ele como projeto alvo
+# Se rodou de dentro do próprio IdeiaOS, não usa ele como projeto alvo
 if [ "$PROJECT_DIR" = "$SETUP_DIR" ]; then
   PROJECT_DIR="$PWD"
 fi
@@ -122,7 +122,7 @@ detect_lovable_project() {
 
 # Anexa/atualiza fragmento Lovable ao AGENTS.md (idempotente via marcadores BEGIN/END).
 # Se markers existem, substitui o bloco entre eles pelo conteúdo atual do fragment —
-# permite refresh do padrão quando o template é atualizado no dev-setup.
+# permite refresh do padrão quando o template é atualizado no IdeiaOS.
 append_lovable_to_agents_md() {
   local agents_md="$1"
   local fragment="$2"
@@ -238,7 +238,7 @@ setup_lovable_project() {
   local config="$project_dir/.aiox-ai-config.yaml"
   if [ -f "$config" ] && ! grep -q "^deploy:" "$config" 2>/dev/null; then
     {
-      printf "\n# Lovable Cloud (managed by dev-setup)\n"
+      printf "\n# Lovable Cloud (managed by IdeiaOS)\n"
       printf "deploy:\n  platform: lovable-cloud\n  sync: github-main\n  configured_at: %s\n" "$today"
     } >> "$config"
     ok ".aiox-ai-config.yaml marcado como Lovable Cloud"
@@ -320,7 +320,7 @@ setup_ideiaos_layer() {
   local config="$project_dir/.aiox-ai-config.yaml"
   if [ -f "$config" ] && ! grep -q "^ideiaos:" "$config" 2>/dev/null; then
     {
-      printf "\n# IdeiaOS — Sistema Operacional unificado (managed by dev-setup)\n"
+      printf "\n# IdeiaOS — Sistema Operacional unificado (managed by IdeiaOS)\n"
       printf "ideiaos:\n  version: 1.0\n  enabled: true\n  configured_at: %s\n  layers:\n" "$today"
       printf "    - aiox-core           # personas, stories, governance\n"
       printf "    - gsd                 # phases, goal-backward, atomic commits\n"
@@ -416,10 +416,10 @@ echo "     Uso no Cursor: mencione @claude-continuation ou 'retoma o que estava 
 
 # ─────────────────────────────────────────────────────────────────────────────
 step "3.5) Agente Cursor — setup-checker"
-# Espelho da skill /dev-setup do Claude Code. Audita + completa setup do projeto.
+# Espelho da skill /ideiaos-setup do Claude Code. Audita + completa setup do projeto.
 
-SETUP_CHECKER="$CURSOR_AGENTS_DIR/setup-checker.md"
-SETUP_CHECKER_TEMPLATE="$SETUP_DIR/agents/setup-checker.md"
+SETUP_CHECKER="$CURSOR_AGENTS_DIR/ideiaos-checker.md"
+SETUP_CHECKER_TEMPLATE="$SETUP_DIR/agents/ideiaos-checker.md"
 
 if [ -f "$SETUP_CHECKER" ]; then
   if diff -q "$SETUP_CHECKER_TEMPLATE" "$SETUP_CHECKER" &>/dev/null; then
@@ -433,7 +433,7 @@ else
   ok "Agente Cursor setup-checker instalado → $SETUP_CHECKER"
 fi
 
-echo "     Uso no Cursor: mencione @setup-checker em projeto novo"
+echo "     Uso no Cursor: mencione @ideiaos-checker em projeto novo"
 
 # ─────────────────────────────────────────────────────────────────────────────
 step "3.6) Alias 'idea-setup' no shell (opcional)"
@@ -546,39 +546,39 @@ echo "     Comportamento: após cada 'git commit' em projeto com AGENTS.md Fase 
 echo "     injeta gate triplo no contexto da IA (lembra criar learning se replicável)."
 
 # ─────────────────────────────────────────────────────────────────────────────
-step "5.6) Hook SessionStart Claude Code — dev-setup-detector"
-# Detecta projeto Lovable sem Fase A no início da sessão e sugere /dev-setup.
-# Idempotente: silencia se Fase A já instalada, projeto não é Lovable, ou é dev-setup.
+step "5.6) Hook SessionStart Claude Code — ideiaos-detector"
+# Detecta projeto Lovable sem Fase A no início da sessão e sugere /ideiaos-setup.
+# Idempotente: silencia se Fase A já instalada, projeto não é Lovable, ou é IdeiaOS.
 
-DETECTOR_FILE="$HOOK_DIR/dev-setup-detector.sh"
-DETECTOR_TEMPLATE="$SETUP_DIR/hooks/dev-setup-detector.sh"
+DETECTOR_FILE="$HOOK_DIR/ideiaos-detector.sh"
+DETECTOR_TEMPLATE="$SETUP_DIR/hooks/ideiaos-detector.sh"
 
 if [ -f "$DETECTOR_FILE" ]; then
   if diff -q "$DETECTOR_TEMPLATE" "$DETECTOR_FILE" &>/dev/null; then
-    ok "Hook dev-setup-detector já está na versão mais recente"
+    ok "Hook ideiaos-detector já está na versão mais recente"
   else
     cp "$DETECTOR_TEMPLATE" "$DETECTOR_FILE"
     chmod +x "$DETECTOR_FILE"
-    ok "Hook dev-setup-detector atualizado"
+    ok "Hook ideiaos-detector atualizado"
   fi
 else
   cp "$DETECTOR_TEMPLATE" "$DETECTOR_FILE"
   chmod +x "$DETECTOR_FILE"
-  ok "Hook dev-setup-detector instalado → $DETECTOR_FILE"
+  ok "Hook ideiaos-detector instalado → $DETECTOR_FILE"
 fi
 
 # Verificar se registrado em settings.json (SessionStart event)
-if [ -f "$SETTINGS_FILE" ] && grep -q "dev-setup-detector.sh" "$SETTINGS_FILE" 2>/dev/null; then
-  ok "Hook dev-setup-detector registrado em ~/.claude/settings.json"
+if [ -f "$SETTINGS_FILE" ] && grep -q "ideiaos-detector.sh" "$SETTINGS_FILE" 2>/dev/null; then
+  ok "Hook ideiaos-detector registrado em ~/.claude/settings.json"
 else
-  warn "Hook dev-setup-detector NÃO está registrado — adicione em hooks.SessionStart:"
+  warn "Hook ideiaos-detector NÃO está registrado — adicione em hooks.SessionStart:"
   cat <<'SNIPPET'
 
        {
          "hooks": [
            {
              "type": "command",
-             "command": "bash \"/Users/<você>/.claude/hooks/dev-setup-detector.sh\"",
+             "command": "bash \"/Users/<você>/.claude/hooks/ideiaos-detector.sh\"",
              "timeout": 3
            }
          ]
@@ -587,10 +587,10 @@ SNIPPET
 fi
 
 # ─────────────────────────────────────────────────────────────────────────────
-step "5.7) Skill Claude Code — /dev-setup"
+step "5.7) Skill Claude Code — /ideiaos-setup"
 # Ponto de entrada único pra rodar o setup. Idempotente, audita antes de aplicar.
 
-for SKILL_NAME in dev-setup; do
+for SKILL_NAME in ideiaos-setup; do
   S_DIR="$HOME/.claude/skills/$SKILL_NAME"
   S_FILE="$S_DIR/SKILL.md"
   S_TEMPLATE="$SETUP_DIR/skills/$SKILL_NAME/SKILL.md"
@@ -610,34 +610,34 @@ for SKILL_NAME in dev-setup; do
   fi
 done
 
-echo "     Uso: /dev-setup em qualquer projeto novo. Idempotente."
+echo "     Uso: /ideiaos-setup em qualquer projeto novo. Idempotente."
 
 # ─────────────────────────────────────────────────────────────────────────────
-step "5.8) Hook Claude Code — dev-setup-readme-reminder"
-# Lembra a IA de atualizar o README do dev-setup quando modifica componentes.
+step "5.8) Hook Claude Code — ideiaos-readme-reminder"
+# Lembra a IA de atualizar o README do IdeiaOS quando modifica componentes.
 # Reforço pelo lado da IA antes do pre-commit Git bloquear no commit.
 
-README_HOOK="$HOOK_DIR/dev-setup-readme-reminder.sh"
-README_HOOK_TEMPLATE="$SETUP_DIR/hooks/dev-setup-readme-reminder.sh"
+README_HOOK="$HOOK_DIR/ideiaos-readme-reminder.sh"
+README_HOOK_TEMPLATE="$SETUP_DIR/hooks/ideiaos-readme-reminder.sh"
 
 if [ -f "$README_HOOK" ]; then
   if diff -q "$README_HOOK_TEMPLATE" "$README_HOOK" &>/dev/null; then
-    ok "Hook dev-setup-readme-reminder já está na versão mais recente"
+    ok "Hook ideiaos-readme-reminder já está na versão mais recente"
   else
     cp "$README_HOOK_TEMPLATE" "$README_HOOK"
     chmod +x "$README_HOOK"
-    ok "Hook dev-setup-readme-reminder atualizado"
+    ok "Hook ideiaos-readme-reminder atualizado"
   fi
 else
   cp "$README_HOOK_TEMPLATE" "$README_HOOK"
   chmod +x "$README_HOOK"
-  ok "Hook dev-setup-readme-reminder instalado → $README_HOOK"
+  ok "Hook ideiaos-readme-reminder instalado → $README_HOOK"
 fi
 
-if [ -f "$SETTINGS_FILE" ] && grep -q "dev-setup-readme-reminder.sh" "$SETTINGS_FILE" 2>/dev/null; then
-  ok "Hook dev-setup-readme-reminder registrado em ~/.claude/settings.json"
+if [ -f "$SETTINGS_FILE" ] && grep -q "ideiaos-readme-reminder.sh" "$SETTINGS_FILE" 2>/dev/null; then
+  ok "Hook ideiaos-readme-reminder registrado em ~/.claude/settings.json"
 else
-  warn "Hook dev-setup-readme-reminder NÃO registrado — adicione em hooks.PostToolUse:"
+  warn "Hook ideiaos-readme-reminder NÃO registrado — adicione em hooks.PostToolUse:"
   cat <<'SNIPPET'
 
        {
@@ -645,7 +645,7 @@ else
          "hooks": [
            {
              "type": "command",
-             "command": "bash \"/Users/<você>/.claude/hooks/dev-setup-readme-reminder.sh\"",
+             "command": "bash \"/Users/<você>/.claude/hooks/ideiaos-readme-reminder.sh\"",
              "timeout": 3
            }
          ]
@@ -654,20 +654,20 @@ SNIPPET
 fi
 
 # ─────────────────────────────────────────────────────────────────────────────
-step "5.9) Pre-commit Git no clone do dev-setup (se aplicável)"
-# Só dispara se estamos rodando dentro de um clone do dev-setup.
+step "5.9) Pre-commit Git no clone do IdeiaOS (se aplicável)"
+# Só dispara se estamos rodando dentro de um clone do IdeiaOS.
 
 if [ "$SETUP_DIR" = "$PWD" ] || git -C "$SETUP_DIR" rev-parse --git-dir &>/dev/null; then
   PRECOMMIT_FILE="$SETUP_DIR/.git/hooks/pre-commit"
-  if [ -f "$PRECOMMIT_FILE" ] && grep -qF "dev-setup-readme-sync-hook" "$PRECOMMIT_FILE" 2>/dev/null; then
-    ok "Pre-commit hook do dev-setup já instalado"
+  if [ -f "$PRECOMMIT_FILE" ] && grep -qF "ideiaos-readme-sync-hook" "$PRECOMMIT_FILE" 2>/dev/null; then
+    ok "Pre-commit hook do IdeiaOS já instalado"
   else
-    warn "Pre-commit hook do dev-setup NÃO instalado. Para ativar:"
+    warn "Pre-commit hook do IdeiaOS NÃO instalado. Para ativar:"
     echo "       bash \"$SETUP_DIR/scripts/install-git-hooks.sh\""
-    echo "       (Bloqueia commits ao dev-setup que mexem em componentes sem atualizar README)"
+    echo "       (Bloqueia commits ao IdeiaOS que mexem em componentes sem atualizar README)"
   fi
 else
-  ok "Não estamos em clone do dev-setup — pulando pre-commit hook"
+  ok "Não estamos em clone do IdeiaOS — pulando pre-commit hook"
 fi
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -912,7 +912,7 @@ echo "       Roteia automaticamente para a camada certa:"
 echo "       /gsd-* (execução), @dev/@qa/@pm (AIOX), /lovable-handoff, etc"
 echo ""
 echo -e "  ${BOLD}Comandos diretos por contexto:${NC}"
-echo "  • Setup de projeto         → /dev-setup  (Claude)  ·  @setup-checker  (Cursor)"
+echo "  • Setup de projeto         → /ideiaos-setup  (Claude)  ·  @ideiaos-checker  (Cursor)"
 echo "  • Continuar trabalho       → /cursor-continuation  ·  @claude-continuation"
 echo "  • Implantação Lovable      → /lovable-handoff"
 echo "  • Loop de aprendizado      → /recall-learnings (início) · /extract-learnings (fim)"

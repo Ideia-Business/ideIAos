@@ -1,7 +1,7 @@
 # Handoff — continuar em outro turno
 
-**Projeto:** `dev-setup`  
-**Repo:** https://github.com/Ideia-Business/dev-setup  
+**Projeto:** `IdeiaOS`  
+**Repo:** https://github.com/Ideia-Business/IdeiaOS  
 **Branch:** `main`  
 **Atualizado:** 2026-05-28
 

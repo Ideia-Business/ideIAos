@@ -15,14 +15,14 @@ Em **qualquer pedido novo** do usuário, antes de responder, verificar silencios
 [ ! -d docs/learnings ] || [ ! -f docs/playbook-implantacao.md ] || [ ! -f docs/lovable/conclusao-implantacao.md ]
 ```
 
-Se **algum desses não existe**, este projeto está com setup do dev-setup **incompleto ou desatualizado**. Antes de prosseguir com a tarefa do usuário, **sugira proativamente** (uma frase no início da resposta):
+Se **algum desses não existe**, este projeto está com setup do IdeiaOS **incompleto ou desatualizado**. Antes de prosseguir com a tarefa do usuário, **sugira proativamente** (uma frase no início da resposta):
 
-> 🔧 **Setup incompleto detectado** — `docs/learnings/` (ou outro componente) ausente. Considere invocar **@setup-checker** (agente Cursor) ou rodar `idea-setup` no terminal antes de seguir. É idempotente.
+> 🔧 **Setup incompleto detectado** — `docs/learnings/` (ou outro componente) ausente. Considere invocar **@ideiaos-checker** (agente Cursor) ou rodar `idea-setup` no terminal antes de seguir. É idempotente.
 
 Não bloqueia a tarefa — apenas sugere. Se o usuário pedir pra ignorar, prossiga normalmente.
 
 Outra opção: o usuário pode digitar diretamente:
-- `@setup-checker` — invoca o agente que faz audit + setup
+- `@ideiaos-checker` — invoca o agente que faz audit + setup
 - `idea-setup` no terminal — atalho CLI (se alias configurado)
 
 ## Antes de propor qualquer plano (implementação / correção / investigação)

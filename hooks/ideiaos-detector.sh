@@ -1,11 +1,11 @@
 #!/bin/bash
 # Hook SessionStart — detecta projeto Lovable não-setupado e injeta lembrete
-# para invocar `/dev-setup`.
+# para invocar `/ideiaos-setup`.
 #
 # Filtros (silenciar para evitar ruído):
 #   - cwd não é projeto Lovable
 #   - Já tem AGENTS.md com "Loop de aprendizado contínuo" (Fase A já instalada)
-#   - Projeto é o próprio dev-setup
+#   - Projeto é o próprio IdeiaOS
 #
 # Disparo: 1x por sessão, apenas se for projeto Lovable sem Fase A.
 
@@ -23,8 +23,8 @@ except Exception:
 " 2>/dev/null)"
 [ -z "$CWD" ] && CWD="$PWD"
 
-# Skip se for o próprio dev-setup
-if [ "$(basename "$CWD")" = "dev-setup" ]; then
+# Skip se for o próprio IdeiaOS
+if [ "$(basename "$CWD")" = "IdeiaOS" ]; then
   exit 0
 fi
 
@@ -55,7 +55,7 @@ cat <<'JSON'
 {
   "hookSpecificOutput": {
     "hookEventName": "SessionStart",
-    "additionalContext": "🔧 SETUP DETECTOR — Este projeto parece ser Lovable (heurística) mas NÃO tem o setup Fase A do dev-setup (AGENTS.md sem 'Loop de aprendizado contínuo' OU AGENTS.md ausente).\n\nConsidere rodar `/dev-setup` no chat. Isso é idempotente — pula tudo que já está instalado. Vai diagnosticar e completar:\n\n- AGENTS.md com seção Lovable + camada Fase A\n- docs/playbook-implantacao.md\n- docs/lovable/_TEMPLATE.md + conclusao-implantacao.md\n- docs/learnings/ + docs/postmortems/\n- .cursor/rules/*.mdc (agents-md-protocol, planning-branch, session-continuation)\n- Hook PostToolUse extract-learnings-reminder (se Claude Code global ainda não tem)\n\nSe este NÃO é projeto Lovable e o detector se enganou, ignore esta mensagem (heurística não é perfeita). Falsos positivos prováveis: forks de projetos Ideia-Business sem deploy Lovable."
+    "additionalContext": "🔧 SETUP DETECTOR — Este projeto parece ser Lovable (heurística) mas NÃO tem o setup Fase A do IdeiaOS (AGENTS.md sem 'Loop de aprendizado contínuo' OU AGENTS.md ausente).\n\nConsidere rodar `/ideiaos-setup` no chat. Isso é idempotente — pula tudo que já está instalado. Vai diagnosticar e completar:\n\n- AGENTS.md com seção Lovable + camada Fase A\n- docs/playbook-implantacao.md\n- docs/lovable/_TEMPLATE.md + conclusao-implantacao.md\n- docs/learnings/ + docs/postmortems/\n- .cursor/rules/*.mdc (agents-md-protocol, planning-branch, session-continuation)\n- Hook PostToolUse extract-learnings-reminder (se Claude Code global ainda não tem)\n\nSe este NÃO é projeto Lovable e o detector se enganou, ignore esta mensagem (heurística não é perfeita). Falsos positivos prováveis: forks de projetos Ideia-Business sem deploy Lovable."
   }
 }
 JSON

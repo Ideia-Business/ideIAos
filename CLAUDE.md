@@ -1,4 +1,4 @@
-# CLAUDE.md — dev-setup
+# CLAUDE.md — IdeiaOS
 
 ## Início de sessão
 

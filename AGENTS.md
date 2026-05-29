@@ -1,4 +1,4 @@
-# AGENTS.md — dev-setup
+# AGENTS.md — IdeiaOS
 
 > Este repositório é a **implementação do IdeiaOS** — Sistema Operacional unificado de desenvolvimento da Ideia Business.
 > Documento canônico de design: [`docs/IDEIAOS.md`](docs/IDEIAOS.md).
@@ -40,12 +40,12 @@ Toda mudança em `hooks/`, `skills/`, `agents/`, `scripts/` ou `templates/` **DE
 1. Seção **"O que este setup instala"** (tabelas de componentes globais e do projeto)
 2. Seção **"Estrutura do repositório"** (árvore de pastas)
 3. Se for skill/agent novo: seção **"Como usar no dia a dia"**
-4. Se for hook novo: seção **"Manutenção do próprio dev-setup"** (scripts) ou seção troubleshooting
+4. Se for hook novo: seção **"Manutenção do próprio IdeiaOS"** (scripts) ou seção troubleshooting
 
 **Enforcement (barreira ativa):**
 
 - Pre-commit hook do Git (instalado via `bash scripts/install-git-hooks.sh`) **bloqueia** commits que mexam em componentes sem incluir `README.md` no commit OU sem passar no `scripts/check-readme-sync.sh`.
-- Hook Claude Code `dev-setup-readme-reminder.sh` (PostToolUse Edit/Write) injeta lembrete imediato quando a IA modifica componente.
+- Hook Claude Code `ideiaos-readme-reminder.sh` (PostToolUse Edit/Write) injeta lembrete imediato quando a IA modifica componente.
 - Validação manual: `bash scripts/check-readme-sync.sh` — output ✅/❌ por componente.
 
 **Por que existe:** em 28/05/2026 o README ficou 1 sessão inteira desatualizado sem ninguém notar — barreira ativa > documentação passiva ([[learning-protocol-discipline-needs-hooks-not-guidelines]]).

@@ -91,8 +91,8 @@ Retomar trabalho entre Cursor ↔ Claude Code sem perda de contexto.
 |---------|------|--------|
 | `/cursor-continuation` | Claude Code | Lê estado do Cursor (planos, todos, git, memória) |
 | `@claude-continuation` | Cursor | Lê handoff do Claude Code |
-| `/dev-setup` | Claude Code | Audita + completa setup |
-| `@setup-checker` | Cursor | Idem (espelho) |
+| `/ideiaos-setup` | Claude Code | Audita + completa setup |
+| `@ideiaos-checker` | Cursor | Idem (espelho) |
 
 ---
 
@@ -192,13 +192,13 @@ Estes são gerados/mantidos pela Lovable Cloud. Edição local = drift garantido
 ## Como atualizar este projeto pra última versão do IdeiaOS
 
 ```bash
-cd ~/Projects/dev-setup && git pull
+cd ~/Projects/IdeiaOS && git pull
 cd /caminho/para/__PROJECT_NAME__
-bash ~/Projects/dev-setup/setup.sh --project-only --lovable .
+bash ~/Projects/IdeiaOS/setup.sh --project-only --lovable .
 ```
 
 Idempotente — pula tudo que já está, atualiza só o que mudou.
 
 ---
 
-*Manifesto criado em __DATE__ · Mantido por dev-setup ([github.com/Ideia-Business/dev-setup](https://github.com/Ideia-Business/dev-setup))*
+*Manifesto criado em __DATE__ · Mantido por IdeiaOS ([github.com/Ideia-Business/IdeiaOS](https://github.com/Ideia-Business/IdeiaOS))*
