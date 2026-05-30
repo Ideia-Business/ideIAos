@@ -1,4 +1,4 @@
-# IdeiaOS — Sistema Operacional Unificado de Desenvolvimento
+# ideIAos — Sistema Operacional Unificado de Desenvolvimento
 
 > **Configura o ambiente de IA da equipe em um único comando.**
 > O IdeiaOS combina 5 camadas (AIOX-Core, GSD, Lovable, Fase A, Continuation) em um sistema único, com **um comando de entrada** (`/idea`) que roteia para a camada certa.
