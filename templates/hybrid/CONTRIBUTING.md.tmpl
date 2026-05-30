@@ -16,10 +16,10 @@ Se você acabou de clonar, **antes de qualquer mudança**, garanta que o setup e
 
 ```bash
 # 1. Clone o ideIAos (uma vez, fora deste projeto)
-git clone git@github.com:Ideia-Business/IdeiaOS.git ~/Projects/IdeiaOS
+git clone git@github.com:Ideia-Business/ideIAos.git ~/Projects/ideIAos
 
 # 2. Instale globalmente (uma vez)
-cd ~/Projects/IdeiaOS
+cd ~/Projects/ideIAos
 bash setup.sh
 
 # 3. (Opcional) adicione alias de terminal
@@ -33,7 +33,7 @@ Já está configurado se você clonou e os arquivos do ideIAos estão presentes 
 
 ```bash
 cd /caminho/para/__PROJECT_NAME__
-bash ~/Projects/IdeiaOS/setup.sh --project-only --lovable .
+bash ~/Projects/ideIAos/setup.sh --project-only --lovable .
 ```
 
 (O `setup.sh` é **idempotente** — roda 1x ou 100x, dá o mesmo resultado.)
@@ -43,7 +43,7 @@ bash ~/Projects/IdeiaOS/setup.sh --project-only --lovable .
 O `setup.sh` cuida dos arquivos do **projeto**. Para os componentes **globais** (skills Claude Code, workflow GSD, hook Fase A, settings.json, agente qa do AIOX-core) existe um **overlay** com 6 patches idempotentes:
 
 ```bash
-cd ~/Projects/IdeiaOS
+cd ~/Projects/ideIAos
 
 # Aplicar overlay uma vez
 bash scripts/install-global-patches.sh
@@ -214,7 +214,7 @@ Detalhes em `docs/learnings/` deste projeto (versão expandida) ou na memória C
 
 ## 📚 Referências
 
-- **ideIAos** (este ecossistema): https://github.com/Ideia-Business/IdeiaOS
+- **ideIAos** (este ecossistema): https://github.com/Ideia-Business/ideIAos
 - **AGENTS.md** deste projeto: regras invioláveis, stack, deploy
 - **docs/playbook-implantacao.md**: fluxo obrigatório de implantação
 - **docs/lovable/conclusao-implantacao.md**: modelo canônico de resposta
@@ -224,4 +224,4 @@ Detalhes em `docs/learnings/` deste projeto (versão expandida) ou na memória C
 ---
 
 *Última atualização: __DATE__ (v1.1 — Caminho C: composição AIOX × GSD)*
-*Mantido sincronizado com [ideIAos](https://github.com/Ideia-Business/IdeiaOS) — se algum comando aqui diverge do que o setup.sh faz, o ideIAos é a fonte da verdade.*
+*Mantido sincronizado com [ideIAos](https://github.com/Ideia-Business/ideIAos) — se algum comando aqui diverge do que o setup.sh faz, o ideIAos é a fonte da verdade.*

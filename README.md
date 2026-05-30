@@ -10,8 +10,8 @@
 
 ```bash
 # 1. Clone
-git clone git@github.com:Ideia-Business/IdeiaOS.git
-cd IdeiaOS
+git clone git@github.com:Ideia-Business/ideIAos.git
+cd ideIAos
 
 # 2. Instale globalmente (uma vez na vida)
 bash setup.sh
@@ -343,7 +343,7 @@ Sem isso, sob pressão a IA tende a pular o passo de reflexão.
 Quando houver melhorias:
 
 ```bash
-cd IdeiaOS
+cd ideIAos
 git pull
 bash setup.sh
 ```
