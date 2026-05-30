@@ -1,7 +1,7 @@
 # IDEIAOS.md — __PROJECT_NAME__
 
 > **Este projeto opera sob o IdeiaOS** — Sistema Operacional unificado de desenvolvimento da Ideia Business.
-> Instalado em: __DATE__ · Versão: 1.0
+> Instalado em: __DATE__ · Versão: 1.1 (Caminho C — composição AIOX × GSD)
 
 ---
 
@@ -20,6 +20,35 @@ Exemplos:
 - `Deia, publica isso na Lovable`
 
 Ou se preferir o comando explícito: `/idea <pedido>`. Ambos invocam o mesmo orquestrador e roteiam para a camada certa.
+
+---
+
+## Composição AIOX × GSD (Caminho C — v1.1)
+
+AIOX-Core e GSD **não competem** — operam em planos diferentes e se compõem:
+
+| Plano | Camada | Artefato canônico |
+|-------|--------|-------------------|
+| **O QUÊ** (intenção + critério de pronto) | AIOX-Core | `docs/stories/{N}.story.md` |
+| **COMO** (execução técnica) | GSD | `.planning/phases/{N}/PLAN.md` + `VERIFICATION.md` |
+| **ONDE** (produção) | Lovable Handoff | `docs/lovable/*` |
+| **MEMÓRIA** (transversal) | Fase A | `docs/learnings/*` |
+| **TRÂNSITO** (transversal) | Continuation | `STATE.md` + `HANDOFF.md` |
+
+**Decisão única da Deia** — antes de rotear, avalia 2 exceções + 1 pergunta:
+- **Retomada?** → Continuation
+- **Bug reprodutível?** → `/gsd-debug`
+- **Precisa de O QUÊ formal?** (5 critérios: stakeholder externo, aceite formal, validação UX, múltiplos executores, palavras-chave). Qualquer SIM → entrada AIOX. Todos NÃO → entrada GSD (default).
+
+**3 contratos de composição:**
+
+| Contrato | Comando | Quando |
+|----------|---------|--------|
+| Plan aceita story | `/gsd-plan-phase --story <path>` | AC vira goal-backward |
+| QA-gate aceita verification | `@qa *gate <story> --verification <path>` | Skip-if-verified |
+| Hook Fase A | automático | Após qa-gate PASS, VERIFICATION.md success, ou `git commit` |
+
+Detalhes: `docs/ideiaos/DECISION-MATRIX.md` e `docs/ideiaos/GUIDE-AI.md`.
 
 ---
 
@@ -82,7 +111,7 @@ Captura padrões replicáveis ao longo de cada sessão.
 | `/recall-learnings` | **Início** de toda sessão não-trivial |
 | `/extract-learnings` | **Fim** — aplica gate triplo (replicável + não-óbvio + estável) |
 
-Hook automático: após cada `git commit` em projeto Fase A, o Claude Code injeta lembrete do gate triplo.
+Hook automático (3 gatilhos — composição Contrato 3): após `git commit`, após qa-gate PASS escrito em `docs/qa/gates/*.yaml`, ou após `*-VERIFICATION.md` marcado como SUCCESS, o Claude Code injeta lembrete do gate triplo.
 
 ### 5. Continuation — Cross-IDE handoff
 Retomar trabalho entre Cursor ↔ Claude Code sem perda de contexto.
@@ -98,9 +127,9 @@ Retomar trabalho entre Cursor ↔ Claude Code sem perda de contexto.
 
 ## Fluxos típicos
 
-### Feature nova (do zero ao deploy)
+### Feature nova — entrada GSD (sem story formal)
 ```
-/idea quero adicionar feature X
+Deia, quero adicionar feature X
   → /gsd-do detecta complexidade
     → Se simples: /gsd-quick → commit atômico
     → Se complexa:
@@ -109,6 +138,19 @@ Retomar trabalho entre Cursor ↔ Claude Code sem perda de contexto.
         → /gsd-verify-work → VERIFICATION.md
 → /lovable-handoff (se Lovable)
 → /extract-learnings (se replicável)
+```
+
+### Feature formal — entrada AIOX (composição Contrato 1+2)
+```
+Deia, preciso de story formal para feature X (stakeholder externo)
+  → @sm *draft → docs/stories/{N}.story.md
+    → @po *validate-story-draft (10-point)
+      → /gsd-plan-phase --story docs/stories/{N}.story.md  ← Contrato 1
+        → /gsd-execute-phase
+          → /gsd-verify-work  ← VERIFICATION.md marca AC ✅/❌
+            → @qa *gate {N} --verification .planning/phases/{N}/{N}-VERIFICATION.md  ← Contrato 2
+              → (se Lovable) /lovable-handoff
+                → (hook) lembrete Fase A  ← Contrato 3
 ```
 
 ### Bug recorrente
@@ -201,4 +243,4 @@ Idempotente — pula tudo que já está, atualiza só o que mudou.
 
 ---
 
-*Manifesto criado em __DATE__ · Mantido por IdeiaOS ([github.com/Ideia-Business/IdeiaOS](https://github.com/Ideia-Business/IdeiaOS))*
+*Manifesto criado em __DATE__ · v1.1 (Caminho C: composição AIOX × GSD) · Mantido por IdeiaOS ([github.com/Ideia-Business/IdeiaOS](https://github.com/Ideia-Business/IdeiaOS))*

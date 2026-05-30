@@ -38,6 +38,22 @@ bash ~/Projects/IdeiaOS/setup.sh --project-only --lovable .
 
 (O `setup.sh` é **idempotente** — roda 1x ou 100x, dá o mesmo resultado.)
 
+### Aplicar overlay IdeiaOS sobre componentes globais (Caminho C — v1.1)
+
+O `setup.sh` cuida dos arquivos do **projeto**. Para os componentes **globais** (skills Claude Code, workflow GSD, hook Fase A, settings.json, agente qa do AIOX-core) existe um **overlay** com 6 patches idempotentes:
+
+```bash
+cd ~/Projects/IdeiaOS
+
+# Aplicar overlay uma vez
+bash scripts/install-global-patches.sh
+
+# OU rodar tudo de uma vez (detect updates upstream + re-apply overlay)
+bash scripts/sync-all.sh
+```
+
+**Rode `sync-all.sh` periodicamente** — sempre que atualizar Claude Code, trocar de máquina, ou quando algo "parou de funcionar magicamente". O overlay sobrevive a updates upstream (detecta marcadores únicos antes de aplicar).
+
 ---
 
 ## 📖 Como usar no dia a dia
@@ -57,7 +73,19 @@ Exemplos:
 - `/idea publicar isso na Lovable`
 - `/idea debugar esse bug recorrente`
 
-O `/idea` roteia automaticamente para a camada certa (GSD para execução, AIOX para personas, Lovable para deploy, Fase A para aprendizado, Continuation para retomada).
+O `/idea` aplica a **decisão única** do Caminho C (v1.1):
+
+1. **É retomada?** ("retoma", "onde parei") → Continuation
+2. **É bug reprodutível?** → `/gsd-debug`
+3. **Precisa de O QUÊ formal?** (5 critérios: stakeholder externo, aceite formal, validação UX, múltiplos executores, palavras-chave) → SIM = entrada **AIOX** (`@sm` cria story → composição com GSD). NÃO = entrada **GSD** (default).
+
+AIOX define O QUÊ; GSD define COMO; AIOX valida o pronto. Os planos se compõem internamente via 3 contratos:
+
+| Contrato | Comando | Quando |
+|----------|---------|--------|
+| Plan aceita story | `/gsd-plan-phase --story <path>` | Após AIOX validar story |
+| QA-gate aceita verification | `@qa *gate <story> --verification <path>` | Após GSD verificar |
+| Hook Fase A | automático | Após qa-gate PASS / verify SUCCESS / git commit |
 
 ### 📋 Comandos diretos por contexto
 
@@ -195,5 +223,5 @@ Detalhes em `docs/learnings/` deste projeto (versão expandida) ou na memória C
 
 ---
 
-*Última atualização deste documento: __DATE__*
+*Última atualização: __DATE__ (v1.1 — Caminho C: composição AIOX × GSD)*
 *Mantido sincronizado com [IdeiaOS](https://github.com/Ideia-Business/IdeiaOS) — se algum comando aqui diverge do que o setup.sh faz, o IdeiaOS é a fonte da verdade.*

@@ -280,9 +280,38 @@ setup_learnings_layer() {
   fi
 }
 
+# Extrai a versão do bundle IdeiaOS de um arquivo IDEIAOS.md (qualquer projeto
+# ou o template). Procura "Versão: X.Y" nas primeiras 10 linhas.
+# Retorna a versão (ex: "1.1") ou string vazia se não encontrar.
+ideiaos_version_of() {
+  local file="$1"
+  [ -f "$file" ] || { echo ""; return; }
+  head -10 "$file" 2>/dev/null \
+    | grep -oE 'Vers[^:]+o:[[:space:]]*[0-9]+\.[0-9]+' \
+    | head -1 \
+    | sed -E 's/.*o:[[:space:]]*//'
+}
+
+# Extrai a data de instalação original (linha "Instalado em: YYYY-MM-DD") para
+# preservar o timestamp histórico ao re-renderizar durante upgrade de versão.
+# Retorna data ISO ou string vazia.
+ideiaos_install_date_of() {
+  local file="$1"
+  [ -f "$file" ] || { echo ""; return; }
+  head -10 "$file" 2>/dev/null \
+    | grep -oE 'Instalado em:[[:space:]]*[0-9]{4}-[0-9]{2}-[0-9]{2}' \
+    | head -1 \
+    | sed -E 's/.*Instalado em:[[:space:]]*//'
+}
+
 # Setup da camada IdeiaOS (orquestração GSD + AIOX + Lovable + Fase A).
 # Cria IDEIAOS.md no projeto + estrutura .planning/ + verifica GSD readiness.
 # Universal — vale pra qualquer projeto da Ideia Business.
+#
+# Bundle refresh: quando a versão de IDEIAOS.md no template é maior que a
+# versão instalada no projeto, TODO o bundle (`IDEIAOS.md`, `docs/ideiaos/*`)
+# é re-renderizado atomicamente. Caso contrário, ensure_file_from_template
+# preserva os arquivos existentes (comportamento idempotente histórico).
 setup_ideiaos_layer() {
   local project_dir="$1"
   local project_name="$2"
@@ -300,35 +329,73 @@ setup_ideiaos_layer() {
     ok ".planning/ presente (subpastas asseguradas)"
   fi
 
-  # 2. IDEIAOS.md (manifesto do sistema operacional na raiz do projeto)
+  # 2. IDEIAOS.md com detecção de versão (bundle master)
+  local target_version installed_version original_install_date
+  target_version="$(ideiaos_version_of "$SETUP_DIR/templates/ideiaos/IDEIAOS.md.tmpl")"
+  local bundle_refresh=0
+
   if [ ! -f "$project_dir/IDEIAOS.md" ]; then
     sed -e "s|__PROJECT_NAME__|$project_name|g" -e "s|__DATE__|$today|g" \
       "$SETUP_DIR/templates/ideiaos/IDEIAOS.md.tmpl" \
       > "$project_dir/IDEIAOS.md"
-    ok "IDEIAOS.md criado (manifesto na raiz)"
+    ok "IDEIAOS.md criado (manifesto na raiz) — v${target_version:-?}"
+    bundle_refresh=1  # first install → render todos os docs do bundle
   else
-    ok "IDEIAOS.md já existe"
+    installed_version="$(ideiaos_version_of "$project_dir/IDEIAOS.md")"
+    if [ -n "$target_version" ] && [ "$installed_version" != "$target_version" ]; then
+      # Preserva data de instalação original ao re-renderizar
+      original_install_date="$(ideiaos_install_date_of "$project_dir/IDEIAOS.md")"
+      [ -z "$original_install_date" ] && original_install_date="$today"
+
+      sed -e "s|__PROJECT_NAME__|$project_name|g" -e "s|__DATE__|$original_install_date|g" \
+        "$SETUP_DIR/templates/ideiaos/IDEIAOS.md.tmpl" \
+        > "$project_dir/IDEIAOS.md"
+      ok "IDEIAOS.md atualizado: v${installed_version:-?} → v${target_version}"
+      warn "Bundle IdeiaOS sendo refeito — docs/ideiaos/* serão sobrescritos (são artefatos gerados, não customizáveis localmente)"
+      bundle_refresh=1
+    else
+      ok "IDEIAOS.md já existe (v${installed_version:-?})"
+    fi
   fi
 
   # 3. Guias humanos + IA em docs/ideiaos/
+  # Se bundle_refresh=1, força re-renderização. Senão preserva (idempotente).
   mkdir -p "$project_dir/docs/ideiaos"
-  ensure_file_from_template "$SETUP_DIR/templates/ideiaos/GUIDE-HUMANS.md.tmpl" "$project_dir/docs/ideiaos/GUIDE-HUMANS.md" "$project_name"
-  ensure_file_from_template "$SETUP_DIR/templates/ideiaos/GUIDE-AI.md.tmpl" "$project_dir/docs/ideiaos/GUIDE-AI.md" "$project_name"
-  ensure_file_from_template "$SETUP_DIR/templates/ideiaos/DECISION-MATRIX.md.tmpl" "$project_dir/docs/ideiaos/DECISION-MATRIX.md" "$project_name"
+  if [ "$bundle_refresh" = "1" ]; then
+    for tmpl_name in GUIDE-HUMANS GUIDE-AI DECISION-MATRIX; do
+      sed -e "s|__PROJECT_NAME__|$project_name|g" -e "s|__DATE__|$today|g" \
+        "$SETUP_DIR/templates/ideiaos/${tmpl_name}.md.tmpl" \
+        > "$project_dir/docs/ideiaos/${tmpl_name}.md"
+      ok "docs/ideiaos/${tmpl_name}.md atualizado (bundle v${target_version})"
+    done
+  else
+    ensure_file_from_template "$SETUP_DIR/templates/ideiaos/GUIDE-HUMANS.md.tmpl" "$project_dir/docs/ideiaos/GUIDE-HUMANS.md" "$project_name"
+    ensure_file_from_template "$SETUP_DIR/templates/ideiaos/GUIDE-AI.md.tmpl" "$project_dir/docs/ideiaos/GUIDE-AI.md" "$project_name"
+    ensure_file_from_template "$SETUP_DIR/templates/ideiaos/DECISION-MATRIX.md.tmpl" "$project_dir/docs/ideiaos/DECISION-MATRIX.md" "$project_name"
+  fi
 
   # 4. Marker em .aiox-ai-config.yaml (registra que projeto está sob IdeiaOS)
+  # Atualiza a versão se já existe a chave `ideiaos:` mas a versão divergiu.
   local config="$project_dir/.aiox-ai-config.yaml"
-  if [ -f "$config" ] && ! grep -q "^ideiaos:" "$config" 2>/dev/null; then
-    {
-      printf "\n# IdeiaOS — Sistema Operacional unificado (managed by IdeiaOS)\n"
-      printf "ideiaos:\n  version: 1.0\n  enabled: true\n  configured_at: %s\n  layers:\n" "$today"
-      printf "    - aiox-core           # personas, stories, governance\n"
-      printf "    - gsd                 # phases, goal-backward, atomic commits\n"
-      printf "    - lovable             # deploy/handoff (se aplicável)\n"
-      printf "    - learning-loop       # Fase A — recall + extract\n"
-      printf "    - continuation        # cross-IDE session handoff\n"
-    } >> "$config"
-    ok ".aiox-ai-config.yaml marcado como IdeiaOS-enabled"
+  if [ -f "$config" ]; then
+    if ! grep -q "^ideiaos:" "$config" 2>/dev/null; then
+      {
+        printf "\n# IdeiaOS — Sistema Operacional unificado (managed by IdeiaOS)\n"
+        printf "ideiaos:\n  version: %s\n  enabled: true\n  configured_at: %s\n  layers:\n" "${target_version:-1.0}" "$today"
+        printf "    - aiox-core           # personas, stories, governance\n"
+        printf "    - gsd                 # phases, goal-backward, atomic commits\n"
+        printf "    - lovable             # deploy/handoff (se aplicável)\n"
+        printf "    - learning-loop       # Fase A — recall + extract\n"
+        printf "    - continuation        # cross-IDE session handoff\n"
+      } >> "$config"
+      ok ".aiox-ai-config.yaml marcado como IdeiaOS-enabled (v${target_version:-?})"
+    elif [ "$bundle_refresh" = "1" ] && [ -n "$target_version" ]; then
+      # Atualiza in-place a linha `  version: X.Y` no bloco ideiaos
+      # macOS sed precisa de ''. GNU sed aceita -i sem arg. Usamos backup pra portabilidade.
+      sed -i.bak -E "s|^([[:space:]]*version:[[:space:]]*)[0-9]+\.[0-9]+(.*)$|\1${target_version}\2|" "$config" \
+        && rm -f "${config}.bak"
+      ok ".aiox-ai-config.yaml: versão atualizada para v${target_version}"
+    fi
   fi
 }
 

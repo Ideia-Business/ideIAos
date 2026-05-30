@@ -53,6 +53,45 @@ Comparativo com ecossistema GitHub (60+ projetos analisados): [`../mapa-github-a
 
 ---
 
+## 🔀 Composição AIOX × GSD — Caminho C (v1.1)
+
+AIOX-Core e GSD **não competem** — operam em planos diferentes e se compõem internamente. A Deia roteia para **um ponto de entrada**; a execução técnica sempre passa por GSD.
+
+| Plano | Camada | Artefato canônico |
+|-------|--------|-------------------|
+| **O QUÊ** (intenção + critério de pronto) | AIOX-Core | `docs/stories/{N}.story.md` |
+| **COMO** (execução técnica) | GSD | `.planning/phases/{N}/PLAN.md` + `VERIFICATION.md` |
+| **ONDE** (produção) | Lovable Handoff | `docs/lovable/*` |
+| **MEMÓRIA** (transversal) | Fase A | `docs/learnings/*` |
+| **TRÂNSITO** (transversal) | Continuation | `STATE.md` + `HANDOFF.md` |
+
+### A decisão única da Deia
+
+Antes do roteamento, a Deia avalia **2 exceções + 1 decisão única**:
+
+1. **Retomada?** ("retoma", "onde parei", "ontem...") → Continuation
+2. **Bug reprodutível?** ("isso não funciona") → `/gsd-debug`
+3. **Decisão única — precisa de O QUÊ formal?** Qualquer SIM dos 5 critérios → entrada AIOX. Todos NÃO → entrada GSD (default).
+
+**Os 5 critérios:**
+- Stakeholder externo no loop (cliente, compliance, legal, produto)
+- Aceite formal antes de mergulhar (PRD, AC, escopo travado)
+- Mudança visível ao usuário final que precisa validação de UX
+- Trabalho dividido entre 2+ executores
+- Palavras-chave: "story", "epic", "AC", "PRD", "validação formal"
+
+### Os 3 contratos de integração
+
+| Contrato | Comando | Quando |
+|----------|---------|--------|
+| **Plan aceita story** | `/gsd-plan-phase --story <path>` | Após AIOX validar story (AC vira goal-backward) |
+| **QA-gate aceita verification** | `@qa *gate <story> --verification <path>` | Após GSD verificar (skip-if-verified) |
+| **Hook lembra extract** | automático | Após qa-gate PASS, `*-VERIFICATION.md` success, ou `git commit` |
+
+Detalhes completos: cada projeto IdeiaOS recebe [`docs/ideiaos/DECISION-MATRIX.md`](templates/ideiaos/DECISION-MATRIX.md.tmpl) e [`docs/ideiaos/GUIDE-AI.md`](templates/ideiaos/GUIDE-AI.md.tmpl).
+
+---
+
 ## 📋 Pré-requisitos
 
 - **Node.js 18+** — [nodejs.org](https://nodejs.org)
@@ -92,6 +131,9 @@ Comparativo com ecossistema GitHub (60+ projetos analisados): [`../mapa-github-a
 | `scripts/install-alias.sh` | Adiciona alias `idea-setup` ao seu shell rc (zsh/bash) |
 | `scripts/install-git-hooks.sh` | Instala pre-commit hook que BLOQUEIA commits sem README sincronizado |
 | `scripts/check-readme-sync.sh` | Audita se README menciona todos os componentes do repo |
+| **`scripts/install-global-patches.sh`** | Aplica overlay IdeiaOS (Caminho C) sobre GSD/AIOX/Claude — idempotente, 6 patches |
+| **`scripts/update-upstream.sh`** | Detecta updates do GSD plugin e AIOX-core, alerta se há nova versão |
+| **`scripts/sync-all.sh`** | Orquestrador — roda `update-upstream` → `install-global-patches` em sequência |
 
 ### Componentes do projeto (instalados quando você roda em projeto específico)
 
@@ -284,13 +326,19 @@ Cada implantação não-trivial passa por 3 momentos:
 2. **Durante a sessão:** marca mentalmente candidatos a aprendizado.
 3. **Ao concluir — `/extract-learnings`**: aplica gate triplo (replicável + não-óbvio + estável) e cria `docs/learnings/YYYY-MM-DD-<slug>.md` se passar.
 
-**Enforcement automático (Claude Code):** hook PostToolUse Bash injeta lembrete do gate triplo após cada `git commit`. Sem isso, sob pressão a IA tende a pular o passo de reflexão.
+**Enforcement automático (Claude Code):** hook PostToolUse injeta lembrete do gate triplo em **3 gatilhos** (composição AIOX × GSD — Contrato 3):
+
+1. **`git commit`** (gatilho original)
+2. **Write/Edit em `docs/qa/gates/*.yaml` com `gate: PASS`** (qa-gate AIOX concluído)
+3. **Write/Edit em `.planning/phases/*/*-VERIFICATION.md` com goal atingido** (verify-work GSD concluído)
+
+Sem isso, sob pressão a IA tende a pular o passo de reflexão.
 
 **Enforcement Cursor:** rule `agents-md-protocol.mdc` lida em todo turno orienta a IA a aplicar o mesmo gate.
 
 ---
 
-## 🔄 Mantendo atualizado
+## 🔄 Mantendo atualizado — Bundle versioning (v1.1+)
 
 Quando houver melhorias:
 
@@ -305,6 +353,97 @@ O script detecta diferenças e atualiza só o que mudou. Em projetos existentes:
 ```bash
 bash setup.sh --project-only --lovable /caminho/do/projeto
 ```
+
+### Detecção automática de versão do bundle (v1.1)
+
+O `setup.sh` compara a versão do `IDEIAOS.md.tmpl` (template) com a versão instalada no projeto (`IDEIAOS.md` na raiz). Comportamento:
+
+| Cenário | Ação |
+|---------|------|
+| Projeto não tem `IDEIAOS.md` | Renderiza bundle completo (IDEIAOS + GUIDE-AI + DECISION-MATRIX + GUIDE-HUMANS) |
+| Versão instalada = versão template | Pula (idempotente — comportamento histórico) |
+| Versão template > versão instalada | **Bundle refresh atômico** — re-renderiza todos os docs IdeiaOS preservando data de instalação original |
+
+**Por que bundle refresh é atômico:** os 4 docs IdeiaOS (`IDEIAOS.md`, `GUIDE-HUMANS.md`, `GUIDE-AI.md`, `DECISION-MATRIX.md`) são gerados como conjunto coerente. Atualizar só um deixaria o sistema inconsistente. Por isso o bump de versão no `IDEIAOS.md.tmpl` força refresh de todos.
+
+**Importante:** os docs IdeiaOS são **artefatos gerados, não customizáveis localmente**. Se você quer customizar, edite o template no repo IdeiaOS — assim a mudança propaga pra todos os projetos.
+
+A versão também é refletida em `.aiox-ai-config.yaml` (`ideiaos.version: X.Y`) e atualizada automaticamente no upgrade.
+
+---
+
+## 🔁 Mantendo o ambiente global sincronizado (Caminho C — v1.1)
+
+O `setup.sh` cuida dos arquivos do **projeto**. Para os **arquivos globais** (skills Claude Code, workflow GSD, hook Fase A, settings.json, agente qa AIOX-core) o IdeiaOS aplica um **overlay** via patches idempotentes.
+
+### Os 6 patches do overlay IdeiaOS
+
+| # | Onde | O que adiciona |
+|---|------|----------------|
+| 1 | `~/.claude/skills/gsd-plan-phase/SKILL.md` | Flag `--story <file>` (Contrato 1 da composição) |
+| 2 | `~/.claude/get-shit-done/workflows/plan-phase.md` | Pipeline `STORY_MODE` para parsing de AC AIOX |
+| 3 | `~/.claude/hooks/extract-learnings-reminder.sh` | 3 gatilhos Fase A (commit + qa-gate PASS + verify SUCCESS) |
+| 4 | `~/.claude/settings.json` | Matcher expandido `Bash\|Write\|Edit\|MultiEdit` |
+| 5 | `.aiox-core/.../agents/qa.md` | Flag `--verification <path>` em `*gate` (Contrato 2) |
+| 6 | `.aiox-core/.../tasks/qa-gate.md` | Seção "Optional Input — IdeiaOS Composition" |
+
+### 3 scripts de manutenção
+
+```bash
+# 1. Aplicar overlay (idempotente — pode rodar 100x)
+bash scripts/install-global-patches.sh
+
+# 2. Checar updates de upstream (GSD plugin, AIOX-core)
+bash scripts/update-upstream.sh
+
+# 3. Fazer os dois em sequência (RECOMENDADO no dia a dia)
+bash scripts/sync-all.sh
+```
+
+### Quando rodar `sync-all.sh`
+
+- **Após atualizar Claude Code, GSD plugin ou AIOX-core** — porque updates upstream sobrescrevem os patches do overlay
+- **Após trocar de máquina** — restaura o ambiente do zero
+- **Quando algo "parou de funcionar magicamente"** — provavelmente um update silencioso quebrou o overlay
+- **Toda 1ª segunda do mês** (hábito) — garante consistência sem precisar lembrar
+- **Antes de uma sessão importante** — zero surpresas
+
+### Como o overlay sobrevive a updates upstream
+
+Cada patch tem um **marcador único** (string que só existe se o patch foi aplicado). O script detecta presença antes de aplicar:
+
+| Cenário | Comportamento |
+|---------|---------------|
+| Patch já aplicado | `⊙ skip` (idempotente) |
+| Arquivo vanilla (sem patch) | `✓ apply` (overlay restaurado) |
+| Upstream renomeou marcadores | `✗ fail` (alerta — requer adaptação manual do script) |
+
+A simulação testada em 2026-05-30: apagar manualmente os 3 gatilhos do hook → rodar `install-global-patches.sh` → patch detecta ausência e restaura. ✓
+
+### Arquitetura: vanilla / overlay / projeto
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    UPSTREAM (vanilla)                       │
+│  GSD plugin                       AIOX-core                 │
+│  ~/.claude/skills/gsd-*           Projects/.aiox-core/      │
+│  Claude Code settings             package: @aiox-fullstack  │
+└─────────────────────────────────────────────────────────────┘
+                            ↓ atualiza via npm / plugin manager
+┌─────────────────────────────────────────────────────────────┐
+│              OVERLAY IdeiaOS (Caminho C)                    │
+│  install-global-patches.sh aplica 6 patches idempotentes   │
+│  Detecta marcadores únicos antes de aplicar                 │
+└─────────────────────────────────────────────────────────────┘
+                            ↓ sobrescreve com nossa adição
+┌─────────────────────────────────────────────────────────────┐
+│               PROJETO (bundle IdeiaOS)                      │
+│  setup.sh renderiza IDEIAOS.md + docs/ideiaos/* do template│
+│  Bundle versioning detecta v1.0 → v1.1 e faz refresh atômico│
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Princípio:** mudanças sempre nascem nos templates do repo IdeiaOS e propagam pra cada nível via scripts idempotentes. Nada vive "só na sua máquina" — tudo é reproduzível.
 
 ---
 
@@ -331,7 +470,10 @@ IdeiaOS/
 ├── scripts/
 │   ├── install-alias.sh                    ← Instala alias idea-setup
 │   ├── install-git-hooks.sh                ← Instala pre-commit hook
-│   └── check-readme-sync.sh                ← Audita README sync
+│   ├── check-readme-sync.sh                ← Audita README sync
+│   ├── install-global-patches.sh           ← Overlay IdeiaOS (Caminho C — 6 patches idempotentes)
+│   ├── update-upstream.sh                  ← Detecta updates GSD plugin + AIOX-core
+│   └── sync-all.sh                         ← Orquestrador (update → re-apply overlay)
 ├── templates/
 │   ├── aiox-ai-config.yaml                 ← Config IA + marker IdeiaOS
 │   ├── hybrid/
@@ -353,9 +495,11 @@ IdeiaOS/
 │   │   ├── playbook-implantacao.md.tmpl    ← Fluxo obrigatório
 │   │   ├── conclusao-implantacao.md.tmpl   ← Modelo de resposta (8 blocos)
 │   │   └── _TEMPLATE.md.tmpl               ← Esqueleto de handoff Lovable
-│   └── learnings/
-│       ├── README.md.tmpl                  ← Convenções
-│       └── _TEMPLATE.md.tmpl               ← Esqueleto de learning
+│   ├── learnings/
+│   │   ├── README.md.tmpl                  ← Convenções
+│   │   └── _TEMPLATE.md.tmpl               ← Esqueleto de learning
+│   └── global-patches/
+│       └── extract-learnings-reminder.sh   ← Fonte de verdade do hook (3 gatilhos)
 ├── docs/
 │   ├── IDEIAOS.md                          ← Especificação canônica do IdeiaOS
 │   └── CONTINUATION_HANDOFF.md
@@ -380,7 +524,7 @@ Snippet pra adicionar manualmente:
   "hooks": {
     "PostToolUse": [
       {
-        "matcher": "Bash",
+        "matcher": "Bash|Write|Edit|MultiEdit",
         "hooks": [{
           "type": "command",
           "command": "bash \"/Users/<você>/.claude/hooks/extract-learnings-reminder.sh\"",
@@ -498,5 +642,12 @@ Versões expandidas em `docs/learnings/` de qualquer projeto Lovable do setup. E
 
 ---
 
-*IdeiaOS v1.0 · Última atualização: 2026-05-29*
+*IdeiaOS v1.1 · Última atualização: 2026-05-30*
 *Mantido por: equipe Ideia Business + IAs (Claude Code, Cursor)*
+
+**Mudanças v1.1 (2026-05-30):** Caminho C — composição AIOX × GSD.
+- Deia agora aplica decisão única (2 exceções + 5 critérios) em vez de matriz por categoria.
+- Três contratos formais: `--story` em `/gsd-plan-phase`, `--verification` em `@qa *gate`, hook Fase A com 3 gatilhos (commit + qa-gate PASS + verify SUCCESS).
+- DECISION-MATRIX refatorado de catálogo (158 linhas) para árvore de decisão (~190 linhas com fluxos compostos).
+- **Bundle versioning no setup.sh** — detecção automática de versão template vs instalada, com refresh atômico dos 4 docs IdeiaOS.
+- **3 scripts de manutenção do overlay** — `install-global-patches.sh` (idempotente), `update-upstream.sh` (detecta updates), `sync-all.sh` (orquestrador). Resolvem o problema "patches sobrescritos por updates upstream".

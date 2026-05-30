@@ -56,10 +56,21 @@ O sistema lê CONTINUATION_HANDOFF.md, STATE.md, AGENTS.md e te mostra o próxim
 /idea quero implementar <descrição da feature>
 ```
 
-O `/idea` detecta a complexidade e roteia:
-- **Simples** (1-3 arquivos): vai pra `/gsd-quick` direto
-- **Média**: cria PLAN.md via `/gsd-plan-phase`, te mostra, pede aval, executa
-- **Complexa**: pede pra você dividir em fases ou criar story formal via `@po`
+O `/idea` aplica a **decisão única** do Caminho C (composição AIOX × GSD) — avalia 5 critérios. Se qualquer um for SIM, entra pelo AIOX (story formal). Senão, entra pelo GSD:
+
+| Critério | Pergunta |
+|----------|----------|
+| 1 — Stakeholder externo | Tem cliente, compliance, legal ou produto que precisa aprovar? |
+| 2 — Aceite formal | Precisa de PRD, AC, escopo travado antes de codar? |
+| 3 — Validação UX | Mudança visível ao usuário final que precisa validação? |
+| 4 — Múltiplos executores | Trabalho dividido entre 2+ pessoas? |
+| 5 — Palavras-chave explícitas | Pedido contém "story", "epic", "AC", "PRD"? |
+
+**Entrada AIOX:** `@sm *draft` → `@po *validate-story-draft` → `/gsd-plan-phase --story <path>` → `/gsd-execute-phase` → `/gsd-verify-work` → `@qa *gate --verification <path>`.
+
+**Entrada GSD (default):** `/gsd-do <pedido>` (auto-classifica quick vs plan-phase).
+
+Detalhes em `docs/ideiaos/DECISION-MATRIX.md`.
 
 ### Surgiu um bug
 
@@ -193,6 +204,20 @@ cd ~/Projects/IdeiaOS && git pull
 bash setup.sh --project-only .
 ```
 
+### "Manter o ambiente sempre atualizado (upstream + overlay)"
+
+O IdeiaOS aplica patches sobre o GSD plugin e o AIOX-core. Quando esses upstream atualizam, os patches são sobrescritos. Para resincronizar tudo:
+
+```bash
+cd ~/Projects/IdeiaOS
+bash scripts/sync-all.sh
+```
+
+O script: (1) checa updates upstream, (2) re-aplica overlay IdeiaOS. **Idempotente** — pode rodar 100x. Use também quando:
+- Trocou de máquina
+- Reinstalou Claude Code ou AIOX-core
+- Não tem certeza se o ambiente está consistente
+
 ---
 
 ## Glossário rápido
@@ -209,6 +234,10 @@ bash setup.sh --project-only .
 | **Phase** | Unidade de trabalho do GSD em `.planning/phases/` |
 | **Constitution** | Regras invioláveis do AIOX em `.aiox-core/constitution.md` |
 | **Gate** | Verificação bloqueante (QA Gate, Goal Gate, Lint Gate) |
+| **Composição AIOX × GSD** | Princípio de design v1.1 — AIOX define O QUÊ (story), GSD define COMO (plan/execute/verify). Não competem, se compõem |
+| **Caminho C** | Nome da estratégia escolhida em 2026-05-30 para composição — substituiu roteamento exclusivo |
+| **Bundle refresh** | Quando setup.sh detecta versão template > instalada, re-renderiza todos os 4 docs IdeiaOS juntos |
+| **Overlay** | Conjunto de patches IdeiaOS aplicados sobre GSD/AIOX vanilla via `install-global-patches.sh` |
 
 ---
 
