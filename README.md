@@ -1,8 +1,8 @@
 # ideIAos — Sistema Operacional Unificado de Desenvolvimento
 
 > **Configura o ambiente de IA da equipe em um único comando.**
-> O IdeiaOS combina 5 camadas (AIOX-Core, GSD, Lovable, Fase A, Continuation) em um sistema único, com **um comando de entrada** (`/idea`) que roteia para a camada certa.
-> Implementado como `IdeiaOS` — instalável, idempotente, com enforcement automático para você não ter que lembrar de nada.
+> O ideIAos combina 5 camadas (AIOX-Core, GSD, Lovable, Fase A, Continuation) em um sistema único, com **um comando de entrada** (`/idea`) que roteia para a camada certa.
+> Implementado como `ideIAos` — instalável, idempotente, com enforcement automático para você não ter que lembrar de nada.
 
 ---
 
@@ -25,19 +25,19 @@ Pronto. Em qualquer projeto, você precisa decorar **um comando** — ou apenas 
 
 | Onde | Como chamar | Função |
 |------|-------------|--------|
-| Claude Code | `Deia, <pedido>` ou `/idea <pedido>` | **Orquestrador IdeiaOS** — roteia para a camada certa |
+| Claude Code | `Deia, <pedido>` ou `/idea <pedido>` | **Orquestrador ideIAos** — roteia para a camada certa |
 | Cursor | `@ideiaos-checker` | Audita setup do projeto |
 | Terminal | `idea-setup` | Roda setup do projeto atual |
 
-A **Deia** é a assistente IdeiaOS — basta começar a mensagem com `Deia,` (ou `deia,` / `Déia,`) e ela ativa automaticamente. Reforçada por hook `UserPromptSubmit` para máxima confiabilidade.
+A **Deia** é a assistente ideIAos — basta começar a mensagem com `Deia,` (ou `deia,` / `Déia,`) e ela ativa automaticamente. Reforçada por hook `UserPromptSubmit` para máxima confiabilidade.
 
 E você não precisa decorar nem isso, porque **o sistema te avisa quando precisar**. Veja [Como usar no dia a dia](#-como-usar-no-dia-a-dia).
 
 ---
 
-## 🧠 O que é o IdeiaOS
+## 🧠 O que é o ideIAos
 
-IdeiaOS é o **Sistema Operacional** de desenvolvimento da Ideia Business. Não é um framework — é a camada de orquestração que combina ferramentas em um sistema coerente:
+ideIAos é o **Sistema Operacional** de desenvolvimento da Ideia Business. Não é um framework — é a camada de orquestração que combina ferramentas em um sistema coerente:
 
 | Camada | Propósito | Quando ativa |
 |--------|-----------|--------------|
@@ -88,7 +88,7 @@ Antes do roteamento, a Deia avalia **2 exceções + 1 decisão única**:
 | **QA-gate aceita verification** | `@qa *gate <story> --verification <path>` | Após GSD verificar (skip-if-verified) |
 | **Hook lembra extract** | automático | Após qa-gate PASS, `*-VERIFICATION.md` success, ou `git commit` |
 
-Detalhes completos: cada projeto IdeiaOS recebe [`docs/ideiaos/DECISION-MATRIX.md`](templates/ideiaos/DECISION-MATRIX.md.tmpl) e [`docs/ideiaos/GUIDE-AI.md`](templates/ideiaos/GUIDE-AI.md.tmpl).
+Detalhes completos: cada projeto ideIAos recebe [`docs/ideiaos/DECISION-MATRIX.md`](templates/ideiaos/DECISION-MATRIX.md.tmpl) e [`docs/ideiaos/GUIDE-AI.md`](templates/ideiaos/GUIDE-AI.md.tmpl).
 
 ---
 
@@ -110,7 +110,7 @@ Detalhes completos: cada projeto IdeiaOS recebe [`docs/ideiaos/DECISION-MATRIX.m
 |------------|------|----------|
 | **AIOX Core** | npm global via `npx aiox-core` | Orquestrador de agentes IA — base do AIOX |
 | **GSD skills** | `~/.claude/skills/gsd-*` | Suite com 60+ comandos GSD (vem com Claude Code via plugins) |
-| **Skill Claude `/idea`** | `~/.claude/skills/idea/` | **Orquestrador IdeiaOS** — comando único de entrada |
+| **Skill Claude `/idea`** | `~/.claude/skills/idea/` | **Orquestrador ideIAos** — comando único de entrada |
 | **Skill Claude `/ideiaos-setup`** | `~/.claude/skills/ideiaos-setup/` | Audita + completa setup do projeto |
 | **Skill Claude `/cursor-continuation`** | `~/.claude/skills/cursor-continuation/` | Retoma no Claude Code o trabalho do Cursor |
 | **Skill Claude `/lovable-handoff`** | `~/.claude/skills/lovable-handoff/` | Playbook de implantação Lovable |
@@ -119,19 +119,19 @@ Detalhes completos: cada projeto IdeiaOS recebe [`docs/ideiaos/DECISION-MATRIX.m
 | **Agente Cursor `@claude-continuation`** | `~/.cursor/agents/` | Retoma no Cursor o trabalho do Claude Code |
 | **Agente Cursor `@ideiaos-checker`** | `~/.cursor/agents/` | Audita + completa setup do projeto no Cursor |
 | **Hook Claude `extract-learnings-reminder`** | `~/.claude/hooks/` | Após `git commit`, lembra de gate triplo |
-| **Hook Claude `ideiaos-detector`** | `~/.claude/hooks/` | SessionStart — detecta projeto sem IdeiaOS |
+| **Hook Claude `ideiaos-detector`** | `~/.claude/hooks/` | SessionStart — detecta projeto sem ideIAos |
 | **Hook Claude `ideiaos-readme-reminder.sh`** | `~/.claude/hooks/` | PostToolUse Edit/Write — lembra de sync README |
 | **Hook Claude `deia-trigger.sh`** | `~/.claude/hooks/` | UserPromptSubmit — detecta "Deia," e ativa `/idea` |
 | **Alias `idea-setup`** | `~/.zshrc` ou `~/.bashrc` (via `install-alias.sh`) | Atalho terminal — `cd projeto && idea-setup` |
 
-### Manutenção do próprio IdeiaOS (rodados manualmente)
+### Manutenção do próprio ideIAos (rodados manualmente)
 
 | Script | O que faz |
 |--------|-----------|
 | `scripts/install-alias.sh` | Adiciona alias `idea-setup` ao seu shell rc (zsh/bash) |
 | `scripts/install-git-hooks.sh` | Instala pre-commit hook que BLOQUEIA commits sem README sincronizado |
 | `scripts/check-readme-sync.sh` | Audita se README menciona todos os componentes do repo |
-| **`scripts/install-global-patches.sh`** | Aplica overlay IdeiaOS (Caminho C) sobre GSD/AIOX/Claude — idempotente, 6 patches |
+| **`scripts/install-global-patches.sh`** | Aplica overlay ideIAos (Caminho C) sobre GSD/AIOX/Claude — idempotente, 6 patches |
 | **`scripts/update-upstream.sh`** | Detecta updates do GSD plugin e AIOX-core, alerta se há nova versão |
 | **`scripts/sync-all.sh`** | Orquestrador — roda `update-upstream` → `install-global-patches` em sequência |
 
@@ -139,10 +139,10 @@ Detalhes completos: cada projeto IdeiaOS recebe [`docs/ideiaos/DECISION-MATRIX.m
 
 | Componente | Arquivo | Camada |
 |------------|---------|--------|
-| `IDEIAOS.md` | Raiz | IdeiaOS — manifesto |
-| `docs/ideiaos/GUIDE-HUMANS.md` | docs/ideiaos/ | IdeiaOS — guia para humanos |
-| `docs/ideiaos/GUIDE-AI.md` | docs/ideiaos/ | IdeiaOS — guia para IAs |
-| `docs/ideiaos/DECISION-MATRIX.md` | docs/ideiaos/ | IdeiaOS — matriz "tarefa → comando" |
+| `IDEIAOS.md` | Raiz | ideIAos — manifesto |
+| `docs/ideiaos/GUIDE-HUMANS.md` | docs/ideiaos/ | ideIAos — guia para humanos |
+| `docs/ideiaos/GUIDE-AI.md` | docs/ideiaos/ | ideIAos — guia para IAs |
+| `docs/ideiaos/DECISION-MATRIX.md` | docs/ideiaos/ | ideIAos — matriz "tarefa → comando" |
 | `AGENTS.md` com seção Lovable + Fase A | Raiz | AIOX |
 | `CLAUDE.md` (auto-load Claude) | Raiz | AIOX |
 | `STATE.md` (snapshot operacional) | Raiz | Continuation |
@@ -151,7 +151,7 @@ Detalhes completos: cada projeto IdeiaOS recebe [`docs/ideiaos/DECISION-MATRIX.m
 | `.cursor/rules/agents-md-protocol.mdc` | .cursor/rules/ | Cursor |
 | `.cursor/rules/session-continuation.mdc` | .cursor/rules/ | Cursor |
 | `.cursor/rules/planning-branch.mdc` | .cursor/rules/ | Cursor |
-| `.aiox-ai-config.yaml` (com marker IdeiaOS) | Raiz | IdeiaOS |
+| `.aiox-ai-config.yaml` (com marker ideIAos) | Raiz | ideIAos |
 | `docs/playbook-implantacao.md` | docs/ | Lovable |
 | `docs/lovable/conclusao-implantacao.md` | docs/lovable/ | Lovable |
 | `docs/lovable/_TEMPLATE.md` | docs/lovable/ | Lovable |
@@ -188,7 +188,7 @@ O `/idea` roteia automaticamente para a camada certa e mostra qual comando está
 #### Projeto novo (primeira vez):
 
 1. Abra o Claude Code dentro da pasta do projeto
-2. Aguarde 1 segundo. Se aparecer um aviso `🔧 Setup detector — projeto sem IdeiaOS`, digite:
+2. Aguarde 1 segundo. Se aparecer um aviso `🔧 Setup detector — projeto sem ideIAos`, digite:
    ```
    /ideiaos-setup
    ```
@@ -246,14 +246,14 @@ bash "$HOME/.../ideiaos-setup/setup.sh" --lovable "$PWD"
 
 | Lugar | Comando | Função |
 |-------|---------|--------|
-| Claude Code | `/idea <pedido>` | **Orquestrador IdeiaOS** — único comando real necessário |
+| Claude Code | `/idea <pedido>` | **Orquestrador ideIAos** — único comando real necessário |
 | Claude Code (setup) | `/ideiaos-setup` | Quando suspeitar que setup está incompleto |
 | Cursor | `@ideiaos-checker` | Equivalente no Cursor |
 | Terminal | `idea-setup` | Atalho do `setup.sh --lovable .` |
 
 **Só isso.** Se você esquecer, o próprio sistema te lembra. Se ainda assim esquecer, rode `/ideiaos-setup` ou `@ideiaos-checker` — não estraga nada.
 
-📚 Tabela completa de comandos por camada: cada projeto IdeiaOS recebe `docs/ideiaos/DECISION-MATRIX.md`.
+📚 Tabela completa de comandos por camada: cada projeto ideIAos recebe `docs/ideiaos/DECISION-MATRIX.md`.
 
 ---
 
@@ -264,7 +264,7 @@ bash "$HOME/.../ideiaos-setup/setup.sh" --lovable "$PWD"
                                │ (pedido em linguagem natural)
                                ▼
                           ┌─────────┐
-                          │  /idea  │  ← orquestrador IdeiaOS
+                          │  /idea  │  ← orquestrador ideIAos
                           └────┬────┘
                                │
                                ▼
@@ -362,11 +362,11 @@ O `setup.sh` compara a versão do `IDEIAOS.md.tmpl` (template) com a versão ins
 |---------|------|
 | Projeto não tem `IDEIAOS.md` | Renderiza bundle completo (IDEIAOS + GUIDE-AI + DECISION-MATRIX + GUIDE-HUMANS) |
 | Versão instalada = versão template | Pula (idempotente — comportamento histórico) |
-| Versão template > versão instalada | **Bundle refresh atômico** — re-renderiza todos os docs IdeiaOS preservando data de instalação original |
+| Versão template > versão instalada | **Bundle refresh atômico** — re-renderiza todos os docs ideIAos preservando data de instalação original |
 
-**Por que bundle refresh é atômico:** os 4 docs IdeiaOS (`IDEIAOS.md`, `GUIDE-HUMANS.md`, `GUIDE-AI.md`, `DECISION-MATRIX.md`) são gerados como conjunto coerente. Atualizar só um deixaria o sistema inconsistente. Por isso o bump de versão no `IDEIAOS.md.tmpl` força refresh de todos.
+**Por que bundle refresh é atômico:** os 4 docs ideIAos (`IDEIAOS.md`, `GUIDE-HUMANS.md`, `GUIDE-AI.md`, `DECISION-MATRIX.md`) são gerados como conjunto coerente. Atualizar só um deixaria o sistema inconsistente. Por isso o bump de versão no `IDEIAOS.md.tmpl` força refresh de todos.
 
-**Importante:** os docs IdeiaOS são **artefatos gerados, não customizáveis localmente**. Se você quer customizar, edite o template no repo IdeiaOS — assim a mudança propaga pra todos os projetos.
+**Importante:** os docs ideIAos são **artefatos gerados, não customizáveis localmente**. Se você quer customizar, edite o template no repo ideIAos — assim a mudança propaga pra todos os projetos.
 
 A versão também é refletida em `.aiox-ai-config.yaml` (`ideiaos.version: X.Y`) e atualizada automaticamente no upgrade.
 
@@ -374,9 +374,9 @@ A versão também é refletida em `.aiox-ai-config.yaml` (`ideiaos.version: X.Y`
 
 ## 🔁 Mantendo o ambiente global sincronizado (Caminho C — v1.1)
 
-O `setup.sh` cuida dos arquivos do **projeto**. Para os **arquivos globais** (skills Claude Code, workflow GSD, hook Fase A, settings.json, agente qa AIOX-core) o IdeiaOS aplica um **overlay** via patches idempotentes.
+O `setup.sh` cuida dos arquivos do **projeto**. Para os **arquivos globais** (skills Claude Code, workflow GSD, hook Fase A, settings.json, agente qa AIOX-core) o ideIAos aplica um **overlay** via patches idempotentes.
 
-### Os 6 patches do overlay IdeiaOS
+### Os 6 patches do overlay ideIAos
 
 | # | Onde | O que adiciona |
 |---|------|----------------|
@@ -385,7 +385,7 @@ O `setup.sh` cuida dos arquivos do **projeto**. Para os **arquivos globais** (sk
 | 3 | `~/.claude/hooks/extract-learnings-reminder.sh` | 3 gatilhos Fase A (commit + qa-gate PASS + verify SUCCESS) |
 | 4 | `~/.claude/settings.json` | Matcher expandido `Bash\|Write\|Edit\|MultiEdit` |
 | 5 | `.aiox-core/.../agents/qa.md` | Flag `--verification <path>` em `*gate` (Contrato 2) |
-| 6 | `.aiox-core/.../tasks/qa-gate.md` | Seção "Optional Input — IdeiaOS Composition" |
+| 6 | `.aiox-core/.../tasks/qa-gate.md` | Seção "Optional Input — ideIAos Composition" |
 
 ### 3 scripts de manutenção
 
@@ -431,32 +431,32 @@ A simulação testada em 2026-05-30: apagar manualmente os 3 gatilhos do hook �
 └─────────────────────────────────────────────────────────────┘
                             ↓ atualiza via npm / plugin manager
 ┌─────────────────────────────────────────────────────────────┐
-│              OVERLAY IdeiaOS (Caminho C)                    │
+│              OVERLAY ideIAos (Caminho C)                    │
 │  install-global-patches.sh aplica 6 patches idempotentes   │
 │  Detecta marcadores únicos antes de aplicar                 │
 └─────────────────────────────────────────────────────────────┘
                             ↓ sobrescreve com nossa adição
 ┌─────────────────────────────────────────────────────────────┐
-│               PROJETO (bundle IdeiaOS)                      │
+│               PROJETO (bundle ideIAos)                      │
 │  setup.sh renderiza IDEIAOS.md + docs/ideiaos/* do template│
 │  Bundle versioning detecta v1.0 → v1.1 e faz refresh atômico│
 └─────────────────────────────────────────────────────────────┘
 ```
 
-**Princípio:** mudanças sempre nascem nos templates do repo IdeiaOS e propagam pra cada nível via scripts idempotentes. Nada vive "só na sua máquina" — tudo é reproduzível.
+**Princípio:** mudanças sempre nascem nos templates do repo ideIAos e propagam pra cada nível via scripts idempotentes. Nada vive "só na sua máquina" — tudo é reproduzível.
 
 ---
 
 ## 📁 Estrutura do repositório
 
 ```
-IdeiaOS/
+ideIAos/
 ├── setup.sh                                ← script principal, idempotente
 ├── agents/
 │   ├── claude-continuation.md              ← Cursor agent — Cursor lê do Claude
 │   └── ideiaos-checker.md                    ← Cursor agent — audita setup
 ├── skills/
-│   ├── idea/SKILL.md                       ← Claude — ORQUESTRADOR IdeiaOS
+│   ├── idea/SKILL.md                       ← Claude — ORQUESTRADOR ideIAos
 │   ├── cursor-continuation/SKILL.md        ← Claude — retoma do Cursor
 │   ├── lovable-handoff/SKILL.md            ← Claude — playbook Lovable
 │   ├── recall-learnings/SKILL.md           ← Claude — load context
@@ -471,22 +471,22 @@ IdeiaOS/
 │   ├── install-alias.sh                    ← Instala alias idea-setup
 │   ├── install-git-hooks.sh                ← Instala pre-commit hook
 │   ├── check-readme-sync.sh                ← Audita README sync
-│   ├── install-global-patches.sh           ← Overlay IdeiaOS (Caminho C — 6 patches idempotentes)
+│   ├── install-global-patches.sh           ← Overlay ideIAos (Caminho C — 6 patches idempotentes)
 │   ├── update-upstream.sh                  ← Detecta updates GSD plugin + AIOX-core
 │   └── sync-all.sh                         ← Orquestrador (update → re-apply overlay)
 ├── templates/
-│   ├── aiox-ai-config.yaml                 ← Config IA + marker IdeiaOS
+│   ├── aiox-ai-config.yaml                 ← Config IA + marker ideIAos
 │   ├── hybrid/
-│   │   ├── AGENTS.md.tmpl                  ← Identidade do projeto + IdeiaOS
-│   │   ├── CLAUDE.md.tmpl                  ← Instruções Claude (IdeiaOS-aware)
+│   │   ├── AGENTS.md.tmpl                  ← Identidade do projeto + ideIAos
+│   │   ├── CLAUDE.md.tmpl                  ← Instruções Claude (ideIAos-aware)
 │   │   ├── STATE.md.tmpl                   ← Snapshot operacional
 │   │   ├── CONTINUATION_HANDOFF.md.tmpl    ← Handoff de continuidade
-│   │   ├── CONTRIBUTING.md.tmpl            ← Onboarding dev (IdeiaOS commands)
+│   │   ├── CONTRIBUTING.md.tmpl            ← Onboarding dev (ideIAos commands)
 │   │   ├── agents-md-protocol.mdc.tmpl     ← Cursor rule principal
 │   │   ├── planning-branch.mdc.tmpl        ← Convenção branch planning
 │   │   └── session-continuation.mdc.tmpl   ← Rule de retomada
 │   ├── ideiaos/
-│   │   ├── IDEIAOS.md.tmpl                 ← Manifesto IdeiaOS (raiz do projeto)
+│   │   ├── IDEIAOS.md.tmpl                 ← Manifesto ideIAos (raiz do projeto)
 │   │   ├── GUIDE-HUMANS.md.tmpl            ← Guia para devs humanos
 │   │   ├── GUIDE-AI.md.tmpl                ← Guia para IAs (Claude/Cursor/Codex)
 │   │   └── DECISION-MATRIX.md.tmpl         ← Matriz "tarefa → camada → comando"
@@ -501,11 +501,11 @@ IdeiaOS/
 │   └── global-patches/
 │       └── extract-learnings-reminder.sh   ← Fonte de verdade do hook (3 gatilhos)
 ├── docs/
-│   ├── IDEIAOS.md                          ← Especificação canônica do IdeiaOS
+│   ├── IDEIAOS.md                          ← Especificação canônica do ideIAos
 │   └── CONTINUATION_HANDOFF.md
-├── AGENTS.md                               ← Identidade do IdeiaOS
-├── CLAUDE.md                               ← Instruções Claude para IdeiaOS
-├── STATE.md                                ← Estado do IdeiaOS
+├── AGENTS.md                               ← Identidade do ideIAos
+├── CLAUDE.md                               ← Instruções Claude para ideIAos
+├── STATE.md                                ← Estado do ideIAos
 └── README.md                               ← Este arquivo
 ```
 
@@ -567,7 +567,7 @@ Se não existir, roda `@ideiaos-checker` no chat ou `idea-setup` no terminal.
 
 ### "Como sei se o setup está completo?"
 
-No Claude Code: `/ideiaos-setup` → mostra ✅/❌ por camada do IdeiaOS.
+No Claude Code: `/ideiaos-setup` → mostra ✅/❌ por camada do ideIAos.
 No Cursor: `@ideiaos-checker` → idem.
 No terminal: roda setup e ele lista o que foi feito vs pulado.
 
@@ -608,9 +608,9 @@ Os padrões emergentes do trabalho real estão capturados como **learnings** com
 | `protocol-discipline-needs-hooks-not-guidelines` | Antes de desenhar protocolo "obrigatório" para IA |
 | `idempotency-enables-multi-entry-tooling` | Antes de adicionar segunda forma de invocar ferramenta |
 
-Versões expandidas em `docs/learnings/` de qualquer projeto Lovable do setup. Espelhos em memória Claude global de quem clonou o IdeiaOS.
+Versões expandidas em `docs/learnings/` de qualquer projeto Lovable do setup. Espelhos em memória Claude global de quem clonou o ideIAos.
 
-### Documentação canônica do IdeiaOS
+### Documentação canônica do ideIAos
 
 - **`docs/IDEIAOS.md`** — especificação completa do sistema (arquitetura, decisões, roadmap)
 - **`templates/ideiaos/IDEIAOS.md.tmpl`** — manifesto que vai pra raiz de cada projeto
@@ -627,7 +627,7 @@ Versões expandidas em `docs/learnings/` de qualquer projeto Lovable do setup. E
 - Testar com `bash -n setup.sh` (syntax) + smoke test em projeto Lovable de teste
 - Atualizar este README quando adicionar componente novo
 - Seguir o protocolo Fase A: criar learning se mudança gerar padrão replicável
-- Mudanças no IdeiaOS (arquitetura, camadas, roteamento) também atualizam `docs/IDEIAOS.md`
+- Mudanças no ideIAos (arquitetura, camadas, roteamento) também atualizam `docs/IDEIAOS.md`
 
 ---
 
@@ -637,17 +637,17 @@ Versões expandidas em `docs/learnings/` de qualquer projeto Lovable do setup. E
 - **E se eu usar Windows?** Use WSL — o setup.sh assume bash/zsh em ambiente Unix-like.
 - **Lovable vai sobrescrever meu AGENTS.md?** Não. A camada Lovable usa marcadores `BEGIN/END` para preservar conteúdo customizado.
 - **Posso desativar o loop de aprendizado em um projeto?** Sim. Remova a seção `Loop de aprendizado contínuo` do `AGENTS.md` — hooks param de disparar automaticamente.
-- **Posso desativar o IdeiaOS num projeto?** Tecnicamente sim (delete `IDEIAOS.md` e `docs/ideiaos/`), mas você perde o orquestrador. Não recomendado.
+- **Posso desativar o ideIAos num projeto?** Tecnicamente sim (delete `IDEIAOS.md` e `docs/ideiaos/`), mas você perde o orquestrador. Não recomendado.
 - **`/idea` substitui os comandos diretos?** Não — eles continuam funcionando. `/idea` é só um atalho cognitivo. Quem aprende os comandos diretos ganha velocidade.
 
 ---
 
-*IdeiaOS v1.1 · Última atualização: 2026-05-30*
+*ideIAos v1.1 · Última atualização: 2026-05-30*
 *Mantido por: equipe Ideia Business + IAs (Claude Code, Cursor)*
 
 **Mudanças v1.1 (2026-05-30):** Caminho C — composição AIOX × GSD.
 - Deia agora aplica decisão única (2 exceções + 5 critérios) em vez de matriz por categoria.
 - Três contratos formais: `--story` em `/gsd-plan-phase`, `--verification` em `@qa *gate`, hook Fase A com 3 gatilhos (commit + qa-gate PASS + verify SUCCESS).
 - DECISION-MATRIX refatorado de catálogo (158 linhas) para árvore de decisão (~190 linhas com fluxos compostos).
-- **Bundle versioning no setup.sh** — detecção automática de versão template vs instalada, com refresh atômico dos 4 docs IdeiaOS.
+- **Bundle versioning no setup.sh** — detecção automática de versão template vs instalada, com refresh atômico dos 4 docs ideIAos.
 - **3 scripts de manutenção do overlay** — `install-global-patches.sh` (idempotente), `update-upstream.sh` (detecta updates), `sync-all.sh` (orquestrador). Resolvem o problema "patches sobrescritos por updates upstream".

@@ -1,13 +1,13 @@
-# IdeiaOS — Especificação do Sistema Operacional Unificado de Desenvolvimento
+# ideIAos — Especificação do Sistema Operacional Unificado de Desenvolvimento
 
-> **Documento canônico de design.** Quem mantém o IdeiaOS mantém este documento.
+> **Documento canônico de design.** Quem mantém o ideIAos mantém este documento.
 > Versão: 1.0 · Status: Lançado · Última atualização: 2026-05-29
 
 ---
 
 ## 1. Visão
 
-IdeiaOS é o **Sistema Operacional de desenvolvimento** da Ideia Business. Não é um framework, não é uma ferramenta — é a camada de orquestração que combina ferramentas distintas em um sistema coerente, com um único ponto de entrada para o humano e instruções operacionais claras para qualquer IA.
+ideIAos é o **Sistema Operacional de desenvolvimento** da Ideia Business. Não é um framework, não é uma ferramenta — é a camada de orquestração que combina ferramentas distintas em um sistema coerente, com um único ponto de entrada para o humano e instruções operacionais claras para qualquer IA.
 
 ### Objetivo central
 
@@ -15,7 +15,7 @@ Eliminar a complexidade cognitiva de operar com 50+ comandos espalhados entre Cl
 
 ### Por que existe
 
-Antes do IdeiaOS, o dev precisava decorar:
+Antes do ideIAos, o dev precisava decorar:
 - 5 personas AIOX e suas autoridades exclusivas
 - 30+ comandos GSD (skills `/gsd-*`)
 - Comandos Lovable (`/lovable-handoff`)
@@ -23,7 +23,7 @@ Antes do IdeiaOS, o dev precisava decorar:
 - Continuation cross-IDE (`/cursor-continuation`, `@claude-continuation`)
 - Setup (`/ideiaos-setup`, `@ideiaos-checker`, `idea-setup`)
 
-Sob pressão, o dev pulava etapas e perdia governance. O IdeiaOS resolve isso com roteamento automático + documentação de decisão clara.
+Sob pressão, o dev pulava etapas e perdia governance. O ideIAos resolve isso com roteamento automático + documentação de decisão clara.
 
 ---
 
@@ -75,13 +75,13 @@ Sob pressão, o dev pulava etapas e perdia governance. O IdeiaOS resolve isso co
 
 ---
 
-## 3. Componentes instalados pelo IdeiaOS
+## 3. Componentes instalados pelo ideIAos
 
 ### Componentes globais (uma vez por máquina)
 
 | Tipo | Nome | Localização | Função |
 |------|------|------------|--------|
-| Skill | `/idea` | `~/.claude/skills/idea/SKILL.md` | Orquestrador IdeiaOS |
+| Skill | `/idea` | `~/.claude/skills/idea/SKILL.md` | Orquestrador ideIAos |
 | Skill | `/ideiaos-setup` | `~/.claude/skills/ideiaos-setup/SKILL.md` | Audita + completa setup |
 | Skill | `/cursor-continuation` | `~/.claude/skills/cursor-continuation/SKILL.md` | Cursor → Claude |
 | Skill | `/lovable-handoff` | `~/.claude/skills/lovable-handoff/SKILL.md` | Deploy Lovable |
@@ -121,7 +121,7 @@ Sob pressão, o dev pulava etapas e perdia governance. O IdeiaOS resolve isso co
 | `.cursor/rules/agents-md-protocol.mdc` | .cursor/rules/ | Rule alwaysApply Cursor |
 | `.cursor/rules/session-continuation.mdc` | .cursor/rules/ | Rule de retomada |
 | `.cursor/rules/planning-branch.mdc` | .cursor/rules/ | Convenção branch planning |
-| `.aiox-ai-config.yaml` | raiz | Config providers + IdeiaOS marker |
+| `.aiox-ai-config.yaml` | raiz | Config providers + ideIAos marker |
 
 ---
 
@@ -162,7 +162,7 @@ USUÁRIO
 
 ## 5. Padrões invioláveis
 
-Estes padrões emergem de incidentes reais documentados em `docs/learnings/`. Toda IA operando no IdeiaOS deve aplicá-los.
+Estes padrões emergem de incidentes reais documentados em `docs/learnings/`. Toda IA operando no ideIAos deve aplicá-los.
 
 ### 5.1 Debugging em produção
 
@@ -180,7 +180,7 @@ Estes padrões emergem de incidentes reais documentados em `docs/learnings/`. To
 | `git pull` antes de editar | Sempre, especialmente em projeto Lovable ou com colaborador |
 | Idempotência em scripts de config | Detector deve reconhecer variações equivalentes |
 | Schema-first sempre antes de UPDATE/INSERT em prod | Não confiar em "deveria existir" |
-| Pre-commit hook bloqueia commit sem README sync | IdeiaOS específico |
+| Pre-commit hook bloqueia commit sem README sync | ideIAos específico |
 | Hooks > guidelines | Protocolo "obrigatório" para IA = barreira ativa, não doc passiva |
 
 ### 5.3 UX e UAT
@@ -204,7 +204,7 @@ Estes padrões emergem de incidentes reais documentados em `docs/learnings/`. To
 ### Por que manter as 5 camadas separadas em vez de fundir?
 
 **Trade-off:** simplicidade conceitual vs flexibilidade operacional.
-**Decisão:** cada camada tem domínio próprio. GSD é melhor para execução, AIOX é melhor para governance, Lovable é específico do deploy. Fundir gera tradeoffs ruins. IdeiaOS orquestra sem absorver.
+**Decisão:** cada camada tem domínio próprio. GSD é melhor para execução, AIOX é melhor para governance, Lovable é específico do deploy. Fundir gera tradeoffs ruins. ideIAos orquestra sem absorver.
 
 ### Por que Fase A é universal e não opcional?
 
@@ -247,7 +247,7 @@ Estes padrões emergem de incidentes reais documentados em `docs/learnings/`. To
 
 ## 8. Como contribuir
 
-Mudanças no IdeiaOS seguem o ciclo:
+Mudanças no ideIAos seguem o ciclo:
 
 1. Identificar gap (via learning, postmortem, ou feedback do dev)
 2. Discutir em issue ou via `/gsd-discuss-phase`
@@ -263,7 +263,7 @@ Mudanças no IdeiaOS seguem o ciclo:
 
 | Termo | Definição |
 |-------|-----------|
-| **Camada** | Uma das 5 subsidiárias do IdeiaOS (AIOX, GSD, Lovable, Fase A, Continuation) |
+| **Camada** | Uma das 5 subsidiárias do ideIAos (AIOX, GSD, Lovable, Fase A, Continuation) |
 | **Roteamento** | Decisão automática do `/idea` sobre qual camada ativar |
 | **Gate** | Verificação bloqueante (Quality, Constitution, Lint, Pre-commit) |
 | **Persona** | Agente AIOX com autoridade exclusiva (@dev, @qa, @pm…) |
@@ -283,7 +283,7 @@ Mudanças no IdeiaOS seguem o ciclo:
 
 | Recurso | Descrição |
 |---------|-----------|
-| [mapa-github-ai-dev-tools.md](../../mapa-github-ai-dev-tools.md) | Mapa do ecossistema GitHub (60+ projetos) e posicionamento do IdeiaOS |
+| [mapa-github-ai-dev-tools.md](../../mapa-github-ai-dev-tools.md) | Mapa do ecossistema GitHub (60+ projetos) e posicionamento do ideIAos |
 | GSD skills | Documentação inline em `~/.claude/skills/gsd-*/SKILL.md` |
 | AIOX Core | https://github.com/aiox-core (npx aiox-core) |
 | Lovable Cloud | https://lovable.dev |
@@ -292,4 +292,4 @@ Mudanças no IdeiaOS seguem o ciclo:
 
 ---
 
-*Documento canônico. Quem altera o IdeiaOS, altera este arquivo. Quem altera este arquivo, altera os componentes.*
+*Documento canônico. Quem altera o ideIAos, altera este arquivo. Quem altera este arquivo, altera os componentes.*

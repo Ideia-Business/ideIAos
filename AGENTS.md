@@ -1,6 +1,6 @@
-# AGENTS.md — IdeiaOS
+# AGENTS.md — ideIAos
 
-> Este repositório é a **implementação do IdeiaOS** — Sistema Operacional unificado de desenvolvimento da Ideia Business.
+> Este repositório é a **implementação do ideIAos** — Sistema Operacional unificado de desenvolvimento da Ideia Business.
 > Documento canônico de design: [`docs/IDEIAOS.md`](docs/IDEIAOS.md).
 > Mudanças aqui afetam **todos os projetos** que usam o setup. Trate com cuidado.
 
@@ -40,7 +40,7 @@ Toda mudança em `hooks/`, `skills/`, `agents/`, `scripts/` ou `templates/` **DE
 1. Seção **"O que este setup instala"** (tabelas de componentes globais e do projeto)
 2. Seção **"Estrutura do repositório"** (árvore de pastas)
 3. Se for skill/agent novo: seção **"Como usar no dia a dia"**
-4. Se for hook novo: seção **"Manutenção do próprio IdeiaOS"** (scripts) ou seção troubleshooting
+4. Se for hook novo: seção **"Manutenção do próprio ideIAos"** (scripts) ou seção troubleshooting
 
 **Enforcement (barreira ativa):**
 
