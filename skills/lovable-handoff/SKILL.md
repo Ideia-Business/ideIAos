@@ -1,6 +1,6 @@
 ---
 name: lovable-handoff
-description: Valida que o projeto atual é gerenciado pela Lovable Cloud, executa o playbook de implantação (typecheck → commit → push → handoff Lovable → postmortem) e produz a comunicação final ao usuário informando se a Lovable precisa puxar/aplicar algo manualmente.
+description: Valida que o projeto atual é gerenciado pela Lovable Cloud, executa o playbook de implantação (typecheck → commit → push → merge main → handoff Lovable → postmortem) e produz a comunicação final ao usuário informando se a Lovable precisa Update/Publish.
 ---
 
 # Skill: lovable-handoff
@@ -80,6 +80,23 @@ git push origin <branch>
 ```
 
 **Imediatamente após o commit, sem esperar pergunta do usuário** — política `feedback-commit-push-automatico`.
+
+### Passo 3b — Merge em `main` (obrigatório antes de Update Lovable)
+
+**Mandato global (todos os projetos Lovable):** PR aberto ≠ deployável. Lovable Update só lê `main`.
+
+```bash
+gh pr view <N> --json state,mergedAt
+# Se OPEN: gh pr merge <N> --merge (salvo usuário pediu "só abra PR")
+git fetch origin && git log origin/main -1 --oneline
+git show origin/main:<arquivo-alterado> | head   # smoke: fix está no main
+```
+
+Atualizar `.lovable/SYNC_TRIGGER.json` (`main_head`) + push `main` quando o projeto usar gatilho.
+
+**Proibido** instruir "Lovable → Update" enquanto `state != MERGED`.
+
+Memória: `learning_lovable_agent_entrega_merge_main_obrigatorio.md`
 
 ### Passo 4 — Handoff Lovable (condicional)
 

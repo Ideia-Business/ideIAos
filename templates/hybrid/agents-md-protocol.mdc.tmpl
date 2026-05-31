@@ -47,6 +47,8 @@ Marcar mentalmente candidatos a aprendizado (causas raiz surpreendentes, gotchas
 
 `typecheck → commit → push origin <branch>` — nesta ordem, **sem esperar pergunta**.
 
+**Projetos Lovable (mandato global):** antes de instruir Update/Publish, **merge PR em `main`** e verificar `origin/main`. PR aberto ≠ deploy. Ver `.cursor/rules/lovable-agent-delivery.mdc`.
+
 Se houve mudança em `supabase/migrations/`, `supabase/functions/` ou secrets: criar handoff em `docs/lovable/<SLUG>_LOVABLE_HANDOFF.md` baseado em `docs/lovable/_TEMPLATE.md`.
 
 Se bug recorrente ou causa raiz não-óbvia: criar postmortem em `docs/postmortems/`.

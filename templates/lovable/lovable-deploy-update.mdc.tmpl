@@ -1,0 +1,24 @@
+---
+description: 'Deploy Lovable — migrations/edges via Update após merge main (GLOBAL IdeiaOS)'
+alwaysApply: true
+---
+
+# Deploy produção — Lovable Update (regra permanente)
+
+**Decisão operador (2026-05-30), reforçada 2026-05-31 — não reabrir.**
+
+**Lovable Update = somente branch `main`.** Feature branches não sincronizam no editor. Fluxo obrigatório: PR → merge `main` → **Update**.
+
+**Entrega do agente (GLOBAL — ver `.cursor/rules/lovable-agent-delivery.mdc`):** PR aberto **não** conta como deploy. Agente deve **mergear em `main`**, atualizar `SYNC_TRIGGER.json`, **verificar** `origin/main`, e **só então** instruir Update/Publish.
+
+Após merge em `main` com `supabase/migrations/` e/ou edges alteradas:
+
+1. **Instrução padrão ao humano:** editor Lovable → **Update** (puxa GitHub **`main`**). Lovable aplica migrations pendentes no update.
+2. **Proibido como fluxo padrão:** SQL Editor manual, `supabase db push`, MCP Supabase do Cursor como caminho padrão.
+3. **Fallback** (só se Update não aplicar): chat Lovable pedindo migration + redeploy edge.
+
+Frontend: após Update, **Publish** quando necessário (`reference_lovable_deploy_model.md`).
+
+**Bloco 6 (conclusão):** `Lovable: Update no editor após merge main` — nunca "aplicar migration manualmente" como padrão.
+
+**Learnings:** `docs/learnings/2026-05-30-lovable-update-aplica-migrations.md` · `docs/learnings/2026-05-31-lovable-agent-entrega-merge-main-global.md` (copiar canonical de qualquer repo IdeiaOS se ausente)

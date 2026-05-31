@@ -1,0 +1,38 @@
+---
+description: 'Entrega agente em projetos Lovable — merge main obrigatório antes de Update (GLOBAL IdeiaOS)'
+alwaysApply: true
+---
+
+# Entrega Lovable — cadeia completa do agente (GLOBAL)
+
+**Mandato operador (2026-05-31). Aplica a TODOS os projetos Lovable Cloud.**
+
+## PR aberto ≠ deployável
+
+Lovable **Update sincroniza só `main`**. Feature branch / PR OPEN → Update mostra "Up to date" sem mudança.
+
+## Cadeia obrigatória (agente Cursor/Claude)
+
+1. `feat/*` → commit → push → PR
+2. **Merge PR em `main`** (salvo usuário dizer "só abra PR")
+3. Verificar: `git log origin/main` contém o fix
+4. Atualizar `.lovable/SYNC_TRIGGER.json` (`main_head`) + push `main`
+5. Handoff `docs/lovable/*_LOVABLE_HANDOFF.md` se migration/edge/secret
+6. **Só então** instruir: Lovable → **Update** → **Publish** (frontend)
+
+## Gate antes de "faça Update"
+
+```bash
+gh pr view <N> --json state   # MERGED
+git fetch origin && git log origin/main -1
+```
+
+## Proibido
+
+- Encerrar entrega só com URL do PR aberto
+- Instruir Update sem confirmar merge em `main`
+- Assumir push de feature branch = produção
+
+## Memória global
+
+`learning_lovable_agent_entrega_merge_main_obrigatorio.md` · `reference_lovable_deploy_model.md`
