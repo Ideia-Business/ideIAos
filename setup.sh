@@ -790,6 +790,32 @@ echo "     Comportamento: prefixo 'Deia,' ou 'Deia ' no início da mensagem"
 echo "     ativa automaticamente a skill /idea (orquestrador IdeiaOS)."
 
 # ─────────────────────────────────────────────────────────────────────────────
+step "5.13) MCP Claude Code — chrome-devtools (auditoria de browser)"
+# Chrome DevTools MCP — audita console, rede e erros do browser diretamente
+# no Claude Code via ferramentas mcp__chrome-devtools__*.
+# Escopo: user (disponível em todos os projetos desta máquina).
+# Repo: https://github.com/ChromeDevTools/chrome-devtools-mcp
+
+if ! command -v claude &>/dev/null; then
+  warn "Claude Code CLI não encontrado — MCP chrome-devtools não configurado"
+  warn "Após instalar o Claude Code CLI, rode:"
+  echo "       claude mcp add chrome-devtools --scope user -- npx -y chrome-devtools-mcp@latest"
+elif claude mcp get chrome-devtools 2>/dev/null | grep -q "chrome-devtools"; then
+  ok "MCP chrome-devtools já configurado (user scope)"
+else
+  if claude mcp add chrome-devtools --scope user -- npx -y chrome-devtools-mcp@latest 2>/dev/null; then
+    ok "MCP chrome-devtools instalado (user scope) — disponível em todos os projetos"
+  else
+    warn "Falha ao instalar MCP chrome-devtools — instale manualmente:"
+    echo "       claude mcp add chrome-devtools --scope user -- npx -y chrome-devtools-mcp@latest"
+  fi
+fi
+
+echo "     Uso: abra o Chrome com Remote Debugging ativo, então use"
+echo "          list_pages → select_page → list_console_messages / list_network_requests"
+echo "          get_network_request(reqid) para ver body real de erros 400/403."
+
+# ─────────────────────────────────────────────────────────────────────────────
 step "5.10) Skill Claude Code — /idea (orquestrador IdeiaOS)"
 # Comando único de entrada do IdeiaOS — roteia entre GSD/AIOX/Lovable/Fase A
 # automaticamente baseado no que o usuário pediu.

@@ -117,6 +117,13 @@ echo "  [Cursor rules]"
 [ -f "$PROJ/.cursor/rules/session-continuation.mdc" ]  && echo "  ✅ session-continuation.mdc"  || echo "  ❌ session-continuation.mdc ausente"
 [ -f "$PROJ/.cursor/rules/planning-branch.mdc" ]       && echo "  ✅ planning-branch.mdc"       || echo "  ❌ planning-branch.mdc ausente"
 
+# ── MCP chrome-devtools ──
+echo ""
+echo "  [MCPs globais]"
+command -v claude &>/dev/null && claude mcp get chrome-devtools 2>/dev/null | grep -q "chrome-devtools" \
+  && echo "  ✅ MCP chrome-devtools (user scope)" \
+  || echo "  ❌ MCP chrome-devtools ausente — instale via setup.sh (step 5.13)"
+
 # ── Orquestrador /idea ──
 echo ""
 echo "  [Orquestrador IdeiaOS]"

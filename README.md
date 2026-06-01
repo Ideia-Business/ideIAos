@@ -122,6 +122,7 @@ Detalhes completos: cada projeto ideIAos recebe [`docs/ideiaos/DECISION-MATRIX.m
 | **Hook Claude `ideiaos-detector`** | `~/.claude/hooks/` | SessionStart — detecta projeto sem ideIAos |
 | **Hook Claude `ideiaos-readme-reminder.sh`** | `~/.claude/hooks/` | PostToolUse Edit/Write — lembra de sync README |
 | **Hook Claude `deia-trigger.sh`** | `~/.claude/hooks/` | UserPromptSubmit — detecta "Deia," e ativa `/idea` |
+| **MCP `chrome-devtools`** | user scope (via `claude mcp`) | Auditoria de console/rede do browser direto no Claude Code |
 | **Alias `idea-setup`** | `~/.zshrc` ou `~/.bashrc` (via `install-alias.sh`) | Atalho terminal — `cd projeto && idea-setup` |
 
 ### Manutenção do próprio ideIAos (rodados manualmente)
