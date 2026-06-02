@@ -134,9 +134,9 @@ done
 if [ "$DESIGN_OK" -eq "$DESIGN_TOTAL" ]; then
   echo "  ✅ $DESIGN_OK/$DESIGN_TOTAL skills de design (global) — base (/ui-ux-pro-max + design/design-system/ui-styling/brand/banner-design/slides) + dev-loop (/frontend-visual-loop, /motion, /web-quality)"
 elif [ "$DESIGN_OK" -gt 0 ]; then
-  echo "  ⚠️  $DESIGN_OK/$DESIGN_TOTAL skills de design — faltam algumas; reinstalar do repo abaixo"
+  echo "  ⚠️  $DESIGN_OK/$DESIGN_TOTAL skills de design — faltam algumas; rode: bash ~/dev/IdeiaOS/setup.sh --global-only"
 else
-  echo "  ❌ Suíte de design ausente — clonar github.com/nextlevelbuilder/ui-ux-pro-max-skill e copiar .claude/skills/* (cp -RL p/ resolver symlinks) p/ ~/.claude/skills/"
+  echo "  ❌ Suíte de design ausente — rode: bash ~/dev/IdeiaOS/setup.sh --global-only  (vendorizada no repo; upstream via scripts/update-design-suite.sh)"
 fi
 ```
 

@@ -935,6 +935,31 @@ done
 
 echo "     Uso: /frontend-visual-loop · /motion · /web-quality (globais, qualquer projeto)"
 
+# ─────────────────────────────────────────────────────────────────────────────
+step "6.2) Suíte de Design (vendorizada) — ui-ux-pro-max + 6 skills"
+# Vendorizada no repo (fonte única: nextlevelbuilder/ui-ux-pro-max-skill, MIT).
+# Antes vinha de clone manual; agora replica direto do repo IdeiaOS. cp -R porque
+# têm data/, references/, scripts/. O OKLCH é aplicado por cima via overlay (Patch 7).
+
+for SKILL_NAME in ui-ux-pro-max design design-system ui-styling brand banner-design slides; do
+  G_DIR="$HOME/.claude/skills/$SKILL_NAME"
+  G_TEMPLATE="$SETUP_DIR/skills/$SKILL_NAME"
+
+  if [ ! -d "$G_TEMPLATE" ]; then
+    warn "Suíte: $SKILL_NAME ausente no repo — rode scripts/update-design-suite.sh"
+    continue
+  fi
+  if [ -d "$G_DIR" ] && diff -rq "$G_TEMPLATE" "$G_DIR" &>/dev/null; then
+    ok "Skill $SKILL_NAME já está na versão mais recente"
+  else
+    rm -rf "$G_DIR"
+    cp -R "$G_TEMPLATE" "$G_DIR"
+    ok "Skill $SKILL_NAME instalada/atualizada → $G_DIR"
+  fi
+done
+
+echo "     Atualizar do upstream: bash scripts/update-design-suite.sh (controlado, sob demanda)"
+
 else
   step "2-6) Setup global"
   warn "Modo --project-only ativo: pulando AIOX Core + instalação global de agentes/skills"

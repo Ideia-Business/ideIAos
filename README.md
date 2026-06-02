@@ -119,6 +119,13 @@ Detalhes completos: cada projeto ideIAos recebe [`docs/ideiaos/DECISION-MATRIX.m
 | **Skill Claude `/frontend-visual-loop`** | `~/.claude/skills/frontend-visual-loop/` | Loop visual render→screenshot→crítica→fix (Chrome DevTools MCP) |
 | **Skill Claude `/motion`** | `~/.claude/skills/motion/` | Animação (Framer Motion / GSAP + princípios) |
 | **Skill Claude `/web-quality`** | `~/.claude/skills/web-quality/` | Auditoria CWV / WCAG 2.1 / SEO (lighthouse via Chrome DevTools MCP) |
+| **Suíte de Design `/ui-ux-pro-max`** | `~/.claude/skills/ui-ux-pro-max/` | Design intelligence: 84 estilos, 160 paletas, 73 fontes, 16 stacks (vendorizada) |
+| **Skill Claude `/design`** | `~/.claude/skills/design/` | Logo, CIP, ícones, social photos (Gemini) |
+| **Skill Claude `/design-system`** | `~/.claude/skills/design-system/` | Tokens (primitive→semantic→component) + **OKLCH** (via overlay Patch 7) |
+| **Skill Claude `/ui-styling`** | `~/.claude/skills/ui-styling/` | shadcn/ui + Tailwind + canvas design |
+| **Skill Claude `/brand`** | `~/.claude/skills/brand/` | Voz de marca, identidade visual, consistência |
+| **Skill Claude `/banner-design`** | `~/.claude/skills/banner-design/` | Banners social/ads/web/print |
+| **Skill Claude `/slides`** | `~/.claude/skills/slides/` | Apresentações HTML com Chart.js + design tokens |
 | **Agente Cursor `@claude-continuation`** | `~/.cursor/agents/` | Retoma no Cursor o trabalho do Claude Code |
 | **Agente Cursor `@ideiaos-checker`** | `~/.cursor/agents/` | Audita + completa setup do projeto no Cursor |
 | **Hook Claude `extract-learnings-reminder`** | `~/.claude/hooks/` | Após `git commit`, lembra de gate triplo |
@@ -126,6 +133,7 @@ Detalhes completos: cada projeto ideIAos recebe [`docs/ideiaos/DECISION-MATRIX.m
 | **Hook Claude `ideiaos-readme-reminder.sh`** | `~/.claude/hooks/` | PostToolUse Edit/Write — lembra de sync README |
 | **Hook Claude `deia-trigger.sh`** | `~/.claude/hooks/` | UserPromptSubmit — detecta "Deia," e ativa `/idea` |
 | **MCP `chrome-devtools`** | user scope (via `claude mcp`) | Auditoria de console/rede do browser direto no Claude Code |
+| **MCP `context7`** | user scope (via `claude mcp`) | Docs versionadas de 1000+ libs (React/Tailwind/etc) ao vivo |
 | **Alias `idea-setup`** | `~/.zshrc` ou `~/.bashrc` (via `install-alias.sh`) | Atalho terminal — `cd projeto && idea-setup` |
 
 ### Manutenção do próprio ideIAos (rodados manualmente)
@@ -137,7 +145,8 @@ Detalhes completos: cada projeto ideIAos recebe [`docs/ideiaos/DECISION-MATRIX.m
 | `scripts/check-readme-sync.sh` | Audita se README menciona todos os componentes do repo |
 | **`scripts/install-global-patches.sh`** | Aplica overlay ideIAos (Caminho C) sobre GSD/AIOX/Claude — idempotente, 7 patches |
 | **`scripts/update-upstream.sh`** | Detecta updates do GSD plugin e AIOX-core, alerta se há nova versão |
-| **`scripts/sync-all.sh`** | Orquestrador — roda `update-upstream` → `install-global-patches` em sequência |
+| **`scripts/update-design-suite.sh`** | Atualização CONTROLADA da Suíte de Design (re-vendoriza do nextlevelbuilder, mostra diff, sob demanda) |
+| **`scripts/sync-all.sh`** | Orquestrador — `git pull` → `update-upstream` → `setup.sh --global-only` → `install-global-patches` |
 
 ### Componentes do projeto (instalados quando você roda em projeto específico)
 
@@ -394,7 +403,7 @@ O `setup.sh` cuida dos arquivos do **projeto**. Para os **arquivos globais** (sk
 | 6 | `.aiox-core/.../tasks/qa-gate.md` | Seção "Optional Input — ideIAos Composition" |
 | 7 | `~/.claude/skills/design-system/SKILL.md` | Tokens **OKLCH** (`--brand-hue`) na Suíte de Design (upstream de terceiros) |
 
-### 3 scripts de manutenção
+### 4 scripts de manutenção
 
 ```bash
 # 1. Aplicar overlay (idempotente — pode rodar 100x)
@@ -403,7 +412,10 @@ bash scripts/install-global-patches.sh
 # 2. Checar updates de upstream (GSD plugin, AIOX-core)
 bash scripts/update-upstream.sh
 
-# 3. Fazer os dois em sequência (RECOMENDADO no dia a dia)
+# 3. Atualizar a Suíte de Design do upstream (controlado, mostra diff, sob demanda)
+bash scripts/update-design-suite.sh
+
+# 4. Sincronizar tudo (RECOMENDADO): git pull → update-upstream → setup --global-only → overlay
 bash scripts/sync-all.sh
 ```
 
