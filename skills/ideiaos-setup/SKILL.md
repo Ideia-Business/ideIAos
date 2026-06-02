@@ -117,17 +117,27 @@ echo "  [Cursor rules]"
 [ -f "$PROJ/.cursor/rules/session-continuation.mdc" ]  && echo "  ✅ session-continuation.mdc"  || echo "  ❌ session-continuation.mdc ausente"
 [ -f "$PROJ/.cursor/rules/planning-branch.mdc" ]       && echo "  ✅ planning-branch.mdc"       || echo "  ❌ planning-branch.mdc ausente"
 
-# ── MCP chrome-devtools ──
-echo ""
-echo "  [MCPs globais]"
-command -v claude &>/dev/null && claude mcp get chrome-devtools 2>/dev/null | grep -q "chrome-devtools" \
-  && echo "  ✅ MCP chrome-devtools (user scope)" \
-  || echo "  ❌ MCP chrome-devtools ausente — instale via setup.sh (step 5.13)"
-
 # ── Orquestrador /idea ──
 echo ""
 echo "  [Orquestrador IdeiaOS]"
 [ -f "$HOME/.claude/skills/idea/SKILL.md" ] && echo "  ✅ /idea (global)" || echo "  ❌ /idea ausente — instale via setup.sh"
+
+# ── [Design] Suíte UI/UX Pro Max (global, qualquer projeto) ──
+echo ""
+echo "  [Design — Suíte UI/UX Pro Max]"
+DESIGN_SUITE="ui-ux-pro-max design design-system ui-styling brand banner-design slides frontend-visual-loop motion web-quality"
+DESIGN_OK=0; DESIGN_TOTAL=0
+for s in $DESIGN_SUITE; do
+  DESIGN_TOTAL=$((DESIGN_TOTAL+1))
+  [ -f "$HOME/.claude/skills/$s/SKILL.md" ] && DESIGN_OK=$((DESIGN_OK+1))
+done
+if [ "$DESIGN_OK" -eq "$DESIGN_TOTAL" ]; then
+  echo "  ✅ $DESIGN_OK/$DESIGN_TOTAL skills de design (global) — base (/ui-ux-pro-max + design/design-system/ui-styling/brand/banner-design/slides) + dev-loop (/frontend-visual-loop, /motion, /web-quality)"
+elif [ "$DESIGN_OK" -gt 0 ]; then
+  echo "  ⚠️  $DESIGN_OK/$DESIGN_TOTAL skills de design — faltam algumas; reinstalar do repo abaixo"
+else
+  echo "  ❌ Suíte de design ausente — clonar github.com/nextlevelbuilder/ui-ux-pro-max-skill e copiar .claude/skills/* (cp -RL p/ resolver symlinks) p/ ~/.claude/skills/"
+fi
 ```
 
 Apresentar ao usuário em formato compacto. Se tudo ✅ → terminar com "Setup IdeiaOS completo. Nada a fazer."

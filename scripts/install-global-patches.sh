@@ -13,6 +13,7 @@
 #   4. ~/.claude/settings.json                            — matcher Bash|Write|Edit|MultiEdit
 #   5. .aiox-core/.../agents/qa.md                       — *gate --verification
 #   6. .aiox-core/.../tasks/qa-gate.md                   — IdeiaOS Composition
+#   7. ~/.claude/skills/design-system/SKILL.md           — OKLCH (--brand-hue)
 #
 # Uso:
 #   bash scripts/install-global-patches.sh
@@ -491,23 +492,91 @@ echo -e "╚══════════════════════�
 echo -e "  Setup dir   : ${BOLD}$SETUP_DIR${NC}"
 echo -e "  Patches dir : ${BOLD}$PATCHES_DIR${NC}"
 
-step "Patch 1/6: --story em gsd-plan-phase SKILL.md"
+# ── PATCH 7: design-system OKLCH tokens (overlay sobre suíte de terceiros) ─────
+# A Suíte de Design (ui-ux-pro-max, design-system...) vem do repo externo
+# nextlevelbuilder, fora do IdeiaOS. Este patch injeta o suporte a tokens OKLCH
+# (--brand-hue) no design-system global de forma idempotente, sobrevivendo a
+# reinstalações/atualizações do upstream.
+patch_design_system_oklch() {
+  local skill="$HOME/.claude/skills/design-system"
+  local target="$skill/SKILL.md"
+  local refs="$skill/references"
+  local tmpl="$PATCHES_DIR/oklch-tokens.md"
+
+  if [ ! -f "$target" ]; then
+    warn "Patch 7 (design-system OKLCH): Suíte de Design ausente — instale ui-ux-pro-max-skill e re-rode"
+    SKIPPED=$((SKIPPED+1))
+    return 0
+  fi
+
+  if [ ! -f "$tmpl" ]; then
+    err "Patch 7: template oklch-tokens.md não encontrado em $PATCHES_DIR"
+    FAILED=$((FAILED+1))
+    return 0
+  fi
+
+  # Doc de referência: cópia idempotente (sempre garante a versão mais recente)
+  mkdir -p "$refs"
+  cp "$tmpl" "$refs/oklch-tokens.md"
+
+  if grep -qF "oklch-tokens.md" "$target"; then
+    skip "Patch 7: design-system já referencia OKLCH"
+    SKIPPED=$((SKIPPED+1))
+    return 0
+  fi
+
+  python3 - "$target" <<'PYOK'
+import sys
+path = sys.argv[1]
+with open(path, encoding='utf-8') as f:
+    s = f.read()
+orig = s
+
+anchor = "| Primitive Tokens | `references/primitive-tokens.md` |"
+if anchor in s and "oklch-tokens.md" not in s:
+    s = s.replace(anchor, anchor + "\n| **OKLCH Tokens (`--brand-hue`)** | `references/oklch-tokens.md` |", 1)
+
+a2 = "- Design token creation"
+if a2 in s and "OKLCH color palettes" not in s:
+    s = s.replace(a2, a2 + "\n- **OKLCH color palettes derived from a single `--brand-hue`** (see `references/oklch-tokens.md`)", 1)
+
+if s != orig:
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write(s)
+    print("APPLIED")
+else:
+    print("NOCHANGE")
+PYOK
+
+  if grep -qF "oklch-tokens.md" "$target"; then
+    ok "Patch 7: design-system OKLCH (--brand-hue) aplicado"
+    APPLIED=$((APPLIED+1))
+  else
+    warn "Patch 7: doc OKLCH copiado, mas SKILL.md sem âncoras esperadas (upstream mudou?) — ref disponível em references/oklch-tokens.md"
+    SKIPPED=$((SKIPPED+1))
+  fi
+}
+
+step "Patch 1/7: --story em gsd-plan-phase SKILL.md"
 patch_gsd_skill
 
-step "Patch 2/6: STORY_MODE em workflows/plan-phase.md"
+step "Patch 2/7: STORY_MODE em workflows/plan-phase.md"
 patch_gsd_workflow
 
-step "Patch 3/6: 3 gatilhos em extract-learnings-reminder.sh"
+step "Patch 3/7: 3 gatilhos em extract-learnings-reminder.sh"
 patch_extract_hook
 
-step "Patch 4/6: matcher expandido em settings.json"
+step "Patch 4/7: matcher expandido em settings.json"
 patch_settings_json
 
-step "Patch 5/6: --verification em AIOX-core agents/qa.md"
+step "Patch 5/7: --verification em AIOX-core agents/qa.md"
 patch_aiox_qa_agent
 
-step "Patch 6/6: IdeiaOS Composition em AIOX-core tasks/qa-gate.md"
+step "Patch 6/7: IdeiaOS Composition em AIOX-core tasks/qa-gate.md"
 patch_aiox_qa_task
+
+step "Patch 7/7: OKLCH (--brand-hue) em design-system SKILL.md"
+patch_design_system_oklch
 
 # ── Resumo ───────────────────────────────────────────────────────────────────
 echo -e "\n${CYAN}${BOLD}━━━ Resumo ━━━${NC}"

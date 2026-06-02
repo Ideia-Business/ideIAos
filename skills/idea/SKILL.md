@@ -57,12 +57,16 @@ Use a matriz abaixo para detectar intenção. **Apenas UMA camada deve ser ativa
 | "review de código", "QA", "validar implementação" | **AIOX** → `@qa` (Quinn) ou `/code-review` |
 | "design", "arquitetura", "decidir tech" | **AIOX** → `@architect` (Aria) |
 | "schema", "banco de dados", "migration", "DDL" | **AIOX** → `@data-engineer` (Dara) |
-| "UX", "interface", "design visual" | **AIOX** → `@ux-design-expert` (Uma) |
+| "UI/UX", "interface", "design visual", "paleta de cores", "tipografia/fontes", "estilo (glassmorphism/brutalism/etc)", "componente bonito", "landing/dashboard", "acessibilidade", "deixar mais profissional", "gráficos/charts" | **Skill** → `/ui-ux-pro-max` (design intelligence: 50+ estilos, 161 paletas, 57 pares de fontes, 99 guidelines UX, 25 charts em 10 stacks) — `@ux-design-expert` (Uma) p/ direção criativa de alto nível |
+| "design tokens / design system", "componentes shadcn/tailwind", "logo / ícone", "identidade de marca / brand voice", "banner / social / ads", "slides / apresentação", "paleta OKLCH / --brand-hue" | **Suíte de Design** (global) → `/design-system` (tokens + **OKLCH**), `/ui-styling` (shadcn+tailwind), `/design` (logo/CIP/ícones), `/brand` (identidade), `/banner-design` (banners), `/slides` (apresentações). Todas complementam `/ui-ux-pro-max`. |
+| "veja o resultado", "confere visualmente", "tá feio/quebrado", "render e corrige", "loop visual", "antes de commitar a UI" | **Skill** → `/frontend-visual-loop` (render→screenshot→crítica→fix sobre Chrome DevTools MCP) |
+| "animar", "transição/animação", "efeito de scroll", "micro-interação", "page transition", "parallax", "stagger", "deixar fluido/com vida" | **Skill** → `/motion` (Framer Motion / GSAP + princípios de animação) |
+| "auditar performance/acessibilidade/SEO", "rodar lighthouse", "Core Web Vitals", "tá lento/pesado", "site acessível?", "WCAG", "antes de publicar medir" | **Skill** → `/web-quality` (CWV/WCAG/SEO via Chrome DevTools MCP) |
 | "git push", "PR", "deploy CI/CD" | **AIOX** → `@devops` (Gage) — EXCLUSIVO |
 | "deploy Lovable", "subir pra Lovable", "publicar" | **Lovable** → `/lovable-handoff` |
 | "antes de planejar", "carregar contexto", "ler aprendizados" | **Fase A** → `/recall-learnings` |
 | "registra esse aprendizado", "fim da sessão", "consolida" | **Fase A** → `/extract-learnings` |
-| "setup", "config inicial", "instalar tudo" | **IdeiaOS** → `/ideiaos-setup` |
+| "setup", "config inicial", "instalar tudo" | **dev-setup** → `/dev-setup` |
 | "debugar bug", "investigar problema", "issue persistente" | **GSD** → `/gsd-debug` |
 | "code review profundo", "ultrareview", "review extenso" | **GSD/AIOX** → `/code-review ultra` |
 | Pedido genérico sem rumo claro | **AskUserQuestion** com 2-3 caminhos prováveis |
@@ -73,16 +77,16 @@ Antes de rotear, valide rapidamente:
 
 ```bash
 # 1. Setup do projeto está completo?
-test -f AGENTS.md && test -f IDEIAOS.md || echo "⚠️ Setup incompleto — sugerir /ideiaos-setup primeiro"
+test -f AGENTS.md && test -f IDEIAOS.md || echo "⚠️ Setup incompleto — sugerir /dev-setup primeiro"
 
 # 2. .planning/ existe (para fluxos GSD)?
-test -d .planning && echo "✅ GSD-ready" || echo "⚠️ .planning/ ausente — /ideiaos-setup cria"
+test -d .planning && echo "✅ GSD-ready" || echo "⚠️ .planning/ ausente — /dev-setup cria"
 
 # 3. AIOX disponível?
 test -d .aiox-core && echo "✅ AIOX local" || echo "ℹ️  AIOX só global"
 ```
 
-Se faltar setup → primeiro `/ideiaos-setup`, depois retoma o pedido original.
+Se faltar setup → primeiro `/dev-setup`, depois retoma o pedido original.
 
 ### Passo 3 — Mostrar a decisão antes de delegar
 
@@ -172,9 +176,9 @@ Você: 🎯 IdeiaOS — Roteamento
 
 Pedido: "cria uma feature de busca"
 ⚠️ Detectei que IDEIAOS.md está ausente — setup não completo.
-Vou rodar /ideiaos-setup primeiro pra garantir as camadas, depois sigo com a feature.
+Vou rodar /dev-setup primeiro pra garantir as camadas, depois sigo com a feature.
 
-[Invocar /ideiaos-setup → ao concluir, invocar /gsd-do "cria uma feature de busca"]
+[Invocar /dev-setup → ao concluir, invocar /gsd-do "cria uma feature de busca"]
 ```
 
 ---

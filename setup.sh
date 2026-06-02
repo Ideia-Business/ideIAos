@@ -885,6 +885,28 @@ done
 
 echo "     Uso: /recall-learnings (auto no início) · /extract-learnings (auto no fim)"
 
+# ─────────────────────────────────────────────────────────────────────────────
+step "6.1) Skills de design (dev-loop) — frontend-visual-loop + motion + web-quality"
+# Skills próprias do IdeiaOS, com pasta references/ (cp -R, não só SKILL.md).
+# Complementam a Suíte de Design externa (ui-ux-pro-max etc.). Globais — valem
+# pra qualquer projeto. Loop visual, animação e auditoria CWV/WCAG/SEO sobre o
+# Chrome DevTools MCP já instalado (sem Playwright).
+
+for SKILL_NAME in frontend-visual-loop motion web-quality; do
+  D_DIR="$HOME/.claude/skills/$SKILL_NAME"
+  D_TEMPLATE="$SETUP_DIR/skills/$SKILL_NAME"
+
+  if [ -d "$D_DIR" ] && diff -rq "$D_TEMPLATE" "$D_DIR" &>/dev/null; then
+    ok "Skill $SKILL_NAME já está na versão mais recente"
+  else
+    rm -rf "$D_DIR"
+    cp -R "$D_TEMPLATE" "$D_DIR"
+    ok "Skill $SKILL_NAME instalada/atualizada → $D_DIR"
+  fi
+done
+
+echo "     Uso: /frontend-visual-loop · /motion · /web-quality (globais, qualquer projeto)"
+
 else
   step "2-6) Setup global"
   warn "Modo --project-only ativo: pulando AIOX Core + instalação global de agentes/skills"
