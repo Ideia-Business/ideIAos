@@ -22,6 +22,7 @@ set -euo pipefail
 SETUP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$PWD"
 PROJECT_ONLY=0
+GLOBAL_ONLY=0
 WITH_AIOX_PROJECT=0
 LOVABLE_MODE="auto"  # auto | force | skip
 
@@ -29,6 +30,10 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --project-only)
       PROJECT_ONLY=1
+      shift
+      ;;
+    --global-only)
+      GLOBAL_ONLY=1
       shift
       ;;
     --with-aiox-core-project)
@@ -816,6 +821,29 @@ echo "          list_pages → select_page → list_console_messages / list_netw
 echo "          get_network_request(reqid) para ver body real de erros 400/403."
 
 # ─────────────────────────────────────────────────────────────────────────────
+step "5.14) MCP Claude Code — context7 (docs de libs ao vivo)"
+# Context7 MCP — docs versionadas de 1000+ libs (React 19 vs 18, Tailwind v4 vs v3).
+# Referenciado pelas regras de tool-usage e pela suíte de design. Escopo: user.
+# Repo: https://github.com/upstash/context7
+
+if ! command -v claude &>/dev/null; then
+  warn "Claude Code CLI não encontrado — MCP context7 não configurado"
+  warn "Após instalar o Claude Code CLI, rode:"
+  echo "       claude mcp add context7 --scope user -- npx -y @upstash/context7-mcp@latest"
+elif claude mcp get context7 2>/dev/null | grep -q "context7"; then
+  ok "MCP context7 já configurado (user scope)"
+else
+  if claude mcp add context7 --scope user -- npx -y @upstash/context7-mcp@latest 2>/dev/null; then
+    ok "MCP context7 instalado (user scope) — disponível em todos os projetos"
+  else
+    warn "Falha ao instalar MCP context7 — instale manualmente:"
+    echo "       claude mcp add context7 --scope user -- npx -y @upstash/context7-mcp@latest"
+  fi
+fi
+
+echo "     Uso: resolve-library-id(\"react\") → get-library-docs(topic) para docs atuais."
+
+# ─────────────────────────────────────────────────────────────────────────────
 step "5.10) Skill Claude Code — /idea (orquestrador IdeiaOS)"
 # Comando único de entrada do IdeiaOS — roteia entre GSD/AIOX/Lovable/Fase A
 # automaticamente baseado no que o usuário pediu.
@@ -910,6 +938,14 @@ echo "     Uso: /frontend-visual-loop · /motion · /web-quality (globais, qualq
 else
   step "2-6) Setup global"
   warn "Modo --project-only ativo: pulando AIOX Core + instalação global de agentes/skills"
+fi
+
+# --global-only: instala/atualiza só os componentes globais (skills, MCPs, hooks,
+# agentes Cursor) e encerra ANTES de configurar um projeto. Usado por sync-all.sh
+# e pelo bootstrap setup-dev-machine.sh para refresh do ambiente global.
+if [ "$GLOBAL_ONLY" = 1 ]; then
+  ok "Modo --global-only: setup global concluído (config de projeto pulada)"
+  exit 0
 fi
 
 # ─────────────────────────────────────────────────────────────────────────────
