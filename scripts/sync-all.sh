@@ -56,6 +56,9 @@ step "Etapa 4/4: re-apply IdeiaOS overlay (Caminho C — composição)"
 bash "$SETUP_DIR/scripts/install-global-patches.sh"
 patches_exit=$?
 
+step "Verificação final — idea-doctor (health + drift)"
+bash "$SETUP_DIR/scripts/idea-doctor.sh" || true
+
 echo -e "\n${CYAN}${BOLD}━━━ Sync completo ━━━${NC}"
 
 if [ "$pull_exit" -eq 0 ] && [ "$upstream_exit" -eq 0 ] && [ "$setup_exit" -eq 0 ] && [ "$patches_exit" -eq 0 ]; then

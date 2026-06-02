@@ -13,13 +13,19 @@
 git clone git@github.com:Ideia-Business/ideIAos.git
 cd ideIAos
 
-# 2. Instale globalmente (uma vez na vida)
-bash setup.sh
+# 2. Instale o ambiente global (uma vez na vida): skills + MCPs + hooks + Suíte de Design
+bash setup.sh --global-only
 
-# 3. (Opcional) Adicione o atalho de terminal
-bash scripts/install-alias.sh
-source ~/.zshrc  # ou ~/.bashrc
+# 3. Aplique o overlay (7 patches sobre GSD/AIOX/Claude) e confira a saúde
+bash scripts/sync-all.sh         # já roda o idea-doctor no final
+
+# 4. (Opcional) Atalho de terminal
+bash scripts/install-alias.sh && source ~/.zshrc   # ou ~/.bashrc
 ```
+
+> **Máquina nova do zero?** Use o bootstrap: `bash setup-dev-machine.sh` — clona todos os repos da Ideia, configura o autosync (LaunchAgent) **e** roda o setup global do IdeiaOS + overlay automaticamente.
+>
+> **Manutenção (qualquer dia):** `bash scripts/idea-doctor.sh` (diagnóstico) · `bash scripts/sync-all.sh` (atualiza tudo). Veja [Mantendo o ambiente global sincronizado](#-mantendo-o-ambiente-global-sincronizado-caminho-c--v11).
 
 Pronto. Em qualquer projeto, você precisa decorar **um comando** — ou apenas chamar a **Deia** por nome:
 
@@ -143,10 +149,12 @@ Detalhes completos: cada projeto ideIAos recebe [`docs/ideiaos/DECISION-MATRIX.m
 | `scripts/install-alias.sh` | Adiciona alias `idea-setup` ao seu shell rc (zsh/bash) |
 | `scripts/install-git-hooks.sh` | Instala pre-commit hook que BLOQUEIA commits sem README sincronizado |
 | `scripts/check-readme-sync.sh` | Audita se README menciona todos os componentes do repo |
+| **`scripts/idea-doctor.sh`** | Diagnóstico read-only: skills, MCPs, 7 patches, versões vs `versions.lock`, drift, autosync |
 | **`scripts/install-global-patches.sh`** | Aplica overlay ideIAos (Caminho C) sobre GSD/AIOX/Claude — idempotente, 7 patches |
-| **`scripts/update-upstream.sh`** | Detecta updates do GSD plugin e AIOX-core, alerta se há nova versão |
+| **`scripts/update-upstream.sh`** | Detecta updates do GSD plugin e AIOX-core vs `versions.lock`; `--bump` re-pina |
 | **`scripts/update-design-suite.sh`** | Atualização CONTROLADA da Suíte de Design (re-vendoriza do nextlevelbuilder, mostra diff, sob demanda) |
-| **`scripts/sync-all.sh`** | Orquestrador — `git pull` → `update-upstream` → `setup.sh --global-only` → `install-global-patches` |
+| **`scripts/sync-all.sh`** | Orquestrador — `git pull` → `update-upstream` → `setup.sh --global-only` → overlay → `idea-doctor` |
+| **`versions.lock`** | Lockfile de versões (aiox-core, gsd, ref da Suíte, MCPs) que toda máquina deve convergir |
 
 ### Componentes do projeto (instalados quando você roda em projeto específico)
 
@@ -403,19 +411,34 @@ O `setup.sh` cuida dos arquivos do **projeto**. Para os **arquivos globais** (sk
 | 6 | `.aiox-core/.../tasks/qa-gate.md` | Seção "Optional Input — ideIAos Composition" |
 | 7 | `~/.claude/skills/design-system/SKILL.md` | Tokens **OKLCH** (`--brand-hue`) na Suíte de Design (upstream de terceiros) |
 
-### 4 scripts de manutenção
+### Scripts de manutenção + lockfile
+
+| Comando | Quando usar |
+|---------|-------------|
+| `bash scripts/idea-doctor.sh` | **SEMPRE PRIMEIRO** — diagnóstico read-only: skills, MCPs, 7 patches, versões vs lock, drift, autosync. Não muda nada. |
+| `bash scripts/sync-all.sh` | **O DE SEMPRE** — atualiza tudo: `git pull` → `update-upstream` → `setup.sh --global-only` → overlay → `idea-doctor` |
+| `bash scripts/install-global-patches.sh` | só re-aplicar o overlay (7 patches) — idempotente, roda 100x |
+| `bash scripts/update-upstream.sh` | checar updates de GSD/AIOX vs `versions.lock`. `--bump` re-pina o lock no instalado |
+| `bash scripts/update-design-suite.sh` | atualizar a Suíte de Design do upstream (controlado, mostra diff, **sob demanda**) |
+
+> **`versions.lock`** (raiz do repo) fixa as versões que toda máquina deve convergir (aiox-core CLI, gsd, ref da Suíte, specs de MCP). `idea-doctor` acusa drift; `update-upstream --bump` re-pina.
+
+### Como atualizar CADA componente
+
+| Componente | Como atualizar |
+|------------|----------------|
+| **Skills nossas** (idea, frontend-visual-loop, motion, web-quality…) | edite em `skills/` → commit/push → nas outras máquinas: `git pull` + `bash scripts/sync-all.sh` |
+| **Suíte de Design** (upstream de terceiros) | `bash scripts/update-design-suite.sh [ref]` → revisa o diff → commit. O OKLCH (Patch 7) re-aplica sozinho |
+| **GSD plugin** | menu de plugins do Claude Code (interativo) → `sync-all.sh` (re-aplica overlay) → `update-upstream.sh --bump` (re-pina) |
+| **AIOX-core** | `aiox update` (ou npm) → `sync-all.sh` → `update-upstream.sh --bump` |
+| **MCPs** (chrome-devtools, context7) | usam `@latest` (auto no runtime). Reinstalar: `setup.sh --global-only` |
+| **O próprio IdeiaOS** | `git pull` no repo → `bash scripts/sync-all.sh` |
 
 ```bash
-# 1. Aplicar overlay (idempotente — pode rodar 100x)
-bash scripts/install-global-patches.sh
+# Diagnóstico primeiro (read-only — não muda nada)
+bash scripts/idea-doctor.sh
 
-# 2. Checar updates de upstream (GSD plugin, AIOX-core)
-bash scripts/update-upstream.sh
-
-# 3. Atualizar a Suíte de Design do upstream (controlado, mostra diff, sob demanda)
-bash scripts/update-design-suite.sh
-
-# 4. Sincronizar tudo (RECOMENDADO): git pull → update-upstream → setup --global-only → overlay
+# Atualizar TUDO de uma vez (o comando do dia a dia)
 bash scripts/sync-all.sh
 ```
 
@@ -470,7 +493,9 @@ A simulação testada em 2026-05-30: apagar manualmente os 3 gatilhos do hook �
 
 ```
 ideIAos/
-├── setup.sh                                ← script principal, idempotente
+├── setup.sh                                ← script principal (global + projeto); flag --global-only
+├── setup-dev-machine.sh                    ← bootstrap de máquina nova (clona repos + autosync + setup global)
+├── versions.lock                           ← pin de versões (aiox-core/gsd/Suíte/MCPs)
 ├── agents/
 │   ├── claude-continuation.md              ← Cursor agent — Cursor lê do Claude
 │   └── ideiaos-checker.md                    ← Cursor agent — audita setup
@@ -480,7 +505,13 @@ ideIAos/
 │   ├── lovable-handoff/SKILL.md            ← Claude — playbook Lovable
 │   ├── recall-learnings/SKILL.md           ← Claude — load context
 │   ├── extract-learnings/SKILL.md          ← Claude — registra aprendizado
-│   └── ideiaos-setup/SKILL.md                  ← Claude — audita setup
+│   ├── ideiaos-setup/SKILL.md              ← Claude — audita setup
+│   ├── frontend-visual-loop/               ← Claude — loop render→screenshot→fix (Chrome DevTools MCP)
+│   ├── motion/                             ← Claude — animação (Framer Motion / GSAP)
+│   ├── web-quality/                        ← Claude — auditoria CWV / WCAG / SEO
+│   ├── ui-ux-pro-max/  design/  design-system/   ← Suíte de Design (vendorizada, nextlevelbuilder)
+│   ├── ui-styling/  brand/  banner-design/  slides/
+│   └── .design-suite-version               ← pin da Suíte (update-design-suite.sh)
 ├── hooks/
 │   ├── extract-learnings-reminder.sh       ← Claude PostToolUse Bash
 │   ├── ideiaos-detector.sh               ← Claude SessionStart
@@ -490,9 +521,11 @@ ideIAos/
 │   ├── install-alias.sh                    ← Instala alias idea-setup
 │   ├── install-git-hooks.sh                ← Instala pre-commit hook
 │   ├── check-readme-sync.sh                ← Audita README sync
+│   ├── idea-doctor.sh                      ← Diagnóstico saúde + drift (read-only)
 │   ├── install-global-patches.sh           ← Overlay ideIAos (Caminho C — 7 patches idempotentes)
-│   ├── update-upstream.sh                  ← Detecta updates GSD plugin + AIOX-core
-│   └── sync-all.sh                         ← Orquestrador (update → re-apply overlay)
+│   ├── update-upstream.sh                  ← Detecta updates GSD + AIOX vs versions.lock (--bump re-pina)
+│   ├── update-design-suite.sh              ← Atualização controlada da Suíte (re-vendoriza do upstream)
+│   └── sync-all.sh                         ← Orquestrador (pull → upstream → setup --global-only → overlay → doctor)
 ├── templates/
 │   ├── aiox-ai-config.yaml                 ← Config IA + marker ideIAos
 │   ├── hybrid/

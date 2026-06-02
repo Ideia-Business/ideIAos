@@ -215,8 +215,14 @@ cat <<RESUMO
   Branch:       work (motor); main reservada p/ release → Lovable
   Log sync:     $STATE_DIR/git-autosync.log
 
-  Útil:
+  Útil — autosync:
     launchctl list | grep gitautosync
-    launchctl kickstart -k gui/$UID_NUM/$LABEL     # sincronizar agora
-    launchctl bootout   gui/$UID_NUM/$LABEL        # desligar
+    launchctl kickstart -k gui/$UID_NUM/$LABEL     # sincronizar git agora
+    launchctl bootout   gui/$UID_NUM/$LABEL        # desligar autosync
+
+  Útil — IdeiaOS (ambiente global):
+    bash $DEV/IdeiaOS/scripts/idea-doctor.sh          # diagnóstico de saúde + drift
+    bash $DEV/IdeiaOS/scripts/sync-all.sh             # atualizar tudo (pull→setup→overlay→doctor)
+    bash $DEV/IdeiaOS/scripts/update-design-suite.sh  # atualizar Suíte de Design do upstream
+    bash $DEV/IdeiaOS/setup.sh /caminho/projeto       # configurar IdeiaOS num projeto
 RESUMO

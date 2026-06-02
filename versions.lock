@@ -1,0 +1,26 @@
+# IdeiaOS — lockfile de versões dos componentes upstream
+# =============================================================================
+# "pin" = versão que TODA máquina deve convergir. Drift = instalado ≠ pin.
+# Lido por: scripts/idea-doctor.sh (audita drift) e scripts/update-upstream.sh.
+# Atualizado por: scripts/update-upstream.sh --bump (grava o instalado aqui).
+#
+# Formato: chave=valor (um por linha; # comenta). NÃO use aspas.
+# =============================================================================
+
+# AIOX-core — versão do CLI `aiox --version` (NÃO o package.json do .aiox-core)
+aiox-core=5.0.7
+
+# GSD (plugin Claude Code; ~/.claude/get-shit-done/VERSION)
+gsd=1.36.0
+
+# Suíte de Design (vendorizada; fonte nextlevelbuilder/ui-ux-pro-max-skill)
+# ref = tag/branch/commit pinado; commit = hash curto resolvido no último update.
+design-suite-ref=main
+design-suite-commit=local-seed-2026-06-02
+
+# MCPs (user scope). npx @latest resolve no runtime — o spec é o contrato.
+mcp-chrome-devtools=chrome-devtools-mcp@latest
+mcp-context7=@upstash/context7-mcp@latest
+
+# Última atualização deste lock
+updated=2026-06-02

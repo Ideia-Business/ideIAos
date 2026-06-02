@@ -17,6 +17,18 @@
 set -uo pipefail
 
 SETUP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+LOCK="$SETUP_DIR/versions.lock"
+
+# --bump: grava as versões INSTALADAS no versions.lock (re-pin após aceitar update)
+BUMP=0
+[ "${1:-}" = "--bump" ] && BUMP=1
+
+# Lê um valor do versions.lock (chave=valor)
+read_lock() { [ -f "$LOCK" ] && grep -m1 "^$1=" "$LOCK" 2>/dev/null | cut -d= -f2- || true; }
+AIOX_PIN="$(read_lock aiox-core)"
+GSD_PIN="$(read_lock gsd)"
+GSD_INSTALLED=""
+AIOX_INSTALLED=""
 
 # ── Cores ────────────────────────────────────────────────────────────────────
 GREEN='\033[0;32m'; YELLOW='\033[1;33m'; RED='\033[0;31m'; CYAN='\033[0;36m'
@@ -61,12 +73,14 @@ check_gsd_plugin() {
 
   info "GSD plugin: ${gsd_count} skills instaladas em $skills_dir/gsd-*"
 
-  # Tenta extrair versão do plugin manifest se existir
-  local manifest="$HOME/.claude/get-shit-done/manifest.json"
-  if [ -f "$manifest" ]; then
-    local version
-    version=$(python3 -c "import json; print(json.load(open('$manifest')).get('version','?'))" 2>/dev/null || echo "?")
-    info "Versão detectada: $version"
+  # Versão do GSD: arquivo VERSION em ~/.claude/get-shit-done/
+  local gsd_version_file="$HOME/.claude/get-shit-done/VERSION"
+  if [ -f "$gsd_version_file" ]; then
+    GSD_INSTALLED="$(tr -d ' \n' < "$gsd_version_file")"
+    info "Versão GSD: $GSD_INSTALLED (pin: ${GSD_PIN:-—})"
+    if [ -n "${GSD_PIN:-}" ] && [ "$GSD_INSTALLED" != "$GSD_PIN" ]; then
+      warn "DRIFT GSD: instalado $GSD_INSTALLED ≠ pin $GSD_PIN (versions.lock) — re-pin com --bump se intencional"
+    fi
   fi
 
   info "Para atualizar: use o menu de plugins do Claude Code (não há CLI direta)"
@@ -89,7 +103,15 @@ check_aiox_core() {
   local installed=""
   if [ -f "$aiox_root/package.json" ]; then
     installed=$(python3 -c "import json; print(json.load(open('$aiox_root/package.json')).get('version','?'))" 2>/dev/null || echo "?")
-    info "Versão instalada: $installed"
+    info "Versão (package.json .aiox-core): $installed"
+  fi
+  # O LOCK/drift usa o CLI (aiox --version) — é o que o idea-doctor mede também.
+  AIOX_INSTALLED="$( (aiox --version 2>/dev/null || aiox-core --version 2>/dev/null) | head -1 )"
+  if [ -n "$AIOX_INSTALLED" ]; then
+    info "Versão (CLI aiox): $AIOX_INSTALLED (pin: ${AIOX_PIN:-—})"
+    if [ -n "${AIOX_PIN:-}" ] && [ "$AIOX_INSTALLED" != "$AIOX_PIN" ]; then
+      warn "DRIFT AIOX: CLI $AIOX_INSTALLED ≠ pin $AIOX_PIN (versions.lock) — re-pin com --bump se intencional"
+    fi
   fi
 
   # Versão do CLI aiox-core
@@ -144,6 +166,17 @@ if [ "$UPDATED" -gt 0 ]; then
   echo "    bash scripts/install-global-patches.sh"
   echo -e "  ${CYAN}Ou rode tudo de uma vez:${NC}"
   echo "    bash scripts/sync-all.sh"
+fi
+
+# ── --bump: re-pin versions.lock com as versões INSTALADAS ────────────────────
+if [ "$BUMP" = 1 ] && [ -f "$LOCK" ]; then
+  step "--bump: gravando versões instaladas em versions.lock"
+  [ -n "$AIOX_INSTALLED" ] && sed -i.bak "s/^aiox-core=.*/aiox-core=$AIOX_INSTALLED/" "$LOCK"
+  [ -n "$GSD_INSTALLED" ]  && sed -i.bak "s/^gsd=.*/gsd=$GSD_INSTALLED/" "$LOCK"
+  sed -i.bak "s/^updated=.*/updated=$(date +%F)/" "$LOCK"
+  rm -f "$LOCK.bak"
+  ok "versions.lock re-pinado: aiox-core=${AIOX_INSTALLED:-?} gsd=${GSD_INSTALLED:-?}"
+  echo "    Commit o versions.lock para propagar o pin às outras máquinas."
 fi
 
 exit 0
