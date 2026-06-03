@@ -553,7 +553,8 @@ ideIAos/
 │   │   ├── README.md.tmpl                  ← Convenções
 │   │   └── _TEMPLATE.md.tmpl               ← Esqueleto de learning
 │   └── global-patches/
-│       └── extract-learnings-reminder.sh   ← Fonte de verdade do hook (3 gatilhos)
+│       ├── extract-learnings-reminder.sh   ← Fonte de verdade do hook (3 gatilhos)
+│       └── oklch-tokens.md                  ← Doc OKLCH copiado pelo Patch 7
 ├── docs/
 │   ├── IDEIAOS.md                          ← Especificação canônica do ideIAos
 │   └── CONTINUATION_HANDOFF.md
@@ -621,9 +622,18 @@ Se não existir, roda `@ideiaos-checker` no chat ou `idea-setup` no terminal.
 
 ### "Como sei se o setup está completo?"
 
+**Comando direto:** `bash scripts/idea-doctor.sh` — diagnóstico read-only que audita skills, MCPs, os 7 patches, versões vs `versions.lock`, drift e autosync. Mostra `OK / WARN / FAIL` por item com a remediação.
 No Claude Code: `/ideiaos-setup` → mostra ✅/❌ por camada do ideIAos.
 No Cursor: `@ideiaos-checker` → idem.
-No terminal: roda setup e ele lista o que foi feito vs pulado.
+
+### "Rodei o setup mas faltou skill ou MCP (ex: context7) — parou no meio?"
+
+Quase sempre é um **passo interativo sem terminal** (TTY). Instaladores de terceiros (ex: `aiox-core`) pedem input via prompt; sem TTY eles crasham e, sob `set -e`, abortavam o setup inteiro **antes** de instalar o resto.
+
+- **Já corrigido** no `setup.sh`: o passo do AIOX Core agora é idempotente (pula se instalado), só roda o instalador interativo com TTY (`[ -t 0 ]`) e nunca é fatal.
+- **Diagnóstico/correção:** `bash scripts/idea-doctor.sh` (vê o que falta) → `bash scripts/sync-all.sh` (reinstala) → se o `aiox` ainda faltar, rode **num terminal interativo**: `npx aiox-core@latest install`.
+
+> Regra ao escrever qualquer script de setup: instalador de terceiro = **skip-if-installed + guard `[ -t 0 ]` + `|| warn` (não-fatal)**. Teste com `bash setup.sh 2>&1 | cat` (o pipe remove o TTY e revela o bug que o terminal esconde).
 
 ### "Posso rodar várias vezes seguidas sem estragar nada?"
 
