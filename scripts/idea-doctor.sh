@@ -32,7 +32,6 @@ PASS=0; WARN=0; FAIL=0
 read_lock() { [ -f "$LOCK" ] && grep -m1 "^$1=" "$LOCK" 2>/dev/null | cut -d= -f2- || true; }
 find_aiox_core() {
   for c in "$(dirname "$SETUP_DIR")/.aiox-core" \
-           "$HOME/Library/Mobile Documents/com~apple~CloudDocs/Projects/.aiox-core" \
            "$HOME/Projects/.aiox-core"; do
     [ -d "$c/development/agents" ] && { echo "$c"; return 0; }
   done

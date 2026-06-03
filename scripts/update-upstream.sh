@@ -47,7 +47,6 @@ SKIPPED=0
 find_aiox_core() {
   local candidates=(
     "$(dirname "$SETUP_DIR")/.aiox-core"
-    "$HOME/Library/Mobile Documents/com~apple~CloudDocs/Projects/.aiox-core"
     "$HOME/Projects/.aiox-core"
   )
   for c in "${candidates[@]}"; do
