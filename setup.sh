@@ -463,11 +463,24 @@ command -v cursor &>/dev/null \
 if [ "$PROJECT_ONLY" -eq 0 ]; then
 step "2) AIOX Core (orquestrador de agentes IA)"
 
-if command -v npx &>/dev/null; then
-  npx aiox-core@latest install
-  ok "AIOX Core instalado/atualizado"
-else
+# O instalador do aiox-core é INTERATIVO (pergunta idioma via inquirer) e crasha
+# sem TTY (ERR_USE_AFTER_CLOSE) — o que abortaria o setup inteiro sob set -e.
+# Por isso: (a) pula se já instalado; (b) só roda o instalador interativo com TTY;
+# (c) nunca é fatal (|| warn) — em automação/máquina-nova segue para skills/MCPs.
+if command -v aiox &>/dev/null || command -v aiox-core &>/dev/null; then
+  AIOX_V="$( (aiox --version 2>/dev/null || aiox-core --version 2>/dev/null) | head -1 )"
+  ok "AIOX Core já instalado (CLI ${AIOX_V:-presente}) — pulando instalador interativo"
+elif ! command -v npx &>/dev/null; then
   warn "npx não disponível — AIOX Core não instalado"
+elif [ -t 0 ]; then
+  if npx aiox-core@latest install; then
+    ok "AIOX Core instalado/atualizado"
+  else
+    warn "Instalador do AIOX Core falhou — siga manual: npx aiox-core@latest install"
+  fi
+else
+  warn "Sem terminal interativo (TTY) — instalador do AIOX Core pulado."
+  warn "  Rode manualmente num terminal: npx aiox-core@latest install"
 fi
 
 # ─────────────────────────────────────────────────────────────────────────────
