@@ -13,6 +13,9 @@ node_modules/
 /IDEIAOS.md
 /CONTRIBUTING.md
 /docs/ideiaos/
-/docs/learnings/
+# docs/learnings/: versionamos os aprendizados datados (trilha compartilhada no git),
+# mas ignoramos o scaffolding gerado dos templates (README/_TEMPLATE rendered).
+/docs/learnings/README.md
+/docs/learnings/_TEMPLATE.md
 /.cursor/rules/agents-md-protocol.mdc
 /.cursor/rules/planning-branch.mdc
