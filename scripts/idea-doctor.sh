@@ -80,19 +80,19 @@ chk() { # nome, arquivo, marcador
   if [ ! -f "$2" ]; then warn "$1: alvo ausente ($2)"; return; fi
   if grep -qF -- "$3" "$2" 2>/dev/null; then pass "$1"; else warn "$1 NÃO aplicado — rode: bash scripts/install-global-patches.sh"; fi
 }
+# Ordem sequencial 1→7. Patch 3 (hook) não tem marcador de string — checa presença.
 chk "Patch 1 (gsd-plan-phase --story)"   "$GSKILLS/gsd-plan-phase/SKILL.md"                 "--story <file>"
 chk "Patch 2 (plan-phase STORY_MODE)"    "$HOME/.claude/get-shit-done/workflows/plan-phase.md" "STORY_MODE"
-chk "Patch 4 (settings.json matcher)"    "$HOME/.claude/settings.json"                     "extract-learnings-reminder.sh"
-chk "Patch 7 (design-system OKLCH)"      "$GSKILLS/design-system/SKILL.md"                 "oklch-tokens.md"
-# Patch 3: hook copiado do template
 if [ -f "$HOME/.claude/hooks/extract-learnings-reminder.sh" ]; then pass "Patch 3 (hook Fase A presente)"; else warn "Patch 3 ausente — install-global-patches.sh"; fi
+chk "Patch 4 (settings.json matcher)"    "$HOME/.claude/settings.json"                     "extract-learnings-reminder.sh"
 # Patches 5,6: AIOX-core (pode não estar instalado)
 if AIOX="$(find_aiox_core)"; then
   chk "Patch 5 (AIOX qa.md --verification)" "$AIOX/development/agents/qa.md"     "--verification <path>"
   chk "Patch 6 (AIOX qa-gate Composition)"  "$AIOX/development/tasks/qa-gate.md" "Optional Input — IdeiaOS Composition"
 else
-  info "AIOX-core não localizado — patches 5/6 não auditados (instale via npm + install-global-patches)"
+  info "Patches 5/6 (AIOX): AIOX-core não localizado — instale via npm + install-global-patches"
 fi
+chk "Patch 7 (design-system OKLCH)"      "$GSKILLS/design-system/SKILL.md"                 "oklch-tokens.md"
 
 # ── 5) Versões vs lock ────────────────────────────────────────────────────────
 step "5) Versões vs versions.lock"
