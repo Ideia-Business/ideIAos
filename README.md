@@ -100,11 +100,82 @@ Detalhes completos: cada projeto ideIAos recebe [`docs/ideiaos/DECISION-MATRIX.m
 
 ## 📋 Pré-requisitos
 
-- **Node.js 18+** — [nodejs.org](https://nodejs.org)
-- **Git**
-- **Claude Code CLI** — [claude.ai/code](https://claude.ai/code)
-- **Cursor IDE** — [cursor.sh](https://cursor.sh)
+> O bootstrap **aborta** se faltar `git`, `gh`, `node` ou `npm`. Instale-os antes.
+
+- **Homebrew** (macOS) — para instalar o resto: [brew.sh](https://brew.sh)
+- **Node.js 18+** (traz `npm`) — `brew install node` · [nodejs.org](https://nodejs.org)
+- **Git** — `brew install git`
+- **GitHub CLI (`gh`)** — `brew install gh` (necessário pra clonar os repos privados Ideia-Business)
+- **Claude Code CLI** — `npm install -g @anthropic-ai/claude-code` (ou instalador oficial) · [claude.ai/code](https://claude.ai/code)
+- **Cursor IDE** *(opcional)* — [cursor.sh](https://cursor.sh)
 - Shell: `zsh` ou `bash` (macOS/Linux nativamente; Windows via WSL)
+
+---
+
+## 🍎 Instalação em máquina nova (completa)
+
+Fluxo de ponta a ponta pra um Mac do zero. O bootstrap faz o grosso; só GSD fica manual.
+
+### 1. Pré-requisitos (uma vez — não são auto-instalados)
+```bash
+# Homebrew (se não tiver)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Ferramentas base (bootstrap aborta se faltar)
+brew install git gh node
+
+# Claude Code CLI (se 'claude' não estiver no PATH)
+npm install -g @anthropic-ai/claude-code
+```
+
+### 2. Pegar o bootstrap (escolha **A** ou **B**)
+```bash
+# A) Clonar o IdeiaOS primeiro (precisa de acesso ao GitHub Ideia-Business)
+gh auth login                                   # se ainda não logado
+mkdir -p ~/dev && git clone https://github.com/Ideia-Business/ideIAos.git ~/dev/IdeiaOS
+
+# B) AirDrop deste Mac:  ~/dev/setup-dev-machine.sh  →  Mac novo
+```
+
+### 3. Rodar o bootstrap (faz quase tudo)
+```bash
+bash ~/dev/IdeiaOS/setup-dev-machine.sh         # ou o caminho do arquivo via AirDrop
+```
+Executa, em sequência:
+- `gh auth login` (se preciso) + credential helper do git
+- clona os 5 repos em `~/dev/` (cfoai-grupori, IdeiaOS, lapidai, nfideia, ideiapartner) + `npm install`
+- instala o **autosync** (LaunchAgent, a cada 15 min)
+- `setup.sh --global-only` → **skills** (idea, frontend-visual-loop, motion, web-quality, Suíte de Design) + **MCPs** (chrome-devtools, context7) + hooks + agentes Cursor
+- `sync-all.sh` → aplica os **7 patches** do overlay + roda `idea-doctor`
+
+> ⚠️ No passo do **AIOX-core** aparece um prompt interativo de idioma — responda (só roda interativo porque há terminal). Sem terminal, ele é pulado e você roda depois: `npx aiox-core@latest install`.
+
+### 4. Passo manual: plugin GSD
+GSD vem por plugin do Claude Code (instalação interativa):
+```
+# dentro do Claude Code:
+/plugin     → adicionar o plugin GSD (get-shit-done)
+```
+
+### 5. Verificar
+```bash
+bash ~/dev/IdeiaOS/scripts/idea-doctor.sh       # alvo: 0 FAIL
+```
+Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev/IdeiaOS/scripts/sync-all.sh`).
+
+### Caminhos que ficam instalados
+| O quê | Onde |
+|-------|------|
+| Repos de trabalho | `~/dev/<projeto>/` |
+| IdeiaOS (este repo) | `~/dev/IdeiaOS/` |
+| Skills globais (idea, dev-loop, suíte, gsd-*) | `~/.claude/skills/` |
+| MCPs (user scope) | config do Claude Code (`claude mcp list`) |
+| Hooks Claude | `~/.claude/hooks/` |
+| Agentes Cursor | `~/.cursor/agents/` |
+| AIOX-core (framework) | `~/dev/.aiox-core/` |
+| Autosync (LaunchAgent) | `~/Library/LaunchAgents/com.gustavo.gitautosync.plist` |
+
+> ⚠️ **Não auto-instalado:** pré-requisitos (passo 1) e o **plugin GSD** (passo 4, interativo do Claude Code).
 
 ---
 
