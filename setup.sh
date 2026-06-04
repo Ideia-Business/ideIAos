@@ -249,13 +249,15 @@ setup_lovable_project() {
     ok ".aiox-ai-config.yaml marcado como Lovable Cloud"
   fi
 
-  # 7. Cursor rules Lovable (mandato global — sempre sincroniza do template)
+  # 7. Cursor rules Lovable — doutrina ÚNICA (mandato global — sempre sincroniza do template)
   mkdir -p "$project_dir/.cursor/rules"
-  cp "$SETUP_DIR/templates/lovable/lovable-agent-delivery.mdc.tmpl" \
-    "$project_dir/.cursor/rules/lovable-agent-delivery.mdc"
-  cp "$SETUP_DIR/templates/lovable/lovable-deploy-update.mdc.tmpl" \
-    "$project_dir/.cursor/rules/lovable-deploy-update.mdc"
-  ok ".cursor/rules/lovable-agent-delivery.mdc + lovable-deploy-update.mdc instalados"
+  cp "$SETUP_DIR/templates/lovable/lovable-deploy.mdc.tmpl" \
+    "$project_dir/.cursor/rules/lovable-deploy.mdc"
+  # Migração (2026-06-04): as 3 regras antigas foram consolidadas em lovable-deploy.mdc.
+  rm -f "$project_dir/.cursor/rules/lovable-agent-delivery.mdc" \
+        "$project_dir/.cursor/rules/lovable-deploy-update.mdc" \
+        "$project_dir/.cursor/rules/lovable-publish.mdc"
+  ok ".cursor/rules/lovable-deploy.mdc instalado (doutrina Lovable única)"
 }
 
 # Setup da camada de aprendizado (universal — qualquer projeto, não só Lovable).

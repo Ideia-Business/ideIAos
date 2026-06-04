@@ -243,8 +243,7 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | `.cursor/rules/agents-md-protocol.mdc` | .cursor/rules/ | Cursor |
 | `.cursor/rules/session-continuation.mdc` | .cursor/rules/ | Cursor |
 | `.cursor/rules/planning-branch.mdc` | .cursor/rules/ | Cursor |
-| `.cursor/rules/lovable-agent-delivery.mdc` | .cursor/rules/ | Lovable |
-| `.cursor/rules/lovable-deploy-update.mdc` | .cursor/rules/ | Lovable |
+| `.cursor/rules/lovable-deploy.mdc` | .cursor/rules/ | Lovable |
 | `.aiox-ai-config.yaml` (com marker ideIAos) | Raiz | ideIAos |
 | `docs/playbook-implantacao.md` | docs/ | Lovable |
 | `docs/lovable/conclusao-implantacao.md` | docs/lovable/ | Lovable |
@@ -615,8 +614,7 @@ ideIAos/
 │   │   └── DECISION-MATRIX.md.tmpl         ← Matriz "tarefa → camada → comando"
 │   ├── lovable/
 │   │   ├── AGENTS.lovable.md.tmpl          ← Seção Lovable no AGENTS.md
-│   │   ├── lovable-agent-delivery.mdc.tmpl ← Cursor rule: merge main antes de Update
-│   │   ├── lovable-deploy-update.mdc.tmpl  ← Cursor rule: Update/Publish pós-merge
+│   │   ├── lovable-deploy.mdc.tmpl         ← Cursor rule: doutrina Lovable única (merge main → Update, botão cinza, confirmar bundle)
 │   │   ├── playbook-implantacao.md.tmpl    ← Fluxo obrigatório
 │   │   ├── conclusao-implantacao.md.tmpl   ← Modelo de resposta (8 blocos)
 │   │   └── _TEMPLATE.md.tmpl               ← Esqueleto de handoff Lovable
