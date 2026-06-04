@@ -59,6 +59,45 @@ npm config set cache "$NPM_CACHE"
 ok "npm cache → $(npm config get cache)"
 warn "Fix permanente opcional (com senha): sudo chown -R \$(id -u):\$(id -g) ~/.npm"
 
+# ── 2.5) Comando `timeout` (macOS não traz o do GNU coreutils) ────────────────
+# GSD e diversos workflows/IAs chamam `timeout N CMD`. Sem ele, falham com
+# "timeout: command not found" (ex.: o connectivity test do GSD). Instala um
+# shim em ~/.local/bin que usa gtimeout (brew coreutils) se houver, senão emula
+# via perl alarm. Também garante ~/.local/bin no PATH (macOS não inclui).
+say "Garantindo o comando 'timeout' (ausente no macOS por padrão)"
+if command -v timeout >/dev/null 2>&1; then
+  ok "timeout já disponível ($(command -v timeout))"
+else
+  mkdir -p "$BIN_DIR"
+  cat > "$BIN_DIR/timeout" <<'TIMEOUT_EOF'
+#!/usr/bin/env bash
+# timeout — shim para macOS (sem GNU coreutils). Prefere gtimeout; senão perl alarm.
+if command -v gtimeout >/dev/null 2>&1; then exec gtimeout "$@"; fi
+while [ "$#" -gt 0 ]; do case "$1" in -k|-s) shift 2 ;; -*) shift ;; *) break ;; esac; done
+dur="${1%s}"; shift || exit 125
+exec perl -e '
+  my $t = shift @ARGV; $t = ($t =~ /^(\d+)$/) ? $1 : 0;
+  my $pid = fork(); defined $pid or die "timeout: fork: $!\n";
+  if ($pid == 0) { exec @ARGV; exit 127; }
+  $SIG{ALRM} = sub { kill "TERM", $pid; };
+  alarm($t) if $t > 0;
+  waitpid($pid, 0);
+  my $st = $?; alarm(0);
+  exit( ($st & 127) ? 124 : ($st >> 8) );
+' "$dur" "$@"
+TIMEOUT_EOF
+  chmod +x "$BIN_DIR/timeout"
+  ok "shim 'timeout' instalado em $BIN_DIR/timeout"
+fi
+# Garante ~/.local/bin no PATH (macOS não inclui por padrão) — zsh e bash.
+for rc in "$HOME/.zprofile" "$HOME/.bash_profile"; do
+  if ! grep -qs '\.local/bin' "$rc" 2>/dev/null; then
+    printf '\n# IdeiaOS: ~/.local/bin no PATH (timeout shim, git-autosync, etc.)\nexport PATH="$HOME/.local/bin:$PATH"\n' >> "$rc"
+    ok "PATH: ~/.local/bin adicionado em $(basename "$rc")"
+  fi
+done
+case ":$PATH:" in *":$BIN_DIR:"*) : ;; *) export PATH="$BIN_DIR:$PATH" ;; esac
+
 # ── 3) Clonar + branch + deps de cada projeto ─────────────────────────────────
 mkdir -p "$DEV"
 for entry in "${REPOS[@]}"; do
