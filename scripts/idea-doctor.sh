@@ -103,8 +103,14 @@ if [ -f "$LOCK" ]; then
     GI="$(tr -d ' \n' < "$GVF")"
     [ "$GI" = "$GSD_PIN" ] && pass "GSD $GI = pin" || warn "GSD drift: instalado $GI ≠ pin $GSD_PIN (update-upstream.sh --bump se intencional)"
   fi
-  if command -v aiox >/dev/null 2>&1 || command -v aiox-core >/dev/null 2>&1; then
-    AV="$( (aiox --version 2>/dev/null || aiox-core --version 2>/dev/null) | head -1 )"
+  # Fonte de verdade = INSTALAÇÃO (.aiox-core/package.json), não o CLI global,
+  # que pode ficar defasado e exige sudo p/ atualizar. Fallback: CLI.
+  AIOX_ROOT="$(find_aiox_core 2>/dev/null || true)"
+  AV=""
+  [ -n "$AIOX_ROOT" ] && [ -f "$AIOX_ROOT/package.json" ] && \
+    AV="$(python3 -c "import json,sys; print(json.load(open('$AIOX_ROOT/package.json')).get('version',''))" 2>/dev/null)"
+  [ -z "$AV" ] && AV="$( (aiox --version 2>/dev/null || aiox-core --version 2>/dev/null) | head -1 )"
+  if [ -n "$AV" ]; then
     [ "$AV" = "$AIOX_PIN" ] && pass "aiox-core $AV = pin" || warn "AIOX drift: instalado $AV ≠ pin $AIOX_PIN (update-upstream.sh --bump se intencional)"
   fi
   info "Suíte de Design pin: $(read_lock design-suite-ref) ($(read_lock design-suite-commit))"

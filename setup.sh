@@ -857,6 +857,41 @@ fi
 echo "     Uso: resolve-library-id(\"react\") → get-library-docs(topic) para docs atuais."
 
 # ─────────────────────────────────────────────────────────────────────────────
+step "5.14b) MCPs no Cursor — chrome-devtools + context7 (~/.cursor/mcp.json)"
+# O Cursor usa config PRÓPRIA de MCP (não o 'claude mcp add'). Mescla os mesmos
+# servidores no ~/.cursor/mcp.json, preservando os já existentes (idempotente).
+if command -v python3 &>/dev/null; then
+  CURSOR_MCP_RESULT="$(python3 - <<'PYEOF'
+import json, os
+p = os.path.expanduser('~/.cursor/mcp.json')
+data = {}
+if os.path.exists(p):
+    try:
+        with open(p) as f: data = json.load(f)
+    except Exception:
+        data = {}
+servers = data.setdefault('mcpServers', {})
+want = {
+    'chrome-devtools': {'command': 'npx', 'args': ['-y', 'chrome-devtools-mcp@latest']},
+    'context7':        {'command': 'npx', 'args': ['-y', '@upstash/context7-mcp@latest']},
+}
+added = [n for n, spec in want.items() if n not in servers and not servers.update({n: spec})]
+if added:
+    os.makedirs(os.path.dirname(p), exist_ok=True)
+    with open(p, 'w') as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+    print('instalados: ' + ', '.join(added))
+else:
+    print('já presentes')
+PYEOF
+)"
+  ok "MCPs no Cursor: ${CURSOR_MCP_RESULT}"
+else
+  warn "python3 ausente — configure MCP do Cursor manualmente em ~/.cursor/mcp.json"
+fi
+echo "     (Cursor lê ~/.cursor/mcp.json — reinicie o Cursor para carregar.)"
+
+# ─────────────────────────────────────────────────────────────────────────────
 step "5.10) Skill Claude Code — /idea (orquestrador IdeiaOS)"
 # Comando único de entrada do IdeiaOS — roteia entre GSD/AIOX/Lovable/Fase A
 # automaticamente baseado no que o usuário pediu.

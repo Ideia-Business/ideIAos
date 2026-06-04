@@ -104,12 +104,18 @@ check_aiox_core() {
     installed=$(python3 -c "import json; print(json.load(open('$aiox_root/package.json')).get('version','?'))" 2>/dev/null || echo "?")
     info "Versão (package.json .aiox-core): $installed"
   fi
-  # O LOCK/drift usa o CLI (aiox --version) — é o que o idea-doctor mede também.
-  AIOX_INSTALLED="$( (aiox --version 2>/dev/null || aiox-core --version 2>/dev/null) | head -1 )"
+  # Fonte de verdade do pin = INSTALAÇÃO (.aiox-core/package.json), pois é ela que
+  # define o comportamento. O CLI global pode ficar defasado (exige sudo para
+  # atualizar) e não deve mascarar a versão real. Fallback: CLI.
+  if [ -n "$installed" ] && [ "$installed" != "?" ]; then
+    AIOX_INSTALLED="$installed"
+  else
+    AIOX_INSTALLED="$( (aiox --version 2>/dev/null || aiox-core --version 2>/dev/null) | head -1 )"
+  fi
   if [ -n "$AIOX_INSTALLED" ]; then
-    info "Versão (CLI aiox): $AIOX_INSTALLED (pin: ${AIOX_PIN:-—})"
+    info "Versão (.aiox-core): $AIOX_INSTALLED (pin: ${AIOX_PIN:-—})"
     if [ -n "${AIOX_PIN:-}" ] && [ "$AIOX_INSTALLED" != "$AIOX_PIN" ]; then
-      warn "DRIFT AIOX: CLI $AIOX_INSTALLED ≠ pin $AIOX_PIN (versions.lock) — re-pin com --bump se intencional"
+      warn "DRIFT AIOX: instalação $AIOX_INSTALLED ≠ pin $AIOX_PIN (versions.lock) — re-pin com --bump se intencional"
     fi
   fi
 
@@ -125,7 +131,7 @@ check_aiox_core() {
   # Checar versão remota via npm (se possível)
   if command -v npm >/dev/null 2>&1; then
     local latest
-    latest=$(npm view @aiox-fullstack/core version 2>/dev/null || echo "")
+    latest=$(npm view aiox-core version 2>/dev/null || echo "")
     if [ -n "$latest" ] && [ "$latest" != "$installed" ]; then
       warn "Nova versão do AIOX-core disponível: $installed → $latest"
       info "Para atualizar: aiox-core update (ou: aiox-core install --version $latest)"
