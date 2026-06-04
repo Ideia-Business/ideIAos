@@ -1,0 +1,40 @@
+---
+description: 'Publicar frontend na Lovable é Publish MANUAL; push no main não publica. Cuidado com Action que reescreve version.ts a cada push (trava o botão Update).'
+alwaysApply: true
+---
+
+# Regra: publicação de frontend na Lovable
+
+Push no `main` **não** publica o frontend em produção. O deploy é um **Publish/Update MANUAL**
+no editor da Lovable (ação humana — IA não clica). Edge Functions e migrations seguem a
+política do projeto; esta regra trata **só do frontend**.
+
+## Se o botão "Update/Publish" estiver CINZA
+
+Causa conhecida (incidente nfideia, 2026-06-04): um **GitHub Action que reescreve
+`src/version.ts` a cada push** (ex.: `lovable-rebuild-trigger.yml`) deixa um commit
+`github-actions[bot]` como `HEAD` do `main`, **atropelando** o commit de publish da Lovable
+(`gpt-engineer-app[bot]`, "Sincronizado e rebuildado"). Com um commit de bot no `HEAD`, a
+Lovable não gera deploy publicável → o botão fica cinza.
+
+- **Se existir esse Action com `on: push`, deixe-o MANUAL** (`on: workflow_dispatch`).
+- **Não crie** um Action que commita a cada push no `main`.
+
+## O que fazer para publicar / destravar
+
+1. `commit` + `push`. **Não deixe um commit de bot como `HEAD`** quando o objetivo é publicar.
+2. Avise explicitamente que **precisa de Publish na Lovable**.
+3. Se o Update não reativar: peça à Lovable (chat) para **sincronizar com o `main`** e fazer uma
+   **micro-edição real** (ex.: comentário em `src/main.tsx`) → gera um commit publicável que vira
+   `HEAD` e reativa o Update.
+
+## NUNCA afirme "está em produção" sem confirmar no bundle real
+
+```bash
+SITE="https://SEU-DOMINIO"   # domínio publicado na Lovable deste projeto
+curl -s "$SITE/?cb=$(date +%s)" | grep -oE 'assets/index-[A-Za-z0-9_-]+\.js'   # o hash muda ao rebuildar
+```
+As strings do código novo ficam nos **chunks lazy** (páginas em `*-<hash>.js`), **não** no
+`index` principal. Acentos podem estar **escapados** no bundle → buscar **substrings ASCII**.
+
+Detalhes completos: [`docs/lovable/publicacao-frontend.md`](../../docs/lovable/publicacao-frontend.md).
