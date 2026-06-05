@@ -126,6 +126,13 @@ fi
 # ── 6) Autosync ───────────────────────────────────────────────────────────────
 step "6) Autosync (LaunchAgent)"
 if launchctl list 2>/dev/null | grep -qi gitautosync; then pass "git-autosync ativo (launchd)"; else warn "git-autosync não carregado — rode setup-dev-machine.sh"; fi
+# Label antigo (com.gustavo) → migre para o genérico com.ideiaos (este check some sozinho após migrar)
+if launchctl list 2>/dev/null | grep -q "com.gustavo.gitautosync" || [ -f "$HOME/Library/LaunchAgents/com.gustavo.gitautosync.plist" ]; then
+  warn "Autosync com label ANTIGO 'com.gustavo' — migre p/ 'com.ideiaos':"
+  echo "       launchctl bootout gui/\$(id -u)/com.gustavo.gitautosync 2>/dev/null"
+  echo "       rm -f ~/Library/LaunchAgents/com.gustavo.gitautosync.plist"
+  echo "       bash \"$SETUP_DIR/setup-dev-machine.sh\"   # recria com o label novo"
+fi
 
 # ── Resumo ────────────────────────────────────────────────────────────────────
 echo -e "\n${CYAN}${BOLD}━━━ Resumo ━━━${NC}"
