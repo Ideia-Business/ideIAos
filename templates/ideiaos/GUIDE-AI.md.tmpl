@@ -227,7 +227,7 @@ Você está sujeito a hooks que injetam contexto. Ignore-os é perder enforcemen
 
 ## Git: sincronização multi-máquina & push
 
-O desenvolvimento acontece em **2 máquinas** (iMac principal — hostname `Mac-mini-de-Gustavo` — e um MacBook eventual). Regras para não perder nem duplicar trabalho:
+Se você trabalha em **mais de uma máquina**, o IdeiaOS mantém os repos alinhados automaticamente. Regras para não perder nem duplicar trabalho:
 
 - **Sincronização automática:** `git-autosync` (launchd, 15 min) puxa `main` (pull-only) e faz commit+push de branches `work`. Além dele, o hook `git-sync-check` (SessionStart) faz fast-forward no início de cada sessão. Se suspeitar de estado velho: `git fetch && git status`.
 - **Arquivos locais nunca sujam o tree:** `~/.config/git/ignore` (global) ignora `.claude/settings.local.json` e `.DS_Store` — sem isso o autosync PULA o pull (proteção dirty em `main`) e o repo fica atrás em silêncio.
