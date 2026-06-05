@@ -556,26 +556,123 @@ PYOK
   fi
 }
 
-step "Patch 1/7: --story em gsd-plan-phase SKILL.md"
+# ── PATCH 8: SessionStart git-sync-check.sh ──────────────────────────────────
+# Instala o guard de sincronização git e o registra como 1º SessionStart hook.
+# Comportamento: fetch + fast-forward automático quando o tree está limpo e
+# estritamente atrás do upstream; senão, apenas avisa. Fecha o gap cross-máquina
+# (iMac ↔ MacBook) em que a IA lia STATE.md/handoff de um working tree velho.
+patch_git_sync() {
+  local target="$HOME/.claude/hooks/git-sync-check.sh"
+  local source="$PATCHES_DIR/git-sync-check.sh"
+
+  if [ ! -f "$source" ]; then
+    err "Patch 8: template ausente em $source"
+    FAILED=$((FAILED+1))
+    return 0
+  fi
+
+  mkdir -p "$(dirname "$target")"
+  if [ -f "$target" ] && diff -q "$source" "$target" &>/dev/null; then
+    skip "Patch 8: git-sync-check.sh já está na versão mais recente"
+    SKIPPED=$((SKIPPED+1))
+  else
+    cp "$source" "$target"
+    chmod +x "$target"
+    ok "Patch 8: git-sync-check.sh instalado → $target"
+    APPLIED=$((APPLIED+1))
+  fi
+
+  # Registro idempotente em settings.json (SessionStart, como 1ª entrada).
+  local settings="$HOME/.claude/settings.json"
+  if [ ! -f "$settings" ]; then
+    warn "Patch 8: ~/.claude/settings.json não existe — registre git-sync-check manualmente em hooks.SessionStart"
+    return 0
+  fi
+
+  local result_str
+  result_str=$(python3 - "$settings" <<'PY'
+import json, sys, os
+path = sys.argv[1]
+marker = "git-sync-check.sh"
+home = os.path.expanduser('~/.claude/hooks/git-sync-check.sh')
+
+try:
+    with open(path, 'r', encoding='utf-8') as f:
+        cfg = json.load(f)
+except Exception as e:
+    print(f"FAILED: {e}", file=sys.stderr)
+    sys.exit(2)
+
+hooks = cfg.setdefault("hooks", {})
+ss = hooks.get("SessionStart", [])
+
+for entry in ss:
+    for h in entry.get("hooks", []):
+        if marker in h.get("command", ""):
+            print("SKIPPED")
+            sys.exit(0)
+
+# Insere como PRIMEIRA entrada — sincroniza antes dos demais SessionStart lerem estado.
+ss.insert(0, {
+    "hooks": [{
+        "type": "command",
+        "command": f'bash "{home}"',
+        "timeout": 15
+    }]
+})
+hooks["SessionStart"] = ss
+cfg["hooks"] = hooks
+
+with open(path, 'w', encoding='utf-8') as f:
+    json.dump(cfg, f, indent=2, ensure_ascii=False)
+    f.write('\n')
+print("APPLIED")
+PY
+)
+  local py_exit=$?
+
+  if [ $py_exit -ne 0 ]; then
+    err "Patch 8: Python falhou ao registrar git-sync-check em settings.json"
+    FAILED=$((FAILED+1))
+    return 0
+  fi
+
+  case "$result_str" in
+    APPLIED)
+      ok "Patch 8: git-sync-check registrado em settings.json (SessionStart, 1ª entrada)"
+      APPLIED=$((APPLIED+1)) ;;
+    SKIPPED)
+      skip "Patch 8: git-sync-check já registrado em settings.json"
+      SKIPPED=$((SKIPPED+1)) ;;
+    *)
+      err "Patch 8: resposta Python inesperada: $result_str"
+      FAILED=$((FAILED+1)) ;;
+  esac
+}
+
+step "Patch 1/8: --story em gsd-plan-phase SKILL.md"
 patch_gsd_skill
 
-step "Patch 2/7: STORY_MODE em workflows/plan-phase.md"
+step "Patch 2/8: STORY_MODE em workflows/plan-phase.md"
 patch_gsd_workflow
 
-step "Patch 3/7: 3 gatilhos em extract-learnings-reminder.sh"
+step "Patch 3/8: 3 gatilhos em extract-learnings-reminder.sh"
 patch_extract_hook
 
-step "Patch 4/7: matcher expandido em settings.json"
+step "Patch 4/8: matcher expandido em settings.json"
 patch_settings_json
 
-step "Patch 5/7: --verification em AIOX-core agents/qa.md"
+step "Patch 5/8: --verification em AIOX-core agents/qa.md"
 patch_aiox_qa_agent
 
-step "Patch 6/7: IdeiaOS Composition em AIOX-core tasks/qa-gate.md"
+step "Patch 6/8: IdeiaOS Composition em AIOX-core tasks/qa-gate.md"
 patch_aiox_qa_task
 
-step "Patch 7/7: OKLCH (--brand-hue) em design-system SKILL.md"
+step "Patch 7/8: OKLCH (--brand-hue) em design-system SKILL.md"
 patch_design_system_oklch
+
+step "Patch 8/8: SessionStart git-sync-check (auto fast-forward cross-máquina)"
+patch_git_sync
 
 # ── Resumo ───────────────────────────────────────────────────────────────────
 echo -e "\n${CYAN}${BOLD}━━━ Resumo ━━━${NC}"

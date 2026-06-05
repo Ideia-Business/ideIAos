@@ -93,6 +93,9 @@ else
   info "Patches 5/6 (AIOX): AIOX-core não localizado — instale via npm + install-global-patches"
 fi
 chk "Patch 7 (design-system OKLCH)"      "$GSKILLS/design-system/SKILL.md"                 "oklch-tokens.md"
+# Patch 8 (hook git-sync) — presença do script + registro no settings.json
+if [ -f "$HOME/.claude/hooks/git-sync-check.sh" ]; then pass "Patch 8 (hook git-sync presente)"; else warn "Patch 8 ausente — install-global-patches.sh"; fi
+chk "Patch 8 (git-sync no SessionStart)" "$HOME/.claude/settings.json"                     "git-sync-check.sh"
 
 # ── 5) Versões vs lock ────────────────────────────────────────────────────────
 step "5) Versões vs versions.lock"
