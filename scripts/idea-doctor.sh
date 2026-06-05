@@ -96,6 +96,8 @@ chk "Patch 7 (design-system OKLCH)"      "$GSKILLS/design-system/SKILL.md"      
 # Patch 8 (hook git-sync) — presença do script + registro no settings.json
 if [ -f "$HOME/.claude/hooks/git-sync-check.sh" ]; then pass "Patch 8 (hook git-sync presente)"; else warn "Patch 8 ausente — install-global-patches.sh"; fi
 chk "Patch 8 (git-sync no SessionStart)" "$HOME/.claude/settings.json"                     "git-sync-check.sh"
+# Patch 9 (gitignore global) — settings.local.json não pode sujar o tree
+if grep -qxF ".claude/settings.local.json" "$HOME/.config/git/ignore" 2>/dev/null; then pass "Patch 9 (gitignore global)"; else warn "Patch 9 ausente — install-global-patches.sh"; fi
 
 # ── 5) Versões vs lock ────────────────────────────────────────────────────────
 step "5) Versões vs versions.lock"

@@ -14,6 +14,8 @@
 #   5. .aiox-core/.../agents/qa.md                       — *gate --verification
 #   6. .aiox-core/.../tasks/qa-gate.md                   — IdeiaOS Composition
 #   7. ~/.claude/skills/design-system/SKILL.md           — OKLCH (--brand-hue)
+#   8. ~/.claude/hooks/git-sync-check.sh + settings.json — SessionStart fast-forward cross-máquina
+#   9. ~/.config/git/ignore                               — gitignore global (settings.local.json, .DS_Store)
 #
 # Uso:
 #   bash scripts/install-global-patches.sh
@@ -650,29 +652,55 @@ PY
   esac
 }
 
-step "Patch 1/8: --story em gsd-plan-phase SKILL.md"
+# ── PATCH 9: gitignore global (arquivos locais por-máquina) ──────────────────
+# ~/.config/git/ignore (caminho XDG padrão do git, sem precisar de core.excludesfile).
+# Sem isto, .claude/settings.local.json deixa o working tree "sujo" e o git-autosync
+# (proteção dirty em main) PULA o pull — repo fica atrás em silêncio cross-máquina.
+patch_global_gitignore() {
+  local target="$HOME/.config/git/ignore"
+  local entries=(".claude/settings.local.json" ".DS_Store")
+  mkdir -p "$(dirname "$target")"
+  [ -f "$target" ] || printf '# Git global ignore (IdeiaOS) — arquivos locais por-máquina, nunca versionados.\n' > "$target"
+  local added=0
+  local e
+  for e in "${entries[@]}"; do
+    grep -qxF -- "$e" "$target" 2>/dev/null || { printf '%s\n' "$e" >> "$target"; added=$((added+1)); }
+  done
+  if [ "$added" -gt 0 ]; then
+    ok "Patch 9: gitignore global (~/.config/git/ignore) — +$added entrada(s)"
+    APPLIED=$((APPLIED+1))
+  else
+    skip "Patch 9: gitignore global já tem as entradas"
+    SKIPPED=$((SKIPPED+1))
+  fi
+}
+
+step "Patch 1/9: --story em gsd-plan-phase SKILL.md"
 patch_gsd_skill
 
-step "Patch 2/8: STORY_MODE em workflows/plan-phase.md"
+step "Patch 2/9: STORY_MODE em workflows/plan-phase.md"
 patch_gsd_workflow
 
-step "Patch 3/8: 3 gatilhos em extract-learnings-reminder.sh"
+step "Patch 3/9: 3 gatilhos em extract-learnings-reminder.sh"
 patch_extract_hook
 
-step "Patch 4/8: matcher expandido em settings.json"
+step "Patch 4/9: matcher expandido em settings.json"
 patch_settings_json
 
-step "Patch 5/8: --verification em AIOX-core agents/qa.md"
+step "Patch 5/9: --verification em AIOX-core agents/qa.md"
 patch_aiox_qa_agent
 
-step "Patch 6/8: IdeiaOS Composition em AIOX-core tasks/qa-gate.md"
+step "Patch 6/9: IdeiaOS Composition em AIOX-core tasks/qa-gate.md"
 patch_aiox_qa_task
 
-step "Patch 7/8: OKLCH (--brand-hue) em design-system SKILL.md"
+step "Patch 7/9: OKLCH (--brand-hue) em design-system SKILL.md"
 patch_design_system_oklch
 
-step "Patch 8/8: SessionStart git-sync-check (auto fast-forward cross-máquina)"
+step "Patch 8/9: SessionStart git-sync-check (auto fast-forward cross-máquina)"
 patch_git_sync
+
+step "Patch 9/9: gitignore global (settings.local.json + .DS_Store)"
+patch_global_gitignore
 
 # ── Resumo ───────────────────────────────────────────────────────────────────
 echo -e "\n${CYAN}${BOLD}━━━ Resumo ━━━${NC}"
