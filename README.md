@@ -173,7 +173,7 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | Hooks Claude | `~/.claude/hooks/` |
 | Agentes Cursor | `~/.cursor/agents/` |
 | AIOX-core (framework) | `~/dev/.aiox-core/` |
-| Autosync (LaunchAgent) | `~/Library/LaunchAgents/com.gustavo.gitautosync.plist` |
+| Autosync (LaunchAgent) | `~/Library/LaunchAgents/com.ideiaos.gitautosync.plist` |
 
 > ⚠️ **Não auto-instalado:** pré-requisitos (passo 1) e o **plugin GSD** (passo 4, interativo do Claude Code).
 

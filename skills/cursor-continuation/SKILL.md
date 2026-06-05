@@ -28,7 +28,7 @@ Você é um especialista em **continuidade de trabalho** entre Cursor e Claude C
 **NÃO disponível:** Chat AI do Cursor — armazenado em SQLite binário, não decodificável.
 
 **Mapeamento cwd → pasta Claude:** substitua cada `/` por `-` no path absoluto.
-Exemplo: `/Users/gustavolopespaiva/Projects/ideiapartner` → `-Users-gustavolopespaiva-Projects-ideiapartner`
+Exemplo: `/Users/<usuário>/Projects/ideiapartner` → `-Users-<usuário>-Projects-ideiapartner`
 
 ---
 

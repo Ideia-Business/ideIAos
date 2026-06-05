@@ -22,7 +22,7 @@ STATE_DIR="$HOME/.local/state"
 SCRIPT_PATH="$BIN_DIR/git-autosync"
 LIST="$STATE_DIR/git-autosync-repos.txt"
 NPM_CACHE="$STATE_DIR/npm-cache"
-LABEL="com.gustavo.gitautosync"
+LABEL="com.ideiaos.gitautosync"
 PLIST="$HOME/Library/LaunchAgents/$LABEL.plist"
 
 # Projetos: "nome|url-github|branch-de-trabalho"

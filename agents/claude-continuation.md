@@ -22,9 +22,9 @@ Este agente faz par bidirecional com `cursor-continuation` no Claude Code.
 | Índice global | `~/.claude/history.jsonl` | Buscar sessão por `project`, `display` ou `sessionId` |
 
 **Mapeamento cwd → pasta codificada:** substitua cada `/` por `-` no path absoluto.
-Exemplo: `/Users/gustavolopespaiva/Projects/ideiapartner` → `-Users-gustavolopespaiva-Projects-ideiapartner`
+Exemplo: `/Users/<usuário>/Projects/ideiapartner` → `-Users-<usuário>-Projects-ideiapartner`
 
-Pasta completa: `~/.claude/projects/-Users-gustavolopespaiva-Projects-ideiapartner`
+Pasta completa: `~/.claude/projects/-Users-<usuário>-Projects-ideiapartner`
 
 ---
 
@@ -159,7 +159,7 @@ Ao concluir a execução de planos no Cursor (antes ou logo após commitar o tra
 ## Limitações conhecidas
 
 - JSONL **não** contém payloads completos de hooks — apenas eventos `hook_progress`.
-- Projetos em outros paths (`-Users-gustavolopespaiva-aiox-core`, etc.) exigem cwd correto ou busca em `history.jsonl`.
+- Projetos em outros paths (`-Users-<usuário>-aiox-core`, etc.) exigem cwd correto ou busca em `history.jsonl`.
 - Sessões muito antigas podem estar só no índice `history.jsonl` sem JSONL completo no disco.
 
 ---
