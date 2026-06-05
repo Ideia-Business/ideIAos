@@ -221,6 +221,22 @@ Você está sujeito a hooks que injetam contexto. Ignore-os é perder enforcemen
 | `extract-learnings-reminder` | Após `git commit` | Injeta lembrete do gate triplo |
 | `ideiaos-detector` | SessionStart | Detecta projeto sem Fase A e sugere `/ideiaos-setup` |
 | `ideiaos-readme-reminder` | Edit/Write em hooks/skills/agents/scripts/templates do ideIAos | Lembra de sync README |
+| `git-sync-check` | SessionStart | `git fetch` + fast-forward automático quando o tree está limpo e atrás (mantém o repo alinhado entre máquinas) |
+
+---
+
+## Git: sincronização multi-máquina & push
+
+O desenvolvimento acontece em **2 máquinas** (iMac principal — hostname `Mac-mini-de-Gustavo` — e um MacBook eventual). Regras para não perder nem duplicar trabalho:
+
+- **Sincronização automática:** `git-autosync` (launchd, 15 min) puxa `main` (pull-only) e faz commit+push de branches `work`. Além dele, o hook `git-sync-check` (SessionStart) faz fast-forward no início de cada sessão. Se suspeitar de estado velho: `git fetch && git status`.
+- **Arquivos locais nunca sujam o tree:** `~/.config/git/ignore` (global) ignora `.claude/settings.local.json` e `.DS_Store` — sem isso o autosync PULA o pull (proteção dirty em `main`) e o repo fica atrás em silêncio.
+- **Push é @devops-exclusivo** (AIOX, Article II — hook `enforce-git-push-authority.cjs`). **NÃO desligue a trava.** Quando precisar empurrar, **delegue ao @devops** declarando o papel no próprio comando:
+  ```bash
+  AIOX_ACTIVE_AGENT=devops git push origin <branch>
+  ```
+  (idem para `gh pr create` / `gh pr merge`). Isso preserva o controle (evita push acidental) e remove o push manual no terminal.
+- **`main` é pull-only no autosync** (branch viva da Lovable) — commits em `main` precisam de push deliberado, via a delegação acima.
 
 ---
 
