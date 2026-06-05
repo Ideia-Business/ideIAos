@@ -57,16 +57,21 @@ AHEAD="${1:-0}"; BEHIND="${2:-0}"
 [ "$BEHIND" -eq 0 ] 2>/dev/null && exit 0   # já atualizado (ou só à frente)
 
 REPO="$(basename "$(git rev-parse --show-toplevel 2>/dev/null || echo repo)")"
-CLEAN=1; [ -n "$(git status --porcelain 2>/dev/null)" ] && CLEAN=0
+# Só modificações RASTREADAS bloqueiam um fast-forward; arquivos untracked
+# (ex.: .claude/settings.local.json) não impedem o pull --ff-only — por isso
+# usamos --untracked-files=no aqui (senão repos com config local nunca puxariam).
+TRACKED_DIRTY=0; [ -n "$(git status --porcelain --untracked-files=no 2>/dev/null)" ] && TRACKED_DIRTY=1
 
-if [ "$CLEAN" -eq 1 ] && [ "$AHEAD" -eq 0 ]; then
+if [ "$TRACKED_DIRTY" -eq 0 ] && [ "$AHEAD" -eq 0 ]; then
   if git pull --ff-only --quiet 2>/dev/null; then
     echo "🔄 [git-sync] $REPO ($BRANCH): auto-atualizado +$BEHIND commit(s) de $UPSTREAM. Releia STATE.md/handoff se já tiver lido."
   else
-    echo "⚠️ [git-sync] $REPO ($BRANCH): $BEHIND commit(s) atrás de $UPSTREAM; o fast-forward falhou — rode 'git pull --ff-only' e verifique."
+    echo "⚠️ [git-sync] $REPO ($BRANCH): $BEHIND commit(s) atrás de $UPSTREAM; o fast-forward falhou (talvez um arquivo untracked colida com a entrada) — rode 'git pull --ff-only' e verifique."
   fi
 else
-  DIRTY="não"; [ "$CLEAN" -eq 0 ] && DIRTY="sim"
-  echo "⚠️ [git-sync] $REPO ($BRANCH): $BEHIND commit(s) ATRÁS de $UPSTREAM, mas há trabalho local (ahead=$AHEAD, alterações não commitadas=$DIRTY). NÃO puxei — resolva antes de confiar nos arquivos de estado."
+  REASON="trabalho local"
+  [ "$AHEAD" -gt 0 ] && REASON="$AHEAD commit(s) à frente"
+  [ "$TRACKED_DIRTY" -eq 1 ] && REASON="$REASON + alterações rastreadas não commitadas"
+  echo "⚠️ [git-sync] $REPO ($BRANCH): $BEHIND commit(s) ATRÁS de $UPSTREAM, mas há $REASON. NÃO puxei — resolva antes de confiar nos arquivos de estado."
 fi
 exit 0
