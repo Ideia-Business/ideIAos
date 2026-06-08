@@ -247,6 +247,39 @@ else
   warn "IdeiaOS não encontrado em $DEV/IdeiaOS — pulei o setup global"
 fi
 
+# ── 8) Obsidian Second Brain — vault no working-dirs do Claude ────────────────
+# ~/.claude/settings.json não é versionado nem sincronizado via iCloud/git.
+# Sem este passo, máquinas novas não enxergam o vault e o recall-learnings
+# (Passo 5) pula silenciosamente em vez de buscar a síntese cross-projeto.
+say "Registrando vault Obsidian nos working-dirs do Claude Code"
+python3 - <<'VAULT_EOF'
+import json, os, sys
+
+settings_path = os.path.expanduser("~/.claude/settings.json")
+vault_path    = os.path.expanduser(
+    "~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Ideia Business - Second Brain"
+)
+
+if not os.path.exists(settings_path):
+    print("  ⚠ ~/.claude/settings.json não encontrado — Claude Code não instalado nesta máquina?")
+    print("    Instale o Claude Code e rode: bash setup-dev-machine.sh")
+    sys.exit(0)
+
+with open(settings_path) as f:
+    d = json.load(f)
+
+dirs = d.setdefault("permissions", {}).setdefault("additionalDirectories", [])
+
+if vault_path in dirs:
+    print("  ✓ vault já presente em additionalDirectories — nada a fazer")
+else:
+    dirs.append(vault_path)
+    with open(settings_path, "w") as f:
+        json.dump(d, f, indent=2, ensure_ascii=False)
+        f.write("\n")
+    print(f"  ✓ vault adicionado: {vault_path}")
+VAULT_EOF
+
 # ── Resumo ────────────────────────────────────────────────────────────────────
 say "Concluído 🎉"
 cat <<RESUMO
