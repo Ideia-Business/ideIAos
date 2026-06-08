@@ -64,7 +64,18 @@ TRACKED_DIRTY=0; [ -n "$(git status --porcelain --untracked-files=no 2>/dev/null
 
 if [ "$TRACKED_DIRTY" -eq 0 ] && [ "$AHEAD" -eq 0 ]; then
   if git pull --ff-only --quiet 2>/dev/null; then
-    echo "🔄 [git-sync] $REPO ($BRANCH): auto-atualizado +$BEHIND commit(s) de $UPSTREAM. Releia STATE.md/handoff se já tiver lido."
+    # Drift de estado: o repo avançou em outra máquina/sessão e acabei de puxar.
+    # Numa RETOMADA de sessão pausada, o contexto/summary/memória da IA reflete um
+    # estado ANTIGO — então injeta um aviso FORTE + a verdade (commits + STATE),
+    # para a IA descartar o contexto velho em vez de confiar nele.
+    printf '⚠️⚠️ DRIFT DE ESTADO — o repositório avançou +%s commit(s) desde o seu contexto (puxei de %s).\n' "$BEHIND" "$UPSTREAM"
+    printf 'Se esta é uma retomada de sessão pausada, seu summary/memória PODE ESTAR DESATUALIZADO. NÃO confie no contexto da conversa para o ESTADO do projeto (pendências, "próximo passo", "o que falta"). Use a verdade abaixo e releia STATE.md + docs/CONTINUATION_HANDOFF.md ANTES de afirmar qualquer coisa sobre o estado.\n\n'
+    printf '— Últimos commits:\n'
+    git log --oneline -8 2>/dev/null | sed 's/^/    /'
+    if [ -f STATE.md ]; then
+      printf '\n— STATE.md (topo):\n'
+      sed -n '1,6p' STATE.md 2>/dev/null | sed 's/^/    /'
+    fi
   else
     echo "⚠️ [git-sync] $REPO ($BRANCH): $BEHIND commit(s) atrás de $UPSTREAM; o fast-forward falhou (talvez um arquivo untracked colida com a entrada) — rode 'git pull --ff-only' e verifique."
   fi
@@ -74,4 +85,17 @@ else
   [ "$TRACKED_DIRTY" -eq 1 ] && REASON="$REASON + alterações rastreadas não commitadas"
   echo "⚠️ [git-sync] $REPO ($BRANCH): $BEHIND commit(s) ATRÁS de $UPSTREAM, mas há $REASON. NÃO puxei — resolva antes de confiar nos arquivos de estado."
 fi
+
+# Branches de ESTADO secundários (ex.: planning, onde vive .planning/): o fetch já
+# atualizou as refs origin/*. Se o branch LOCAL ficou atrás, avisa — senão a IA lê
+# um .planning/ velho desse branch (foi o que aconteceu na retomada da sessão 39).
+for SB in planning; do
+  git rev-parse --verify --quiet "$SB" >/dev/null 2>&1 || continue
+  git rev-parse --verify --quiet "origin/$SB" >/dev/null 2>&1 || continue
+  SB_BEHIND="$(git rev-list --count "$SB..origin/$SB" 2>/dev/null || echo 0)"
+  case "$SB_BEHIND" in ''|*[!0-9]*) SB_BEHIND=0 ;; esac
+  if [ "$SB_BEHIND" -gt 0 ]; then
+    printf '⚠️ [git-sync] branch local "%s" está %s commit(s) atrás de origin/%s — NÃO leia .planning/ desse branch sem antes: git fetch && git branch -f %s origin/%s (ou git show origin/%s:.planning/STATE.md).\n' "$SB" "$SB_BEHIND" "$SB" "$SB" "$SB" "$SB"
+  fi
+done
 exit 0
