@@ -19,6 +19,16 @@
 | README sincronizado | ✅ Refletindo ideIAos |
 | Próximo passo | Ver `docs/CONTINUATION_HANDOFF.md` |
 
+## Mudanças recentes (2026-06-08)
+
+- **Obsidian Second Brain conectado** — Fase B completa (acesso filesystem direto, sem MCP/plugin)
+- `setup-dev-machine.sh` passo 8: injeta vault Obsidian em `~/.claude/settings.json` automaticamente (multi-máquina)
+- Skills `recall-learnings` e `extract-learnings` atualizadas: Passo 5 e Passo 4b usam `grep -rIl` no vault
+- **Vault populado (2026-06-08):** 5 projetos + 4 referências + 3 gotchas documentados em profundidade
+  - `Projects/`: IdeiaOS, Ideiapartner, NFideia, CFO AI - Grupo RI, Lapidai
+  - `References/`: Supabase, Lovable Cloud, Asaas, Stripe
+  - `Stack Gotchas/`: RLS silencioso, Lovable deploy drift, Sync pesado esgota pool
+
 ## Mudanças recentes (2026-05-29)
 
 - **ideIAos v1.0 lançado** — unifica 5 camadas (AIOX-Core + GSD + Lovable + Fase A + Continuation) sob orquestrador único `/idea`
