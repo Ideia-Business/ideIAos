@@ -17,9 +17,14 @@ Leia nesta ordem:
 Se o projeto usar branch `planning`, também ler:
 
 ```bash
-git show planning:.planning/STATE.md
-git show planning:.planning/ROADMAP.md
+git fetch origin planning -q
+git show origin/planning:.planning/STATE.md
+git show origin/planning:.planning/ROADMAP.md
 ```
+
+### ⚠️ Drift de retomada (multi-máquina/multi-IDE)
+
+Sessão pausada tem **contexto congelado**: o summary de um `/compact` e as memórias injetadas podem estar **ANTIGOS** se o repo avançou em outra máquina/IDE. Antes de afirmar pendências, "próximo passo" ou "última atividade", confronte com o repo (`git log --oneline -8` + topo do `STATE.md`). Se divergir → **o git/STATE é a verdade, o contexto não**. O hook `git-sync-check.sh` (SessionStart) injeta um aviso forte ao puxar commits — respeite-o.
 
 Para fluxo GSD, validar:
 
