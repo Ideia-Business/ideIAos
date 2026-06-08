@@ -24,10 +24,14 @@
 - **Obsidian Second Brain conectado** — Fase B completa (acesso filesystem direto, sem MCP/plugin)
 - `setup-dev-machine.sh` passo 8: injeta vault Obsidian em `~/.claude/settings.json` automaticamente (multi-máquina)
 - Skills `recall-learnings` e `extract-learnings` atualizadas: Passo 5 e Passo 4b usam `grep -rIl` no vault
-- **Vault populado (2026-06-08):** 5 projetos + 4 referências + 3 gotchas documentados em profundidade
+- **Vault completamente populado:**
   - `Projects/`: IdeiaOS, Ideiapartner, NFideia, CFO AI - Grupo RI, Lapidai
   - `References/`: Supabase, Lovable Cloud, Asaas, Stripe
   - `Stack Gotchas/`: RLS silencioso, Lovable deploy drift, Sync pesado esgota pool
+  - `Changelog/`: NFideia, Ideiapartner, CFO AI - Grupo RI, Lapidai — histórico de entregas por milestone
+- **Todos os CLAUDE.md atualizados** — seção "Segundo Cérebro" adicionada em todos os projetos + template
+- **Protocolo de fechamento atualizado** — passo de Changelog no vault agora obrigatório em todos os projetos
+- **Pendência registrada nos handoffs:** feature "Novidades" (changelog voltado ao usuário) em NFideia e Ideiapartner
 
 ## Mudanças recentes (2026-05-29)
 
