@@ -63,17 +63,23 @@ relevantes. Especial atenção a:
 - `feedback_*` — preferências do usuário
 - `reference_lovable_projects.md` — se este projeto é Lovable
 
-### Passo 5 — Obsidian Vault (se conectado — Fase B)
+### Passo 5 — Obsidian Vault (segundo cérebro cross-projeto)
 
-Se MCP Obsidian está disponível e este projeto tem `obsidian_vault_path` em `.aiox-ai-config.yaml`:
+O vault **"Ideia Business — Second Brain"** é a camada de **síntese curada cross-projeto**
+(learnings refinados, ADRs, vendor gotchas). Acesso é **direto via filesystem** — não
+precisa de MCP nem do Obsidian aberto; o Obsidian Sync propaga entre máquinas.
 
+```bash
+VAULT="$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/Ideia Business - Second Brain"
+# Para cada keyword do pedido (as mesmas do Passo 3):
+grep -rIl -i "<keyword>" "$VAULT" --include="*.md" 2>/dev/null | grep -v "/_Templates/"
 ```
-mcp__obsidian__search "<keywords do pedido>"
-```
 
-Ler resultados com peso de "referência curada" — vault tem síntese cross-projeto.
+Ler os matches com **peso de "referência curada"** — o vault tem síntese cross-projeto,
+acima do learning bruto do repo. Pastas: `Learnings/`, `Decisions/`, `References/`,
+`Stack Gotchas/`, `Projects/`.
 
-Se não conectado: pular silenciosamente.
+Se o vault não existir no caminho (máquina sem iCloud sincronizado): pular silenciosamente.
 
 ### Passo 6 — Postmortems relacionados
 

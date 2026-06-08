@@ -79,7 +79,26 @@ Se sim, é global.
 Se global:
 1. Criar entrada na memória Claude: `~/.claude/projects/.../memory/learning_<slug>.md`
 2. Atualizar `MEMORY.md` (índice) com link
-3. Marcar `promote_to_vault: true` no frontmatter do arquivo no repo (sinal para Fase B / Obsidian)
+3. Marcar `promote_to_vault: true` no frontmatter do arquivo no repo
+4. **Promover ao vault Obsidian** — ver Passo 4b
+
+### Passo 4b — Promover ao Obsidian vault (quando global)
+
+O vault **"Ideia Business — Second Brain"** é a síntese curada cross-projeto (segundo cérebro).
+Acesso é **direto via filesystem** — sem MCP, sem Obsidian aberto; o Sync propaga entre máquinas.
+
+```bash
+VAULT="$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/Ideia Business - Second Brain"
+```
+
+1. Usar `$VAULT/_Templates/Learning.md` como base.
+2. Criar `$VAULT/Learnings/<Título legível>.md` — **nome humano**, não slug (graph view fica útil).
+3. Refinar o padrão (mais abstrato que o do repo); frontmatter `applies_to: global`, `source_repo`, tags `#stack/...` `#category/...`.
+4. Cross-references viram **wiki-links** `[[Nota]]`, nunca markdown links — incluir `[[00 Index]]`.
+5. Marcar no learning do repo: `- [x] Promovido para Obsidian vault em <data>`.
+
+Só promover o que é **cross-projeto e estável** — o vault é curadoria, não despejo.
+Se o vault não existir no caminho, pular e deixar `promote_to_vault: true` como sinal pendente.
 
 ### Passo 5 — Linkar de volta
 
