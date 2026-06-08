@@ -1,6 +1,6 @@
 # Estado do projeto — ideIAos
 
-**Atualizado:** 2026-05-29 · **Branch:** `main` · **Versão ideIAos:** 1.0
+**Atualizado:** 2026-06-08 · **Branch:** `main` · **Versão ideIAos:** 1.0
 
 ## Snapshot
 
@@ -28,6 +28,12 @@
 - Skill `/ideiaos-setup` reescrita para auditar as 5 camadas ideIAos
 - Agent `@ideiaos-checker` (Cursor) reescrito para espelhar a skill
 - README.md reescrito com ideIAos na frente, mantendo backward compatibility
+
+## Roadmap / Ideias futuras
+
+- **Memória compartilhada entre IDEs (Claude Code ↔ Cursor)** — hoje cada IDE tem sua própria memória (Claude Code: `~/.claude/projects/<proj>/memory/`; Cursor: separada). Quando o trabalho migra de IDE/máquina, as memórias divergem (caso real: nfideia 2026-06-08 — a memória do Claude Code ficou na sessão 35 enquanto o repo avançou para a 39 no Cursor/MacBook).
+  - **Mitigação atual (suficiente p/ hoje):** o `STATE.md`/handoff/`.planning` no repo é a fonte de verdade compartilhada entre IDEs + o hook `git-sync-check.sh` (SessionStart) já força a releitura na retomada quando puxa commits (aviso de DRIFT DE ESTADO com commits + topo do STATE.md).
+  - **Evolução a avaliar (próximo momento):** sincronizar as próprias memórias entre IDEs. Opções: (a) memória versionada no repo (`.planning/memory/` ou `docs/memory/`), lida por ambos; (b) passo no fechamento que exporta memórias relevantes para o repo; (c) sync/symlink das pastas de memória. Origem: drift de retomada multi-máquina; ref. memória `feedback_retomada_drift_multimaquina` (nfideia).
 
 ## Nota
 
