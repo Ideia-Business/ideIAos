@@ -49,6 +49,11 @@
   - **Mitigação atual (suficiente p/ hoje):** o `STATE.md`/handoff/`.planning` no repo é a fonte de verdade compartilhada entre IDEs + o hook `git-sync-check.sh` (SessionStart) já força a releitura na retomada quando puxa commits (aviso de DRIFT DE ESTADO com commits + topo do STATE.md).
   - **Evolução a avaliar (próximo momento):** sincronizar as próprias memórias entre IDEs. Opções: (a) memória versionada no repo (`.planning/memory/` ou `docs/memory/`), lida por ambos; (b) passo no fechamento que exporta memórias relevantes para o repo; (c) sync/symlink das pastas de memória. Origem: drift de retomada multi-máquina; ref. memória `feedback_retomada_drift_multimaquina` (nfideia).
 
+- **⚠️ Atenção — `versions.lock` (pin GSD) revertido pelo autosync multi-máquina.** O pin `gsd=` já foi revertido **2×** pelo autosync do Mac-mini (sessão 36 do nfideia e 2026-06-08), trocando `1.1.0` (redux, instalado em **ambas** as máquinas — `~/.claude/get-shit-done/VERSION`) pelo obsoleto pré-redux `1.36.0`. O `idea-doctor` então acusa drift (instalado ≠ pin).
+  - **Causa:** o autosync (LaunchAgent, 15 min) commita o working tree **stale** do Mac-mini e desfaz o fix feito noutra máquina. **Nenhum script regenera `1.36.0`** — o `scripts/update-upstream.sh --bump` só re-pina a partir do `VERSION` instalado (`1.1.0`). Logo, é puramente o merge do autosync favorecendo a cópia antiga.
+  - **Fix recorrente (aplicado):** re-pin `gsd=1.1.0` no `versions.lock` (commit `915f345`, 2026-06-08; antes `1229803` na sessão 36).
+  - **Avaliar (para parar o churn):** (a) regra de merge `merge=ours` para `versions.lock` no `.gitattributes`; (b) o autosync ignorar/`assume-unchanged` esse arquivo; ou (c) o `idea-doctor`/`update-upstream` auto-corrigir o pin a partir do `VERSION` instalado quando detecta esse drift específico. Origem: drift de retomada multi-máquina (mesma família do item de memória acima).
+
 ## Nota
 
 - Este repositório atua como base de setup para projetos novos.
