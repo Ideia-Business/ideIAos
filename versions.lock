@@ -13,7 +13,7 @@ aiox-core=5.2.9
 # GSD (plugin Claude Code; ~/.claude/get-shit-done/VERSION)
 # Migrou para @opengsd/get-shit-done-redux (versionamento resetou p/ 1.x).
 # 1.1.0 = npm latest do redux, instalado em ambas as máquinas (2026-06-05).
-gsd=1.1.0
+gsd=1.36.0
 
 # Suíte de Design (vendorizada; fonte nextlevelbuilder/ui-ux-pro-max-skill)
 # ref = tag/branch/commit pinado; commit = hash curto resolvido no último update.
@@ -25,4 +25,4 @@ mcp-chrome-devtools=chrome-devtools-mcp@latest
 mcp-context7=@upstash/context7-mcp@latest
 
 # Última atualização deste lock
-updated=2026-06-08
+updated=2026-06-11
