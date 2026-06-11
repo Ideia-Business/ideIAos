@@ -105,9 +105,22 @@ Plans:
 **Depends on:** 03
 **Success:** claude-review abre em modo review; suite de evals roda contra 20+ casos reais.
 
+### Fase 08 — Revisão IdeiaOS v3: Gaps + UX dos Agentes + Otimização de Tokens `08-ideiaos-v3-review`
+
+**Goal:** Após completar as 7 fases, auditar o IdeiaOS v2 como um todo e identificar lacunas de melhoria para a v3 — com foco em: (a) passo a passo bem direcionado de cada subagente e skill, (b) uso correto e otimizado de tokens e modelos por ação, (c) novas gaps identificadas durante a absorção ECC.
+
+- Auditoria de todos os agentes absorvidos: modelo correto por agente? role bem definido? quando usar vs. não usar?
+- Guia de uso de cada skill: sequência recomendada, anti-patterns, exemplos canônicos
+- Token economy review: quais ações consomem tokens desnecessariamente? onde trocar haiku/sonnet/opus?
+- Gaps de orquestração: fluxos que o IdeiaOS ainda não cobre bem
+- Documento `/ideiaos-v3-roadmap` gerado como output
+
+**Depends on:** 04, 05, 06, 07 (todas as fases completas)
+**Success:** Documento v3-review.md com ≥10 gaps priorizados + matriz modelo/ação atualizada + guia de uso dos agentes.
+
 ## Ordem de execução
 
-01 e 02 podem rodar em paralelo → 03 → 04 (e 05 após 01; 06 e 07 após 03).
+01 e 02 podem rodar em paralelo → 03 → 04 (e 05 após 01; 06 e 07 após 03) → 08 (após todas).
 
 | Fase | Esforço | Valor |
 |---|---|---|
@@ -118,6 +131,7 @@ Plans:
 | 05 | Alto | Transformacional |
 | 06 | Médio | Alto |
 | 07 | Baixo | Médio |
+| 08 | Médio | Estratégico (v3) |
 
 ## Plans
 

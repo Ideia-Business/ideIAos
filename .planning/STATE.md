@@ -9,13 +9,14 @@
 |------|--------|
 | PROJECT.md + ROADMAP.md | ✅ Criados via /gsd-import (2026-06-11) |
 | Plano-fonte | `.planning/research/ECC-ABSORPTION-PLAN.md` |
-| Fase 01 — quality-memory-hooks | ⬜ Não planejada |
+| Fase 01 — quality-memory-hooks | 📋 Planejada — 4 planos, 2 waves |
 | Fase 02 — security-quarantine | ⬜ Não planejada (pré-req das 04-06) |
 | Fase 03 — multiharness-rules | ⬜ Não planejada |
 | Fase 04 — ecc-catalog | ⬜ Não planejada |
 | Fase 05 — instincts | ⬜ Não planejada |
 | Fase 06 — plugin-marketplace | ⬜ Não planejada |
 | Fase 07 — contexts-evals | ⬜ Não planejada |
+| Fase 08 — ideiaos-v3-review | ⬜ Não planejada (após 04-07) |
 
 ## Próximo passo
 
