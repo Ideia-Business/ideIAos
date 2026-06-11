@@ -892,6 +892,226 @@ fi
 echo "     (Cursor lê ~/.cursor/mcp.json — reinicie o Cursor para carregar.)"
 
 # ─────────────────────────────────────────────────────────────────────────────
+step "5.15) Hook Claude Code — typecheck-on-edit (PostToolUse .ts/.tsx async)"
+# Roda tsc --noEmit incremental em background após edição de .ts/.tsx.
+# asyncRewake: acorda Claude com erros detectados; silencioso quando OK.
+# Não bloqueia — async:true + asyncRewake:true obrigatórios no settings.json.
+
+HOOK_FILE="$HOOK_DIR/typecheck-on-edit.sh"
+HOOK_TEMPLATE="$SETUP_DIR/hooks/typecheck-on-edit.sh"
+
+if [ -f "$HOOK_FILE" ]; then
+  if diff -q "$HOOK_TEMPLATE" "$HOOK_FILE" &>/dev/null; then
+    ok "Hook typecheck-on-edit já está na versão mais recente"
+  else
+    cp "$HOOK_TEMPLATE" "$HOOK_FILE"
+    chmod +x "$HOOK_FILE"
+    ok "Hook typecheck-on-edit atualizado"
+  fi
+else
+  cp "$HOOK_TEMPLATE" "$HOOK_FILE"
+  chmod +x "$HOOK_FILE"
+  ok "Hook typecheck-on-edit instalado → $HOOK_FILE"
+fi
+
+if [ -f "$SETTINGS_FILE" ] && grep -q "typecheck-on-edit.sh" "$SETTINGS_FILE" 2>/dev/null; then
+  ok "Hook typecheck-on-edit registrado em ~/.claude/settings.json"
+else
+  warn "Hook typecheck-on-edit NÃO registrado — adicione em hooks.PostToolUse:"
+  cat <<'SNIPPET'
+
+       {
+         "matcher": "Edit|Write",
+         "hooks": [
+           {
+             "type": "command",
+             "command": "bash \"/Users/<você>/.claude/hooks/typecheck-on-edit.sh\"",
+             "timeout": 60,
+             "async": true,
+             "asyncRewake": true
+           }
+         ]
+       }
+SNIPPET
+fi
+
+echo "     Comportamento: após editar .ts/.tsx, roda tsc --noEmit incremental em"
+echo "     background; acorda Claude apenas se encontrar erros de tipo (asyncRewake)."
+
+# ─────────────────────────────────────────────────────────────────────────────
+step "5.16) Hook Claude Code — console-log-guard (PostToolUse Edit|Write)"
+# Detecta console.log/debug/info em .ts/.tsx/.js/.jsx após edição.
+# Avisa Claude com additionalContext — nunca bloqueia (sem decision:block).
+
+HOOK_FILE="$HOOK_DIR/console-log-guard.sh"
+HOOK_TEMPLATE="$SETUP_DIR/hooks/console-log-guard.sh"
+
+if [ -f "$HOOK_FILE" ]; then
+  if diff -q "$HOOK_TEMPLATE" "$HOOK_FILE" &>/dev/null; then
+    ok "Hook console-log-guard já está na versão mais recente"
+  else
+    cp "$HOOK_TEMPLATE" "$HOOK_FILE"
+    chmod +x "$HOOK_FILE"
+    ok "Hook console-log-guard atualizado"
+  fi
+else
+  cp "$HOOK_TEMPLATE" "$HOOK_FILE"
+  chmod +x "$HOOK_FILE"
+  ok "Hook console-log-guard instalado → $HOOK_FILE"
+fi
+
+if [ -f "$SETTINGS_FILE" ] && grep -q "console-log-guard.sh" "$SETTINGS_FILE" 2>/dev/null; then
+  ok "Hook console-log-guard registrado em ~/.claude/settings.json"
+else
+  warn "Hook console-log-guard NÃO registrado — adicione em hooks.PostToolUse:"
+  cat <<'SNIPPET'
+
+       {
+         "matcher": "Edit|Write",
+         "hooks": [
+           {
+             "type": "command",
+             "command": "bash \"/Users/<você>/.claude/hooks/console-log-guard.sh\"",
+             "timeout": 5
+           }
+         ]
+       }
+SNIPPET
+fi
+
+echo "     Comportamento: detecta console.log/debug/info em .ts/.tsx/.js/.jsx;"
+echo "     emite additionalContext para lembrar remover antes de prod Lovable."
+
+# ─────────────────────────────────────────────────────────────────────────────
+step "5.17) Hook Claude Code — strategic-compact (PreToolUse — contador de tool calls)"
+# Conta tool calls por sessão em /tmp; sugere /compact a cada 50 calls.
+# Sem matcher: roda em TODOS os PreToolUse. Silencioso abaixo do limiar.
+
+HOOK_FILE="$HOOK_DIR/strategic-compact.sh"
+HOOK_TEMPLATE="$SETUP_DIR/hooks/strategic-compact.sh"
+
+if [ -f "$HOOK_FILE" ]; then
+  if diff -q "$HOOK_TEMPLATE" "$HOOK_FILE" &>/dev/null; then
+    ok "Hook strategic-compact já está na versão mais recente"
+  else
+    cp "$HOOK_TEMPLATE" "$HOOK_FILE"
+    chmod +x "$HOOK_FILE"
+    ok "Hook strategic-compact atualizado"
+  fi
+else
+  cp "$HOOK_TEMPLATE" "$HOOK_FILE"
+  chmod +x "$HOOK_FILE"
+  ok "Hook strategic-compact instalado → $HOOK_FILE"
+fi
+
+if [ -f "$SETTINGS_FILE" ] && grep -q "strategic-compact.sh" "$SETTINGS_FILE" 2>/dev/null; then
+  ok "Hook strategic-compact registrado em ~/.claude/settings.json"
+else
+  warn "Hook strategic-compact NÃO registrado — adicione em hooks.PreToolUse:"
+  cat <<'SNIPPET'
+
+       {
+         "hooks": [
+           {
+             "type": "command",
+             "command": "bash \"/Users/<você>/.claude/hooks/strategic-compact.sh\"",
+             "timeout": 3
+           }
+         ]
+       }
+SNIPPET
+fi
+
+echo "     Comportamento: incrementa contador por session_id em /tmp; a cada 50"
+echo "     tool calls injeta sugestão de /compact para evitar context overflow."
+
+# ─────────────────────────────────────────────────────────────────────────────
+step "5.18) Hook Claude Code — precompact-state-save (PreCompact)"
+# Salva snapshot de STATE.md antes de /compact — garante que o plano atual
+# não seja perdido na compactação. Sem matcher (PreCompact não suporta).
+
+HOOK_FILE="$HOOK_DIR/precompact-state-save.sh"
+HOOK_TEMPLATE="$SETUP_DIR/hooks/precompact-state-save.sh"
+
+if [ -f "$HOOK_FILE" ]; then
+  if diff -q "$HOOK_TEMPLATE" "$HOOK_FILE" &>/dev/null; then
+    ok "Hook precompact-state-save já está na versão mais recente"
+  else
+    cp "$HOOK_TEMPLATE" "$HOOK_FILE"
+    chmod +x "$HOOK_FILE"
+    ok "Hook precompact-state-save atualizado"
+  fi
+else
+  cp "$HOOK_TEMPLATE" "$HOOK_FILE"
+  chmod +x "$HOOK_FILE"
+  ok "Hook precompact-state-save instalado → $HOOK_FILE"
+fi
+
+if [ -f "$SETTINGS_FILE" ] && grep -q "precompact-state-save.sh" "$SETTINGS_FILE" 2>/dev/null; then
+  ok "Hook precompact-state-save registrado em ~/.claude/settings.json"
+else
+  warn "Hook precompact-state-save NÃO registrado — adicione em hooks.PreCompact:"
+  cat <<'SNIPPET'
+
+       {
+         "hooks": [
+           {
+             "type": "command",
+             "command": "bash \"/Users/<você>/.claude/hooks/precompact-state-save.sh\"",
+             "timeout": 10
+           }
+         ]
+       }
+SNIPPET
+fi
+
+echo "     Comportamento: detecta .planning/STATE.md ou STATE.md no cwd;"
+echo "     insere seção '## Compact Snapshot' com timestamp antes de /compact."
+
+# ─────────────────────────────────────────────────────────────────────────────
+step "5.19) Hook Claude Code — session-summary (Stop)"
+# Ao final de cada turno, persiste resumo ECC em ~/.claude/sessions/ e
+# atualiza docs/CONTINUATION_HANDOFF.md (se existir no cwd).
+
+HOOK_FILE="$HOOK_DIR/session-summary.sh"
+HOOK_TEMPLATE="$SETUP_DIR/hooks/session-summary.sh"
+
+if [ -f "$HOOK_FILE" ]; then
+  if diff -q "$HOOK_TEMPLATE" "$HOOK_FILE" &>/dev/null; then
+    ok "Hook session-summary já está na versão mais recente"
+  else
+    cp "$HOOK_TEMPLATE" "$HOOK_FILE"
+    chmod +x "$HOOK_FILE"
+    ok "Hook session-summary atualizado"
+  fi
+else
+  cp "$HOOK_TEMPLATE" "$HOOK_FILE"
+  chmod +x "$HOOK_FILE"
+  ok "Hook session-summary instalado → $HOOK_FILE"
+fi
+
+if [ -f "$SETTINGS_FILE" ] && grep -q "session-summary.sh" "$SETTINGS_FILE" 2>/dev/null; then
+  ok "Hook session-summary registrado em ~/.claude/settings.json"
+else
+  warn "Hook session-summary NÃO registrado — adicione em hooks.Stop:"
+  cat <<'SNIPPET'
+
+       {
+         "hooks": [
+           {
+             "type": "command",
+             "command": "bash \"/Users/<você>/.claude/hooks/session-summary.sh\"",
+             "timeout": 30
+           }
+         ]
+       }
+SNIPPET
+fi
+
+echo "     Comportamento: ao final de cada turno, cria ~/.claude/sessions/YYYY-MM-DD-*.tmp"
+echo "     com 4 seções ECC; atualiza docs/CONTINUATION_HANDOFF.md se existir no cwd."
+
+# ─────────────────────────────────────────────────────────────────────────────
 step "5.10) Skill Claude Code — /idea (orquestrador IdeiaOS)"
 # Comando único de entrada do IdeiaOS — roteia entre GSD/AIOX/Lovable/Fase A
 # automaticamente baseado no que o usuário pediu.
