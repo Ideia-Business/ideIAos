@@ -40,6 +40,14 @@ Plans:
 **Depends on:** —
 **Success:** scan-absorbed.sh detecta payload de teste; idea-doctor reporta config insegura.
 
+**Plans:** 4 plans (3 em paralelo na Wave 1, README sync + checkpoint na Wave 2)
+
+Plans:
+- [ ] 02-01-PLAN.md — Pipeline de quarentena scan-absorbed.sh + staging dir (Wave 1)
+- [ ] 02-02-PLAN.md — Deny rules baseline (Patch 10) + idea-doctor Seção 7 Security Audit (Wave 1)
+- [ ] 02-03-PLAN.md — Kill-switch LaunchAgent (timeout) + memory-hygiene doc (Wave 1)
+- [ ] 02-04-PLAN.md — README sync + smoke test integrado + checkpoint (Wave 2)
+
 ### Fase 03 — Arquitetura Multi-Harness + Rules Layer `03-multiharness-rules`
 
 **Goal:** Fonte única (`source/`) compila para Claude e Cursor; rules de 18 stacks + nossas regras Supabase/Lovable; fim do drift entre IDEs.
