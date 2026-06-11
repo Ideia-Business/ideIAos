@@ -18,6 +18,14 @@
 **Depends on:** —
 **Success:** editar .ts com erro → aviso em segundos; /compact → snapshot no STATE.md; 50 tool calls → sugestão.
 
+**Plans:** 4 plans (3 em paralelo na Wave 1, integração + checkpoint na Wave 2)
+
+Plans:
+- [ ] 01-PLAN-01.md — Harness de smoke test + console-log-guard + strategic-compact (Wave 1)
+- [ ] 01-PLAN-02.md — precompact-state-save + session-summary (Wave 1)
+- [ ] 01-PLAN-03.md — typecheck-on-edit (async + asyncRewake) (Wave 1)
+- [ ] 01-PLAN-04.md — setup.sh deploy + README sync + harness final + checkpoint de validação (Wave 2)
+
 ### Fase 02 — Security Baseline + Pipeline de Quarentena `02-security-quarantine`
 
 **Goal:** Nenhum conteúdo de terceiros entra sem scan; config do próprio IdeiaOS auditada. PRÉ-REQUISITO das fases 04-06.
@@ -113,4 +121,13 @@
 
 ## Plans
 
-(nenhum plano criado ainda — usar /gsd-plan-phase por fase)
+### Fase 01 — quality-memory-hooks (4 plans, 2 waves)
+
+| Plan | Wave | Objetivo | Tasks |
+|------|------|----------|-------|
+| 01-PLAN-01 | 1 | Harness smoke test + console-log-guard + strategic-compact | 3 |
+| 01-PLAN-02 | 1 | precompact-state-save + session-summary | 2 |
+| 01-PLAN-03 | 1 | typecheck-on-edit (async) | 1 |
+| 01-PLAN-04 | 2 | setup.sh deploy + README sync + harness final + checkpoint | 3 |
+
+Demais fases: usar /gsd-plan-phase por fase.
