@@ -1,3 +1,17 @@
+---
+gsd_state_version: 1.0
+milestone: v2.0
+milestone_name: milestone
+status: unknown
+last_updated: "2026-06-11T23:27:15.810Z"
+progress:
+  total_phases: 8
+  completed_phases: 0
+  total_plans: 8
+  completed_plans: 0
+  percent: 0
+---
+
 # State — IdeiaOS v2
 
 **Atualizado:** 2026-06-11
