@@ -209,6 +209,11 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | **Hook Claude `ideiaos-detector`** | `~/.claude/hooks/` | SessionStart — detecta projeto sem ideIAos |
 | **Hook Claude `ideiaos-readme-reminder.sh`** | `~/.claude/hooks/` | PostToolUse Edit/Write — lembra de sync README |
 | **Hook Claude `deia-trigger.sh`** | `~/.claude/hooks/` | UserPromptSubmit — detecta "Deia," e ativa `/idea` |
+| **Hook Claude `typecheck-on-edit.sh`** | `~/.claude/hooks/` | PostToolUse Edit/Write — tsc incremental async em .ts/.tsx; acorda Claude se erros |
+| **Hook Claude `console-log-guard.sh`** | `~/.claude/hooks/` | PostToolUse Edit/Write — detecta console.log/debug/info em .ts/.tsx/.js/.jsx |
+| **Hook Claude `strategic-compact.sh`** | `~/.claude/hooks/` | PreToolUse — conta tool calls/sessão; sugere `/compact` a cada 50 |
+| **Hook Claude `precompact-state-save.sh`** | `~/.claude/hooks/` | PreCompact — snapshot de STATE.md antes do `/compact` |
+| **Hook Claude `session-summary.sh`** | `~/.claude/hooks/` | Stop — persiste resumo ECC em `~/.claude/sessions/` e atualiza CONTINUATION_HANDOFF.md |
 | **MCP `chrome-devtools`** | user scope (via `claude mcp`) | Auditoria de console/rede do browser direto no Claude Code |
 | **MCP `context7`** | user scope (via `claude mcp`) | Docs versionadas de 1000+ libs (React/Tailwind/etc) ao vivo |
 | **Alias `idea-setup`** | `~/.zshrc` ou `~/.bashrc` (via `install-alias.sh`) | Atalho terminal — `cd projeto && idea-setup` |
@@ -586,7 +591,14 @@ ideIAos/
 │   ├── extract-learnings-reminder.sh       ← Claude PostToolUse Bash
 │   ├── ideiaos-detector.sh               ← Claude SessionStart
 │   ├── ideiaos-readme-reminder.sh        ← Claude PostToolUse Edit/Write
-│   └── deia-trigger.sh                     ← Claude UserPromptSubmit — gatilho "Deia,"
+│   ├── deia-trigger.sh                     ← Claude UserPromptSubmit — gatilho "Deia,"
+│   ├── typecheck-on-edit.sh              ← Claude PostToolUse Edit|Write .ts/.tsx async
+│   ├── console-log-guard.sh              ← Claude PostToolUse Edit|Write — console.log guard
+│   ├── strategic-compact.sh              ← Claude PreToolUse — contador tool calls /compact
+│   ├── precompact-state-save.sh          ← Claude PreCompact — snapshot STATE.md
+│   ├── session-summary.sh               ← Claude Stop — resumo ECC + CONTINUATION_HANDOFF
+│   ├── test-hooks.sh                    ← Smoke test harness para todos os hooks da fase 01
+│   └── test-typecheck-on-edit.sh        ← Smoke tests dedicados para typecheck-on-edit.sh
 ├── scripts/
 │   ├── install-alias.sh                    ← Instala alias idea-setup
 │   ├── install-git-hooks.sh                ← Instala pre-commit hook
@@ -662,6 +674,51 @@ Snippet pra adicionar manualmente:
           "command": "bash \"/Users/<você>/.claude/hooks/ideiaos-readme-reminder.sh\"",
           "timeout": 3
         }]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [{
+          "type": "command",
+          "command": "bash \"/Users/<você>/.claude/hooks/typecheck-on-edit.sh\"",
+          "timeout": 60,
+          "async": true,
+          "asyncRewake": true
+        }]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [{
+          "type": "command",
+          "command": "bash \"/Users/<você>/.claude/hooks/console-log-guard.sh\"",
+          "timeout": 5
+        }]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [{
+          "type": "command",
+          "command": "bash \"/Users/<você>/.claude/hooks/strategic-compact.sh\"",
+          "timeout": 3
+        }]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [{
+          "type": "command",
+          "command": "bash \"/Users/<você>/.claude/hooks/precompact-state-save.sh\"",
+          "timeout": 10
+        }]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [{
+          "type": "command",
+          "command": "bash \"/Users/<você>/.claude/hooks/session-summary.sh\"",
+          "timeout": 30
+        }]
       }
     ],
     "SessionStart": [
@@ -676,6 +733,8 @@ Snippet pra adicionar manualmente:
   }
 }
 ```
+
+> **Observação A5 (PreCompact):** Se o evento `PreCompact` não disparar, tente a chave `"Compact"` em vez de `"PreCompact"` no `settings.json`.
 
 Depois reinicia o Claude Code.
 

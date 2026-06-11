@@ -158,13 +158,40 @@ fi
 echo ""
 
 # ---------------------------------------------------------------------------
-# Section 3: hooks from later plans (SKIP if absent)
+# Section 3: typecheck-on-edit.sh (implemented in plan 01-03)
 # ---------------------------------------------------------------------------
 
-echo "--- Hooks from later plans (SKIP if absent) ---"
-for later_hook in "precompact-state-save.sh" "session-summary.sh" "typecheck-on-edit.sh"; do
+echo "--- typecheck-on-edit.sh ---"
+
+HOOK_TC="$HOOKS_DIR/typecheck-on-edit.sh"
+if [ -f "$HOOK_TC" ]; then
+  # Test 3a: non-TS file (e.g. .md) produces no output
+  OUT_TC_NOTS="$(echo '{"tool_name":"Edit","tool_input":{"file_path":"/tmp/z.md"},"cwd":"/tmp","session_id":"smoketest-tc"}' \
+    | bash "$HOOK_TC" 2>/dev/null)"
+  assert_empty "$OUT_TC_NOTS" "typecheck-on-edit: non-TS file produces no output"
+
+  # Test 3b: .ts file in dir without node_modules (no tsc available) -> silent exit 0
+  TC_TMPDIR="$(mktemp -d)"
+  printf 'const x: number = "bad";\n' > "$TC_TMPDIR/err.ts"
+  OUT_TC_NOTSC="$(echo "{\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"$TC_TMPDIR/err.ts\"},\"cwd\":\"$TC_TMPDIR\",\"session_id\":\"smoketest-tc\"}" \
+    | bash "$HOOK_TC" 2>/dev/null)"
+  assert_empty "$OUT_TC_NOTSC" "typecheck-on-edit: .ts in dir without tsc exits silently"
+  rm -rf "$TC_TMPDIR"
+else
+  echo "FAIL: typecheck-on-edit.sh missing"
+  FAILS=$((FAILS + 1))
+fi
+
+echo ""
+
+# ---------------------------------------------------------------------------
+# Section 4: precompact-state-save.sh and session-summary.sh (SKIP if absent)
+# ---------------------------------------------------------------------------
+
+echo "--- Remaining hooks (SKIP if absent) ---"
+for later_hook in "precompact-state-save.sh" "session-summary.sh"; do
   if [ -f "$HOOKS_DIR/$later_hook" ]; then
-    echo "PRESENT: $later_hook — skipping smoke test (tested in its own plan)"
+    echo "PRESENT: $later_hook — smoke tested in its own plan (01-02)"
   else
     skip_hook "$later_hook"
   fi
