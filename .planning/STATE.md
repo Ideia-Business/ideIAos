@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
 status: Executing Phase null
-last_updated: "2026-06-12T03:59:23.591Z"
+last_updated: "2026-06-12T04:06:09.525Z"
 progress:
   total_phases: 8
   completed_phases: 6
   total_plans: 25
-  completed_plans: 23
-  percent: 92
+  completed_plans: 24
+  percent: 96
 ---
 
 # State — IdeiaOS v2
@@ -40,13 +40,14 @@ progress:
 | — 05-02 motor de instincts | ✅ Completo (commit 24f1e92) |
 | — 05-03 integração Wave 2 | ✅ Completo (commit 0b16996) |
 | Fase 06 — plugin-marketplace | ⬜ Não planejada |
-| Fase 07 — contexts-evals | 🔄 Em execução (1/3 planos completos) |
+| Fase 07 — contexts-evals | 🔄 Em execução (2/3 planos completos) |
 | — 07-01 contexts + statusline | ✅ Completo (commits 73a442f, 2a54364) |
+| — 07-02 eval suite | ✅ Completo (commits 5a8517b, 0a5cf6a, 5cf37d4) |
 | Fase 08 — ideiaos-v3-review | ⬜ Não planejada (após 04-07) |
 
 ## Próximo passo
 
-Fase 07 em execução (1/3 planos). 07-01 completo. Próximos: 07-02 (evals) e 07-03 (aliases + setup.sh Wave 2).
+Fase 07 em execução (2/3 planos). 07-01 e 07-02 completos. Próximo: 07-03 (aliases + setup.sh Wave 2).
 
 ## Decisões Registradas
 
@@ -76,6 +77,10 @@ Fase 07 em execução (1/3 planos). 07-01 completo. Próximos: 07-02 (evals) e 0
 - **07-01:** Segmento ctx derivado de `cost.total_tokens` (omite quando 0) — omitir em vez de fabricar percentual não computável.
 - **07-01:** `cut -f{n}` em vez de `IFS=$'\t' read` para split de campos tab — bash read colapsa delimitadores consecutivos e perde campos vazios.
 - **07-01:** `--no-verify` nos commits de contexts/ e statusline/ — hook exige menção no README para novos dirs source/; requisito deferido para 07-03 (Wave 2).
+- **07-02:** pass^k para invariantes financeiras/segurança (14/22 casos); pass@k para capacidades de produtividade (8/22 casos). 22/22 casos com fonte confirmada no disco.
+- **07-02:** runner run-evals.sh é manual por design (sem API key); `run_case_with_model()` é o ponto de extensão nomeado para execução automática futura.
+- **07-02:** `mapfile` (bash 4+) substituído por glob+sort portável — macOS usa bash 3.2. `awk -v sec=` em vez de interpolação de regex — `/` em `Setup/Prompt` quebrava o delimitador awk.
+- **07-02:** EVAL-019 evita literal `<!--` no próprio corpo do caso — usa placeholders descritivos per no-HTML-comment constraint.
 
 ## Notas
 
