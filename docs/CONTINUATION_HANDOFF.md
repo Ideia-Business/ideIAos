@@ -61,5 +61,5 @@
 
 ## Ultima sessao automatica (2026-06-12)
 
-- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-12-ideiaos-7b8c1624-f270-4ecc-adf7-f2057f06.tmp`
+- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-12-ideiaos-d00355fc-ecfb-4d4e-9f9a-d24490e5.tmp`
 - Próximo passo: (definir antes de retomar)
