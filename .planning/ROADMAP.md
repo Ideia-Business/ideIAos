@@ -109,17 +109,22 @@ Plans:
 **Depends on:** 03
 **Success:** máquina limpa → /plugin marketplace add Ideia-Business/IdeiaOS + install → IdeiaOS funcional.
 
-### Fase 07 — Contexts Dinâmicos + Eval Loops `07-contexts-evals`
+### Fase 07 — Contexts Dinâmicos + Eval Loops `07-contexts-evals` ✅ COMPLETA
 
 **Goal:** Modos dev/review/research via --system-prompt; suite de evals a partir de incidentes reais.
 
-- source/contexts/: dev.md, review.md, research.md
-- Aliases claude-dev, claude-review, claude-research no setup
-- Eval roadmap: 20-50 test cases de incidentes reais (INC-3xx ideiapartner, bugs NFideia); pass@k / pass^k; integrar ao gsd-verify-work
-- Statusline padrão IdeiaOS
+- source/contexts/: dev.md, review.md, research.md ✅
+- Aliases claude-dev, claude-review, claude-research no setup ✅ (offer-not-edit, T-01-10)
+- Eval roadmap: 22 casos reais (INC-3xx ideiapartner, bugs NFideia) ✅ (≥20 — critério atingido)
+- Statusline padrão IdeiaOS ✅ (deploy + snippet settings.json)
 
 **Depends on:** 03
-**Success:** claude-review abre em modo review; suite de evals roda contra 20+ casos reais.
+**Success:** claude-review abre em modo review; suite de evals roda contra 20+ casos reais. ✅
+
+Plans:
+- [x] 07-01-PLAN.md — source/contexts/ (dev/review/research + README) — Wave 1a
+- [x] 07-02-PLAN.md — evals/ (22 casos + runner) — Wave 1b
+- [x] 07-03-PLAN.md — setup.sh 5.22+5.23 + manifests 66→70 + README sync — Wave 2
 
 ### Fase 08 — Revisão IdeiaOS v3: Gaps + UX dos Agentes + Otimização de Tokens `08-ideiaos-v3-review`
 

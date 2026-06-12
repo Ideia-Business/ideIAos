@@ -16,8 +16,20 @@
 | Setup de continuidade híbrida | ✅ Instalado |
 | Arquivos operacionais | ✅ `STATE.md` + `docs/CONTINUATION_HANDOFF.md` |
 | Regras para Cursor/Claude | ✅ `AGENTS.md` + `CLAUDE.md` + regra Cursor |
-| README sincronizado | ✅ Refletindo ideIAos |
+| README sincronizado | ✅ Refletindo ideIAos (89/89) |
+| **Fase 07 contexts-evals** | ✅ Completa (07-01 Wave 1a + 07-02 Wave 1b + 07-03 Wave 2) |
 | Próximo passo | Ver `docs/CONTINUATION_HANDOFF.md` |
+
+## Mudanças recentes (2026-06-12) — Fase 07 Wave 2 (07-03) completa
+
+- **Fase 07 completa:** contexts de modo + statusline agora instaláveis e catalogados
+- `setup.sh` passos 5.22 e 5.23: deploy contexts → `~/.ideiaos/contexts/`; aliases snippet (offer-not-edit, T-01-10); deploy statusline → `~/.ideiaos/statusline/`; snippet settings.json (offer-not-edit)
+- `manifests/modules.json`: 66 → 70 módulos (+4: context-dev/review/research, statusline-ideiaos, kinds "context"/"statusline", plugin null)
+- `manifests/plugin-membership.md`: seção "Setup-only (não-plugin): contexts + statusline" com rationale e tabela
+- `README.md`: 89/89 sincronizado — tree atualizada (contexts/ populado, statusline/ adicionado, evals/ top-level), "O que instala" +4 linhas, seção Terminal com aliases/statusline/evals
+- Todos os gates passaram sem `--no-verify`: `bash -n setup.sh` + `check-readme-sync.sh` exit 0
+- **Commits:** `4973609` (setup.sh), `3f2be17` (manifests + README)
+- **Wave 1 (07-01 + 07-02):** source/contexts/, source/statusline/, evals/ (22 casos) — já completos
 
 ## Mudanças recentes (2026-06-12) — Fase 06 completa
 
