@@ -157,9 +157,15 @@ if [ -f "$SETTINGS" ]; then
     if python3 -c "import json,sys; d=json.load(open('$SETTINGS')).get('permissions',{}).get('deny',[]); sys.exit(0 if '$rule' in d else 1)" 2>/dev/null; then
       pass "deny: $rule"
     else
-      fail "deny rule ausente: $rule — rode: bash scripts/install-global-patches.sh"
+      warn "deny rule ausente: $rule — rode: bash scripts/install-global-patches.sh OU bash scripts/ideiaos-update.sh"
     fi
   done
+  # Proxy de run marker: statusline IdeiaOS = ideiaos-update.sh já rodou ao menos uma vez
+  if python3 -c "import json,sys; d=json.load(open('$SETTINGS')); sys.exit(0 if 'ideiaos-statusline' in str(d.get('statusLine',{}).get('command','')) else 1)" 2>/dev/null; then
+    pass "ideiaos-update.sh já rodou nesta máquina (statusline presente)"
+  else
+    warn "ideiaos-update.sh nunca rodou nesta máquina (statusline ausente) — rode: bash scripts/ideiaos-update.sh"
+  fi
 else
   fail "settings.json não encontrado em $SETTINGS"
 fi
@@ -188,6 +194,36 @@ if [ -x "$SETUP_DIR/security/scan-absorbed.sh" ]; then
   pass "pipeline de quarentena (security/scan-absorbed.sh) presente"
 else
   warn "security/scan-absorbed.sh ausente — quarentena obrigatória não disponível"
+fi
+
+# ── 8) Contexts e shell aliases ──────────────────────────────────────────────
+step "8) Contexts e funções de shell"
+CONTEXTS_DIR="$HOME/.ideiaos/contexts"
+
+# a) Presença dos 3 arquivos de context
+for ctx in dev.md review.md research.md; do
+  if [ -f "$CONTEXTS_DIR/$ctx" ]; then
+    pass "context $ctx"
+  else
+    warn "context ~/.ideiaos/contexts/$ctx ausente — rode: bash scripts/ideiaos-update.sh"
+  fi
+done
+
+# b) Funções de shell presentes no profile
+case "${SHELL:-/bin/bash}" in */zsh) PROFILE="$HOME/.zshrc" ;; *) PROFILE="$HOME/.bashrc" ;; esac
+if grep -q "claude-review()" "$PROFILE" 2>/dev/null; then
+  pass "funções claude-dev/review/research no $PROFILE"
+else
+  warn "funções claude-dev/review/research ausentes em $PROFILE — rode: bash scripts/ideiaos-update.sh"
+fi
+
+# c) Statusline IdeiaOS no settings.json (proxy ideiaos-update.sh)
+if [ -f "$SETTINGS" ]; then
+  if python3 -c "import json,sys; d=json.load(open('$SETTINGS')); sys.exit(0 if 'ideiaos-statusline' in str(d.get('statusLine',{}).get('command','')) else 1)" 2>/dev/null; then
+    pass "statusline IdeiaOS configurada"
+  else
+    warn "statusline IdeiaOS ausente em settings.json — rode: bash scripts/ideiaos-update.sh"
+  fi
 fi
 
 # ── Resumo ────────────────────────────────────────────────────────────────────

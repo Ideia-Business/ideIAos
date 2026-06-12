@@ -49,4 +49,55 @@ OBS_DIR="$HOME/.ideiaos/observations/$PROJ"
 mkdir -p "$OBS_DIR" 2>/dev/null || exit 0
 printf '%s\n' "$REC" >> "$OBS_DIR/observations.jsonl" 2>/dev/null || true
 
+# --- INSTINCT-ANALYZE AUTO-TRIGGER (R3-08 / R3-09) ---
+# Gate: só dispara se há observações mais recentes que a última análise.
+# Fail-silent: todo o bloco em subshell, nunca bloqueia a sessão.
+# Kill-switch: timeout 120s no claude -p haiku (sem timeout = risco OpenClaw).
+# O sentinela ~/.ideiaos/instincts/.last-analyzed-<proj> é atualizado
+# PELO instinct-analyze (Passo 9) ao concluir — não aqui.
+# Comparação lexicográfica ISO 8601: strings de data sem tz são comparáveis.
+(
+  LAST_ANALYZED_FILE="$HOME/.ideiaos/instincts/.last-analyzed-${PROJ}"
+  LOG_FILE="$HOME/.ideiaos/logs/instinct-analyze-$(date +%Y%m%d-%H%M%S).log"
+  mkdir -p "$HOME/.ideiaos/logs" 2>/dev/null || exit 0
+
+  # Verificar se claude está disponível no PATH; se não, pular silenciosamente
+  command -v claude >/dev/null 2>&1 || exit 0
+
+  # Extrair ts da última observação (última linha não-vazia do jsonl)
+  TS_OBS="$(/usr/bin/python3 -c '
+import sys, json
+try:
+    lines = open(sys.argv[1]).read().strip().splitlines()
+    for l in reversed(lines):
+        l = l.strip()
+        if not l:
+            continue
+        try:
+            d = json.loads(l)
+            ts = d.get("ts", "")
+            if ts:
+                print(ts)
+                break
+        except Exception:
+            pass
+except Exception:
+    pass
+' "$OBS_DIR/observations.jsonl" 2>/dev/null || echo "")"
+
+  [ -z "$TS_OBS" ] && exit 0
+
+  # Ler sentinela (epoch se ausente — gate passa sempre se nunca analisou)
+  TS_LAST="$(cat "$LAST_ANALYZED_FILE" 2>/dev/null || echo "1970-01-01T00:00:00")"
+
+  # Gate: comparar strings ISO (lexicograficamente corretas para timestamps sem tz)
+  # Se a obs mais recente <= última análise, nada a fazer
+  [ "$TS_OBS" \<= "$TS_LAST" ] && exit 0
+
+  # Gate passou: spawn haiku background com timeout (fire-and-forget)
+  nohup timeout 120 claude --model claude-haiku-4-5 -p "/instinct-analyze" \
+    >> "$LOG_FILE" 2>&1 &
+  disown $! 2>/dev/null || true
+) 2>/dev/null || true
+
 exit 0

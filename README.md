@@ -305,7 +305,7 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | `scripts/install-git-hooks.sh` | Instala pre-commit hook que BLOQUEIA commits sem README sincronizado E protege o pin GSD do `versions.lock` |
 | `scripts/check-readme-sync.sh` | Audita se README menciona todos os componentes do repo |
 | **`scripts/check-versions-lock.sh`** | **Guarda do pin GSD** — bloqueia valor pré-redux (1.3x/1.4x) e edição manual do `gsd=` que não corresponda à versão instalada (único escritor: `update-upstream.sh --bump`; bypass: `IDEIAOS_LOCK_OVERRIDE=1`). Roda no pre-commit. |
-| **`scripts/idea-doctor.sh`** | Diagnóstico read-only: skills, MCPs, 10 patches, versões vs `versions.lock`, drift, autosync, **Seção 7 Security Audit** (deny rules, hooks, secrets, quarentena) |
+| **`scripts/idea-doctor.sh`** | Diagnóstico read-only: skills, MCPs, 10 patches, versões vs `versions.lock`, drift, autosync, **Seção 7 Security Audit** (deny rules, hooks, secrets, quarentena), **Seção 8 Contexts** (~/.ideiaos/contexts/, funções claude-dev/review/research, statusline) |
 | **`scripts/install-global-patches.sh`** | Aplica overlay ideIAos (Caminho C) sobre GSD/AIOX/Claude — idempotente, 10 patches (incl. Patch 10: deny rules baseline) |
 | **`security/scan-absorbed.sh`** | **Pipeline de quarentena obrigatório** — scan unicode invisível/payloads/comandos + AgentShield antes de absorver conteúdo de terceiros em `source/`. Exit 1 = bloqueado. |
 | **`scripts/update-upstream.sh`** | Detecta updates do GSD plugin e AIOX-core vs `versions.lock`; `--bump` re-pina |
