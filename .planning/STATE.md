@@ -1,15 +1,15 @@
 ---
 gsd_state_version: 1.0
 milestone: v3
-milestone_name: Refinamento e Automação
-status: In progress
-last_updated: "2026-06-12"
+milestone_name: milestone
+status: Ready to plan
+last_updated: "2026-06-12T16:18:02.845Z"
 progress:
   total_phases: 5
   completed_phases: 2
-  total_plans: 16
+  total_plans: 9
   completed_plans: 2
-  percent: 40
+  percent: 22
 ---
 
 # State — IdeiaOS v3
