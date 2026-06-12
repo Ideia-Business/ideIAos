@@ -43,6 +43,12 @@ alterado indevidamente, (3) isolar imports por função para evitar dependência
 - [ ] Propõe reverter o commit do Lovable como primeiro passo seguro
 - [ ] Sugere estratégia para evitar recorrência (imports isolados por função)
 
+### Sinais (avaliação automática)
+
++ revert
++ diff
++ import
+
 ---
 
 ## Anti-comportamento

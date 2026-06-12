@@ -61,6 +61,12 @@ invalidação de cache entre tentativas.
 - [ ] Menciona o risco de jsonb stale em retry (payload da 1ª tentativa reusado na 2ª)
 - [ ] Propõe separação de responsabilidades: validação lança erro tipado, infra trata por tipo
 
+### Sinais (avaliação automática)
+
++ 4xx
++ stale
++ silenci
+
 ---
 
 ## Anti-comportamento

@@ -52,6 +52,12 @@ logout (`queryClient.clear()`) ou criar um novo QueryClient por sessão/usuário
 - [ ] Recomenda `queryClient.clear()` no evento de logout OU criação de novo QueryClient por sessão
 - [ ] Classifica como problema de privacidade/segurança, não apenas bug de UX
 
+### Sinais (avaliação automática)
+
++ queryClient.clear
++ logout
++ cache
+
 ---
 
 ## Anti-comportamento

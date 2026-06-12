@@ -44,6 +44,12 @@ solução de patch de dados.
 - [ ] Considera cache stale como possível causa (resultado sem join cacheado)
 - [ ] Propõe fix na camada de dados antes de workarounds no componente
 
+### Sinais (avaliação automática)
+
++ foreign key
++ join
++ leads
+
 ---
 
 ## Anti-comportamento

@@ -43,6 +43,12 @@ a mudança automaticamente.
 - [ ] Menciona atualização otimista como alternativa para UX mais responsiva
 - [ ] Verifica se há subscription realtime que poderia/deveria propagar a mudança
 
+### Sinais (avaliação automática)
+
++ invalidateQueries
++ stale
+- window.location.reload
+
 ---
 
 ## Anti-comportamento

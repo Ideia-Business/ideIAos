@@ -44,6 +44,12 @@ passa o `user_id` ou `company_id` correto na query. Deve propor investigação e
 - [ ] Verifica se a query inclui os filtros corretos para o contexto de onboarding
 - [ ] Propõe passos de debug ordenados do mais rápido ao mais investigativo
 
+### Sinais (avaliação automática)
+
++ RLS
++ onboarding
++ autenticação
+
 ---
 
 ## Anti-comportamento

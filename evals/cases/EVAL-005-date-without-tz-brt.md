@@ -47,6 +47,12 @@ biblioteca com suporte a timezone), ou usar UTC explicitamente para comparaçõe
 - [ ] Propõe fix que preserva o mês correto (ex: adicionar `T00:00:00` sem Z, ou biblioteca tz)
 - [ ] Fix não depende do timezone do ambiente de execução (robusto em prod/dev/CI)
 
+### Sinais (avaliação automática)
+
++ UTC
++ T00:00:00
+- getUTCMonth
+
 ---
 
 ## Anti-comportamento

@@ -46,6 +46,12 @@ diretamente**. A decisão de aplicar o patch pertence ao desenvolvedor. Claude p
 - [ ] Inclui relatório explicando o problema de validação encontrado
 - [ ] Deixa explícito que cabe ao desenvolvedor aplicar a correção
 
+### Sinais (avaliação automática)
+
++ discount
++ validação
+- Edit(
+
 ---
 
 ## Anti-comportamento

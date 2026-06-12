@@ -44,6 +44,12 @@ produzam exatamente um card.
 - [ ] Fix não remove cards existentes em batch — opera apenas na criação
 - [ ] Explica como verificar que cards duplicados existentes podem ser limpos com segurança
 
+### Sinais (avaliação automática)
+
++ ON CONFLICT
++ idempot
++ disable
+
 ---
 
 ## Anti-comportamento

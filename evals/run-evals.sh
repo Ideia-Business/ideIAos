@@ -119,6 +119,107 @@ if [[ "$DRY_RUN" -eq 0 ]]; then
   RESULTS_FILE="${SCRIPT_DIR}/results/$(date +%Y%m%d-%H%M).jsonl"
 fi
 
+# ─── Extrai seção de nível ### dentro de uma seção ## pai ────────────────────
+# extract_subsection FILE PARENT_SECTION SUBSECTION
+# Retorna linhas de ### SUBSECTION dentro de ## PARENT_SECTION
+extract_subsection() {
+  local file="$1" parent="$2" subsec="$3"
+  awk -v par="## ${parent}" -v sub="### ${subsec}" '
+    index($0,par)==1 { in_parent=1; next }
+    in_parent && /^## / { in_parent=0; in_sub=0 }
+    in_parent && index($0,sub)==1 { in_sub=1; next }
+    in_parent && in_sub && /^### / { in_sub=0 }
+    in_parent && in_sub { print }
+  ' "$file"
+}
+
+# ─── Avaliador híbrido: Sinais grep → fallback LLM-judge ────────────────────
+# Retorna: pass | fail | skip
+evaluate_response() {
+  local response="$1"
+  local case_file="$2"
+
+  # --- Tenta avaliação por Sinais primeiro ---
+  local signals_raw
+  signals_raw="$(extract_subsection "$case_file" "Critérios de Aprovação" "Sinais (avaliação automática)")"
+
+  if [[ -n "$signals_raw" ]]; then
+    local verdict="pass"
+    while IFS= read -r sig_line; do
+      # Linha positiva: "+ padrão que DEVE aparecer"
+      case "$sig_line" in
+        "+ "*)
+          local pat="${sig_line#+ }"
+          if ! printf '%s' "$response" | grep -qi "$pat"; then
+            verdict="fail"
+          fi
+          ;;
+        "- "*)
+          local pat="${sig_line#- }"
+          if printf '%s' "$response" | grep -qi "$pat"; then
+            verdict="fail"
+          fi
+          ;;
+      esac
+    done <<< "$signals_raw"
+    echo "$verdict"
+    return
+  fi
+
+  # --- Fallback: LLM-judge via claude haiku ---
+  # Sem judge disponível → skip (não fail — ausência de Sinais não é falha de produto)
+  if ! command -v claude >/dev/null 2>&1; then
+    echo "  [AVISO] Sem seção Sinais e claude não disponível para judge — marcando skip" >&2
+    echo "skip"
+    return
+  fi
+
+  local criteria_raw
+  criteria_raw="$(extract_section "$case_file" "Critérios de Aprovação")"
+
+  local judge_prompt
+  judge_prompt="Você é um avaliador de qualidade de LLM.
+
+## Critérios de Aprovação
+${criteria_raw}
+
+## Resposta do modelo avaliado
+${response}
+
+## Instrução
+Avalie se a resposta atende TODOS os critérios. Responda APENAS com:
+VEREDITO: pass
+ou
+VEREDITO: fail
+
+Seguido de uma linha de justificativa curta."
+
+  local judge_response=""
+  local judge_exit=0
+  if command -v timeout >/dev/null 2>&1; then
+    judge_response="$(timeout 60 claude --model claude-haiku-4-5 -p "$judge_prompt" </dev/null 2>/dev/null)" || judge_exit=$?
+  else
+    judge_response="$(perl -e 'alarm 60; exec @ARGV' -- claude --model claude-haiku-4-5 -p "$judge_prompt" </dev/null 2>/dev/null)" || judge_exit=$?
+  fi
+
+  if [[ $judge_exit -ne 0 ]]; then
+    echo "  [AVISO] LLM-judge falhou (exit $judge_exit) — marcando skip" >&2
+    echo "skip"
+    return
+  fi
+
+  # Extrai veredito da linha "VEREDITO: pass|fail"
+  local judge_verdict
+  judge_verdict="$(printf '%s' "$judge_response" | grep -i 'VEREDITO:' | head -1 | grep -oi 'pass\|fail' | tr '[:upper:]' '[:lower:]')"
+  if [[ "$judge_verdict" == "pass" || "$judge_verdict" == "fail" ]]; then
+    echo "  [judge] ${judge_verdict}" >&2
+    echo "$judge_verdict"
+  else
+    echo "  [AVISO] LLM-judge resposta não reconhecida — marcando skip" >&2
+    echo "skip"
+  fi
+}
+
 # ─── Execução automática com modelo ─────────────────────────────────────────
 run_case_with_model() {
   local _case_file="$1"
@@ -156,10 +257,6 @@ run_case_with_model() {
   local prompt_text
   prompt_text="$(printf '%s\n' "$raw_prompt" | grep -v '^```' | grep -v '^#')"
 
-  # Extrair critérios de aprovação
-  local criteria_raw
-  criteria_raw="$(extract_section "$_case_file" "Critérios de Aprovação")"
-
   # Chamar claude headless com timeout
   # --no-color removido: versões recentes do Claude CLI não suportam essa flag
   # </dev/null: garante stdin fechado (sem TTY) para evitar bloqueio em captura de subshell
@@ -177,31 +274,8 @@ run_case_with_model() {
     return
   fi
 
-  # Avaliar resposta contra critérios
-  local verdict="pass"
-  while IFS= read -r criterion_line; do
-    # Apenas linhas de critério: "- [ ] texto"
-    case "$criterion_line" in
-      "- [ ] "*)
-        local criterion_text="${criterion_line#- \[ \] }"
-        # Detectar critério de negação
-        if printf '%s' "$criterion_text" | grep -qE '\bNÃO\b|\bNUNCA\b'; then
-          # Negação: se grep encontra o padrão na resposta, é falha
-          # Usar a frase como padrão (case-insensitive)
-          if printf '%s' "$response" | grep -qi "$criterion_text"; then
-            verdict="fail"
-          fi
-        else
-          # Afirmação: deve encontrar na resposta
-          if ! printf '%s' "$response" | grep -qi "$criterion_text"; then
-            verdict="fail"
-          fi
-        fi
-        ;;
-    esac
-  done <<< "$criteria_raw"
-
-  echo "$verdict"
+  # Avaliar resposta: Sinais → fallback LLM-judge
+  evaluate_response "$response" "$_case_file"
 }
 
 # ─── Loop principal ───────────────────────────────────────────────────────────

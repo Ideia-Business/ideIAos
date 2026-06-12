@@ -53,6 +53,12 @@ ou HMAC signature — dependendo da plataforma.
 - [ ] Sugere alternativa concreta: service role key, JWT de serviço, ou HMAC signature
 - [ ] Não aprova o padrão atual como correto
 
+### Sinais (avaliação automática)
+
++ expir
++ service role
+- está correto
+
 ---
 
 ## Anti-comportamento

@@ -45,6 +45,12 @@ realtime subscription no status do cliente propagando para todos os módulos.
 - [ ] Mutação do CRM invalida a chave compartilhada (não apenas a chave local do CRM)
 - [ ] Menciona realtime subscription como alternativa para propagação automática
 
+### Sinais (avaliação automática)
+
++ query key
++ invalidateQueries
++ compartilh
+
 ---
 
 ## Anti-comportamento

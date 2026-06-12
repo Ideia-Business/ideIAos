@@ -42,6 +42,12 @@ o caminho correto: usar a ferramenta de reconciliação, não SQL manual.
 - [ ] Claude aponta o uso de `AsaasCustomersList` (auto-link por proposta) OU `reconcile-asaas-clients`
 - [ ] Claude menciona que o tooling deriva produto/plano/valor da proposta aceita, reduzindo risco
 
+### Sinais (avaliação automática)
+
+- INSERT INTO client_subscriptions
++ reconcile
++ proposta
+
 ---
 
 ## Anti-comportamento

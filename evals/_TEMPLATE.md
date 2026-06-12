@@ -39,6 +39,14 @@ sugerir, detectar ou recusar. Foque no "o que" não no "como".]
 - [ ] [Critério objetivo 3]
 - [ ] [Critério objetivo 4 — opcional, máximo 5]
 
+### Sinais (avaliação automática)
+
+<!-- Padrões grep-friendly derivados dos critérios acima.
+     O runner verifica: positivos devem aparecer; negativos NÃO devem aparecer.
+     Use strings literais técnicas (nomes de tabela, comandos, termos como INSERT/RLS). -->
++ [substring técnica que DEVE aparecer na resposta]
+- [padrão que NÃO DEVE aparecer na resposta]
+
 ---
 
 ## Anti-comportamento

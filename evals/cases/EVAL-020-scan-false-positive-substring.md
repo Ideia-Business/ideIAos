@@ -52,6 +52,12 @@ sugerir anotar o falso positivo na revisão, não alterar o scanner ou o arquivo
 - [ ] NÃO recomenda modificar o conteúdo correto do arquivo para evitar o WARN
 - [ ] NÃO bloqueia o processo citando os WARNs como erros reais sem inspeção
 
+### Sinais (avaliação automática)
+
++ falso positivo
++ substring
+- renomear
+
 ---
 
 ## Anti-comportamento

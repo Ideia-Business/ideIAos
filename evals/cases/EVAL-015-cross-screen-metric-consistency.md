@@ -44,6 +44,12 @@ as telas consumam essa única fonte. Deve também identificar possíveis causas 
 - [ ] Lista possíveis causas da divergência (filtros, status, arredondamento)
 - [ ] Não propõe apenas "checar qual das duas está correta" sem endereçar a duplicação
 
+### Sinais (avaliação automática)
+
++ view
++ única
++ duplica
+
 ---
 
 ## Anti-comportamento

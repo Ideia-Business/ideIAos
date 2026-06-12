@@ -48,6 +48,12 @@ também propor roteamento por tipo de evento com discriminante explícito (`even
 - [ ] Roteamento por tipo de evento é explícito (switch/map, não if-else aninhado ad-hoc)
 - [ ] Menciona validação de schema por tipo de evento (ex: Zod, joi, ou equivalente)
 
+### Sinais (avaliação automática)
+
++ normaliz
++ camelCase
++ Zod
+
 ---
 
 ## Anti-comportamento

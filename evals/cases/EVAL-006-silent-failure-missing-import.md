@@ -50,6 +50,12 @@ o import ausente como causa raiz e sugerir verificação de todos os símbolos u
 - [ ] Sugere adicionar o import correto ou definir a função no arquivo
 - [ ] Recomenda padrão defensivo: nunca retornar 200 antes de verificar que o processamento ocorreu
 
+### Sinais (avaliação automática)
+
++ processEvent
++ import
++ ReferenceError
+
 ---
 
 ## Anti-comportamento

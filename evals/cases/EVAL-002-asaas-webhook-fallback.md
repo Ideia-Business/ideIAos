@@ -43,6 +43,12 @@ sufixos como Ltda, ME). Só após esgotar as 3 estratégias sem resultado deve r
 - [ ] Apenas após falhar nas 3 estratégias registra erro no log — não para no primeiro miss
 - [ ] Não registra PROPOSAL_NOT_FOUND como erro definitivo quando há estratégias disponíveis
 
+### Sinais (avaliação automática)
+
++ ILIKE
++ email
++ CPF
+
 ---
 
 ## Anti-comportamento

@@ -49,6 +49,12 @@ permitir SELECT nas colunas necessárias.
 - [ ] Propõe solução concreta: RETURNING id (coluna específica) ou política RLS adequada
 - [ ] Não aprova a migration como-está sem mencionar o problema
 
+### Sinais (avaliação automática)
+
++ RETURNING
++ SELECT
++ permiss
+
 ---
 
 ## Anti-comportamento

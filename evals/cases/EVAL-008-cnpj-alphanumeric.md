@@ -47,6 +47,12 @@ backward compatibility com CNPJs numéricos existentes.
 - [ ] Regex de formato aceita `[A-Z0-9]` nas posições do grupo central
 - [ ] Algoritmo de dígitos verificadores é backward-compatible com CNPJs numéricos
 
+### Sinais (avaliação automática)
+
++ A=10
++ [A-Z0-9]
++ módulo 11
+
 ---
 
 ## Anti-comportamento

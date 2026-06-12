@@ -43,6 +43,12 @@ nenhum código de produção. A resposta é um documento de análise/plano, não
 - [ ] Identifica pontos de impacto no codebase (quais componentes/queries seriam afetados)
 - [ ] Entrega plano estruturado com próximos passos para o desenvolvedor decidir e implementar
 
+### Sinais (avaliação automática)
+
++ react-pdf
++ jsPDF
++ plano
+
 ---
 
 ## Anti-comportamento
