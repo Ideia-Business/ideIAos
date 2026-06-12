@@ -1,6 +1,6 @@
 # Estado do projeto — ideIAos
 
-**Atualizado:** 2026-06-12 · **Branch:** `work` → `main` · **Versão ideIAos:** 2.0
+**Atualizado:** 2026-06-12 · **Branch:** `work` → `main` · **Versão ideIAos:** v3 em andamento (v2.0 base)
 
 ## Snapshot
 
@@ -16,9 +16,23 @@
 | Setup de continuidade híbrida | ✅ Instalado |
 | Arquivos operacionais | ✅ `STATE.md` + `docs/CONTINUATION_HANDOFF.md` |
 | Regras para Cursor/Claude | ✅ `AGENTS.md` + `CLAUDE.md` + regra Cursor |
-| README sincronizado | ✅ Refletindo ideIAos (89/89) |
+| README sincronizado | ✅ Refletindo ideIAos (92/92) |
 | **Fase 07 contexts-evals** | ✅ Completa (07-01 Wave 1a + 07-02 Wave 1b + 07-03 Wave 2) |
+| **Fase 13 security-dx-manifest** | ✅ Completa (13-01 + 13-02 + 13-03) |
 | Próximo passo | Ver `docs/CONTINUATION_HANDOFF.md` |
+
+## Mudanças recentes (2026-06-12) — Fase 13 security-dx-manifest completa
+
+- **Fase 13 completa:** 3 planos, fechando gaps G-09/G-10/G-11/G-12/G-13/G-14/G-15
+- `scripts/idea-doctor.sh`: Seção 7a (deny rules → warn, proxy statusline) + Seção 8 (contexts/aliases/statusline) — 0 FAIL
+- `security/scan-absorbed.sh`: `\bnc\b` word boundary — elimina false positives TypeScript sem enfraquecer detecção de netcat real
+- `source/skills/ideiaos-catalog/SKILL.md`: contagem dinâmica — remove hardcode "60 módulos"
+- `source/skills/banner-design/SKILL.md`: deps claudekit-origin documentadas (frontend-design/ai-artist/ai-multimodal/chrome-devtools)
+- `source/skills/frontend-visual-loop/SKILL.md`: gsd-ui-review marcado como módulo externo/planejado v3
+- `scripts/apply-to-all-projects.sh`: novo wrapper multi-repo (dry-run DEFAULT, --apply, --only) — propaga setup.sh a todos ~/dev/*
+- `manifests/modules.json`: 72 módulos (entry script-apply-to-all-projects adicionado)
+- **Decisions:** warn vs fail para deny rules; dry-run default para apply-to-all; claudekit-origin como deps externas explícitas
+- **Commits:** `85c0d06` (autosync 13-01), `6428bb8` (13-02), `6e31fcc` (13-03)
 
 ## Mudanças recentes (2026-06-12, noite) — Fix definitivo: reverts do pin GSD
 
