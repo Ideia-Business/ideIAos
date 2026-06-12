@@ -1,6 +1,6 @@
 # Estado do projeto — ideIAos
 
-**Atualizado:** 2026-06-08 · **Branch:** `main` · **Versão ideIAos:** 1.0
+**Atualizado:** 2026-06-12 · **Branch:** `work` → `main` · **Versão ideIAos:** 2.0
 
 ## Snapshot
 
@@ -18,6 +18,23 @@
 | Regras para Cursor/Claude | ✅ `AGENTS.md` + `CLAUDE.md` + regra Cursor |
 | README sincronizado | ✅ Refletindo ideIAos |
 | Próximo passo | Ver `docs/CONTINUATION_HANDOFF.md` |
+
+## Mudanças recentes (2026-06-12) — Fase 06 completa
+
+- **IdeiaOS como plugin/marketplace** — instalável via `/plugin marketplace add Ideia-Business/IdeiaOS`
+- `.claude-plugin/marketplace.json` — marketplace 'ideiaos' com 3 sub-plugins
+- `plugins/` — 3 plugins gerados por `build-plugins.sh` (versionados para GitHub marketplace)
+  - `ideiaos-core` — 15 agents + 11 hooks + 23 skills + hooks.json com `${CLAUDE_PLUGIN_ROOT}`
+  - `ideiaos-design-suite` — 10 skills de design
+  - `ideiaos-lovable` — skill /lovable-handoff + doutrina + templates
+- `scripts/build-plugins.sh` — gerador idempotente `source/` → `plugins/`
+- `manifests/modules.json` — 66 módulos + campo `plugin` de membership
+- `manifests/plugin-membership.md` — mapeamento legível módulo → plugin
+- **Dirs-fallback removidos** — `skills/`, `agents/`, `hooks/`, `templates/` removidos da raiz (`source/` é superset verificado, comm -23 vazio)
+- **Scripts atualizados** — check-readme-sync, install-git-hooks, install-global-patches, update-design-suite, idea-doctor — todos apontam para `source/`
+- **Pre-commit hook re-instalado** — protege `source/|scripts/|plugins/|manifests/`
+- **README atualizado** — seção 'Instalação via Plugin', árvore pós-Fase 06, links corrigidos
+- **Commit:** `5171cd9` (joint, sem `--no-verify`, hook passou)
 
 ## Mudanças recentes (2026-06-08)
 
