@@ -91,6 +91,54 @@ plugar a chamada nessa função. Nenhuma outra alteração no runner será neces
 
 ---
 
+## CI/CD — Execução Automática
+
+### Workflow: `.github/workflows/evals.yml`
+
+A suíte executa automaticamente em push/PR para `source/**` ou `evals/**` via dois jobs:
+
+#### Job `structural` (sempre ativo, sem custo de API)
+
+Valida sem chamar LLM:
+- Syntax bash em todos os scripts (`bash -n`)
+- Contagem de casos >= 22
+- Frontmatter completo em todos os `EVAL-*.md` (campos obrigatórios: id, title, source, mode, metric, k, severity)
+- `run-evals.sh --dry-run` exit 0
+
+**Bloqueia PR em falha.** Configurar como required check em Settings → Branches.
+
+#### Job `llm-evals` (requer secret ou workflow_dispatch)
+
+Roda `run-evals.sh --ci` com API key real. Política de saída:
+
+| Tipo | Métrica | Comportamento em falha |
+|------|---------|------------------------|
+| Invariante de segurança/dados | pass^k | **exit 1 — bloqueia merge** |
+| Capacidade de produtividade | pass@k | warning no log — não bloqueia |
+
+Resultados salvos em `evals/results/YYYYMMDD-HHMM.jsonl` e disponíveis como artifact no run.
+
+### Configurar ANTHROPIC_API_KEY como secret
+
+1. No GitHub: **Settings → Secrets and variables → Actions → New repository secret**
+2. Nome: `ANTHROPIC_API_KEY`
+3. Valor: chave de API Anthropic (obtida em https://console.anthropic.com/settings/keys)
+
+Sem o secret, o job `llm-evals` é pulado automaticamente (não falha o build). Para forçar execução manual: **Actions → Run workflow → `run_llm: true`**.
+
+### Custo estimado por run
+
+- Job `structural`: grátis (sem chamadas LLM), ~30s
+- Job `llm-evals`: 22 casos × k=1 × ~2k tokens/caso ≈ 44k tokens input. Com Claude Sonnet: ~$0.13 por run. Considerar rodar apenas em PR para `main` (não em todo push para `work`).
+
+### Política de bloqueio (R3-13)
+
+- `pass^k` falhou → `run-evals.sh --ci` retorna exit 1 → job falha → PR bloqueado (se configurado como required check)
+- `pass@k` falhou → mensagem `AVISO` no log → job retorna exit 0 → PR não bloqueado
+- Sem API key → job `llm-evals` pulado → apenas `structural` bloqueia
+
+---
+
 ## Integração com gsd-verify-work
 
 `gsd-verify-work` é uma skill do framework GSD localizada em `~/.claude/skills/gsd-verify-work/`.

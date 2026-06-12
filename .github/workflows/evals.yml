@@ -1,0 +1,151 @@
+# SOURCE: IdeiaOS v2
+# Workflow de evals — suíte de regressão IdeiaOS
+# Job structural: sempre ativo, sem custo de API, bloqueia PR em falha
+# Job llm-evals: requer ANTHROPIC_API_KEY secret ou workflow_dispatch
+
+name: Evals — IdeiaOS
+
+on:
+  push:
+    branches: [work, main]
+    paths:
+      - 'source/**'
+      - 'evals/**'
+  pull_request:
+    paths:
+      - 'source/**'
+      - 'evals/**'
+  workflow_dispatch:
+    inputs:
+      run_llm:
+        description: 'Rodar job LLM (requer ANTHROPIC_API_KEY secret)'
+        required: false
+        default: 'false'
+        type: choice
+        options: ['true', 'false']
+
+jobs:
+  structural:
+    name: Validação Estrutural (sem API key)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Bash syntax — run-evals.sh
+        run: bash -n evals/run-evals.sh
+
+      - name: Bash syntax — build-adapters.sh
+        run: bash -n scripts/build-adapters.sh
+
+      - name: Bash syntax — scripts adicionais
+        run: |
+          [ -f scripts/hooks/observe-session-end.sh ] && bash -n scripts/hooks/observe-session-end.sh || true
+          find scripts/ -name "*.sh" | while read f; do
+            bash -n "$f" || { echo "FALHA de sintaxe: $f"; exit 1; }
+          done
+
+      - name: Contagem de casos (mínimo 22)
+        run: |
+          COUNT=$(ls evals/cases/EVAL-*.md 2>/dev/null | wc -l | tr -d ' ')
+          [ "$COUNT" -ge 22 ] || { echo "FALHA: apenas $COUNT casos (mínimo 22)"; exit 1; }
+          echo "Casos encontrados: $COUNT"
+
+      - name: Validação de frontmatter dos casos
+        run: |
+          python3 -c "
+          import os, sys
+          cases_dir = 'evals/cases'
+          required = ['id', 'title', 'source', 'mode', 'metric', 'k', 'severity']
+          errors = []
+          for fname in sorted(os.listdir(cases_dir)):
+              if not fname.startswith('EVAL-') or not fname.endswith('.md'):
+                  continue
+              fpath = os.path.join(cases_dir, fname)
+              with open(fpath) as f:
+                  lines = f.readlines()
+              # Extract frontmatter between --- delimiters
+              in_fm = False
+              fm_lines = []
+              dash_count = 0
+              for line in lines:
+                  stripped = line.strip()
+                  if stripped == '---':
+                      dash_count += 1
+                      if dash_count == 1:
+                          in_fm = True
+                          continue
+                      elif dash_count == 2:
+                          break
+                  if in_fm:
+                      fm_lines.append(stripped)
+              present = set()
+              for line in fm_lines:
+                  for field in required:
+                      if line.startswith(field + ':'):
+                          present.add(field)
+              missing = [r for r in required if r not in present]
+              if missing:
+                  errors.append(f'{fname}: campos ausentes: {missing}')
+          if errors:
+              for e in errors:
+                  print(e)
+              sys.exit(1)
+          print(f'Frontmatter OK em {len([f for f in os.listdir(cases_dir) if f.startswith(\"EVAL-\")])} casos')
+          "
+
+      - name: Dry-run do runner
+        run: bash evals/run-evals.sh --dry-run
+
+      - name: Validação YAML deste workflow
+        run: |
+          python3 -c "import yaml, sys; yaml.safe_load(open('.github/workflows/evals.yml'))" || { echo "YAML inválido"; exit 1; }
+          echo "YAML válido"
+
+  llm-evals:
+    name: Evals LLM (requer API key)
+    runs-on: ubuntu-latest
+    needs: structural
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Instalar Claude CLI
+        run: |
+          npm install -g @anthropic-ai/claude-code --quiet
+          claude --version
+
+      - name: Verificar disponibilidade de API key
+        id: check_key
+        run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "ANTHROPIC_API_KEY não configurado — pulando job LLM"
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Verificar workflow_dispatch run_llm
+        id: check_dispatch
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.run_llm }}" = "true" ]; then
+            echo "dispatch=true" >> $GITHUB_OUTPUT
+          else
+            echo "dispatch=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Executar evals --ci
+        if: steps.check_key.outputs.skip != 'true' || steps.check_dispatch.outputs.dispatch == 'true'
+        run: bash evals/run-evals.sh --ci
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Upload resultados
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-results-${{ github.run_id }}
+          path: evals/results/
+          if-no-files-found: ignore
