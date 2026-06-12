@@ -218,6 +218,47 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | **MCP `context7`** | user scope (via `claude mcp`) | Docs versionadas de 1000+ libs (React/Tailwind/etc) ao vivo |
 | **Alias `idea-setup`** | `~/.zshrc` ou `~/.bashrc` (via `install-alias.sh`) | Atalho terminal — `cd projeto && idea-setup` |
 
+### Agents ECC (Fase 04 — source/agents/)
+
+13 agents absorvidos do ECC (via quarentena) — instalados por `bash scripts/build-adapters.sh --target claude`:
+
+| Agent | Modelo | Quando usar |
+|-------|--------|-------------|
+| `security-reviewer` | opus | Auditar vulnerabilidades antes de deploy |
+| `typescript-reviewer` | sonnet | Revisar type-safety e uso correto de TS |
+| `react-reviewer` | sonnet | Revisar hooks, re-renders, padrões React |
+| `rls-reviewer` | sonnet | Revisar RLS e migrations Supabase |
+| `pr-test-analyzer` | sonnet | Identificar lacunas de teste em PRs |
+| `silent-failure-hunter` | opus | Caçar erros engolidos e falhas silenciosas |
+| `build-error-resolver` | sonnet | Resolver erros de tsc/vite/jest/lint |
+| `code-simplifier` | sonnet | Simplificar código complexo |
+| `refactor-cleaner` | sonnet | Limpar código morto e duplicação |
+| `planner` | opus | Planejamento ad-hoc de tarefas amplas |
+| `code-explorer` | haiku | Navegar codebase sem modificar nada |
+| `doc-updater` | haiku | Atualizar README e comentários WHY |
+| `performance-optimizer` | sonnet | Identificar gargalos de performance |
+
+### Skills ECC de workflow (Fase 04 — source/skills/)
+
+14 skills adicionadas na Fase 04 — acessíveis via `/idea` ou comando direto:
+
+| Skill | installStrategy | Descrição |
+|-------|-----------------|-----------|
+| `/tdd` | always | Test-Driven Development RED→GREEN→REFACTOR |
+| `/e2e-testing` | always | Testes end-to-end para fluxos críticos |
+| `/deep-research` | always | Pesquisa profunda para decisões técnicas |
+| `/codebase-onboarding` | always | Onboarding estruturado em codebase nova |
+| `/code-tour` | always | Tour guiado de fluxo ou feature |
+| `/api-design` | always | Design de endpoints e contrato de API |
+| `/benchmark-optimization-loop` | always | Medir antes de otimizar |
+| `/cost-tracking` | always | Rastrear custo de tokens e escolha de modelo |
+| `/database-migrations` | stack:supabase | Migrations seguras com estratégia de rollback |
+| `/accessibility` | stack:react | WCAG ao construir componentes |
+| `/two-instance-kickoff` | manual | Kickoff com 2 instâncias em paralelo (scaffold + research) |
+| `/llms-txt` | manual | Gerar llms.txt para consumo por IA |
+| `/mcp-to-cli` | manual | Converter MCP pesado em skill + CLI |
+| `/ideiaos-catalog` | always | Listar módulos instalados vs disponíveis |
+
 ### Manutenção do próprio ideIAos (rodados manualmente)
 
 | Script | O que faz |

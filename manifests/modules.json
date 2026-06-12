@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generated": "2026-06-11",
+  "generated": "2026-06-12",
   "source": "IdeiaOS v2 — multi-harness catalog",
   "modules": [
     {
@@ -299,6 +299,262 @@
       "targets": ["claude", "cursor"],
       "deps": [],
       "installStrategy": "stack:lovable"
+    },
+    {
+      "id": "agent-security-reviewer",
+      "kind": "agent",
+      "description": "Revisa código em busca de vulnerabilidades (injection, secrets vazados, authz quebrada, deps inseguras)",
+      "source": "source/agents/security-reviewer.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always",
+      "model": "opus"
+    },
+    {
+      "id": "agent-typescript-reviewer",
+      "kind": "agent",
+      "description": "Revisa código TypeScript quanto a type-safety, uso correto do sistema de tipos",
+      "source": "source/agents/typescript-reviewer.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always",
+      "model": "sonnet"
+    },
+    {
+      "id": "agent-react-reviewer",
+      "kind": "agent",
+      "description": "Revisa componentes React quanto a regras de hooks, padrões de componente, re-renders",
+      "source": "source/agents/react-reviewer.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always",
+      "model": "sonnet"
+    },
+    {
+      "id": "agent-rls-reviewer",
+      "kind": "agent",
+      "description": "Revisa schema/migrations Supabase quanto a Row Level Security — RLS habilitada, policies corretas",
+      "source": "source/agents/rls-reviewer.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always",
+      "model": "sonnet"
+    },
+    {
+      "id": "agent-pr-test-analyzer",
+      "kind": "agent",
+      "description": "Analisa um PR/diff e identifica lacunas de teste — caminhos novos sem cobertura",
+      "source": "source/agents/pr-test-analyzer.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always",
+      "model": "sonnet"
+    },
+    {
+      "id": "agent-silent-failure-hunter",
+      "kind": "agent",
+      "description": "Caça falhas silenciosas — erros engolidos (catch vazio), promises sem await, retornos ignorados",
+      "source": "source/agents/silent-failure-hunter.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always",
+      "model": "opus"
+    },
+    {
+      "id": "agent-build-error-resolver",
+      "kind": "agent",
+      "description": "Resolve erros de build/compilação/teste (tsc, vite, jest, lint) lendo o output do erro",
+      "source": "source/agents/build-error-resolver.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always",
+      "model": "sonnet"
+    },
+    {
+      "id": "agent-code-simplifier",
+      "kind": "agent",
+      "description": "Simplifica código complexo sem mudar comportamento — reduz aninhamento, remove duplicação",
+      "source": "source/agents/code-simplifier.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always",
+      "model": "sonnet"
+    },
+    {
+      "id": "agent-refactor-cleaner",
+      "kind": "agent",
+      "description": "Limpa código morto, imports não usados, duplicação e TODOs resolvidos após refactor",
+      "source": "source/agents/refactor-cleaner.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always",
+      "model": "sonnet"
+    },
+    {
+      "id": "agent-planner",
+      "kind": "agent",
+      "description": "Quebra uma tarefa ampla em passos executáveis com dependências e ordem, antes de implementação",
+      "source": "source/agents/planner.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always",
+      "model": "opus"
+    },
+    {
+      "id": "agent-code-explorer",
+      "kind": "agent",
+      "description": "Explora a codebase para responder 'onde está X / como Y funciona / quem chama Z' sem modificar nada",
+      "source": "source/agents/code-explorer.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always",
+      "model": "haiku"
+    },
+    {
+      "id": "agent-doc-updater",
+      "kind": "agent",
+      "description": "Atualiza documentação (README, comentários de WHY, CHANGELOG) para refletir mudanças recentes",
+      "source": "source/agents/doc-updater.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always",
+      "model": "haiku"
+    },
+    {
+      "id": "agent-performance-optimizer",
+      "kind": "agent",
+      "description": "Otimiza performance medida — identifica gargalos (renders, queries N+1, bundle size)",
+      "source": "source/agents/performance-optimizer.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always",
+      "model": "sonnet"
+    },
+    {
+      "id": "skill-tdd",
+      "kind": "skill",
+      "description": "Test-Driven Development RED→GREEN→REFACTOR",
+      "source": "source/skills/tdd/SKILL.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always"
+    },
+    {
+      "id": "skill-e2e-testing",
+      "kind": "skill",
+      "description": "End-to-end testing for critical user flows",
+      "source": "source/skills/e2e-testing/SKILL.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always"
+    },
+    {
+      "id": "skill-deep-research",
+      "kind": "skill",
+      "description": "Deep research for technical decisions and domain mapping",
+      "source": "source/skills/deep-research/SKILL.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always"
+    },
+    {
+      "id": "skill-codebase-onboarding",
+      "kind": "skill",
+      "description": "Structured onboarding into an unfamiliar codebase",
+      "source": "source/skills/codebase-onboarding/SKILL.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always"
+    },
+    {
+      "id": "skill-code-tour",
+      "kind": "skill",
+      "description": "Guided tour of a codebase flow or feature for understanding",
+      "source": "source/skills/code-tour/SKILL.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always"
+    },
+    {
+      "id": "skill-database-migrations",
+      "kind": "skill",
+      "description": "Safe database schema migrations with rollback strategy",
+      "source": "source/skills/database-migrations/SKILL.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "stack:supabase"
+    },
+    {
+      "id": "skill-api-design",
+      "kind": "skill",
+      "description": "API endpoint design and contract definition",
+      "source": "source/skills/api-design/SKILL.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always"
+    },
+    {
+      "id": "skill-accessibility",
+      "kind": "skill",
+      "description": "WCAG accessibility guidelines for UI components",
+      "source": "source/skills/accessibility/SKILL.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "stack:react"
+    },
+    {
+      "id": "skill-benchmark-optimization-loop",
+      "kind": "skill",
+      "description": "Measure-before-optimize loop for performance improvements",
+      "source": "source/skills/benchmark-optimization-loop/SKILL.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always"
+    },
+    {
+      "id": "skill-cost-tracking",
+      "kind": "skill",
+      "description": "Token cost tracking and model selection guidance",
+      "source": "source/skills/cost-tracking/SKILL.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always"
+    },
+    {
+      "id": "skill-two-instance-kickoff",
+      "kind": "skill",
+      "description": "Kickoff de projeto novo com 2 instâncias em paralelo: scaffold + deep research do domínio",
+      "source": "source/skills/two-instance-kickoff/SKILL.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "manual"
+    },
+    {
+      "id": "skill-llms-txt",
+      "kind": "skill",
+      "description": "Gera docs LLM-otimizadas (llms.txt) para uma codebase/produto",
+      "source": "source/skills/llms-txt/SKILL.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "manual"
+    },
+    {
+      "id": "skill-mcp-to-cli",
+      "kind": "skill",
+      "description": "Converte uma integração MCP pesada em skill + CLI equivalente, reduzindo tokens e tools ativos",
+      "source": "source/skills/mcp-to-cli/SKILL.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "manual"
+    },
+    {
+      "id": "skill-ideiaos-catalog",
+      "kind": "skill",
+      "description": "Lista os módulos do IdeiaOS instalados vs disponíveis, filtrável por kind e stack",
+      "source": "source/skills/ideiaos-catalog/SKILL.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always"
     }
   ]
 }

@@ -69,6 +69,33 @@ Use a matriz abaixo para detectar intenção. **Apenas UMA camada deve ser ativa
 | "setup", "config inicial", "instalar tudo" | **dev-setup** → `/dev-setup` |
 | "debugar bug", "investigar problema", "issue persistente" | **GSD** → `/gsd-debug` |
 | "code review profundo", "ultrareview", "review extenso" | **GSD/AIOX** → `/code-review ultra` |
+| "revise segurança", "tem vulnerabilidade?", "auditar antes de deploy" | **Agent** → `security-reviewer` (opus) |
+| "revise os tipos", "type-safety", "TS review" | **Agent** → `typescript-reviewer` (sonnet) |
+| "revise o componente React", "hooks/re-render" | **Agent** → `react-reviewer` (sonnet) |
+| "revise o RLS", "policy do Supabase", "migration segura?" | **Agent** → `rls-reviewer` (sonnet) |
+| "faltou teste?", "cobertura do PR" | **Agent** → `pr-test-analyzer` (sonnet) |
+| "funciona mas tá errado", "erro engolido", "bug silencioso" | **Agent** → `silent-failure-hunter` (opus) |
+| "build quebrou", "erro de tsc/compilação" | **Agent** → `build-error-resolver` (sonnet) |
+| "simplifica esse código", "tá complexo demais" | **Agent** → `code-simplifier` (sonnet) |
+| "limpa código morto", "remove o que sobrou" | **Agent** → `refactor-cleaner` (sonnet) |
+| "onde fica X", "como Y funciona", "quem chama Z" | **Agent** → `code-explorer` (haiku) |
+| "atualiza a doc", "README desatualizado" | **Agent** → `doc-updater` (haiku) |
+| "tá lento", "otimizar performance" | **Agent** → `performance-optimizer` (sonnet) + skill `/benchmark-optimization-loop` |
+| "planeja antes de codar" (ad-hoc, não fase) | **Agent** → `planner` (opus) — para fase formal use `/gsd-plan-phase` |
+| "TDD", "teste antes da implementação" | **Skill** → `/tdd` |
+| "teste e2e", "fluxo crítico não pode quebrar" | **Skill** → `/e2e-testing` |
+| "pesquisa profunda", "decidir entre opções" | **Skill** → `/deep-research` |
+| "entrar em codebase nova", "onboarding" | **Skill** → `/codebase-onboarding` |
+| "explica como esse fluxo funciona" | **Skill** → `/code-tour` |
+| "migration", "mudar schema com segurança" | **Skill** → `/database-migrations` |
+| "design da API", "contrato de endpoint" | **Skill** → `/api-design` |
+| "acessibilidade", "WCAG ao construir" | **Skill** → `/accessibility` |
+| "medir antes de otimizar", "loop de benchmark" | **Skill** → `/benchmark-optimization-loop` |
+| "custo de tokens", "qual modelo usar" | **Skill** → `/cost-tracking` |
+| "começar projeto novo (2 instâncias)" | **Skill** → `/two-instance-kickoff` |
+| "gerar llms.txt", "docs pra IA" | **Skill** → `/llms-txt` |
+| "converter MCP em CLI", "MCP pesado demais" | **Skill** → `/mcp-to-cli` |
+| "o que tem disponível", "lista agents/skills", "instala X" | **Skill** → `/ideiaos-catalog` |
 | Pedido genérico sem rumo claro | **AskUserQuestion** com 2-3 caminhos prováveis |
 
 ### Passo 2 — Verificar pré-condições do projeto
