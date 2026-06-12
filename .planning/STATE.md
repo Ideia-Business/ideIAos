@@ -1,11 +1,11 @@
 ---
 gsd_state_version: 1.0
 milestone: v4
-milestone_name: a-definir
-status: Awaiting next milestone
+milestone_name: producao-plano-maior
+status: In progress
 last_updated: "2026-06-12"
 progress:
-  total_phases: 0
+  total_phases: 3
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -23,7 +23,7 @@ progress:
 | Milestone v2.0 (absorção ECC, 8 fases) | ✅ SHIPPED — tag v2.0 |
 | Milestone v3 (refinamento, fases 09-13) | ✅ SHIPPED — tag v3.0, auditoria 19/19 |
 | Loop Continuous Learning | ✅ Provado ao vivo (574 obs → 50 instincts via haiku) |
-| Próximo milestone (v4) | ⬜ A definir — /gsd-new-milestone |
+| Milestone v4 (produção, fases 14-16) | 🔄 Em execução |
 
 ## Próximo passo
 
