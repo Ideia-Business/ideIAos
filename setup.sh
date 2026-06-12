@@ -1136,6 +1136,89 @@ echo "     Comportamento: ao final de cada turno, cria ~/.claude/sessions/YYYY-M
 echo "     com 4 seções ECC; atualiza docs/CONTINUATION_HANDOFF.md se existir no cwd."
 
 # ─────────────────────────────────────────────────────────────────────────────
+step "5.20) Hook Claude Code — observe-tool-use (PostToolUse · Continuous Learning v2)"
+# Coleta leve de observações (só metadados) em ~/.ideiaos/observations/<projeto>/.
+# <100ms, fail-silent, nunca bloqueia o tool use. Insumo do /instinct-analyze.
+
+HOOK_FILE="$HOOK_DIR/observe-tool-use.sh"
+HOOK_TEMPLATE="$SETUP_DIR/source/hooks/observe-tool-use.sh"
+
+if [ -f "$HOOK_FILE" ]; then
+  if diff -q "$HOOK_TEMPLATE" "$HOOK_FILE" &>/dev/null; then
+    ok "Hook observe-tool-use já está na versão mais recente"
+  else
+    cp "$HOOK_TEMPLATE" "$HOOK_FILE"; chmod +x "$HOOK_FILE"
+    ok "Hook observe-tool-use atualizado"
+  fi
+else
+  cp "$HOOK_TEMPLATE" "$HOOK_FILE"; chmod +x "$HOOK_FILE"
+  ok "Hook observe-tool-use instalado → $HOOK_FILE"
+fi
+
+if [ -f "$SETTINGS_FILE" ] && grep -q "observe-tool-use.sh" "$SETTINGS_FILE" 2>/dev/null; then
+  ok "Hook observe-tool-use registrado em ~/.claude/settings.json"
+else
+  warn "Hook observe-tool-use NÃO registrado — adicione em hooks.PostToolUse:"
+  cat <<'SNIPPET'
+
+       {
+         "matcher": "Edit|Write|MultiEdit|Bash",
+         "hooks": [
+           {
+             "type": "command",
+             "command": "bash \"/Users/<você>/.claude/hooks/observe-tool-use.sh\"",
+             "timeout": 5
+           }
+         ]
+       }
+SNIPPET
+fi
+
+echo "     Comportamento: anexa 1 linha JSON (só metadados) por Edit/Write/Bash em"
+echo "     ~/.ideiaos/observations/<projeto>/observations.jsonl. Nunca loga conteúdo/secrets."
+
+# ─────────────────────────────────────────────────────────────────────────────
+step "5.21) Hook Claude Code — observe-session-end (Stop · Continuous Learning v2)"
+# Marca session_end na observations.jsonl como gatilho de avaliação para /instinct-analyze.
+# <100ms, fail-silent.
+
+HOOK_FILE="$HOOK_DIR/observe-session-end.sh"
+HOOK_TEMPLATE="$SETUP_DIR/source/hooks/observe-session-end.sh"
+
+if [ -f "$HOOK_FILE" ]; then
+  if diff -q "$HOOK_TEMPLATE" "$HOOK_FILE" &>/dev/null; then
+    ok "Hook observe-session-end já está na versão mais recente"
+  else
+    cp "$HOOK_TEMPLATE" "$HOOK_FILE"; chmod +x "$HOOK_FILE"
+    ok "Hook observe-session-end atualizado"
+  fi
+else
+  cp "$HOOK_TEMPLATE" "$HOOK_FILE"; chmod +x "$HOOK_FILE"
+  ok "Hook observe-session-end instalado → $HOOK_FILE"
+fi
+
+if [ -f "$SETTINGS_FILE" ] && grep -q "observe-session-end.sh" "$SETTINGS_FILE" 2>/dev/null; then
+  ok "Hook observe-session-end registrado em ~/.claude/settings.json"
+else
+  warn "Hook observe-session-end NÃO registrado — adicione em hooks.Stop:"
+  cat <<'SNIPPET'
+
+       {
+         "hooks": [
+           {
+             "type": "command",
+             "command": "bash \"/Users/<você>/.claude/hooks/observe-session-end.sh\"",
+             "timeout": 10
+           }
+         ]
+       }
+SNIPPET
+fi
+
+echo "     Comportamento: marca session_end na observations.jsonl como gatilho de"
+echo "     avaliação para /instinct-analyze. Insumo do Continuous Learning v2."
+
+# ─────────────────────────────────────────────────────────────────────────────
 step "5.10) Skill Claude Code — /idea (orquestrador IdeiaOS)"
 # Comando único de entrada do IdeiaOS — roteia entre GSD/AIOX/Lovable/Fase A
 # automaticamente baseado no que o usuário pediu.

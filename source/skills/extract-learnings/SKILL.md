@@ -123,6 +123,23 @@ preencher o bloco 7:
 
 ---
 
+## Insumo automático — observações e instincts (Continuous Learning v2)
+
+A extração não parte do zero: a sessão já gerou observações
+(`~/.ideiaos/observations/<projeto>/observations.jsonl`) e possivelmente instincts
+(`~/.ideiaos/instincts/`). Antes do Passo 1, considerar:
+
+- Rodar (ou ter rodado) `/instinct-analyze` para destilar as observações em instincts.
+- Um instinct **maduro (≥0.7)** já é forte candidato a virar learning de repo/vault — nesse
+  caso, prefira `/evolve` (que promove ao vault/rules) e referencie o instinct na Evidência.
+- `extract-learnings` continua sendo a **curadoria humana/IA final**: aplica o gate triplo
+  e escreve o `docs/learnings/...md` quando o padrão merece registro formal de projeto.
+
+Em suma: observações (cru) → instincts (`/instinct-analyze`, `/learn`) → learning de
+projeto (`extract-learnings`) → vault/rules (`/evolve`). Cada camada é mais curada que a anterior.
+
+---
+
 ## Anti-padrões
 
 - ❌ Criar learning para **cada** bug. Use o gate: replicável, não-óbvio, estável.
@@ -169,3 +186,6 @@ Ou se promovido:
 - `reference_learnings_protocol.md` — protocolo completo
 - Skill `recall-learnings` — par desta no início da sessão
 - Skill `lovable-handoff` — invoca esta no passo 7
+- Skill `/instinct-analyze` — destila observações em instincts (insumo desta)
+- Skill `/learn` — extração manual mid-session de instinct
+- Skill `/evolve` — promove instincts maduros ao vault/rules (camada seguinte)

@@ -555,6 +555,60 @@
       "targets": ["claude"],
       "deps": [],
       "installStrategy": "always"
+    },
+    {
+      "id": "hook-observe-tool-use",
+      "kind": "hook",
+      "description": "PostToolUse — appends metadata-only observation lines to ~/.ideiaos/observations (Continuous Learning v2)",
+      "source": "source/hooks/observe-tool-use.sh",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always"
+    },
+    {
+      "id": "hook-observe-session-end",
+      "kind": "hook",
+      "description": "Stop — appends session_end marker as evaluation trigger for /instinct-analyze",
+      "source": "source/hooks/observe-session-end.sh",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always"
+    },
+    {
+      "id": "skill-instinct-analyze",
+      "kind": "skill",
+      "description": "Background haiku agent — distills observations.jsonl into atomic instincts with confidence",
+      "source": "source/skills/instinct-analyze/SKILL.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always"
+    },
+    {
+      "id": "skill-instinct-status",
+      "kind": "skill",
+      "description": "Lists instincts with confidence bars grouped by domain/scope",
+      "source": "source/skills/instinct-status/SKILL.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always"
+    },
+    {
+      "id": "skill-learn",
+      "kind": "skill",
+      "description": "Manual mid-session extraction — writes one instinct at confidence 0.5",
+      "source": "source/skills/learn/SKILL.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always"
+    },
+    {
+      "id": "skill-evolve",
+      "kind": "skill",
+      "description": "Promotes mature instincts (>=0.7) to Obsidian Learnings/ or source/rules/ + curation (decay/dedup)",
+      "source": "source/skills/evolve/SKILL.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always"
     }
   ]
 }

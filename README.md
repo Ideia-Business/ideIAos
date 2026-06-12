@@ -214,6 +214,12 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | **Hook Claude `strategic-compact.sh`** | `~/.claude/hooks/` | PreToolUse — conta tool calls/sessão; sugere `/compact` a cada 50 |
 | **Hook Claude `precompact-state-save.sh`** | `~/.claude/hooks/` | PreCompact — snapshot de STATE.md antes do `/compact` |
 | **Hook Claude `session-summary.sh`** | `~/.claude/hooks/` | Stop — persiste resumo ECC em `~/.claude/sessions/` e atualiza CONTINUATION_HANDOFF.md |
+| **Hook Claude `observe-tool-use.sh`** | `~/.claude/hooks/` | PostToolUse Edit/Write/Bash — anexa observação (só metadados) em `~/.ideiaos/observations/` |
+| **Hook Claude `observe-session-end.sh`** | `~/.claude/hooks/` | Stop — marca session_end como gatilho do /instinct-analyze |
+| **Skill Claude `/instinct-analyze`** | `~/.claude/skills/instinct-analyze/` | Agente haiku background — observações → instincts atômicos |
+| **Skill Claude `/instinct-status`** | `~/.claude/skills/instinct-status/` | Lista instincts com barras de confidence por domínio/scope |
+| **Skill Claude `/learn`** | `~/.claude/skills/learn/` | Extração manual mid-session — instinct confidence 0.5 |
+| **Skill Claude `/evolve`** | `~/.claude/skills/evolve/` | Promove instincts maduros (≥0.7) → vault Obsidian ou source/rules/ |
 | **MCP `chrome-devtools`** | user scope (via `claude mcp`) | Auditoria de console/rede do browser direto no Claude Code |
 | **MCP `context7`** | user scope (via `claude mcp`) | Docs versionadas de 1000+ libs (React/Tailwind/etc) ao vivo |
 | **Alias `idea-setup`** | `~/.zshrc` ou `~/.bashrc` (via `install-alias.sh`) | Atalho terminal — `cd projeto && idea-setup` |

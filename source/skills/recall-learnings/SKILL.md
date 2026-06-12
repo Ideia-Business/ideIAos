@@ -81,7 +81,24 @@ acima do learning bruto do repo. Pastas: `Learnings/`, `Decisions/`, `References
 
 Se o vault não existir no caminho (máquina sem iCloud sincronizado): pular silenciosamente.
 
-### Passo 6 — Postmortems relacionados
+### Passo 6 — Instincts aprendidos (~/.ideiaos/instincts/)
+
+Os **instincts** são aprendizado automático/manual destilado das sessões (Continuous
+Learning v2). Ficam em `~/.ideiaos/instincts/{project,global}/`. Antes de propor o plano,
+ler os instincts relevantes ao pedido — eles capturam "o que costuma dar certo/errado aqui".
+
+```bash
+# instincts do projeto atual + globais
+PROJ="$(basename "$PWD" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9-' '-')"
+ls ~/.ideiaos/instincts/global/*.md 2>/dev/null
+ls ~/.ideiaos/instincts/project/${PROJ}--*.md 2>/dev/null
+```
+
+Para cada keyword do pedido (as mesmas do Passo 3), priorizar instincts cujo `domain`
+ou `trigger` casem. Peso: instinct ≥0.7 é forte (quase regra); 0.3-0.6 é dica.
+Se `~/.ideiaos/instincts/` não existir (máquina nova) → pular silenciosamente.
+
+### Passo 7 — Postmortems relacionados
 
 ```bash
 ls docs/postmortems/ 2>/dev/null | head -10
@@ -110,6 +127,7 @@ Antes do plano de resolução em si, entregar 1 bloco assim:
 - Identidade: <projeto>, stack <X>, deploy <Y>
 - Últimos learnings relevantes: <2-3 títulos>
 - Memória aplicável: <1-2 referências>
+- Instincts aplicáveis: <1-2 triggers ≥0.7>
 - Postmortem relevante: <se houver>
 - ⚠️ Falsos positivos a evitar: <se houver>
 ```
@@ -135,3 +153,6 @@ Depois prosseguir com o plano normalmente.
 - `reference_learnings_protocol.md` — protocolo completo de aprendizado
 - `reference_lovable_projects.md` — quais projetos são Lovable
 - Skill `extract-learnings` — par desta no fim da sessão
+- Skill `/instinct-analyze` — destila observações em instincts
+- Skill `/instinct-status` — lista instincts com barras de confidence
+- Skill `/evolve` — promove instincts maduros ao vault/rules
