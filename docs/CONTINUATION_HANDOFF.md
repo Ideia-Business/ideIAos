@@ -24,3 +24,8 @@ Critérios de eval grep-friendly/LLM-judge · checkout@v5 (deadline 2026-06-16) 
 ## Próximo passo
 
 Atualizar máquinas; depois `/gsd-new-milestone "IdeiaOS v5"` se desejado.
+
+## Ultima sessao automatica (2026-06-12)
+
+- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-12-ideiaos-e490e2e5-ebab-45c4-b736-5a83f2de.tmp`
+- Próximo passo: (definir antes de retomar)
