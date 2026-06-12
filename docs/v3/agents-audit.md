@@ -382,11 +382,13 @@ Clareza: alta. A referência a `source/rules/ecc/typescript/typescript.md` ancor
 - `claude-continuation`: sem `model:`, sem `tools:`. Agent complexo rodando em default do harness.
 - `ideiaos-checker` (name: `setup-checker`): sem `model:`, sem `tools:`. Usa bash extensivamente no corpo sem declarar Bash no frontmatter.
 - Impacto: custo imprevisível, capacidade de raciocínio não garantida, contrato de ferramentas indefinido.
+- **(corrigido na Fase 09)** `claude-continuation` recebeu `model: sonnet` e `tools: Read, Grep, Glob, Bash`; `ideiaos-checker` recebeu `model: sonnet` e `tools: Read, Bash`.
 
 **Gap 2 — Inconsistência de nome: ideiaos-checker.md vs. `name: setup-checker`**
 - O arquivo se chama `ideiaos-checker.md` mas o campo `name:` no frontmatter é `setup-checker`.
 - `manifests/modules.json` referencia por `name:`, então o agent é indexado como `setup-checker` mas instalado de `ideiaos-checker.md` — rastreabilidade quebrada.
 - Ação: decidir nome canônico e alinhar filename + `name:` + modules.json.
+- **(corrigido na Fase 09)** Nome canônico `ideiaos-checker` adotado; frontmatter, setup.sh e plugins alinhados.
 
 **Gap 3 — Tools implícitas no corpo sem declaração no frontmatter**
 - `claude-continuation`: usa `tail`/git via Bash no corpo (Fase 4, Fase 6) mas não declara `Bash` no frontmatter.

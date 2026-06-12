@@ -82,8 +82,8 @@ O hook pre-commit (`check-readme-sync.sh`) audita `source/`, `scripts/`, `plugin
 
 | ID | Gap | Origem | Prioridade | Esforço | Valor |
 |----|-----|--------|------------|---------|-------|
-| G-01 | `claude-continuation` e `ideiaos-checker` sem `model:` e `tools:` no frontmatter | agents-audit | P1 | Baixo | Alto |
-| G-02 | `ideiaos-checker.md` com `name: setup-checker` — inconsistência filename vs modules.json | agents-audit | P1 | Baixo | Alto |
+| G-01 | `claude-continuation` e `ideiaos-checker` sem `model:` e `tools:` no frontmatter (corrigido na Fase 09) | agents-audit | P1 | Baixo | Alto |
+| G-02 | `ideiaos-checker.md` com `name: setup-checker` — inconsistência filename vs modules.json (corrigido na Fase 09) | agents-audit | P1 | Baixo | Alto |
 | G-03 | `/instinct-analyze` sem scheduler automático — captura automática, destilação manual | skills-guide / orquestração | P1 | Médio | Alto |
 | G-04 | `run-evals.sh` nunca executa automaticamente — suíte de 22+ casos é rede de papel | orquestração (evals) | P1 | Alto | Alto |
 | G-05 | `silent-failure-hunter` em opus, mas processo é grep patterns fixos — candidato a sonnet | token-economy | P2 | Baixo | Alto |

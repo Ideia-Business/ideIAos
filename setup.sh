@@ -532,7 +532,7 @@ fi
 echo "     Uso no Cursor: mencione @claude-continuation ou 'retoma o que estava no Claude'"
 
 # ─────────────────────────────────────────────────────────────────────────────
-step "3.5) Agente Cursor — setup-checker"
+step "3.5) Agente Cursor — ideiaos-checker"
 # Espelho da skill /ideiaos-setup do Claude Code. Audita + completa setup do projeto.
 
 SETUP_CHECKER="$CURSOR_AGENTS_DIR/ideiaos-checker.md"
@@ -540,14 +540,14 @@ SETUP_CHECKER_TEMPLATE="$SETUP_DIR/source/agents/ideiaos-checker.md"
 
 if [ -f "$SETUP_CHECKER" ]; then
   if diff -q "$SETUP_CHECKER_TEMPLATE" "$SETUP_CHECKER" &>/dev/null; then
-    ok "Agente Cursor setup-checker já está na versão mais recente"
+    ok "Agente Cursor ideiaos-checker já está na versão mais recente"
   else
     cp "$SETUP_CHECKER_TEMPLATE" "$SETUP_CHECKER"
-    ok "Agente Cursor setup-checker atualizado"
+    ok "Agente Cursor ideiaos-checker atualizado"
   fi
 else
   cp "$SETUP_CHECKER_TEMPLATE" "$SETUP_CHECKER"
-  ok "Agente Cursor setup-checker instalado → $SETUP_CHECKER"
+  ok "Agente Cursor ideiaos-checker instalado → $SETUP_CHECKER"
 fi
 
 echo "     Uso no Cursor: mencione @ideiaos-checker em projeto novo"
