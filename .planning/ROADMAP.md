@@ -11,7 +11,7 @@
 
 - [x] **Fase 09: agent-contracts** — Frontmatters completos e nome canônico alinhado em todos os agents críticos
 - [x] **Fase 10: token-optimizations** — Três otimizações de custo independentes aplicadas e validadas
-- [ ] **Fase 11: instinct-loop-automation** — Loop de instincts fecha o ciclo automaticamente após cada sessão
+- [x] **Fase 11: instinct-loop-automation** — Loop de instincts fecha o ciclo automaticamente após cada sessão
 - [x] **Fase 12: evals-ci** — Suíte de 22 evals executa automaticamente em CI a cada push
 - [ ] **Fase 13: security-dx-manifest** — Diagnóstico cobre deny rules e contexts; manifesto e skills corrigidos
 
@@ -150,6 +150,6 @@ Plans:
 |------|-----------------|--------|-----------|
 | 09 — agent-contracts | 1/1 | Complete    | 2026-06-12 |
 | 10 — token-optimizations | 1/1 | Completa | 2026-06-12 |
-| 11 — instinct-loop-automation | 0/3 | Não iniciada | — |
+| 11 — instinct-loop-automation | 2/2 | Complete | 2026-06-12 |
 | 12 — evals-ci | 2/2 | Complete | 2026-06-12 |
 | 13 — security-dx-manifest | 0/3 | Não iniciada | — |

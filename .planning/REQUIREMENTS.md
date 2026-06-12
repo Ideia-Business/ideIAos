@@ -175,9 +175,9 @@
 | R3-05 | Fase 10 | Completo |
 | R3-06 | Fase 10 | Completo |
 | R3-07 | Fase 10 | Completo |
-| R3-08 | Fase 11 | Pendente |
-| R3-09 | Fase 11 | Pendente |
-| R3-10 | Fase 11 | Pendente |
+| R3-08 | Fase 11 | Completo |
+| R3-09 | Fase 11 | Completo |
+| R3-10 | Fase 11 | Completo |
 | R3-11 | Fase 12 | Pendente |
 | R3-12 | Fase 12 | Pendente |
 | R3-13 | Fase 12 | Pendente |
