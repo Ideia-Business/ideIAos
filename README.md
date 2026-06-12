@@ -311,6 +311,7 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | **`scripts/update-upstream.sh`** | Detecta updates do GSD plugin e AIOX-core vs `versions.lock`; `--bump` re-pina |
 | **`scripts/update-design-suite.sh`** | Atualização CONTROLADA da Suíte de Design (re-vendoriza do nextlevelbuilder, mostra diff, sob demanda) |
 | **`scripts/sync-all.sh`** | Orquestrador — `git pull` → `update-upstream` → `setup.sh --global-only` → overlay → `idea-doctor` |
+| **`scripts/apply-to-all-projects.sh`** | Propaga `setup.sh --project-only` a todos os repos `~/dev/*`. Dry-run por padrão; use `--apply` para executar. `--only proj1,proj2` para filtrar. |
 | **`scripts/ideiaos-update.sh`** | **Atualização de máquina em 1 comando** — sync-all + guarda do git-autosync (versions.lock fora do add -A) + funções claude-dev/review/research no shell + statusline no settings.json (idempotente, com backup; edita config do usuário por consentimento explícito — diferente do setup.sh/T-01-10) |
 | **`scripts/build-adapters.sh`** | **Compila `source/` → harnesses** — copia hooks/agents para Claude (`~/.claude/`) e rules para Cursor (`.cursor/rules/*.mdc`). Suporte a `--target claude\|cursor\|all` e `--dry-run`. |
 | **`scripts/build-plugins.sh`** | **Gera `plugins/` a partir de `source/`** — gerador idempotente dos 3 sub-plugins do marketplace. Suporte a `--plugin core\|design-suite\|lovable\|all` e `--dry-run`. |
@@ -666,6 +667,7 @@ O `setup.sh` cuida dos arquivos do **projeto**. Para os **arquivos globais** (sk
 | `bash scripts/install-global-patches.sh` | só re-aplicar o overlay (10 patches, incl. deny rules baseline) — idempotente, roda 100x |
 | `bash scripts/update-upstream.sh` | checar updates de GSD/AIOX vs `versions.lock`. `--bump` re-pina o lock no instalado |
 | `bash scripts/update-design-suite.sh` | atualizar a Suíte de Design do upstream (controlado, mostra diff, **sob demanda**) |
+| `bash scripts/apply-to-all-projects.sh` | propagar `setup.sh --project-only` a todos os repos `~/dev/*` — dry-run por padrão; `--apply` executa; `--only proj1,proj2` filtra |
 
 > **`versions.lock`** (raiz do repo) fixa as versões que toda máquina deve convergir (aiox-core CLI, gsd, ref da Suíte, specs de MCP). `idea-doctor` acusa drift; `update-upstream --bump` re-pina.
 

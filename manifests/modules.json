@@ -871,7 +871,9 @@
       "kind": "lsp",
       "description": "TypeScript Language Server — find-references semântico, hover types e rename-symbol para projetos TypeScript. Instalado apenas quando detect_stack detecta tsconfig.json.",
       "source": null,
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
       "installStrategy": "stack:typescript",
       "plugin": "ideiaos-core",
@@ -890,6 +892,18 @@
       "deps": [],
       "installStrategy": "manual",
       "plugin": null
+    },
+    {
+      "id": "script-apply-to-all-projects",
+      "kind": "script",
+      "description": "Propaga setup.sh --project-only a todos os repos git em ~/dev/ — dry-run por padrão, --apply para executar",
+      "source": "scripts/apply-to-all-projects.sh",
+      "targets": [
+        "cli"
+      ],
+      "deps": [],
+      "installStrategy": "manual",
+      "plugin": "ideiaos-core"
     }
   ]
 }
