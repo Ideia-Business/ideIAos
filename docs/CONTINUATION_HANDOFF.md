@@ -22,8 +22,10 @@ cd ~/dev/IdeiaOS && git pull && bash scripts/ideiaos-update.sh
 
 Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22 casos atualizados, 3 vereditos corrigidos fail→pass. Ver `17-01-SUMMARY.md`.
 
-**Pendente v5:**
-- Feature Novidades (NFideia/Ideiapartner)
+**Feature Novidades — ✅ CONCLUÍDA nos 2 produtos (2026-06-12, branches aguardando o usuário):**
+- **NFideia**: branch `feature/novidades-portal` (bab37b99) — migration com 2 entradas categoria portal (planilha no lote + XML/cancelar). Produção: merge + aplicar migration; Lovable Publish NÃO necessário (só dados).
+- **Ideiapartner**: branch `feature/novidades` (d124e409) — feature completa: release_notes + reads (RLS), UserChangelog (Sheet), badge não-lidas no header, seed 3 entradas, tsc zero erros. Produção: review + merge → Lovable publica → migration via SQL Editor.
+- Deploy em produção É DECISÃO DO USUÁRIO — nada foi mergeado nem aplicado em prod.
 
 ## Próximo passo
 
