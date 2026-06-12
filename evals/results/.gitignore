@@ -1,0 +1,5 @@
+# SOURCE: IdeiaOS v2
+# Resultados de evals gerados em CI e localmente — não rastrear no repo
+*.jsonl
+*.md
+!.gitignore
