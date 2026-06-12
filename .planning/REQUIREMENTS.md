@@ -153,9 +153,9 @@
 | R3-02 | Fase 09 | Completo |
 | R3-03 | Fase 09 | Completo |
 | R3-04 | Fase 09 | Completo |
-| R3-05 | Fase 10 | Pendente |
-| R3-06 | Fase 10 | Pendente |
-| R3-07 | Fase 10 | Pendente |
+| R3-05 | Fase 10 | Completo |
+| R3-06 | Fase 10 | Completo |
+| R3-07 | Fase 10 | Completo |
 | R3-08 | Fase 11 | Pendente |
 | R3-09 | Fase 11 | Pendente |
 | R3-10 | Fase 11 | Pendente |

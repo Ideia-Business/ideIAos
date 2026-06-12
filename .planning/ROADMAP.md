@@ -9,8 +9,8 @@
 
 ## Phases (v3)
 
-- [ ] **Fase 09: agent-contracts** — Frontmatters completos e nome canônico alinhado em todos os agents críticos
-- [ ] **Fase 10: token-optimizations** — Três otimizações de custo independentes aplicadas e validadas
+- [x] **Fase 09: agent-contracts** — Frontmatters completos e nome canônico alinhado em todos os agents críticos
+- [x] **Fase 10: token-optimizations** — Três otimizações de custo independentes aplicadas e validadas
 - [ ] **Fase 11: instinct-loop-automation** — Loop de instincts fecha o ciclo automaticamente após cada sessão
 - [ ] **Fase 12: evals-ci** — Suíte de 22 evals executa automaticamente em CI a cada push
 - [ ] **Fase 13: security-dx-manifest** — Diagnóstico cobre deny rules e contexts; manifesto e skills corrigidos
@@ -108,7 +108,11 @@
   3. Absorver código TypeScript com `function`, `sync`, `async`, `truncate` não gera nenhum WARN de `nc` em `scan-absorbed.sh`
   4. `ideiaos-catalog/SKILL.md` menciona ≥70 módulos, consistente com `modules.json`
   5. `scripts/apply-to-all-projects.sh --dry-run` lista projetos sem executar; sem flag executa em cada repo detectado
-**Plans:** TBD
+**Plans:** 3 plans
+Plans:
+- [ ] 13-01-PLAN.md — idea-doctor: deny rules WARN + Seção 8 contexts (R3-14, R3-15)
+- [ ] 13-02-PLAN.md — scan-absorbed nc fix + skills manifest corrections (R3-16, R3-17, R3-18)
+- [ ] 13-03-PLAN.md — apply-to-all-projects.sh + modules.json + README (R3-19)
 **UI hint**: no
 
 ---
@@ -118,7 +122,7 @@
 | Fase | Planos Completos | Status | Concluída |
 |------|-----------------|--------|-----------|
 | 09 — agent-contracts | 1/1 | Completa | 2026-06-12 |
-| 10 — token-optimizations | 0/3 | Não iniciada | — |
+| 10 — token-optimizations | 1/1 | Completa | 2026-06-12 |
 | 11 — instinct-loop-automation | 0/3 | Não iniciada | — |
 | 12 — evals-ci | 0/4 | Não iniciada | — |
 | 13 — security-dx-manifest | 0/3 | Não iniciada | — |
