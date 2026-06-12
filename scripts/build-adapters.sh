@@ -38,6 +38,42 @@ run() {
   if $DRY_RUN; then echo "[DRY] $*"; else "$@"; fi
 }
 
+# Validate agent frontmatter contracts: all source/agents/*.md must have model: and tools:
+validate_agent_contracts() {
+  echo "→ Validating agent frontmatter contracts..."
+  local offenders=()
+  while IFS= read -r agent_file; do
+    local in_frontmatter=0
+    local has_model=0
+    local has_tools=0
+    while IFS= read -r line; do
+      if [[ "$line" == "---" ]]; then
+        if [[ $in_frontmatter -eq 0 ]]; then
+          in_frontmatter=1
+        else
+          break
+        fi
+      elif [[ $in_frontmatter -eq 1 ]]; then
+        [[ "$line" =~ ^model:[[:space:]] ]] && has_model=1
+        [[ "$line" =~ ^tools:[[:space:]] ]] && has_tools=1
+      fi
+    done < "$agent_file"
+    if [[ $has_model -eq 0 || $has_tools -eq 0 ]]; then
+      offenders+=("$(basename "$agent_file") (missing:$([ $has_model -eq 0 ] && echo ' model')$([ $has_tools -eq 0 ] && echo ' tools'))")
+    fi
+  done < <(find "$SOURCE_DIR/agents" -name "*.md")
+
+  if [[ ${#offenders[@]} -gt 0 ]]; then
+    echo "ERROR: The following agents are missing required frontmatter fields (model: and/or tools:):" >&2
+    for o in "${offenders[@]}"; do
+      echo "  - $o" >&2
+    done
+    echo "Fix the frontmatter before building adapters." >&2
+    exit 1
+  fi
+  echo "✓ All agents have valid frontmatter contracts (model + tools)"
+}
+
 build_claude() {
   echo "→ Building Claude target..."
   run mkdir -p "$CLAUDE_HOOKS_DIR" "$CLAUDE_AGENTS_DIR"
@@ -78,6 +114,8 @@ build_cursor() {
 
   echo "✓ Cursor target built"
 }
+
+validate_agent_contracts
 
 case "$TARGET" in
   claude) build_claude ;;
