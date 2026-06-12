@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
 status: Ready to plan
-last_updated: "2026-06-12T02:23:00.281Z"
+last_updated: "2026-06-11T00:00:00.000Z"
 progress:
   total_phases: 8
   completed_phases: 4
-  total_plans: 16
-  completed_plans: 16
-  percent: 100
+  total_plans: 19
+  completed_plans: 18
+  percent: 95
 ---
 
 # State — IdeiaOS v2
@@ -35,14 +35,15 @@ progress:
 | — 04-02 ECC worker agents | ✅ Completo (commit 2cb9d98) |
 | — 04-03 ECC workflow skills | ✅ Completo (commit eccc1ac) |
 | — 04-04 receitas + catalog + manifests + /idea + README | ✅ Completo (commit 2197f2f) |
-| Fase 05 — instincts | ⬜ Não planejada |
+| Fase 05 — instincts | 🔄 Em andamento (05-02 completo) |
+| — 05-02 motor de instincts | ✅ Completo (commit 24f1e92) |
 | Fase 06 — plugin-marketplace | ⬜ Não planejada |
 | Fase 07 — contexts-evals | ⬜ Não planejada |
 | Fase 08 — ideiaos-v3-review | ⬜ Não planejada (após 04-07) |
 
 ## Próximo passo
 
-Fase 04 completa (4/4 planos). Próximo: Fase 05 (instincts) ou Fase 08 (ideiaos-v3-review) conforme ROADMAP.
+05-02 completo. Próximo: 05-03 (/evolve + setup.sh + manifests + README) — Wave 2 da Fase 05.
 
 ## Decisões Registradas
 
@@ -59,6 +60,10 @@ Fase 04 completa (4/4 planos). Próximo: Fase 05 (instincts) ou Fase 08 (ideiaos
 - **04-04:** campo `model` adicionado ao schema de agent em modules.json (extensão retrocompatível).
 - **04-04:** mgrep e LSP plugins documentados como candidatos Fase 08 — nada instalado nesta fase.
 - **04-04:** manifests/modules.json: 33→60 módulos (+27: 13 agents + 14 skills da Fase 04).
+- **05-02:** schema do instinct definido como contrato central: trigger, action, confidence 0.3-0.9, domain, scope, evidence_count, created, updated, source — consumido por /instinct-analyze, /learn, /instinct-status e /evolve (05-03).
+- **05-02:** dedup por slug(trigger) compartilhado entre /instinct-analyze e /learn — mesma regra nos dois para não divergir.
+- **05-02:** confidence manual (/learn) nasce em 0.5; análise automática começa em 0.3-0.6 conforme número de evidências; reforço +0.1 por ciclo, cap 0.9.
+- **05-02:** docs/instincts/instincts-layout.md entrou no repo via autosync (commit 3303c7a) antes do feat commit — conteúdo correto, desvio documentado.
 
 ## Notas
 
