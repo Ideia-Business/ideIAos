@@ -2,8 +2,8 @@
 
 **Projeto:** `IdeiaOS`  
 **Repo:** https://github.com/Ideia-Business/IdeiaOS  
-**Branch:** `main`  
-**Atualizado:** 2026-05-28
+**Branch:** `work`  
+**Atualizado:** 2026-06-11
 
 ---
 
@@ -15,43 +15,58 @@
 
 ---
 
-## Resumo executivo
+## Resumo executivo (2026-06-11)
 
-- Obsidian Second Brain (Fase B) conectado em 2026-06-08 via filesystem direto.
-- Vault completamente populado com todos os 5 projetos + referências + gotchas.
-- Skills `recall-learnings` e `extract-learnings` atualizadas para usar o vault.
-- `setup-dev-machine.sh` passo 8 garante multi-máquina automático.
+- **Fase 01** (quality-memory-hooks): ✅ Completa
+- **Fase 02** (security-quarantine): ✅ Completa — scan-absorbed.sh, Patch 10 deny rules, idea-doctor Seção 7, LaunchAgent kill-switch, memory-hygiene
+- **Fase 03** (multiharness-rules): 📋 **PLANEJADA** — 4 planos criados, checker PASS, pronta para executar
 
 ---
 
-## O que foi feito nesta sessão (2026-06-08)
+## O que foi feito nesta sessão (2026-06-11)
 
-1. Vault Obsidian conectado — filesystem direto, sem MCP/plugin
-2. `setup-dev-machine.sh` passo 8 + skills `recall-learnings`/`extract-learnings` atualizadas
-3. Vault completamente populado:
-   - `Projects/`: IdeiaOS, Ideiapartner, NFideia, CFO AI - Grupo RI, Lapidai
-   - `References/`: Supabase, Lovable Cloud, Asaas, Stripe
-   - `Stack Gotchas/`: RLS silencioso, Lovable deploy drift, Sync pesado esgota pool
-   - `Changelog/`: NFideia, Ideiapartner, CFO AI - Grupo RI, Lapidai
-   - `00 Index.md` atualizado com tabelas de navegação completas
-4. CLAUDE.md de todos os projetos + template atualizado com seção "Segundo Cérebro"
-5. Protocolo de fechamento atualizado — passo de Changelog no vault em todos os CLAUDE.md
-6. Pendência de produto registrada nos handoffs de NFideia e Ideiapartner: feature "Novidades" (changelog para usuários)
-7. Memórias gravadas no sistema de memória do IdeiaOS (4 arquivos)
+**Fase 02 — Security Baseline (concluída):**
+- `security/scan-absorbed.sh`: pipeline de quarentena com 4 checks Python3 (unicode, HTML/JS, cmds suspeitos, AgentShield)
+- Patch 10: 6 deny rules + 2 ask rules (ssh/scp) em `install-global-patches.sh`
+- `idea-doctor.sh` Seção 7: Security Audit (deny rules, hooks curl|bash, secrets, scan-absorbed)
+- `setup-dev-machine.sh`: LaunchAgent com `timeout 120` + `AbandonProcessGroup false`
+- `docs/security/memory-hygiene.md`: 3 regras formalizadas
+- README sync: 10 patches, estrutura security/, troubleshooting
+
+**Fase 03 — Multiharness Rules (planejada):**
+- `03-01-PLAN.md`: source/ migration — skills/agents/hooks/templates → source/
+- `03-02-PLAN.md`: manifests/modules.json (ECC format) + detect_stack() no setup.sh
+- `03-03-PLAN.md`: rules layer — common/ (token-economy, mcp-hygiene, orchestration) + supabase/ + lovable/
+- `03-04-PLAN.md`: build-adapters.sh + ECC rules (5 stacks via quarentena) + README sync (Wave 2)
+- gsd-plan-checker: **PASS** (2 warnings menores endereçados como notas nos planos)
 
 ---
 
 ## Pendências
 
-1. Opcional: propagar automaticamente arquivos de continuidade via `setup.sh` para novos projetos bootstrapados.
-2. Feature "Novidades" (changelog voltado ao usuário): pendente em NFideia (P2 #4) e Ideiapartner (P3). Lapidai é referência de implementação.
-3. Decisão pendente (roadmap): memória compartilhada entre IDEs (Claude Code ↔ Cursor) — ver `STATE.md` seção Roadmap.
+**Alta prioridade:**
+1. **Executar Fase 03**: `/gsd-execute-phase 03` — Wave 1 paralela (03-01, 03-02, 03-03), depois Wave 2 (03-04)
+2. **Deny rules globais**: `bash scripts/install-global-patches.sh` nesta máquina — idea-doctor reporta FAILs (correto, regras não instaladas ainda)
+
+**Produto (deferido):**
+3. Feature "Novidades" (changelog usuário): NFideia (P2 #4), Ideiapartner (P3). Lapidai = referência.
+
+**Sequência restante após Fase 03:**
+- Fase 04 (ecc-catalog) — depends 02+03
+- Fase 05 (instincts) — depends 01
+- Fase 06 (plugin-marketplace) — depends 03
+- Fase 07 (contexts-evals) — depends 03
+- Fase 08 (ideiaos-v3-review) — depends 04-07
 
 ---
 
 ## Próximo passo
 
-Ao retomar qualquer projeto: `/recall-learnings` — o Passo 5 busca no vault e traz conhecimento consolidado de todos os projetos. O vault agora tem histórico completo de cada sistema.
+```
+/gsd-execute-phase 03
+```
+
+Wave 1 executa 03-01, 03-02, 03-03 em paralelo. Wave 2 executa 03-04 (build-adapters.sh + ECC absorption + README sync).
 
 ---
 
@@ -60,9 +75,4 @@ Ao retomar qualquer projeto: `/recall-learnings` — o Passo 5 busca no vault e 
 - [x] `STATE.md` atualizado
 - [x] `docs/CONTINUATION_HANDOFF.md` atualizado
 - [x] Próximo passo explícito
-- [x] Memórias gravadas
-
-## Ultima sessao automatica (2026-06-11)
-
-- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-11-ideiaos-0dc39c83-3226-4cda-8042-33b2fb9f.tmp`
-- Próximo passo: (definir antes de retomar)
+- [x] Planos Phase 03 criados e verificados (checker PASS)
