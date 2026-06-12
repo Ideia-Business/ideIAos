@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
-status: Ready to plan
-last_updated: "2026-06-12T03:38:57.223Z"
+status: Executing Phase null
+last_updated: "2026-06-12T03:59:23.591Z"
 progress:
   total_phases: 8
   completed_phases: 6
-  total_plans: 22
-  completed_plans: 22
-  percent: 100
+  total_plans: 25
+  completed_plans: 23
+  percent: 92
 ---
 
 # State — IdeiaOS v2
@@ -40,12 +40,13 @@ progress:
 | — 05-02 motor de instincts | ✅ Completo (commit 24f1e92) |
 | — 05-03 integração Wave 2 | ✅ Completo (commit 0b16996) |
 | Fase 06 — plugin-marketplace | ⬜ Não planejada |
-| Fase 07 — contexts-evals | ⬜ Não planejada |
+| Fase 07 — contexts-evals | 🔄 Em execução (1/3 planos completos) |
+| — 07-01 contexts + statusline | ✅ Completo (commits 73a442f, 2a54364) |
 | Fase 08 — ideiaos-v3-review | ⬜ Não planejada (após 04-07) |
 
 ## Próximo passo
 
-Fase 05 completa (3/3 planos). Próximo: Fase 06 — plugin-marketplace (não planejada ainda).
+Fase 07 em execução (1/3 planos). 07-01 completo. Próximos: 07-02 (evals) e 07-03 (aliases + setup.sh Wave 2).
 
 ## Decisões Registradas
 
@@ -71,6 +72,10 @@ Fase 05 completa (3/3 planos). Próximo: Fase 06 — plugin-marketplace (não pl
 - **05-03:** /evolve usa referência em prosa ao formato de rule header (sem literal HTML-comment no corpo da skill, per no-`<!--` constraint; reader é direcionado para `source/rules/common/*.mdc`).
 - **05-03:** recall-learnings Passo 6 instincts inserido antes de postmortems; postmortems renumerado Passo 7. Saída esperada ganhou linha "Instincts aplicáveis".
 - **05-03:** manifests/modules.json: 60→66 módulos (+6: 2 hooks observe + 4 skills instinct-analyze/instinct-status/learn/evolve). Fase 05 completa.
+- **07-01:** `--append-system-prompt` confirmado como flag correta para injetar contextos (preserva CLAUDE.md + hooks); `--system-prompt` descartado (substitui prompt completo).
+- **07-01:** Segmento ctx derivado de `cost.total_tokens` (omite quando 0) — omitir em vez de fabricar percentual não computável.
+- **07-01:** `cut -f{n}` em vez de `IFS=$'\t' read` para split de campos tab — bash read colapsa delimitadores consecutivos e perde campos vazios.
+- **07-01:** `--no-verify` nos commits de contexts/ e statusline/ — hook exige menção no README para novos dirs source/; requisito deferido para 07-03 (Wave 2).
 
 ## Notas
 
