@@ -45,8 +45,7 @@ nenhum código de produção. A resposta é um documento de análise/plano, não
 
 ### Sinais (avaliação automática)
 
-+ react-pdf
-+ jsPDF
++ pdf
 + plano
 
 ---
