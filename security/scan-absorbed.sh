@@ -68,7 +68,7 @@ python3 - "$TARGET" <<'PY' > /tmp/_scan_c3.txt 2>&1
 import sys, pathlib, re
 target = pathlib.Path(sys.argv[1])
 files = list(target.rglob('*')) if target.is_dir() else [target]
-PATTERNS = re.compile(r'curl|wget|nc |scp |ssh |enableAllProjectMcpServers|ANTHROPIC_BASE_URL')
+PATTERNS = re.compile(r'curl|wget|\bnc\b|scp |ssh |enableAllProjectMcpServers|ANTHROPIC_BASE_URL')
 found = []
 for f in files:
     if not f.is_file(): continue

@@ -1,6 +1,6 @@
 ---
 name: ckm:banner-design
-description: "Design banners for social media, ads, website heroes, creative assets, and print. Multiple art direction options with AI-generated visuals. Actions: design, create, generate banner. Platforms: Facebook, Twitter/X, LinkedIn, YouTube, Instagram, Google Display, website hero, print. Styles: minimalist, gradient, bold typography, photo-based, illustrated, geometric, retro, glassmorphism, 3D, neon, duotone, editorial, collage. Uses ui-ux-pro-max, frontend-design, ai-artist, ai-multimodal skills."
+description: "Design banners for social media, ads, website heroes, creative assets, and print. Multiple art direction options with AI-generated visuals. Actions: design, create, generate banner. Platforms: Facebook, Twitter/X, LinkedIn, YouTube, Instagram, Google Display, website hero, print. Styles: minimalist, gradient, bold typography, photo-based, illustrated, geometric, retro, glassmorphism, 3D, neon, duotone, editorial, collage. Uses ui-ux-pro-max (IdeiaOS). Deps externas claudekit-origin (requer setup separado): frontend-design, ai-artist, ai-multimodal, chrome-devtools."
 argument-hint: "[platform] [style] [dimensions]"
 license: MIT
 metadata:
@@ -11,6 +11,12 @@ metadata:
 # Banner Design - Multi-Format Creative Banner System
 
 Design banners across social, ads, web, and print formats. Generates multiple art direction options per request with AI-powered visual elements. This skill handles banner design only. Does NOT handle video editing, full website design, or print production.
+
+> **Dependências externas (claudekit-origin — requer setup separado):**
+> `frontend-design`, `ai-artist`, `ai-multimodal`, `chrome-devtools` **não estão incluídas no
+> manifesto IdeiaOS** (`manifests/modules.json`). São skills da suite claudekit e precisam de
+> instalação separada. Sem elas, os Passos 3 e 4 desta skill não funcionam.
+> Para verificar: `ls ~/.claude/skills/ai-artist/` e `ls ~/.claude/skills/chrome-devtools/`
 
 ## When to Activate
 
