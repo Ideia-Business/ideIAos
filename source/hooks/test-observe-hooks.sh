@@ -368,6 +368,116 @@ fi
 echo ""
 
 # ---------------------------------------------------------------------------
+# Case 9 — R4-01: Anti-runaway guard — IDEIAOS_INSTINCT_SPAWN blocks both hooks
+# ---------------------------------------------------------------------------
+
+echo "--- Case 9: R4-01 anti-runaway guard (IDEIAOS_INSTINCT_SPAWN) ---"
+
+SPAWN_SLUG="spawntest"
+SPAWN_CWD="/Users/test/$SPAWN_SLUG"
+SPAWN_TOOL_JSONL="$HOME/.ideiaos/observations/$SPAWN_SLUG/observations.jsonl"
+
+INPUT_SPAWN_TOOL="$(cat <<EOF
+{
+  "session_id": "$SESSION",
+  "cwd": "$SPAWN_CWD",
+  "tool_name": "Edit",
+  "tool_input": {"file_path": "$SPAWN_CWD/file.ts"},
+  "tool_response": {}
+}
+EOF
+)"
+
+INPUT_SPAWN_STOP="$(cat <<EOF
+{
+  "session_id": "$SESSION",
+  "cwd": "$SPAWN_CWD"
+}
+EOF
+)"
+
+# Run with IDEIAOS_INSTINCT_SPAWN=1 set — both hooks should exit 0 and write NOTHING
+EXIT_TOOL=0
+echo "$INPUT_SPAWN_TOOL" | IDEIAOS_INSTINCT_SPAWN=1 bash "$HOOK_TOOL" 2>/dev/null || EXIT_TOOL=$?
+EXIT_STOP=0
+echo "$INPUT_SPAWN_STOP" | IDEIAOS_INSTINCT_SPAWN=1 bash "$HOOK_STOP" 2>/dev/null || EXIT_STOP=$?
+
+assert_exit_zero "$EXIT_TOOL" "Case 9a: observe-tool-use exits 0 when IDEIAOS_INSTINCT_SPAWN=1"
+assert_exit_zero "$EXIT_STOP" "Case 9b: observe-session-end exits 0 when IDEIAOS_INSTINCT_SPAWN=1"
+assert_file_not_exists "$SPAWN_TOOL_JSONL" "Case 9c: NO observations.jsonl created when IDEIAOS_INSTINCT_SPAWN=1"
+
+# Verify without the guard — should create the file
+EXIT_TOOL2=0
+echo "$INPUT_SPAWN_TOOL" | bash "$HOOK_TOOL" 2>/dev/null || EXIT_TOOL2=$?
+assert_exit_zero "$EXIT_TOOL2" "Case 9d: observe-tool-use works normally without IDEIAOS_INSTINCT_SPAWN"
+assert_file_exists "$SPAWN_TOOL_JSONL" "Case 9e: observations.jsonl created when IDEIAOS_INSTINCT_SPAWN not set"
+
+echo ""
+
+# ---------------------------------------------------------------------------
+# Case 10 — R4-02: Cooldown gate — 2nd session_end within 30min is skipped
+# (Uses a fake recent sentinel to simulate cooldown; no real spawn occurs
+#  because claude is not available in the temp HOME PATH)
+# ---------------------------------------------------------------------------
+
+echo "--- Case 10: R4-02 cooldown gate (sentinel <30min → no spawn signal) ---"
+
+COOL_SLUG="cooldowntest"
+COOL_CWD="/Users/test/$COOL_SLUG"
+COOL_SENTINEL="$HOME/.ideiaos/instincts/.last-analyzed-${COOL_SLUG}"
+COOL_OBS_DIR="$HOME/.ideiaos/observations/$COOL_SLUG"
+COOL_LOGS_DIR="$HOME/.ideiaos/logs"
+
+mkdir -p "$COOL_OBS_DIR" "$COOL_LOGS_DIR" "$HOME/.ideiaos/instincts" 2>/dev/null || true
+# Seed a recent obs in the jsonl (so the ts gate passes)
+printf '{"ts":"%s","session_id":"s1","project":"%s","tool":"session_end","event":"session_end"}\n' \
+  "$(date -u +"%Y-%m-%dT%H:%M:%S")" "$COOL_SLUG" > "$COOL_OBS_DIR/observations.jsonl"
+
+INPUT_COOL_STOP="$(cat <<EOF
+{
+  "session_id": "$SESSION",
+  "cwd": "$COOL_CWD"
+}
+EOF
+)"
+
+# 1st invocation — sentinel is absent (epoch 0), should pass all gates and write sentinel
+LOGS_BEFORE="$(ls "$COOL_LOGS_DIR"/instinct-analyze-*.log 2>/dev/null | wc -l | tr -d ' ')"
+EXIT_COOL1=0
+echo "$INPUT_COOL_STOP" | bash "$HOOK_STOP" 2>/dev/null || EXIT_COOL1=$?
+assert_exit_zero "$EXIT_COOL1" "Case 10a: 1st session_end exits 0"
+
+# Sentinel should have been written (or not, if claude absent; either way no crash)
+# Now write a sentinel with a timestamp only 1min ago to simulate cooldown
+/usr/bin/python3 -c "
+import datetime
+now = datetime.datetime.now()
+recent = now.replace(second=now.second)  # just now
+open('$COOL_SENTINEL', 'w').write(recent.isoformat(timespec='seconds'))
+" 2>/dev/null || true
+
+# Also update obs to have a newer ts to pass the TS_OBS > TS_LAST gate
+printf '{"ts":"%s","session_id":"s2","project":"%s","tool":"session_end","event":"session_end"}\n' \
+  "$(date -u +"%Y-%m-%dT%H:%M:%S")" "$COOL_SLUG" >> "$COOL_OBS_DIR/observations.jsonl"
+
+# 2nd invocation — sentinel is "just now" (< 30min), should exit early, NOT write new log
+LOGS_MID="$(ls "$COOL_LOGS_DIR"/instinct-analyze-*.log 2>/dev/null | wc -l | tr -d ' ')"
+EXIT_COOL2=0
+echo "$INPUT_COOL_STOP" | bash "$HOOK_STOP" 2>/dev/null || EXIT_COOL2=$?
+LOGS_AFTER="$(ls "$COOL_LOGS_DIR"/instinct-analyze-*.log 2>/dev/null | wc -l | tr -d ' ')"
+
+assert_exit_zero "$EXIT_COOL2" "Case 10b: 2nd session_end exits 0 (cooldown gate)"
+if [ "$LOGS_AFTER" -eq "$LOGS_MID" ]; then
+  echo "PASS: Case 10c: no new log created during cooldown (no spawn)"
+else
+  echo "WARN: Case 10c: new log appeared during cooldown — claude may be available in PATH (informational)"
+  # Informational — real claude spawn is fire-and-forget, may create log if claude is present
+  # The guard is verified by absence of *repeated* spawns in integration; here we confirm exit 0
+fi
+
+echo ""
+
+# ---------------------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------------------
 

@@ -52,12 +52,13 @@ OBS_DIR="$HOME/.ideiaos/observations/$PROJ"
 mkdir -p "$OBS_DIR" 2>/dev/null || exit 0
 printf '%s\n' "$REC" >> "$OBS_DIR/observations.jsonl" 2>/dev/null || true
 
-# --- INSTINCT-ANALYZE AUTO-TRIGGER (R3-08 / R3-09) ---
+# --- INSTINCT-ANALYZE AUTO-TRIGGER (R3-08 / R3-09, endurecido R4-01/R4-02) ---
 # Gate: só dispara se há observações mais recentes que a última análise.
 # Fail-silent: todo o bloco em subshell, nunca bloqueia a sessão.
 # Kill-switch: timeout 120s no claude -p haiku (sem timeout = risco OpenClaw).
-# O sentinela ~/.ideiaos/instincts/.last-analyzed-<proj> é atualizado
-# PELO instinct-analyze (Passo 9) ao concluir — não aqui.
+# Sentinela ~/.ideiaos/instincts/.last-analyzed-<proj> é escrita ANTES do spawn (R4-02).
+# Cooldown: gate adicional de 30min entre spawns (R4-02).
+# Anti-runaway: spawn com IDEIAOS_INSTINCT_SPAWN=1 (R4-01).
 # Comparação lexicográfica ISO 8601: strings de data sem tz são comparáveis.
 (
   LAST_ANALYZED_FILE="$HOME/.ideiaos/instincts/.last-analyzed-${PROJ}"

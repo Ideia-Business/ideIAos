@@ -15,6 +15,9 @@
 # =============================================================================
 set -uo pipefail
 
+# R4-01: Anti-runaway guard — sessões spawned de análise NÃO re-spawnam nem gravam obs
+[ -n "${IDEIAOS_INSTINCT_SPAWN:-}" ] && exit 0
+
 INPUT="$(cat 2>/dev/null || echo '{}')"
 
 LINE="$(/usr/bin/python3 -c '
@@ -49,12 +52,13 @@ OBS_DIR="$HOME/.ideiaos/observations/$PROJ"
 mkdir -p "$OBS_DIR" 2>/dev/null || exit 0
 printf '%s\n' "$REC" >> "$OBS_DIR/observations.jsonl" 2>/dev/null || true
 
-# --- INSTINCT-ANALYZE AUTO-TRIGGER (R3-08 / R3-09) ---
+# --- INSTINCT-ANALYZE AUTO-TRIGGER (R3-08 / R3-09, endurecido R4-01/R4-02) ---
 # Gate: só dispara se há observações mais recentes que a última análise.
 # Fail-silent: todo o bloco em subshell, nunca bloqueia a sessão.
 # Kill-switch: timeout 120s no claude -p haiku (sem timeout = risco OpenClaw).
-# O sentinela ~/.ideiaos/instincts/.last-analyzed-<proj> é atualizado
-# PELO instinct-analyze (Passo 9) ao concluir — não aqui.
+# Sentinela ~/.ideiaos/instincts/.last-analyzed-<proj> é escrita ANTES do spawn (R4-02).
+# Cooldown: gate adicional de 30min entre spawns (R4-02).
+# Anti-runaway: spawn com IDEIAOS_INSTINCT_SPAWN=1 (R4-01).
 # Comparação lexicográfica ISO 8601: strings de data sem tz são comparáveis.
 (
   LAST_ANALYZED_FILE="$HOME/.ideiaos/instincts/.last-analyzed-${PROJ}"
@@ -94,8 +98,31 @@ except Exception:
   # Se a obs mais recente <= última análise, nada a fazer
   [[ "$TS_OBS" > "$TS_LAST" ]] || exit 0
 
-  # Gate passou: spawn haiku background com timeout (fire-and-forget)
-  nohup timeout 120 claude --model claude-haiku-4-5 -p "/instinct-analyze" \
+  # R4-02: Cooldown gate — se a sentinela tem <30min, não re-spawnar (rate limit)
+  NOW_EPOCH=$(date +%s 2>/dev/null || echo 0)
+  LAST_EPOCH=$(/usr/bin/python3 -c "
+import datetime, sys
+try:
+    ts = open('$LAST_ANALYZED_FILE').read().strip()
+    dt = datetime.datetime.fromisoformat(ts)
+    import time, calendar
+    print(int(calendar.timegm(dt.timetuple())))
+except Exception:
+    print(0)
+" 2>/dev/null || echo 0)
+  ELAPSED=$(( NOW_EPOCH - LAST_EPOCH ))
+  # Se última análise foi há menos de 30min (1800s), pular
+  [ "$ELAPSED" -lt 1800 ] && exit 0
+
+  # Gate passou: escrever sentinela ANTES do spawn (R4-02)
+  /usr/bin/python3 -c "
+import datetime
+open('$LAST_ANALYZED_FILE', 'w').write(datetime.datetime.now().isoformat(timespec='seconds'))
+" 2>/dev/null || true
+
+  # Spawn haiku background com timeout e anti-runaway env (R4-01)
+  # IDEIAOS_INSTINCT_SPAWN=1 garante que os hooks NÃO acumulam obs nem re-spawnam
+  nohup env IDEIAOS_INSTINCT_SPAWN=1 timeout 120 claude --model claude-haiku-4-5 -p "/instinct-analyze" \
     >> "$LOG_FILE" 2>&1 &
   disown $! 2>/dev/null || true
 ) 2>/dev/null || true
