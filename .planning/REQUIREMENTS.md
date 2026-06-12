@@ -91,21 +91,21 @@
 
 ## Grupo 4 — Evals Automáticas + CI (Fase 12)
 
-### R3-11
+### R3-11 ✅ (Fase 12 — commit de91454)
 
 **Descrição:** `run-evals.sh` deve ter `run_case_with_model()` implementado para execução real via API key de CI.
 **Mapeia:** G-04
 **Prioridade:** P1
 **Critério de aceitação:** `run_case_with_model()` invoca a API Claude com a API key de ambiente (`ANTHROPIC_API_KEY`); os 22 casos executam e produzem resultado PASS/FAIL sem erro de execução.
 
-### R3-12
+### R3-12 ✅ (Fase 12 — commit 0ad8ca0)
 
 **Descrição:** Deve existir um workflow GitHub Actions (`.github/workflows/evals.yml`) que execute a suíte de evals automaticamente em push para `source/**` e `evals/**`.
 **Mapeia:** G-04, G-08
 **Prioridade:** P1
 **Critério de aceitação:** Push para branch `work` com mudança em `source/` ou `evals/` dispara o workflow; invariantes (pass^k) bloqueiam merge em falha; capacidades (pass@k) emitem warning sem bloquear.
 
-### R3-13
+### R3-13 ✅ (Fase 12 — commits de91454 + 0ad8ca0)
 
 **Descrição:** A política de aprovação de evals (pass^k vs pass@k) deve estar documentada e configurada no workflow de CI.
 **Mapeia:** G-04, G-08
