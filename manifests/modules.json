@@ -867,6 +867,19 @@
       "plugin": null
     },
     {
+      "id": "typescript-lsp",
+      "kind": "lsp",
+      "description": "TypeScript Language Server — find-references semântico, hover types e rename-symbol para projetos TypeScript. Instalado apenas quando detect_stack detecta tsconfig.json.",
+      "source": null,
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "stack:typescript",
+      "plugin": "ideiaos-core",
+      "config": {
+        "tsconfig_path": "$(find . -name tsconfig.json -maxdepth 2 | head -1)"
+      }
+    },
+    {
       "id": "statusline-ideiaos",
       "kind": "statusline",
       "description": "IdeiaOS standard statusline — branch, model, dir, GSD phase, context",

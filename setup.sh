@@ -1537,6 +1537,18 @@ MEMMD
   # Camada Lovable (detector + flags --lovable / --no-lovable)
   setup_lovable_project "$PROJECT_DIR" "$PROJECT_NAME"
 
+  # Camada TypeScript LSP (stack:typescript — primeira consumidora real de detect_stack)
+  TARGET_PROJ="${PROJECT_DIR:-$PWD}"
+  DETECTED_STACKS="$(detect_stack "$TARGET_PROJ")"
+  if echo "$DETECTED_STACKS" | grep -qw "typescript"; then
+    TSCONFIG_PATH="$(find "$TARGET_PROJ" -name tsconfig.json -maxdepth 2 2>/dev/null | head -1)"
+    if [ -n "$TSCONFIG_PATH" ]; then
+      ok "TypeScript LSP: tsconfig.json encontrado em $TSCONFIG_PATH (módulo typescript-lsp ativo)"
+    else
+      warn "TypeScript LSP: stack typescript detectado mas tsconfig.json não encontrado — LSP não ativado"
+    fi
+  fi
+
   # Camada de aprendizado contínuo (universal — qualquer projeto)
   setup_learnings_layer "$PROJECT_DIR" "$PROJECT_NAME"
 
