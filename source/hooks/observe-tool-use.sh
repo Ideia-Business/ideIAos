@@ -18,6 +18,9 @@
 # =============================================================================
 set -uo pipefail
 
+# R4-01: Anti-runaway guard — sessões spawned de análise NÃO geram observações
+[ -n "${IDEIAOS_INSTINCT_SPAWN:-}" ] && exit 0
+
 INPUT="$(cat 2>/dev/null || echo '{}')"
 
 # Parse e montagem da linha JSONL inteiramente em python3 (rápido, 1 processo).

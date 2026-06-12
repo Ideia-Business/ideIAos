@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # SOURCE: IdeiaOS v2
 # Runner de evals — IdeiaOS v2
-# Uso: bash evals/run-evals.sh [--case EVAL-NNN] [--dry-run] [--list] [--ci] [--help]
+# Uso: bash evals/run-evals.sh [--case EVAL-NNN] [--dry-run] [--list] [--ci] [--local] [--help]
 # Em ambiente não-interativo (stdin não-tty), assume --dry-run automaticamente.
+# --local: usa claude do PATH com auth local (sem ANTHROPIC_API_KEY); implica --ci.
 
 set -uo pipefail
 
@@ -18,6 +19,7 @@ DRY_RUN="${DRY_RUN:-0}"
 FILTER_CASE=""
 LIST_ONLY=0
 CI_MODE="${CI_MODE:-0}"
+LOCAL_MODE=0  # --local: claude via auth local, sem API key
 
 # ─── Ajuda ───────────────────────────────────────────────────────────────────
 usage() {
@@ -29,6 +31,7 @@ Opções:
   --dry-run      Lista o que faria (id, source, métrica) sem pedir veredito
   --list         Imprime o roster de casos disponíveis e sai
   --ci           Modo CI: executa via API claude -p; políticas pass^k/pass@k ativas
+  --local        Usa claude do PATH com auth local (sem ANTHROPIC_API_KEY); implica --ci
   --help         Mostra esta ajuda
 
 Comportamento padrão (sem args):
@@ -45,9 +48,10 @@ USAGE
 # ─── Parse de argumentos ─────────────────────────────────────────────────────
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --dry-run)  DRY_RUN=1;                    shift ;;
-    --list)     LIST_ONLY=1;                  shift ;;
-    --ci)       CI_MODE=1; DRY_RUN=0;        shift ;;
+    --dry-run)  DRY_RUN=1;                           shift ;;
+    --list)     LIST_ONLY=1;                         shift ;;
+    --ci)       CI_MODE=1; DRY_RUN=0;               shift ;;
+    --local)    LOCAL_MODE=1; CI_MODE=1; DRY_RUN=0; shift ;;
     --case)
       if [[ $# -lt 2 ]]; then
         echo "ERRO: --case requer um ID (ex: EVAL-001)" >&2; exit 1
@@ -119,8 +123,8 @@ fi
 run_case_with_model() {
   local _case_file="$1"
 
-  # Guard de API key
-  if [[ -z "${ANTHROPIC_API_KEY:-}" ]]; then
+  # Guard de API key — LOCAL_MODE bypassa: usa claude do PATH com auth local
+  if [[ -z "${ANTHROPIC_API_KEY:-}" ]] && [[ "$LOCAL_MODE" -eq 0 ]]; then
     if [[ "$CI_MODE" -eq 1 ]]; then
       echo "  [AVISO] ANTHROPIC_API_KEY ausente — caso marcado como skip" >&2
       echo "skip"
@@ -137,6 +141,13 @@ run_case_with_model() {
         esac
       done
     fi
+  fi
+
+  # LOCAL_MODE: verificar que claude está no PATH antes de prosseguir
+  if [[ "$LOCAL_MODE" -eq 1 ]] && ! command -v claude >/dev/null 2>&1; then
+    echo "  [ERRO] --local especificado mas 'claude' não encontrado no PATH" >&2
+    echo "skip"
+    return
   fi
 
   # Extrair prompt (seção Setup/Prompt) — remover fenced code e headers markdown
