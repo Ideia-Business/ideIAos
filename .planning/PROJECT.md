@@ -42,3 +42,17 @@ Base da transformação: absorção curada do framework **ECC** (everything-clau
 - Plano aprovado: `.planning/research/ECC-ABSORPTION-PLAN.md` (importado de ~/.claude/plans/synchronous-conjuring-breeze.md, 2026-06-11)
 - Repo ECC: https://github.com/affaan-m/ECC (MIT)
 - AgentShield: https://github.com/affaan-m/agentshield
+
+
+## Current State (v2.0 shipped 2026-06-12)
+
+- **Shipped:** v2.0 — Canivete Suíço Universal. 8/8 fases, 29/29 planos, tag v2.0.
+- **Inventário:** 70 módulos (manifests/modules.json) · 15 agents · 34 skills · 13 hooks · 4 contexts · 22 eval cases · 3 sub-plugins (core/design-suite/lovable)
+- **Distribuição:** `/plugin marketplace add Ideia-Business/IdeiaOS` (versionado) + `setup.sh` (bootstrap de máquina) + `scripts/ideiaos-update.sh` (update 1-comando)
+- **Auditoria:** .planning/v2.0-MILESTONE-AUDIT.md — PASSED 8/8 integração cross-fase
+
+## Next Milestone Goals (v3)
+
+Fonte: `docs/v3/v3-review.md` (15 gaps priorizados) + `docs/v3/v3-roadmap.md` (6 fases candidatas).
+Ordem sugerida: agent-contracts → token-optimizations → instinct-loop-automation → evals-ci → security-dx + manifest-cleanup.
+Top P1: contratos model/tools nos agents (G-01/G-02) · scheduler do instinct loop (G-03) · automação dos evals (G-04).
