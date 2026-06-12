@@ -6,9 +6,10 @@
 #   1. Skills globais (orquestração + dev-loop + Suíte de Design) e GSD
 #   2. Drift: cópia global vs fonte do repo (skills/) — pede setup --global-only
 #   3. MCPs (chrome-devtools, context7)
-#   4. Os 7 patches do overlay (markers de idempotência)
+#   4. Os 10 patches do overlay (markers de idempotência)
 #   5. Versões instaladas vs versions.lock (aiox-core, gsd) + pin da Suíte
 #   6. Autosync (LaunchAgent) ativo
+#   7. Security Audit (deny rules, hooks perigosos, secrets em memória, quarentena)
 #
 # Exit: 0 se sem FAIL; 1 se houver FAIL (componente crítico ausente/quebrado).
 # WARN não falha (drift, opcionais). Cada achado vem com a remediação.
@@ -132,6 +133,50 @@ if launchctl list 2>/dev/null | grep -q "com.gustavo.gitautosync" || [ -f "$HOME
   echo "       launchctl bootout gui/\$(id -u)/com.gustavo.gitautosync 2>/dev/null"
   echo "       rm -f ~/Library/LaunchAgents/com.gustavo.gitautosync.plist"
   echo "       bash \"$SETUP_DIR/setup-dev-machine.sh\"   # recria com o label novo"
+fi
+
+# ── 7) Security Audit ─────────────────────────────────────────────────────────
+step "7) Security Audit"
+SETTINGS="$HOME/.claude/settings.json"
+
+# 7a) Deny rules baseline presentes?
+REQUIRED_DENY=("Read(~/.ssh/**)" "Read(~/.aws/**)" "Read(**/.env*)" "Write(~/.ssh/**)" "Bash(curl * | bash)" "Bash(nc *)")
+if [ -f "$SETTINGS" ]; then
+  for rule in "${REQUIRED_DENY[@]}"; do
+    if python3 -c "import json,sys; d=json.load(open('$SETTINGS')).get('permissions',{}).get('deny',[]); sys.exit(0 if '$rule' in d else 1)" 2>/dev/null; then
+      pass "deny: $rule"
+    else
+      fail "deny rule ausente: $rule — rode: bash scripts/install-global-patches.sh"
+    fi
+  done
+else
+  fail "settings.json não encontrado em $SETTINGS"
+fi
+
+# 7b) Hooks com curl|bash pipe (comando perigoso)
+if [ -d "$HOME/.claude/hooks" ]; then
+  if rg -ln 'curl.*\|.*bash|bash.*<.*curl' "$HOME/.claude/hooks/" 2>/dev/null | grep -q .; then
+    fail "Hooks contêm curl|bash pipe — inspeção manual necessária"
+  else
+    pass "Hooks sem curl|bash pipe"
+  fi
+fi
+
+# 7c) Secrets em texto plano na memória de projeto
+MEM_DIR="$HOME/.claude/projects"
+if [ -d "$MEM_DIR" ]; then
+  if rg -l 'sk-[a-zA-Z0-9]{40,}|ANTHROPIC_API_KEY|service_role.*[a-zA-Z0-9]{30,}' "$MEM_DIR" 2>/dev/null | grep -q .; then
+    fail "POSSÍVEL secret em memória de projeto — checar $MEM_DIR"
+  else
+    pass "Memória de projeto sem secrets aparentes"
+  fi
+fi
+
+# 7d) scan-absorbed.sh presente (pipeline de quarentena)
+if [ -x "$SETUP_DIR/security/scan-absorbed.sh" ]; then
+  pass "pipeline de quarentena (security/scan-absorbed.sh) presente"
+else
+  warn "security/scan-absorbed.sh ausente — quarentena obrigatória não disponível"
 fi
 
 # ── Resumo ────────────────────────────────────────────────────────────────────

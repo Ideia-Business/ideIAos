@@ -675,32 +675,75 @@ patch_global_gitignore() {
   fi
 }
 
-step "Patch 1/9: --story em gsd-plan-phase SKILL.md"
+# ── PATCH 10: deny rules baseline em settings.json ───────────────────────────
+# Fecha superfície de ataque da config (CVE-2025-59536, CVE-2026-21852).
+# Decisão PROJECT.md: security como infra. ssh/scp = "ask" (não bloquear SSH legítimo).
+patch_deny_rules() {
+  local target="$HOME/.claude/settings.json"
+  if [ ! -f "$target" ]; then
+    warn "Patch 10: ~/.claude/settings.json não existe — pular"
+    SKIPPED=$((SKIPPED+1)); return 0
+  fi
+  local result_str
+  result_str=$(python3 - "$target" <<'PY'
+import json, sys
+path = sys.argv[1]
+DENY = ["Read(~/.ssh/**)","Read(~/.aws/**)","Read(**/.env*)",
+        "Write(~/.ssh/**)","Bash(curl * | bash)","Bash(nc *)"]
+ASK  = ["Bash(ssh *)","Bash(scp *)"]
+with open(path) as f: cfg = json.load(f)
+perms = cfg.setdefault("permissions", {})
+deny = perms.setdefault("deny", [])
+ask  = perms.setdefault("ask", [])
+added = 0
+for r in DENY:
+    if r not in deny: deny.append(r); added += 1
+for r in ASK:
+    if r not in ask and r not in deny: ask.append(r); added += 1
+if added:
+    with open(path, "w") as f:
+        json.dump(cfg, f, indent=2, ensure_ascii=False); f.write("\n")
+    print(f"APPLIED:{added}")
+else:
+    print("SKIPPED")
+PY
+)
+  case "$result_str" in
+    APPLIED:*) ok "Patch 10: deny rules baseline (${result_str#APPLIED:} regra(s))"; APPLIED=$((APPLIED+1)) ;;
+    SKIPPED)   skip "Patch 10: deny rules já presentes"; SKIPPED=$((SKIPPED+1)) ;;
+    *)         err "Patch 10: Python falhou ($result_str)"; FAILED=$((FAILED+1)) ;;
+  esac
+}
+
+step "Patch 1/10: --story em gsd-plan-phase SKILL.md"
 patch_gsd_skill
 
-step "Patch 2/9: STORY_MODE em workflows/plan-phase.md"
+step "Patch 2/10: STORY_MODE em workflows/plan-phase.md"
 patch_gsd_workflow
 
-step "Patch 3/9: 3 gatilhos em extract-learnings-reminder.sh"
+step "Patch 3/10: 3 gatilhos em extract-learnings-reminder.sh"
 patch_extract_hook
 
-step "Patch 4/9: matcher expandido em settings.json"
+step "Patch 4/10: matcher expandido em settings.json"
 patch_settings_json
 
-step "Patch 5/9: --verification em AIOX-core agents/qa.md"
+step "Patch 5/10: --verification em AIOX-core agents/qa.md"
 patch_aiox_qa_agent
 
-step "Patch 6/9: IdeiaOS Composition em AIOX-core tasks/qa-gate.md"
+step "Patch 6/10: IdeiaOS Composition em AIOX-core tasks/qa-gate.md"
 patch_aiox_qa_task
 
-step "Patch 7/9: OKLCH (--brand-hue) em design-system SKILL.md"
+step "Patch 7/10: OKLCH (--brand-hue) em design-system SKILL.md"
 patch_design_system_oklch
 
-step "Patch 8/9: SessionStart git-sync-check (auto fast-forward cross-máquina)"
+step "Patch 8/10: SessionStart git-sync-check (auto fast-forward cross-máquina)"
 patch_git_sync
 
-step "Patch 9/9: gitignore global (settings.local.json + .DS_Store)"
+step "Patch 9/10: gitignore global (settings.local.json + .DS_Store)"
 patch_global_gitignore
+
+step "Patch 10/10: deny rules baseline em settings.json"
+patch_deny_rules
 
 # ── Resumo ───────────────────────────────────────────────────────────────────
 echo -e "\n${CYAN}${BOLD}━━━ Resumo ━━━${NC}"
