@@ -48,7 +48,7 @@ Plans:
 - [ ] 02-03-PLAN.md — Kill-switch LaunchAgent (timeout) + memory-hygiene doc (Wave 1)
 - [ ] 02-04-PLAN.md — README sync + smoke test integrado + checkpoint (Wave 2)
 
-### Fase 03 — Arquitetura Multi-Harness + Rules Layer `03-multiharness-rules`
+### Fase 03 — Arquitetura Multi-Harness + Rules Layer `03-multiharness-rules` ✅ COMPLETA
 
 **Goal:** Fonte única (`source/`) compila para Claude e Cursor; rules de 18 stacks + nossas regras Supabase/Lovable; fim do drift entre IDEs.
 
@@ -61,6 +61,14 @@ Plans:
 
 **Depends on:** 02
 **Success:** build-adapters.sh → mesma regra no CLAUDE.md e .mdc; projeto Python ganha rules Python, Lovable não.
+
+**Completed:** 2026-06-11 — 4/4 planos executados (commits: 466a16f, 0ca4a27, ebcfc06, 4ada601)
+
+Plans:
+- [x] 03-01-PLAN.md — source/ migration + setup.sh compat paths
+- [x] 03-02-PLAN.md — manifests/modules.json (33 módulos ECC) + detect_stack()
+- [x] 03-03-PLAN.md — rules layer (common, supabase, lovable) + ecc/ placeholder
+- [x] 03-04-PLAN.md — build-adapters.sh + ECC rules (common/typescript/react) + README sync
 
 ### Fase 04 — Catálogo ECC: Skills + Agents com Model Routing `04-ecc-catalog`
 

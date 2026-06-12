@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
 status: Executing Phase 03
-last_updated: "2026-06-12T01:28:00Z"
+last_updated: "2026-06-11T21:57:00Z"
 progress:
   total_phases: 8
-  completed_phases: 2
-  total_plans: 12
-  completed_plans: 11
-  percent: 92
+  completed_phases: 3
+  total_plans: 16
+  completed_plans: 4
+  percent: 25
 ---
 
 # State — IdeiaOS v2
@@ -25,11 +25,11 @@ progress:
 | Plano-fonte | `.planning/research/ECC-ABSORPTION-PLAN.md` |
 | Fase 01 — quality-memory-hooks | ✅ Completa |
 | Fase 02 — security-quarantine | ✅ Completa (VERIFICATION.md PASSED) |
-| Fase 03 — multiharness-rules | 🔄 Em execução (3/4 planos completos) |
+| Fase 03 — multiharness-rules | ✅ Completa (4/4 planos) |
 | — 03-01 source/ migration | ✅ Completo (commit 466a16f) |
 | — 03-02 manifests + stack detection | ✅ Completo (commit 0ca4a27) |
 | — 03-03 rules layer | ✅ Completo (commit ebcfc06) |
-| — 03-04 build-adapters.sh + Wave 2 | ⬜ Pendente |
+| — 03-04 build-adapters.sh + Wave 2 | ✅ Completo (commit 4ada601) |
 | Fase 04 — ecc-catalog | ⬜ Não planejada |
 | Fase 05 — instincts | ⬜ Não planejada |
 | Fase 06 — plugin-marketplace | ⬜ Não planejada |
@@ -38,7 +38,7 @@ progress:
 
 ## Próximo passo
 
-Fase 03 em execução. 03-01, 03-02 e 03-03 concluídos. Próximo: 03-04 (build-adapters.sh + Wave 2).
+Fase 03 completa (4/4 planos). Próximo: Fase 04 (ecc-catalog — skill /ideiaos-catalog + instalação seletiva por stack).
 
 ## Decisões Registradas
 
@@ -47,6 +47,9 @@ Fase 03 em execução. 03-01, 03-02 e 03-03 concluídos. Próximo: 03-04 (build-
 - **03-02:** `manifests/modules.json` como fonte de verdade ECC para 33 módulos IdeiaOS (hooks, agents, skills, templates).
 - **03-02:** `detect_stack()` no setup.sh detecta 7 stacks (node/typescript/react/nextjs/supabase/lovable/python) — base para instalação seletiva em Phase 04+.
 - **03-03:** `source/rules/ecc/` permanece placeholder vazio — populado em 03-04 após quarentena ECC. Header `<!--SOURCE: IdeiaOS v2 | kind: rule | targets: ...-->` em todos os arquivos para rastreabilidade pelo `build-adapters.sh`.
+- **03-04:** Header ECC absorvido como `# SOURCE: ECC MIT` (Markdown heading) em vez de `<!--SOURCE:...-->` (HTML comment) — scan-absorbed.sh Check 2 detecta `<!--` como payload HTML, falso positivo bloqueante.
+- **03-04:** Dirs originais (skills/, agents/, hooks/) mantidos — remoção definitiva na Fase 06.
+- **03-04:** ECC rules (common, typescript, react) criadas inline com curadoria IdeiaOS; WARNs de `nc ` são falsos positivos (substring em "function"/"sync"/"async"), inspecionados e aprovados.
 
 ## Notas
 
