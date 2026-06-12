@@ -965,6 +965,14 @@ Versões expandidas em `docs/learnings/` de qualquer projeto Lovable do setup. E
 - **`source/templates/ideiaos/DECISION-MATRIX.md.tmpl`** — tabela canônica "tarefa → comando"
 - **`../mapa-github-ai-dev-tools.md`** — pesquisa de mercado (60+ projetos comparados)
 
+### Revisão v3 (Fase 08 — auditorias de prontidão)
+
+- **`docs/v3/v3-review.md`** — síntese consolidada das 3 auditorias Wave 1 + gaps de orquestração; 15 gaps priorizados (P1/P2/P3) que definem o que v3 deve resolver
+- **`docs/v3/v3-roadmap.md`** — fases candidatas v3 derivadas dos gaps priorizados
+- **`docs/v3/agents-audit.md`** — auditoria dos 15 agents (model/tools/directedness)
+- **`docs/v3/skills-guide.md`** — guia das 34 skills com mapa de redundância
+- **`docs/v3/token-economy-review.md`** — matriz modelo×ação + decisões mgrep/LSP
+
 ---
 
 ## 🤝 Contribuindo
