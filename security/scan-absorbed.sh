@@ -45,12 +45,40 @@ if [ $? -eq 0 ]; then
 else echo "  ✓ sem unicode invisível"; PASS=$((PASS+1)); fi
 
 # Check 2 — Payloads HTML/JS inline. FAIL automático.
-if rg -n '<!--|<script|data:text/html|base64,' "$TARGET" 2>/dev/null; then
+python3 - "$TARGET" <<'PY' > /tmp/_scan_c2.txt 2>&1
+import sys, pathlib, re
+target = pathlib.Path(sys.argv[1])
+files = list(target.rglob('*')) if target.is_dir() else [target]
+PATTERNS = re.compile(r'<!--|<script|data:text/html|base64,', re.IGNORECASE)
+found = []
+for f in files:
+    if not f.is_file(): continue
+    try:
+        for lineno, line in enumerate(f.read_text(errors='replace').splitlines(), 1):
+            if PATTERNS.search(line): found.append(f"{f}:{lineno}")
+    except Exception: pass
+sys.exit(0 if found else 1)
+PY
+if [ $? -eq 0 ]; then
   echo "  ✗ FAIL: payload HTML/JS/base64 detectado"; FAIL=$((FAIL+1))
 else echo "  ✓ sem payloads HTML/JS"; PASS=$((PASS+1)); fi
 
 # Check 3 — Comandos suspeitos. WARN (curl/ssh aparecem em docs legítimas) — inspeção manual.
-if rg -n 'curl|wget|nc |scp |ssh |enableAllProjectMcpServers|ANTHROPIC_BASE_URL' "$TARGET" 2>/dev/null; then
+python3 - "$TARGET" <<'PY' > /tmp/_scan_c3.txt 2>&1
+import sys, pathlib, re
+target = pathlib.Path(sys.argv[1])
+files = list(target.rglob('*')) if target.is_dir() else [target]
+PATTERNS = re.compile(r'curl|wget|nc |scp |ssh |enableAllProjectMcpServers|ANTHROPIC_BASE_URL')
+found = []
+for f in files:
+    if not f.is_file(): continue
+    try:
+        for lineno, line in enumerate(f.read_text(errors='replace').splitlines(), 1):
+            if PATTERNS.search(line): found.append(f"{f}:{lineno}")
+    except Exception: pass
+sys.exit(0 if found else 1)
+PY
+if [ $? -eq 0 ]; then
   echo "  ⚠ WARN: comandos suspeitos — INSPEÇÃO MANUAL obrigatória antes de promover"; WARN=$((WARN+1))
 else echo "  ✓ sem comandos suspeitos"; PASS=$((PASS+1)); fi
 
