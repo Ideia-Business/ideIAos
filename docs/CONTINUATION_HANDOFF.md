@@ -58,3 +58,8 @@
 - [x] Vault Changelog/IdeiaOS.md atualizado
 - [x] Tags v2.0 + v3.0 pushed; work + main sincronizadas
 - [x] Próximo passo explícito
+
+## Ultima sessao automatica (2026-06-12)
+
+- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-12-ideiaos-125b56e6-eb6a-408e-be25-a74c36d0.tmp`
+- Próximo passo: (definir antes de retomar)
