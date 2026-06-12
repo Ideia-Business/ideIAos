@@ -15,9 +15,12 @@ Você destila observações brutas de uso de ferramentas em **instincts atômico
 
 ## Quando rodar
 
+### Trigger automatico (Stop hook)
+
+`observe-session-end.sh` dispara `/instinct-analyze` como agente haiku em background quando `observations.jsonl` tem entradas mais recentes que `~/.ideiaos/instincts/.last-analyzed-<projeto>`. Nao requer acao do usuario.
+
 - Ao **retomar um projeto** após pausa (instincts podem estar desatualizados).
 - Após **sessão longa** (muitas observações acumuladas).
-- Quando o marcador `session_end` em `observations.jsonl` indicar sessões não-analisadas (comparar `updated` dos instincts existentes com `ts` das observações mais recentes).
 - Explicitamente via `/instinct-analyze`.
 
 ---
@@ -141,6 +144,20 @@ Antes de salvar, revisar os campos `trigger`, `action` e corpo do instinct:
 - Sem nomes de tabelas/colunas que identifiquem dados de cliente
 - Em dúvida, abstrair mais (regra do `memory-hygiene.md`)
 
+### Passo 9 — Registrar conclusão (sentinela)
+
+Ao concluir o processamento com sucesso (pelo menos 1 instinct criado ou reforçado, ou validação de que não há novos padrões), atualizar o sentinela de última análise:
+
+```bash
+SENTINELA="$HOME/.ideiaos/instincts/.last-analyzed-${PROJETO_SLUG}"
+/usr/bin/python3 -c "
+import datetime
+open('$SENTINELA', 'w').write(datetime.datetime.now().isoformat(timespec='seconds'))
+" 2>/dev/null || true
+```
+
+Se a análise falhar ou não houver observações suficientes para destilação, NAO atualizar o sentinela — o gate em `observe-session-end.sh` re-disparará na próxima sessão (comportamento correto: retry automático).
+
 ---
 
 ## Saída compacta (ao finalizar)
@@ -161,12 +178,15 @@ Não logar conteúdo de arquivo. Não listar cada instinct individualmente (use 
 - Inventar padrão sem evidência na jsonl.
 - Exceder confidence 0.9 — reservado ao teto absoluto; `/evolve` não promove acima de 0.9.
 - Rodar no thread principal em vez de background haiku — consome contexto desnecessariamente.
+- Nao atualizar o sentinela `.last-analyzed` apos análise bem-sucedida — causa re-análise desnecessária a cada sessão.
 
 ---
 
 ## Relações
 
 - **Produz:** `~/.ideiaos/instincts/<scope>/<slug>.md`
+- **Aciona:** `~/.ideiaos/instincts/.last-analyzed-<projeto>` (sentinela de timestamp)
+- **Acionado por:** `observe-session-end.sh` (Stop hook) via `claude -p haiku` background
 - **Consome:** `~/.ideiaos/observations/<projeto>/observations.jsonl`
 - **Complemento manual:** `/learn` (extração na hora, confidence 0.5)
 - **Visualização:** `/instinct-status`
