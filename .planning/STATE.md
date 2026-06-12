@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
 status: Ready to plan
-last_updated: "2026-06-11T00:00:00.000Z"
+last_updated: "2026-06-12T02:45:00.000Z"
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 19
-  completed_plans: 18
-  percent: 95
+  completed_plans: 19
+  percent: 100
 ---
 
 # State — IdeiaOS v2
@@ -35,7 +35,8 @@ progress:
 | — 04-02 ECC worker agents | ✅ Completo (commit 2cb9d98) |
 | — 04-03 ECC workflow skills | ✅ Completo (commit eccc1ac) |
 | — 04-04 receitas + catalog + manifests + /idea + README | ✅ Completo (commit 2197f2f) |
-| Fase 05 — instincts | 🔄 Em andamento (05-02 completo) |
+| Fase 05 — instincts | 🔄 Em andamento (05-01 + 05-02 completos) |
+| — 05-01 captura de observações | ✅ Completo (commit f9137a5) |
 | — 05-02 motor de instincts | ✅ Completo (commit 24f1e92) |
 | Fase 06 — plugin-marketplace | ⬜ Não planejada |
 | Fase 07 — contexts-evals | ⬜ Não planejada |
@@ -43,7 +44,7 @@ progress:
 
 ## Próximo passo
 
-05-02 completo. Próximo: 05-03 (/evolve + setup.sh + manifests + README) — Wave 2 da Fase 05.
+05-01 e 05-02 completos (Wave 1). Próximo: 05-03 (/evolve + setup.sh + manifests + README) — Wave 2 da Fase 05.
 
 ## Decisões Registradas
 
@@ -64,6 +65,8 @@ progress:
 - **05-02:** dedup por slug(trigger) compartilhado entre /instinct-analyze e /learn — mesma regra nos dois para não divergir.
 - **05-02:** confidence manual (/learn) nasce em 0.5; análise automática começa em 0.3-0.6 conforme número de evidências; reforço +0.1 por ciclo, cap 0.9.
 - **05-02:** docs/instincts/instincts-layout.md entrou no repo via autosync (commit 3303c7a) antes do feat commit — conteúdo correto, desvio documentado.
+- **05-01:** bash_verb captura somente o 1º token do comando Bash, descartando args/flags — privacidade por design. "jq " em comentário era falso positivo no Check 6; corrigido para "Sem-jq:".
+- **05-01:** session_end usa tool+event ambos como "session_end" para facilitar detecção em 05-02 sem campo adicional.
 
 ## Notas
 
