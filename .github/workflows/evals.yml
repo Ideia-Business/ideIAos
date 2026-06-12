@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Bash syntax — run-evals.sh
         run: bash -n evals/run-evals.sh
@@ -108,7 +108,7 @@ jobs:
     needs: structural
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Instalar Claude CLI
         run: |
