@@ -1,0 +1,11 @@
+{
+  "name": "ideiaos-core",
+  "version": "2.0.0",
+  "description": "Núcleo IdeiaOS — orquestração, agents, hooks e skills.",
+  "author": {
+    "name": "Ideia Business",
+    "email": "gustavo@redeideia.com.br"
+  },
+  "homepage": "https://github.com/Ideia-Business/IdeiaOS",
+  "license": "MIT"
+}

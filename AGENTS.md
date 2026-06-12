@@ -35,7 +35,7 @@ Sempre sincronize (`git pull`) antes de editar, especialmente em projetos com Lo
 
 ## Manutenção do README (obrigatório)
 
-Toda mudança em `hooks/`, `skills/`, `agents/`, `scripts/` ou `templates/` **DEVE** vir acompanhada de atualização correspondente no `README.md`:
+Toda mudança em `source/` (hooks/skills/agents/templates/rules), `scripts/`, `plugins/` ou `manifests/` **DEVE** vir acompanhada de atualização correspondente no `README.md`:
 
 1. Seção **"O que este setup instala"** (tabelas de componentes globais e do projeto)
 2. Seção **"Estrutura do repositório"** (árvore de pastas)

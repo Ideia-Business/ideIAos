@@ -29,7 +29,7 @@ fi
 cat > "$PRECOMMIT" <<'HOOK'
 #!/bin/bash
 # ideiaos-readme-sync-hook
-# Bloqueia commits que mexam em hooks/, skills/, agents/, scripts/ ou templates/
+# Bloqueia commits que mexam em source/, scripts/, plugins/ ou manifests/
 # se o README.md não estiver incluído (presumindo que precisa atualizar) OU
 # se o check-readme-sync.sh falhar.
 
@@ -39,11 +39,11 @@ REPO_DIR="$(git rev-parse --show-toplevel)"
 SCRIPT="$REPO_DIR/scripts/check-readme-sync.sh"
 
 # Quais arquivos estão sendo commitados?
-STAGED="$(git diff --cached --name-only --diff-filter=ACMR)"
+STAGED="$(git diff --cached --name-only --diff-filter=ACMRD)"
 
 # Algum em pasta de componente?
 TOUCHES_COMPONENTS=0
-if echo "$STAGED" | grep -qE '^(hooks|skills|agents|scripts|templates)/'; then
+if echo "$STAGED" | grep -qE '^(source|scripts|plugins|manifests)/'; then
   TOUCHES_COMPONENTS=1
 fi
 
@@ -73,7 +73,7 @@ fi
 
 if ! bash "$SCRIPT" "$REPO_DIR" > /tmp/readme-sync-check.log 2>&1; then
   echo ""
-  echo "❌ Você modificou componentes (hooks/skills/agents/scripts/templates) mas"
+  echo "❌ Você modificou componentes (source/scripts/plugins/manifests) mas"
   echo "   o README.md não está no commit E está dessincronizado."
   echo ""
   cat /tmp/readme-sync-check.log
@@ -89,7 +89,7 @@ chmod +x "$PRECOMMIT"
 
 echo "✅ Pre-commit hook instalado em $PRECOMMIT"
 echo ""
-echo "A partir de agora, commits que tocarem em hooks/skills/agents/scripts/templates"
+echo "A partir de agora, commits que tocarem em source/scripts/plugins/manifests"
 echo "sem atualizar README.md serão BLOQUEADOS."
 echo ""
 echo "Para bypassar em casos excepcionais:"

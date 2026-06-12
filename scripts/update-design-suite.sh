@@ -19,8 +19,8 @@
 set -uo pipefail
 
 SETUP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SKILLS_DIR="$SETUP_DIR/skills"
-PIN_FILE="$SKILLS_DIR/.design-suite-version"
+SKILLS_DIR="$SETUP_DIR/source/skills"
+PIN_FILE="$SETUP_DIR/source/skills/.design-suite-version"
 REPO="https://github.com/nextlevelbuilder/ui-ux-pro-max-skill.git"
 SUITE="ui-ux-pro-max design design-system ui-styling brand banner-design slides"
 
@@ -87,14 +87,14 @@ ok "pin gravado: $PIN_FILE (ref=$REF commit=$COMMIT)"
 
 echo -e "\n${CYAN}${BOLD}━━━ Diff (skills/) ━━━${NC}"
 if git -C "$SETUP_DIR" rev-parse --is-inside-work-tree &>/dev/null; then
-  if git -C "$SETUP_DIR" diff --quiet -- skills/; then
+  if git -C "$SETUP_DIR" diff --quiet -- source/skills/; then
     echo -e "  ${GREEN}Nenhuma mudança — já estava na versão de $REF${NC}"
   else
-    git -C "$SETUP_DIR" diff --stat -- skills/ | tail -25
+    git -C "$SETUP_DIR" diff --stat -- source/skills/ | tail -25
     echo
     echo -e "  ${YELLOW}${BOLD}AÇÃO MANUAL:${NC} revise o diff acima."
     echo -e "  • O overlay OKLCH (Patch 7) será re-aplicado por: ${BOLD}bash scripts/sync-all.sh${NC}"
-    echo -e "  • Quando aprovar: ${BOLD}git add skills/ && git commit -m 'chore(design): bump suite → $REF ($COMMIT)'${NC}"
+    echo -e "  • Quando aprovar: ${BOLD}git add source/skills/ && git commit -m 'chore(design): bump suite → $REF ($COMMIT)'${NC}"
   fi
 else
   warn "IdeiaOS não é repo git aqui — pulei o diff"

@@ -19,3 +19,7 @@ node_modules/
 /docs/learnings/_TEMPLATE.md
 /.cursor/rules/agents-md-protocol.mdc
 /.cursor/rules/planning-branch.mdc
+
+# plugins/ é gerado por scripts/build-plugins.sh (versionado para /plugin marketplace add)
+# Apenas ignorar lixo de filesystem — o conteúdo gerado é commitado
+plugins/**/.DS_Store

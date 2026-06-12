@@ -1,0 +1,24 @@
+{
+  "name": "ideiaos",
+  "owner": {
+    "name": "Ideia Business",
+    "email": "gustavo@redeideia.com.br"
+  },
+  "plugins": [
+    {
+      "name": "ideiaos-core",
+      "source": "./plugins/ideiaos-core",
+      "description": "Núcleo IdeiaOS: orquestrador /idea, 15 agents, 11 hooks de qualidade/memória/observação, skills de workflow e aprendizado."
+    },
+    {
+      "name": "ideiaos-design-suite",
+      "source": "./plugins/ideiaos-design-suite",
+      "description": "Suíte de Design: ui-ux-pro-max, design, design-system, ui-styling, brand, banner-design, slides, motion, frontend-visual-loop, web-quality."
+    },
+    {
+      "name": "ideiaos-lovable",
+      "source": "./plugins/ideiaos-lovable",
+      "description": "Camada Lovable: skill /lovable-handoff + doutrina de deploy e templates de handoff."
+    }
+  ]
+}

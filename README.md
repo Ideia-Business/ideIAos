@@ -94,7 +94,7 @@ Antes do roteamento, a Deia avalia **2 exceções + 1 decisão única**:
 | **QA-gate aceita verification** | `@qa *gate <story> --verification <path>` | Após GSD verificar (skip-if-verified) |
 | **Hook lembra extract** | automático | Após qa-gate PASS, `*-VERIFICATION.md` success, ou `git commit` |
 
-Detalhes completos: cada projeto ideIAos recebe [`docs/ideiaos/DECISION-MATRIX.md`](templates/ideiaos/DECISION-MATRIX.md.tmpl) e [`docs/ideiaos/GUIDE-AI.md`](templates/ideiaos/GUIDE-AI.md.tmpl).
+Detalhes completos: cada projeto ideIAos recebe [`docs/ideiaos/DECISION-MATRIX.md`](source/templates/ideiaos/DECISION-MATRIX.md.tmpl) e [`docs/ideiaos/GUIDE-AI.md`](source/templates/ideiaos/GUIDE-AI.md.tmpl).
 
 ---
 
@@ -109,6 +109,34 @@ Detalhes completos: cada projeto ideIAos recebe [`docs/ideiaos/DECISION-MATRIX.m
 - **Claude Code CLI** — `npm install -g @anthropic-ai/claude-code` (ou instalador oficial) · [claude.ai/code](https://claude.ai/code)
 - **Cursor IDE** *(opcional)* — [cursor.sh](https://cursor.sh)
 - Shell: `zsh` ou `bash` (macOS/Linux nativamente; Windows via WSL)
+
+---
+
+## 🔌 Instalação via Plugin (marketplace privado)
+
+Máquina nova pode instalar os componentes ideIAos via plugin nativo do Claude Code — versionado, com `/plugin update` automático.
+
+```bash
+# Adicionar o marketplace ideIAos (uma vez)
+/plugin marketplace add Ideia-Business/IdeiaOS
+
+# Instalar o núcleo (sempre — orquestrador, agents, hooks, skills de workflow)
+/plugin install ideiaos-core@ideiaos
+
+# Instalar a Suíte de Design (perfil UI/design)
+/plugin install ideiaos-design-suite@ideiaos
+
+# Instalar a camada Lovable (projetos Lovable)
+/plugin install ideiaos-lovable@ideiaos
+```
+
+| Plugin | Conteúdo | Quando instalar |
+|--------|----------|-----------------|
+| `ideiaos-core` | 15 agents + 11 hooks + 23 skills (idea, tdd, evolve, instincts…) | Sempre — núcleo do sistema |
+| `ideiaos-design-suite` | 10 skills de design (ui-ux-pro-max, design-system, brand…) | Quem faz UI/design |
+| `ideiaos-lovable` | Skill `/lovable-handoff` + doutrina de deploy + templates | Projetos Lovable |
+
+> **Plugin e setup.sh são complementares** — não excludentes. O plugin entrega skills/agents/hooks versionados com atualização nativa (`/plugin update`). O `setup.sh` entrega o ambiente de máquina completo: working-dirs, autosync (LaunchAgent), vault Obsidian, git hooks e config de projeto. Para uma máquina nova do zero, use o setup.sh (ou o bootstrap `setup-dev-machine.sh`) — ele faz tudo em sequência.
 
 ---
 
@@ -279,7 +307,8 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | **`scripts/update-design-suite.sh`** | Atualização CONTROLADA da Suíte de Design (re-vendoriza do nextlevelbuilder, mostra diff, sob demanda) |
 | **`scripts/sync-all.sh`** | Orquestrador — `git pull` → `update-upstream` → `setup.sh --global-only` → overlay → `idea-doctor` |
 | **`scripts/build-adapters.sh`** | **Compila `source/` → harnesses** — copia hooks/agents para Claude (`~/.claude/`) e rules para Cursor (`.cursor/rules/*.mdc`). Suporte a `--target claude\|cursor\|all` e `--dry-run`. |
-| **`versions.lock`** | Lockfile de versões (aiox-core, gsd, ref da Suíte, MCPs) que toda máquina deve convergir |
+| **`scripts/build-plugins.sh`** | **Gera `plugins/` a partir de `source/`** — gerador idempotente dos 3 sub-plugins do marketplace. Suporte a `--plugin core\|design-suite\|lovable\|all` e `--dry-run`. |
+| **`versions.lock`** | Lockfile de versões (aiox-core, gsd, ref da Suíte, MCPs, plugins) que toda máquina deve convergir |
 
 ### Componentes do projeto (instalados quando você roda em projeto específico)
 
@@ -302,6 +331,7 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | `docs/playbook-implantacao.md` | docs/ | Lovable |
 | `docs/lovable/conclusao-implantacao.md` | docs/lovable/ | Lovable |
 | `docs/lovable/_TEMPLATE.md` | docs/lovable/ | Lovable |
+| `AGENTS.lovable.md` (seção Lovable no AGENTS.md) | via template `AGENTS.lovable.md.tmpl` | Lovable |
 | `docs/learnings/_TEMPLATE.md` | docs/learnings/ | Fase A |
 | `docs/learnings/README.md` | docs/learnings/ | Fase A |
 | `docs/postmortems/` | docs/ | Fase A |
@@ -449,7 +479,7 @@ O IdeiaOS v2 separa **fonte de verdade** de **artefatos de harness**. Nunca edit
 
 ```
 source/                         manifests/modules.json
-├── skills/                     (catálogo ECC — 33 módulos)
+├── skills/                     (catálogo ECC — 66 módulos)
 ├── agents/        ──────────────────────┐
 ├── hooks/                               │
 ├── templates/                           ▼
@@ -602,7 +632,7 @@ O `setup.sh` cuida dos arquivos do **projeto**. Para os **arquivos globais** (sk
 
 | Componente | Como atualizar |
 |------------|----------------|
-| **Skills nossas** (idea, frontend-visual-loop, motion, web-quality…) | edite em `skills/` → commit/push → nas outras máquinas: `git pull` + `bash scripts/sync-all.sh` |
+| **Skills nossas** (idea, frontend-visual-loop, motion, web-quality…) | edite em `source/skills/` → commit/push → nas outras máquinas: `git pull` + `bash scripts/sync-all.sh` |
 | **Suíte de Design** (upstream de terceiros) | `bash scripts/update-design-suite.sh [ref]` → revisa o diff → commit. O OKLCH (Patch 7) re-aplica sozinho |
 | **GSD plugin** | menu de plugins do Claude Code (interativo) → `sync-all.sh` (re-aplica overlay) → `update-upstream.sh --bump` (re-pina) |
 | **AIOX-core** | `aiox update` (ou npm) → `sync-all.sh` → `update-upstream.sh --bump` |
@@ -670,78 +700,29 @@ A simulação testada em 2026-05-30: apagar manualmente os 3 gatilhos do hook �
 ideIAos/
 ├── setup.sh                                ← script principal (global + projeto); flag --global-only
 ├── setup-dev-machine.sh                    ← bootstrap de máquina nova (clona repos + autosync + setup global)
-├── versions.lock                           ← pin de versões (aiox-core/gsd/Suíte/MCPs)
-├── agents/
-│   ├── claude-continuation.md              ← Cursor agent — Cursor lê do Claude
-│   └── ideiaos-checker.md                    ← Cursor agent — audita setup
-├── skills/
-│   ├── idea/SKILL.md                       ← Claude — ORQUESTRADOR ideIAos
-│   ├── cursor-continuation/SKILL.md        ← Claude — retoma do Cursor
-│   ├── lovable-handoff/SKILL.md            ← Claude — playbook Lovable
-│   ├── recall-learnings/SKILL.md           ← Claude — load context
-│   ├── extract-learnings/SKILL.md          ← Claude — registra aprendizado
-│   ├── ideiaos-setup/SKILL.md              ← Claude — audita setup
-│   ├── frontend-visual-loop/               ← Claude — loop render→screenshot→fix (Chrome DevTools MCP)
-│   ├── motion/                             ← Claude — animação (Framer Motion / GSAP)
-│   ├── web-quality/                        ← Claude — auditoria CWV / WCAG / SEO
-│   ├── ui-ux-pro-max/  design/  design-system/   ← Suíte de Design (vendorizada, nextlevelbuilder)
-│   ├── ui-styling/  brand/  banner-design/  slides/
-│   └── .design-suite-version               ← pin da Suíte (update-design-suite.sh)
-├── hooks/
-│   ├── extract-learnings-reminder.sh       ← Claude PostToolUse Bash
-│   ├── ideiaos-detector.sh               ← Claude SessionStart
-│   ├── ideiaos-readme-reminder.sh        ← Claude PostToolUse Edit/Write
-│   ├── deia-trigger.sh                     ← Claude UserPromptSubmit — gatilho "Deia,"
-│   ├── typecheck-on-edit.sh              ← Claude PostToolUse Edit|Write .ts/.tsx async
-│   ├── console-log-guard.sh              ← Claude PostToolUse Edit|Write — console.log guard
-│   ├── strategic-compact.sh              ← Claude PreToolUse — contador tool calls /compact
-│   ├── precompact-state-save.sh          ← Claude PreCompact — snapshot STATE.md
-│   ├── session-summary.sh               ← Claude Stop — resumo ECC + CONTINUATION_HANDOFF
-│   ├── test-hooks.sh                    ← Smoke test harness para todos os hooks da fase 01
-│   └── test-typecheck-on-edit.sh        ← Smoke tests dedicados para typecheck-on-edit.sh
+├── versions.lock                           ← pin de versões (aiox-core/gsd/Suíte/MCPs/plugins)
+├── .claude-plugin/
+│   └── marketplace.json                    ← marketplace 'ideiaos' (3 plugins: core/design-suite/lovable)
+├── plugins/                                ← GERADO por scripts/build-plugins.sh — não editar à mão (edite source/)
+│   ├── ideiaos-core/                       ← 15 agents + 11 hooks + 23 skills de workflow
+│   ├── ideiaos-design-suite/               ← 10 skills de design (ui-ux-pro-max, design-system, brand…)
+│   └── ideiaos-lovable/                    ← skill /lovable-handoff + doutrina + templates
 ├── scripts/
 │   ├── install-alias.sh                    ← Instala alias idea-setup
 │   ├── install-git-hooks.sh                ← Instala pre-commit hook
-│   ├── check-readme-sync.sh                ← Audita README sync
+│   ├── check-readme-sync.sh                ← Audita README sync (aponta para source/)
 │   ├── idea-doctor.sh                      ← Diagnóstico saúde + drift (read-only)
 │   ├── install-global-patches.sh           ← Overlay ideIAos (Caminho C — 10 patches idempotentes)
 │   ├── update-upstream.sh                  ← Detecta updates GSD + AIOX vs versions.lock (--bump re-pina)
 │   ├── update-design-suite.sh              ← Atualização controlada da Suíte (re-vendoriza do upstream)
 │   ├── sync-all.sh                         ← Orquestrador (pull → upstream → setup --global-only → overlay → doctor)
-│   └── build-adapters.sh                   ← Compila source/ → harness targets (claude + cursor)
-├── templates/
-│   ├── aiox-ai-config.yaml                 ← Config IA + marker ideIAos
-│   ├── hybrid/
-│   │   ├── AGENTS.md.tmpl                  ← Identidade do projeto + ideIAos
-│   │   ├── CLAUDE.md.tmpl                  ← Instruções Claude (ideIAos-aware)
-│   │   ├── STATE.md.tmpl                   ← Snapshot operacional
-│   │   ├── CONTINUATION_HANDOFF.md.tmpl    ← Handoff de continuidade
-│   │   ├── CONTRIBUTING.md.tmpl            ← Onboarding dev (ideIAos commands)
-│   │   ├── agents-md-protocol.mdc.tmpl     ← Cursor rule principal
-│   │   ├── planning-branch.mdc.tmpl        ← Convenção branch planning
-│   │   └── session-continuation.mdc.tmpl   ← Rule de retomada
-│   ├── ideiaos/
-│   │   ├── IDEIAOS.md.tmpl                 ← Manifesto ideIAos (raiz do projeto)
-│   │   ├── GUIDE-HUMANS.md.tmpl            ← Guia para devs humanos
-│   │   ├── GUIDE-AI.md.tmpl                ← Guia para IAs (Claude/Cursor/Codex)
-│   │   └── DECISION-MATRIX.md.tmpl         ← Matriz "tarefa → camada → comando"
-│   ├── lovable/
-│   │   ├── AGENTS.lovable.md.tmpl          ← Seção Lovable no AGENTS.md
-│   │   ├── lovable-deploy.mdc.tmpl         ← Cursor rule: doutrina Lovable única (merge main → Update, botão cinza, confirmar bundle)
-│   │   ├── playbook-implantacao.md.tmpl    ← Fluxo obrigatório
-│   │   ├── conclusao-implantacao.md.tmpl   ← Modelo de resposta (8 blocos)
-│   │   └── _TEMPLATE.md.tmpl               ← Esqueleto de handoff Lovable
-│   ├── learnings/
-│   │   ├── README.md.tmpl                  ← Convenções
-│   │   └── _TEMPLATE.md.tmpl               ← Esqueleto de learning
-│   └── global-patches/
-│       ├── extract-learnings-reminder.sh   ← Fonte de verdade do hook (3 gatilhos)
-│       └── oklch-tokens.md                  ← Doc OKLCH copiado pelo Patch 7
+│   ├── build-adapters.sh                   ← Compila source/ → harness targets (claude + cursor)
+│   └── build-plugins.sh                    ← Gera plugins/ a partir de source/ (marketplace)
 ├── source/                                 ← FONTE ÚNICA DE VERDADE (Fase 03+)
-│   ├── skills/                             ← cópia canônica de skills/ (setup.sh aponta aqui)
-│   ├── agents/                             ← cópia canônica de agents/
-│   ├── hooks/                              ← cópia canônica de hooks/
-│   ├── templates/                          ← cópia canônica de templates/
+│   ├── skills/                             ← 34 skills (23 core + 10 design + 1 lovable)
+│   ├── agents/                             ← 15 agents ECC
+│   ├── hooks/                              ← 11 hooks de produto + 3 test-hooks
+│   ├── templates/                          ← templates de projeto (hybrid/ideiaos/lovable/learnings/global-patches)
 │   ├── contexts/                           ← vazio — para Fase 07 (contexts-evals)
 │   └── rules/
 │       ├── common/                         ← token-economy, mcp-hygiene, orchestration
@@ -752,7 +733,8 @@ ideIAos/
 │           ├── typescript/                 ← typescript strict rules
 │           └── react/                      ← hooks rules, component patterns
 ├── manifests/
-│   └── modules.json                        ← catálogo ECC de 33 módulos IdeiaOS (hooks/agents/skills/templates)
+│   ├── modules.json                        ← catálogo ECC de 66 módulos (hooks/agents/skills/templates) + campo plugin
+│   └── plugin-membership.md               ← mapeamento módulo → plugin (fonte de verdade legível)
 ├── adapters/                               ← artefatos compilados por harness (gerados por build-adapters.sh)
 │   ├── _scaffold/                          ← template para novos harnesses (codex, gemini, zed)
 │   │   ├── README.md                       ← como criar um novo adapter
@@ -933,10 +915,10 @@ Versões expandidas em `docs/learnings/` de qualquer projeto Lovable do setup. E
 ### Documentação canônica do ideIAos
 
 - **`docs/IDEIAOS.md`** — especificação completa do sistema (arquitetura, decisões, roadmap)
-- **`templates/ideiaos/IDEIAOS.md.tmpl`** — manifesto que vai pra raiz de cada projeto
-- **`templates/ideiaos/GUIDE-HUMANS.md.tmpl`** — guia detalhado para devs
-- **`templates/ideiaos/GUIDE-AI.md.tmpl`** — instruções operacionais para IAs
-- **`templates/ideiaos/DECISION-MATRIX.md.tmpl`** — tabela canônica "tarefa → comando"
+- **`source/templates/ideiaos/IDEIAOS.md.tmpl`** — manifesto que vai pra raiz de cada projeto
+- **`source/templates/ideiaos/GUIDE-HUMANS.md.tmpl`** — guia detalhado para devs
+- **`source/templates/ideiaos/GUIDE-AI.md.tmpl`** — instruções operacionais para IAs
+- **`source/templates/ideiaos/DECISION-MATRIX.md.tmpl`** — tabela canônica "tarefa → comando"
 - **`../mapa-github-ai-dev-tools.md`** — pesquisa de mercado (60+ projetos comparados)
 
 ---

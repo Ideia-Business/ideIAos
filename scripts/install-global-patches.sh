@@ -27,7 +27,7 @@
 set -uo pipefail
 
 SETUP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PATCHES_DIR="$SETUP_DIR/templates/global-patches"
+PATCHES_DIR="$SETUP_DIR/source/templates/global-patches"
 
 # ── Cores ────────────────────────────────────────────────────────────────────
 GREEN='\033[0;32m'; YELLOW='\033[1;33m'; RED='\033[0;31m'; CYAN='\033[0;36m'

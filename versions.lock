@@ -24,5 +24,9 @@ design-suite-commit=local-seed-2026-06-02
 mcp-chrome-devtools=chrome-devtools-mcp@latest
 mcp-context7=@upstash/context7-mcp@latest
 
+# Plugins IdeiaOS (marketplace ideiaos — 3 sub-plugins: core/design-suite/lovable)
+# Versão 2.0.0 alinhada ao milestone v2.0. Bump manual ao publicar nova release.
+ideiaos-plugin=2.0.0
+
 # Última atualização deste lock
-updated=2026-06-11
+updated=2026-06-12

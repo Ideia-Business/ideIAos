@@ -4,7 +4,7 @@
 #
 # Audita, sem alterar nada:
 #   1. Skills globais (orquestração + dev-loop + Suíte de Design) e GSD
-#   2. Drift: cópia global vs fonte do repo (skills/) — pede setup --global-only
+#   2. Drift: cópia global vs fonte do repo (source/skills/) — pede setup --global-only
 #   3. MCPs (chrome-devtools, context7)
 #   4. Os 10 patches do overlay (markers de idempotência)
 #   5. Versões instaladas vs versions.lock (aiox-core, gsd) + pin da Suíte
@@ -58,12 +58,12 @@ if [ "$GSD_COUNT" -gt 0 ]; then pass "GSD: $GSD_COUNT skills /gsd-*"; else fail 
 # ── 2) Drift: global vs fonte do repo ─────────────────────────────────────────
 step "2) Drift (cópia global vs fonte do repo)"
 DRIFT=0
-for d in "$SETUP_DIR"/skills/*/; do
+for d in "$SETUP_DIR"/source/skills/*/; do
   s="$(basename "$d")"
   [ -d "$GSKILLS/$s" ] || continue
   if ! diff -rq "$d" "$GSKILLS/$s" &>/dev/null; then warn "drift em /$s (global ≠ repo)"; DRIFT=$((DRIFT+1)); fi
 done
-[ "$DRIFT" -eq 0 ] && pass "sem drift — global idêntico à fonte" || info "→ sincronize: bash scripts/sync-all.sh (ou setup.sh --global-only)"
+[ "$DRIFT" -eq 0 ] && pass "sem drift — global idêntico à fonte (source/skills/)" || info "→ sincronize: bash scripts/sync-all.sh (ou setup.sh --global-only)"
 
 # ── 3) MCPs ───────────────────────────────────────────────────────────────────
 step "3) MCPs (user scope)"

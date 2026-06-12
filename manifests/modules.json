@@ -8,607 +8,827 @@
       "kind": "hook",
       "description": "Runs tsc --noEmit on PostToolUse for .ts/.tsx edits",
       "source": "source/hooks/typecheck-on-edit.sh",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "hook-console-log-guard",
       "kind": "hook",
       "description": "Detects console.log/debug/info in .ts/.tsx/.js/.jsx after edit and warns Claude",
       "source": "source/hooks/console-log-guard.sh",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "hook-precompact-state-save",
       "kind": "hook",
       "description": "Saves STATE.md snapshot before /compact to prevent context loss",
       "source": "source/hooks/precompact-state-save.sh",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "hook-session-summary",
       "kind": "hook",
       "description": "Persists ECC session summary to ~/.claude/sessions/ and updates CONTINUATION_HANDOFF.md",
       "source": "source/hooks/session-summary.sh",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "hook-strategic-compact",
       "kind": "hook",
       "description": "Counts tool calls per session and suggests /compact every 50 calls",
       "source": "source/hooks/strategic-compact.sh",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "hook-deia-trigger",
       "kind": "hook",
       "description": "Detects 'Deia,' prefix in prompts and injects /idea skill activation guidance",
       "source": "source/hooks/deia-trigger.sh",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "hook-extract-learnings-reminder",
       "kind": "hook",
       "description": "After each git commit in Fase A project, injects triple gate reminding AI to extract learnings",
       "source": "source/hooks/extract-learnings-reminder.sh",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "hook-ideiaos-detector",
       "kind": "hook",
       "description": "Detects Lovable project without Fase A at session start and suggests /ideiaos-setup",
       "source": "source/hooks/ideiaos-detector.sh",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "hook-ideiaos-readme-reminder",
       "kind": "hook",
       "description": "Reminds AI to update IdeiaOS README when modifying components (pre-commit reinforcement)",
       "source": "source/hooks/ideiaos-readme-reminder.sh",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "manual"
+      "installStrategy": "manual",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "agent-claude-continuation",
       "kind": "agent",
       "description": "Cursor agent that resumes Claude Code session context in Cursor IDE",
       "source": "source/agents/claude-continuation.md",
-      "targets": ["cursor"],
+      "targets": [
+        "cursor"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "agent-ideiaos-checker",
       "kind": "agent",
       "description": "Cursor agent that audits and completes IdeiaOS setup for a project",
       "source": "source/agents/ideiaos-checker.md",
-      "targets": ["cursor"],
+      "targets": [
+        "cursor"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "skill-idea",
       "kind": "skill",
       "description": "IdeiaOS entry point — routes requests to GSD/AIOX/Lovable/Fase A automatically",
       "source": "source/skills/idea/SKILL.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "skill-recall-learnings",
       "kind": "skill",
       "description": "Recalls past learnings from docs/learnings/ at session start",
       "source": "source/skills/recall-learnings/SKILL.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "skill-extract-learnings",
       "kind": "skill",
       "description": "Extracts and persists replicable learnings to docs/learnings/ at session end",
       "source": "source/skills/extract-learnings/SKILL.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "skill-cursor-continuation",
       "kind": "skill",
       "description": "Resumes Cursor IDE session context inside Claude Code",
       "source": "source/skills/cursor-continuation/SKILL.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "skill-lovable-handoff",
       "kind": "skill",
       "description": "Executes Lovable deploy playbook: typecheck → commit → push → handoff",
       "source": "source/skills/lovable-handoff/SKILL.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "stack:lovable"
+      "installStrategy": "stack:lovable",
+      "plugin": "ideiaos-lovable"
     },
     {
       "id": "skill-ideiaos-setup",
       "kind": "skill",
       "description": "Single entry point to run IdeiaOS setup — idempotent, audits before applying",
       "source": "source/skills/ideiaos-setup/SKILL.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "skill-banner-design",
       "kind": "skill",
       "description": "Banner and social media design patterns for brand consistency",
       "source": "source/skills/banner-design/SKILL.md",
-      "targets": ["claude", "cursor"],
-      "deps": ["skill-brand"],
-      "installStrategy": "manual"
+      "targets": [
+        "claude",
+        "cursor"
+      ],
+      "deps": [
+        "skill-brand"
+      ],
+      "installStrategy": "manual",
+      "plugin": "ideiaos-design-suite"
     },
     {
       "id": "skill-brand",
       "kind": "skill",
       "description": "Brand identity guidelines and visual language enforcement",
       "source": "source/skills/brand/SKILL.md",
-      "targets": ["claude", "cursor"],
+      "targets": [
+        "claude",
+        "cursor"
+      ],
       "deps": [],
-      "installStrategy": "manual"
+      "installStrategy": "manual",
+      "plugin": "ideiaos-design-suite"
     },
     {
       "id": "skill-design",
       "kind": "skill",
       "description": "General design patterns and component aesthetics",
       "source": "source/skills/design/SKILL.md",
-      "targets": ["claude", "cursor"],
+      "targets": [
+        "claude",
+        "cursor"
+      ],
       "deps": [],
-      "installStrategy": "manual"
+      "installStrategy": "manual",
+      "plugin": "ideiaos-design-suite"
     },
     {
       "id": "skill-design-system",
       "kind": "skill",
       "description": "Design system architecture: tokens, components, theming",
       "source": "source/skills/design-system/SKILL.md",
-      "targets": ["claude", "cursor"],
-      "deps": ["skill-design"],
-      "installStrategy": "stack:react"
+      "targets": [
+        "claude",
+        "cursor"
+      ],
+      "deps": [
+        "skill-design"
+      ],
+      "installStrategy": "stack:react",
+      "plugin": "ideiaos-design-suite"
     },
     {
       "id": "skill-ui-styling",
       "kind": "skill",
       "description": "UI styling patterns with Tailwind and OKLCH color space",
       "source": "source/skills/ui-styling/SKILL.md",
-      "targets": ["claude", "cursor"],
+      "targets": [
+        "claude",
+        "cursor"
+      ],
       "deps": [],
-      "installStrategy": "stack:react"
+      "installStrategy": "stack:react",
+      "plugin": "ideiaos-design-suite"
     },
     {
       "id": "skill-ui-ux-pro-max",
       "kind": "skill",
       "description": "Advanced UI/UX patterns: accessibility, motion, responsive layout",
       "source": "source/skills/ui-ux-pro-max/SKILL.md",
-      "targets": ["claude", "cursor"],
-      "deps": ["skill-design-system"],
-      "installStrategy": "stack:react"
+      "targets": [
+        "claude",
+        "cursor"
+      ],
+      "deps": [
+        "skill-design-system"
+      ],
+      "installStrategy": "stack:react",
+      "plugin": "ideiaos-design-suite"
     },
     {
       "id": "skill-slides",
       "kind": "skill",
       "description": "Presentation slide design and storytelling structure",
       "source": "source/skills/slides/SKILL.md",
-      "targets": ["claude", "cursor"],
-      "deps": ["skill-brand"],
-      "installStrategy": "manual"
+      "targets": [
+        "claude",
+        "cursor"
+      ],
+      "deps": [
+        "skill-brand"
+      ],
+      "installStrategy": "manual",
+      "plugin": "ideiaos-design-suite"
     },
     {
       "id": "skill-motion",
       "kind": "skill",
       "description": "Animation and motion design patterns for web interfaces",
       "source": "source/skills/motion/SKILL.md",
-      "targets": ["claude", "cursor"],
+      "targets": [
+        "claude",
+        "cursor"
+      ],
       "deps": [],
-      "installStrategy": "stack:react"
+      "installStrategy": "stack:react",
+      "plugin": "ideiaos-design-suite"
     },
     {
       "id": "skill-frontend-visual-loop",
       "kind": "skill",
       "description": "Frontend visual dev-loop using Chrome DevTools MCP for iterative UI work",
       "source": "source/skills/frontend-visual-loop/SKILL.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "stack:react"
+      "installStrategy": "stack:react",
+      "plugin": "ideiaos-design-suite"
     },
     {
       "id": "skill-web-quality",
       "kind": "skill",
       "description": "Web quality audit: CWV/WCAG/SEO checks via Chrome DevTools MCP",
       "source": "source/skills/web-quality/SKILL.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "stack:node"
+      "installStrategy": "stack:node",
+      "plugin": "ideiaos-design-suite"
     },
     {
       "id": "template-aiox-ai-config",
       "kind": "template",
       "description": "Base .aiox-ai-config.yaml template for project AIOX Core configuration",
       "source": "source/templates/aiox-ai-config.yaml",
-      "targets": ["claude", "cursor"],
+      "targets": [
+        "claude",
+        "cursor"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": null
     },
     {
       "id": "template-global-patches",
       "kind": "template",
       "description": "Global patch overlays applied on top of vendored skills (e.g., OKLCH patch)",
       "source": "source/templates/global-patches",
-      "targets": ["claude", "cursor"],
+      "targets": [
+        "claude",
+        "cursor"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": null
     },
     {
       "id": "template-hybrid",
       "kind": "template",
       "description": "Hybrid project structure templates: AGENTS.md, CLAUDE.md, STATE.md, Cursor rules",
       "source": "source/templates/hybrid",
-      "targets": ["claude", "cursor"],
+      "targets": [
+        "claude",
+        "cursor"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": null
     },
     {
       "id": "template-ideiaos",
       "kind": "template",
       "description": "IdeiaOS bundle templates: IDEIAOS.md, GUIDE-HUMANS, GUIDE-AI, DECISION-MATRIX",
       "source": "source/templates/ideiaos",
-      "targets": ["claude", "cursor"],
+      "targets": [
+        "claude",
+        "cursor"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": null
     },
     {
       "id": "template-learnings",
       "kind": "template",
       "description": "Learnings layer templates: README.md and _TEMPLATE.md for docs/learnings/",
       "source": "source/templates/learnings",
-      "targets": ["claude", "cursor"],
+      "targets": [
+        "claude",
+        "cursor"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": null
     },
     {
       "id": "template-lovable",
       "kind": "template",
       "description": "Lovable deploy templates: AGENTS fragment, playbook, handoff, conclusao, Cursor rules",
       "source": "source/templates/lovable",
-      "targets": ["claude", "cursor"],
+      "targets": [
+        "claude",
+        "cursor"
+      ],
       "deps": [],
-      "installStrategy": "stack:lovable"
+      "installStrategy": "stack:lovable",
+      "plugin": "ideiaos-lovable"
     },
     {
       "id": "agent-security-reviewer",
       "kind": "agent",
       "description": "Revisa código em busca de vulnerabilidades (injection, secrets vazados, authz quebrada, deps inseguras)",
       "source": "source/agents/security-reviewer.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
       "installStrategy": "always",
-      "model": "opus"
+      "model": "opus",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "agent-typescript-reviewer",
       "kind": "agent",
       "description": "Revisa código TypeScript quanto a type-safety, uso correto do sistema de tipos",
       "source": "source/agents/typescript-reviewer.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
       "installStrategy": "always",
-      "model": "sonnet"
+      "model": "sonnet",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "agent-react-reviewer",
       "kind": "agent",
       "description": "Revisa componentes React quanto a regras de hooks, padrões de componente, re-renders",
       "source": "source/agents/react-reviewer.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
       "installStrategy": "always",
-      "model": "sonnet"
+      "model": "sonnet",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "agent-rls-reviewer",
       "kind": "agent",
       "description": "Revisa schema/migrations Supabase quanto a Row Level Security — RLS habilitada, policies corretas",
       "source": "source/agents/rls-reviewer.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
       "installStrategy": "always",
-      "model": "sonnet"
+      "model": "sonnet",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "agent-pr-test-analyzer",
       "kind": "agent",
       "description": "Analisa um PR/diff e identifica lacunas de teste — caminhos novos sem cobertura",
       "source": "source/agents/pr-test-analyzer.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
       "installStrategy": "always",
-      "model": "sonnet"
+      "model": "sonnet",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "agent-silent-failure-hunter",
       "kind": "agent",
       "description": "Caça falhas silenciosas — erros engolidos (catch vazio), promises sem await, retornos ignorados",
       "source": "source/agents/silent-failure-hunter.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
       "installStrategy": "always",
-      "model": "opus"
+      "model": "opus",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "agent-build-error-resolver",
       "kind": "agent",
       "description": "Resolve erros de build/compilação/teste (tsc, vite, jest, lint) lendo o output do erro",
       "source": "source/agents/build-error-resolver.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
       "installStrategy": "always",
-      "model": "sonnet"
+      "model": "sonnet",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "agent-code-simplifier",
       "kind": "agent",
       "description": "Simplifica código complexo sem mudar comportamento — reduz aninhamento, remove duplicação",
       "source": "source/agents/code-simplifier.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
       "installStrategy": "always",
-      "model": "sonnet"
+      "model": "sonnet",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "agent-refactor-cleaner",
       "kind": "agent",
       "description": "Limpa código morto, imports não usados, duplicação e TODOs resolvidos após refactor",
       "source": "source/agents/refactor-cleaner.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
       "installStrategy": "always",
-      "model": "sonnet"
+      "model": "sonnet",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "agent-planner",
       "kind": "agent",
       "description": "Quebra uma tarefa ampla em passos executáveis com dependências e ordem, antes de implementação",
       "source": "source/agents/planner.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
       "installStrategy": "always",
-      "model": "opus"
+      "model": "opus",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "agent-code-explorer",
       "kind": "agent",
       "description": "Explora a codebase para responder 'onde está X / como Y funciona / quem chama Z' sem modificar nada",
       "source": "source/agents/code-explorer.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
       "installStrategy": "always",
-      "model": "haiku"
+      "model": "haiku",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "agent-doc-updater",
       "kind": "agent",
       "description": "Atualiza documentação (README, comentários de WHY, CHANGELOG) para refletir mudanças recentes",
       "source": "source/agents/doc-updater.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
       "installStrategy": "always",
-      "model": "haiku"
+      "model": "haiku",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "agent-performance-optimizer",
       "kind": "agent",
       "description": "Otimiza performance medida — identifica gargalos (renders, queries N+1, bundle size)",
       "source": "source/agents/performance-optimizer.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
       "installStrategy": "always",
-      "model": "sonnet"
+      "model": "sonnet",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "skill-tdd",
       "kind": "skill",
       "description": "Test-Driven Development RED→GREEN→REFACTOR",
       "source": "source/skills/tdd/SKILL.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "skill-e2e-testing",
       "kind": "skill",
       "description": "End-to-end testing for critical user flows",
       "source": "source/skills/e2e-testing/SKILL.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "skill-deep-research",
       "kind": "skill",
       "description": "Deep research for technical decisions and domain mapping",
       "source": "source/skills/deep-research/SKILL.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "skill-codebase-onboarding",
       "kind": "skill",
       "description": "Structured onboarding into an unfamiliar codebase",
       "source": "source/skills/codebase-onboarding/SKILL.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "skill-code-tour",
       "kind": "skill",
       "description": "Guided tour of a codebase flow or feature for understanding",
       "source": "source/skills/code-tour/SKILL.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "skill-database-migrations",
       "kind": "skill",
       "description": "Safe database schema migrations with rollback strategy",
       "source": "source/skills/database-migrations/SKILL.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "stack:supabase"
+      "installStrategy": "stack:supabase",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "skill-api-design",
       "kind": "skill",
       "description": "API endpoint design and contract definition",
       "source": "source/skills/api-design/SKILL.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "skill-accessibility",
       "kind": "skill",
       "description": "WCAG accessibility guidelines for UI components",
       "source": "source/skills/accessibility/SKILL.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "stack:react"
+      "installStrategy": "stack:react",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "skill-benchmark-optimization-loop",
       "kind": "skill",
       "description": "Measure-before-optimize loop for performance improvements",
       "source": "source/skills/benchmark-optimization-loop/SKILL.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "skill-cost-tracking",
       "kind": "skill",
       "description": "Token cost tracking and model selection guidance",
       "source": "source/skills/cost-tracking/SKILL.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "skill-two-instance-kickoff",
       "kind": "skill",
       "description": "Kickoff de projeto novo com 2 instâncias em paralelo: scaffold + deep research do domínio",
       "source": "source/skills/two-instance-kickoff/SKILL.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "manual"
+      "installStrategy": "manual",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "skill-llms-txt",
       "kind": "skill",
       "description": "Gera docs LLM-otimizadas (llms.txt) para uma codebase/produto",
       "source": "source/skills/llms-txt/SKILL.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "manual"
+      "installStrategy": "manual",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "skill-mcp-to-cli",
       "kind": "skill",
       "description": "Converte uma integração MCP pesada em skill + CLI equivalente, reduzindo tokens e tools ativos",
       "source": "source/skills/mcp-to-cli/SKILL.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "manual"
+      "installStrategy": "manual",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "skill-ideiaos-catalog",
       "kind": "skill",
       "description": "Lista os módulos do IdeiaOS instalados vs disponíveis, filtrável por kind e stack",
       "source": "source/skills/ideiaos-catalog/SKILL.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "hook-observe-tool-use",
       "kind": "hook",
       "description": "PostToolUse — appends metadata-only observation lines to ~/.ideiaos/observations (Continuous Learning v2)",
       "source": "source/hooks/observe-tool-use.sh",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "hook-observe-session-end",
       "kind": "hook",
       "description": "Stop — appends session_end marker as evaluation trigger for /instinct-analyze",
       "source": "source/hooks/observe-session-end.sh",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "skill-instinct-analyze",
       "kind": "skill",
       "description": "Background haiku agent — distills observations.jsonl into atomic instincts with confidence",
       "source": "source/skills/instinct-analyze/SKILL.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "skill-instinct-status",
       "kind": "skill",
       "description": "Lists instincts with confidence bars grouped by domain/scope",
       "source": "source/skills/instinct-status/SKILL.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "skill-learn",
       "kind": "skill",
       "description": "Manual mid-session extraction — writes one instinct at confidence 0.5",
       "source": "source/skills/learn/SKILL.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
     },
     {
       "id": "skill-evolve",
       "kind": "skill",
       "description": "Promotes mature instincts (>=0.7) to Obsidian Learnings/ or source/rules/ + curation (decay/dedup)",
       "source": "source/skills/evolve/SKILL.md",
-      "targets": ["claude"],
+      "targets": [
+        "claude"
+      ],
       "deps": [],
-      "installStrategy": "always"
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
     }
   ]
 }
