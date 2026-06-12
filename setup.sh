@@ -431,6 +431,30 @@ ensure_file_from_template() {
   ok "$target_path criado"
 }
 
+# Detecta stacks presentes no projeto alvo e retorna lista separada por espaço.
+# Uso: stacks=$(detect_stack "/caminho/do/projeto")
+# Stacks possíveis: node typescript react nextjs supabase lovable python
+# Base para instalação seletiva de rules por stack (Phase 04+).
+detect_stack() {
+  local project_dir="${1:-$PWD}"
+  local stacks=()
+
+  [[ -f "$project_dir/package.json" ]] && stacks+=("node")
+  [[ -f "$project_dir/tsconfig.json" ]] && stacks+=("typescript")
+
+  if [[ -f "$project_dir/package.json" ]]; then
+    grep -q '"react"' "$project_dir/package.json" 2>/dev/null && stacks+=("react")
+    grep -q '"next"' "$project_dir/package.json" 2>/dev/null && stacks+=("nextjs")
+    grep -q '"@supabase/' "$project_dir/package.json" 2>/dev/null && stacks+=("supabase")
+  fi
+
+  [[ -d "$project_dir/supabase" ]] && ! grep -q "supabase" <<< "${stacks[*]}" && stacks+=("supabase")
+  [[ -f "$project_dir/lovable.config.js" || -d "$project_dir/docs/lovable" ]] && stacks+=("lovable")
+  [[ -f "$project_dir/requirements.txt" || -f "$project_dir/pyproject.toml" ]] && stacks+=("python")
+
+  echo "${stacks[*]}"
+}
+
 # ─────────────────────────────────────────────────────────────────────────────
 echo -e "\n${CYAN}${BOLD}╔══════════════════════════════════════════════════════╗"
 echo    "║         Ideia Business — Dev Setup                  ║"

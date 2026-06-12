@@ -1,0 +1,304 @@
+{
+  "version": "1.0",
+  "generated": "2026-06-11",
+  "source": "IdeiaOS v2 — multi-harness catalog",
+  "modules": [
+    {
+      "id": "hook-typecheck-on-edit",
+      "kind": "hook",
+      "description": "Runs tsc --noEmit on PostToolUse for .ts/.tsx edits",
+      "source": "source/hooks/typecheck-on-edit.sh",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always"
+    },
+    {
+      "id": "hook-console-log-guard",
+      "kind": "hook",
+      "description": "Detects console.log/debug/info in .ts/.tsx/.js/.jsx after edit and warns Claude",
+      "source": "source/hooks/console-log-guard.sh",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always"
+    },
+    {
+      "id": "hook-precompact-state-save",
+      "kind": "hook",
+      "description": "Saves STATE.md snapshot before /compact to prevent context loss",
+      "source": "source/hooks/precompact-state-save.sh",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always"
+    },
+    {
+      "id": "hook-session-summary",
+      "kind": "hook",
+      "description": "Persists ECC session summary to ~/.claude/sessions/ and updates CONTINUATION_HANDOFF.md",
+      "source": "source/hooks/session-summary.sh",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always"
+    },
+    {
+      "id": "hook-strategic-compact",
+      "kind": "hook",
+      "description": "Counts tool calls per session and suggests /compact every 50 calls",
+      "source": "source/hooks/strategic-compact.sh",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always"
+    },
+    {
+      "id": "hook-deia-trigger",
+      "kind": "hook",
+      "description": "Detects 'Deia,' prefix in prompts and injects /idea skill activation guidance",
+      "source": "source/hooks/deia-trigger.sh",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always"
+    },
+    {
+      "id": "hook-extract-learnings-reminder",
+      "kind": "hook",
+      "description": "After each git commit in Fase A project, injects triple gate reminding AI to extract learnings",
+      "source": "source/hooks/extract-learnings-reminder.sh",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always"
+    },
+    {
+      "id": "hook-ideiaos-detector",
+      "kind": "hook",
+      "description": "Detects Lovable project without Fase A at session start and suggests /ideiaos-setup",
+      "source": "source/hooks/ideiaos-detector.sh",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always"
+    },
+    {
+      "id": "hook-ideiaos-readme-reminder",
+      "kind": "hook",
+      "description": "Reminds AI to update IdeiaOS README when modifying components (pre-commit reinforcement)",
+      "source": "source/hooks/ideiaos-readme-reminder.sh",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "manual"
+    },
+    {
+      "id": "agent-claude-continuation",
+      "kind": "agent",
+      "description": "Cursor agent that resumes Claude Code session context in Cursor IDE",
+      "source": "source/agents/claude-continuation.md",
+      "targets": ["cursor"],
+      "deps": [],
+      "installStrategy": "always"
+    },
+    {
+      "id": "agent-ideiaos-checker",
+      "kind": "agent",
+      "description": "Cursor agent that audits and completes IdeiaOS setup for a project",
+      "source": "source/agents/ideiaos-checker.md",
+      "targets": ["cursor"],
+      "deps": [],
+      "installStrategy": "always"
+    },
+    {
+      "id": "skill-idea",
+      "kind": "skill",
+      "description": "IdeiaOS entry point — routes requests to GSD/AIOX/Lovable/Fase A automatically",
+      "source": "source/skills/idea/SKILL.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always"
+    },
+    {
+      "id": "skill-recall-learnings",
+      "kind": "skill",
+      "description": "Recalls past learnings from docs/learnings/ at session start",
+      "source": "source/skills/recall-learnings/SKILL.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always"
+    },
+    {
+      "id": "skill-extract-learnings",
+      "kind": "skill",
+      "description": "Extracts and persists replicable learnings to docs/learnings/ at session end",
+      "source": "source/skills/extract-learnings/SKILL.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always"
+    },
+    {
+      "id": "skill-cursor-continuation",
+      "kind": "skill",
+      "description": "Resumes Cursor IDE session context inside Claude Code",
+      "source": "source/skills/cursor-continuation/SKILL.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always"
+    },
+    {
+      "id": "skill-lovable-handoff",
+      "kind": "skill",
+      "description": "Executes Lovable deploy playbook: typecheck → commit → push → handoff",
+      "source": "source/skills/lovable-handoff/SKILL.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "stack:lovable"
+    },
+    {
+      "id": "skill-ideiaos-setup",
+      "kind": "skill",
+      "description": "Single entry point to run IdeiaOS setup — idempotent, audits before applying",
+      "source": "source/skills/ideiaos-setup/SKILL.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "always"
+    },
+    {
+      "id": "skill-banner-design",
+      "kind": "skill",
+      "description": "Banner and social media design patterns for brand consistency",
+      "source": "source/skills/banner-design/SKILL.md",
+      "targets": ["claude", "cursor"],
+      "deps": ["skill-brand"],
+      "installStrategy": "manual"
+    },
+    {
+      "id": "skill-brand",
+      "kind": "skill",
+      "description": "Brand identity guidelines and visual language enforcement",
+      "source": "source/skills/brand/SKILL.md",
+      "targets": ["claude", "cursor"],
+      "deps": [],
+      "installStrategy": "manual"
+    },
+    {
+      "id": "skill-design",
+      "kind": "skill",
+      "description": "General design patterns and component aesthetics",
+      "source": "source/skills/design/SKILL.md",
+      "targets": ["claude", "cursor"],
+      "deps": [],
+      "installStrategy": "manual"
+    },
+    {
+      "id": "skill-design-system",
+      "kind": "skill",
+      "description": "Design system architecture: tokens, components, theming",
+      "source": "source/skills/design-system/SKILL.md",
+      "targets": ["claude", "cursor"],
+      "deps": ["skill-design"],
+      "installStrategy": "stack:react"
+    },
+    {
+      "id": "skill-ui-styling",
+      "kind": "skill",
+      "description": "UI styling patterns with Tailwind and OKLCH color space",
+      "source": "source/skills/ui-styling/SKILL.md",
+      "targets": ["claude", "cursor"],
+      "deps": [],
+      "installStrategy": "stack:react"
+    },
+    {
+      "id": "skill-ui-ux-pro-max",
+      "kind": "skill",
+      "description": "Advanced UI/UX patterns: accessibility, motion, responsive layout",
+      "source": "source/skills/ui-ux-pro-max/SKILL.md",
+      "targets": ["claude", "cursor"],
+      "deps": ["skill-design-system"],
+      "installStrategy": "stack:react"
+    },
+    {
+      "id": "skill-slides",
+      "kind": "skill",
+      "description": "Presentation slide design and storytelling structure",
+      "source": "source/skills/slides/SKILL.md",
+      "targets": ["claude", "cursor"],
+      "deps": ["skill-brand"],
+      "installStrategy": "manual"
+    },
+    {
+      "id": "skill-motion",
+      "kind": "skill",
+      "description": "Animation and motion design patterns for web interfaces",
+      "source": "source/skills/motion/SKILL.md",
+      "targets": ["claude", "cursor"],
+      "deps": [],
+      "installStrategy": "stack:react"
+    },
+    {
+      "id": "skill-frontend-visual-loop",
+      "kind": "skill",
+      "description": "Frontend visual dev-loop using Chrome DevTools MCP for iterative UI work",
+      "source": "source/skills/frontend-visual-loop/SKILL.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "stack:react"
+    },
+    {
+      "id": "skill-web-quality",
+      "kind": "skill",
+      "description": "Web quality audit: CWV/WCAG/SEO checks via Chrome DevTools MCP",
+      "source": "source/skills/web-quality/SKILL.md",
+      "targets": ["claude"],
+      "deps": [],
+      "installStrategy": "stack:node"
+    },
+    {
+      "id": "template-aiox-ai-config",
+      "kind": "template",
+      "description": "Base .aiox-ai-config.yaml template for project AIOX Core configuration",
+      "source": "source/templates/aiox-ai-config.yaml",
+      "targets": ["claude", "cursor"],
+      "deps": [],
+      "installStrategy": "always"
+    },
+    {
+      "id": "template-global-patches",
+      "kind": "template",
+      "description": "Global patch overlays applied on top of vendored skills (e.g., OKLCH patch)",
+      "source": "source/templates/global-patches",
+      "targets": ["claude", "cursor"],
+      "deps": [],
+      "installStrategy": "always"
+    },
+    {
+      "id": "template-hybrid",
+      "kind": "template",
+      "description": "Hybrid project structure templates: AGENTS.md, CLAUDE.md, STATE.md, Cursor rules",
+      "source": "source/templates/hybrid",
+      "targets": ["claude", "cursor"],
+      "deps": [],
+      "installStrategy": "always"
+    },
+    {
+      "id": "template-ideiaos",
+      "kind": "template",
+      "description": "IdeiaOS bundle templates: IDEIAOS.md, GUIDE-HUMANS, GUIDE-AI, DECISION-MATRIX",
+      "source": "source/templates/ideiaos",
+      "targets": ["claude", "cursor"],
+      "deps": [],
+      "installStrategy": "always"
+    },
+    {
+      "id": "template-learnings",
+      "kind": "template",
+      "description": "Learnings layer templates: README.md and _TEMPLATE.md for docs/learnings/",
+      "source": "source/templates/learnings",
+      "targets": ["claude", "cursor"],
+      "deps": [],
+      "installStrategy": "always"
+    },
+    {
+      "id": "template-lovable",
+      "kind": "template",
+      "description": "Lovable deploy templates: AGENTS fragment, playbook, handoff, conclusao, Cursor rules",
+      "source": "source/templates/lovable",
+      "targets": ["claude", "cursor"],
+      "deps": [],
+      "installStrategy": "stack:lovable"
+    }
+  ]
+}
