@@ -28,7 +28,7 @@ permanente de aprendizado, e por **curar** o banco de instincts (dedup + decay).
 
 ```bash
 # instincts do projeto atual + globais
-PROJ="$(basename "$PWD" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9-' '-')"
+PROJ="$(basename "$PWD" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g; s/--*/-/g; s/^-//; s/-$//' | cut -c1-40)"  # mesmo slug do observe-tool-use.sh
 ls ~/.ideiaos/instincts/global/*.md 2>/dev/null
 ls ~/.ideiaos/instincts/project/${PROJ}--*.md 2>/dev/null
 ```

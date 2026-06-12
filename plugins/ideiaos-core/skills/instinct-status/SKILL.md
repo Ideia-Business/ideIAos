@@ -24,10 +24,93 @@ Você exibe os **instincts aprendidos** do projeto atual (e globais), com barras
 
 ## Pipeline
 
+### Passo 0 — Verificar pendência de análise
+
+Antes de listar instincts, verificar se há observações não-analisadas em algum projeto.
+
+Para cada projeto com observações em `~/.ideiaos/observations/<proj>/observations.jsonl`:
+
+```bash
+INSTINCTS_DIR="$HOME/.ideiaos/instincts"
+OBS_BASE="$HOME/.ideiaos/observations"
+```
+
+1. Ler o `ts` da última linha não-vazia do `observations.jsonl` (campo `"ts"`).
+2. Ler o conteúdo de `~/.ideiaos/instincts/.last-analyzed-<proj>` (sentinela de timestamp).
+   - Se o sentinela não existir, tratar como `1970-01-01T00:00:00` (análise nunca rodou).
+3. Se `ts_obs > ts_last` (ou sentinela ausente): registrar projeto como **pendente de análise**.
+
+```python
+# Parse inline com python3 (sem jq):
+import sys, json, os, datetime
+
+obs_base = os.path.expanduser("~/.ideiaos/observations")
+instincts_dir = os.path.expanduser("~/.ideiaos/instincts")
+pendentes = []
+
+if os.path.isdir(obs_base):
+    for proj in os.listdir(obs_base):
+        jsonl = os.path.join(obs_base, proj, "observations.jsonl")
+        if not os.path.isfile(jsonl):
+            continue
+        ts_obs = ""
+        try:
+            with open(jsonl) as f:
+                for line in reversed(f.read().strip().splitlines()):
+                    line = line.strip()
+                    if not line:
+                        continue
+                    d = json.loads(line)
+                    ts = d.get("ts", "")
+                    if ts:
+                        ts_obs = ts
+                        break
+        except Exception:
+            continue
+        sentinel_path = os.path.join(instincts_dir, f".last-analyzed-{proj}")
+        ts_last = "1970-01-01T00:00:00"
+        ultima_analise = "nunca"
+        try:
+            ts_last = open(sentinel_path).read().strip()
+            ultima_analise = ts_last[:10]  # data ISO
+        except Exception:
+            pass
+        if ts_obs > ts_last:
+            # Contar observações não-analisadas (após ts_last)
+            count = 0
+            try:
+                with open(jsonl) as f:
+                    for line in f:
+                        line = line.strip()
+                        if not line:
+                            continue
+                        d = json.loads(line)
+                        if d.get("ts", "") > ts_last:
+                            count += 1
+            except Exception:
+                pass
+            pendentes.append((proj, count, ultima_analise))
+```
+
+Se `pendentes` não estiver vazio, exibir **antes** do sumário de instincts:
+
+```
+pendente de analise: <N> observacoes nao-analisadas em <projeto> (ultima analise: <data ou "nunca">)
+Use /instinct-analyze para processar manualmente, ou aguarde o proximo session_end.
+```
+
+Se o sentinela `.last-analyzed-<proj>` existir mas for antigo (> 7 dias), emitir aviso adicional:
+
+```
+Aviso: ultima analise automatica ha <X> dias em <projeto>.
+```
+
+Se não houver pendências, prosseguir silenciosamente para o Passo 1.
+
 ### Passo 1 — Localizar instincts
 
 ```bash
-PROJETO_SLUG=$(basename "$PWD")
+PROJETO_SLUG=$(basename "$PWD" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g; s/--*/-/g; s/^-//; s/-$//' | cut -c1-40)  # mesmo slug do observe-tool-use.sh (lowercase+sanitizado)
 INSTINCTS_DIR="$HOME/.ideiaos/instincts"
 ```
 

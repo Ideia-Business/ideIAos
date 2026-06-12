@@ -127,8 +127,12 @@ Nunca diga "ficou bom" sem ter renderizado. Se não rodou o loop, diga que não 
 |-------|-------|
 | `ui-ux-pro-max` | fornece o **rubric** (regras de a11y, estilo, layout) |
 | `web-quality` | auditoria programática CWV/WCAG/SEO (mais profunda que o loop) |
-| `gsd-ui-review` | audit visual 6-pilares **retroativo** (pós-fase); esta skill é **durante** o trabalho |
+| `gsd-ui-review` | audit visual 6-pilares **retroativo** (pós-fase) — **módulo externo / planejado v3, não incluído no manifesto IdeiaOS**; esta skill é **durante** o trabalho |
 | `lovable-handoff` | rode o loop **antes** do handoff de deploy |
 
 ## Upgrade opcional (futuro)
 Playwright MCP adiciona Core Web Vitals em tempo real e bridge de sessão logada. Só vale se precisar testar fluxos atrás de login. Instalação é operação de **@devops** (`claude mcp add playwright -s user -- npx @playwright/mcp@latest`).
+
+> **Nota sobre `gsd-ui-review`:** referenciado na tabela acima como módulo complementar mas não
+> faz parte do `manifests/modules.json` do IdeiaOS. É um skill planejado para v3 ou
+> disponível via GSD plugin. Esta skill funciona completamente sem ele.

@@ -67,7 +67,7 @@ Formular atomicamente:
 Antes de criar, verificar se já existe instinct com o mesmo slug:
 
 ```bash
-PROJETO_SLUG=$(basename "$PWD")
+PROJETO_SLUG=$(basename "$PWD" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g; s/--*/-/g; s/^-//; s/-$//' | cut -c1-40)  # mesmo slug do observe-tool-use.sh (lowercase+sanitizado)
 SLUG=$(echo "$TRIGGER" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | tr -s '-' | sed 's/^-//;s/-$//')
 
 if [ "$SCOPE" = "project" ]; then

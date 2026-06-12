@@ -49,7 +49,7 @@ Output: ~/.ideiaos/instincts/<scope>/<slug>.md (criar/atualizar)
 ### Passo 1 — Localizar observações
 
 ```bash
-PROJETO_SLUG=$(basename "$PWD")
+PROJETO_SLUG=$(basename "$PWD" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g; s/--*/-/g; s/^-//; s/-$//' | cut -c1-40)  # mesmo slug do observe-tool-use.sh (lowercase+sanitizado)
 OBS="$HOME/.ideiaos/observations/$PROJETO_SLUG/observations.jsonl"
 ```
 

@@ -110,7 +110,7 @@ Se não houver pendências, prosseguir silenciosamente para o Passo 1.
 ### Passo 1 — Localizar instincts
 
 ```bash
-PROJETO_SLUG=$(basename "$PWD")
+PROJETO_SLUG=$(basename "$PWD" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g; s/--*/-/g; s/^-//; s/-$//' | cut -c1-40)  # mesmo slug do observe-tool-use.sh (lowercase+sanitizado)
 INSTINCTS_DIR="$HOME/.ideiaos/instincts"
 ```
 

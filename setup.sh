@@ -1219,6 +1219,55 @@ echo "     Comportamento: marca session_end na observations.jsonl como gatilho d
 echo "     avaliação para /instinct-analyze. Insumo do Continuous Learning v2."
 
 # ─────────────────────────────────────────────────────────────────────────────
+step "5.21b) Skills do manifesto (installStrategy: always → ~/.claude/skills)"
+# Instala TODA skill do manifests/modules.json com installStrategy=always e
+# target claude que ainda não esteja em ~/.claude/skills — fecha o gap em que
+# skills absorvidas (ECC, instincts, catalog) existiam só em source/.
+# Skills stack:*/manual NÃO são instaladas globalmente (instalação por projeto).
+MANIFEST="$SETUP_DIR/manifests/modules.json"
+if [ -f "$MANIFEST" ]; then
+  INSTALLED_SKILLS="$(/usr/bin/python3 - "$MANIFEST" "$SETUP_DIR" "$HOME/.claude/skills" <<'PYEOF'
+import json, os, shutil, sys
+manifest, setup_dir, dst_root = sys.argv[1], sys.argv[2], sys.argv[3]
+try:
+    mods = json.load(open(manifest))["modules"]
+except Exception:
+    sys.exit(0)
+count = 0
+for m in mods:
+    if m.get("kind") != "skill" or m.get("installStrategy") != "always":
+        continue
+    if "claude" not in (m.get("targets") or []):
+        continue
+    name = m["id"].replace("skill-", "", 1)
+    src = os.path.join(setup_dir, "source", "skills", name)
+    dst = os.path.join(dst_root, name)
+    if not os.path.isdir(src):
+        continue
+    src_skill = os.path.join(src, "SKILL.md")
+    dst_skill = os.path.join(dst, "SKILL.md")
+    try:
+        if not os.path.isdir(dst):
+            shutil.copytree(src, dst)
+            count += 1
+        elif os.path.isfile(src_skill) and (not os.path.isfile(dst_skill) or open(src_skill).read() != open(dst_skill).read()):
+            shutil.copy2(src_skill, dst_skill)
+            count += 1
+    except Exception:
+        pass
+print(count)
+PYEOF
+)"
+  if [ "${INSTALLED_SKILLS:-0}" -gt 0 ] 2>/dev/null; then
+    ok "Skills do manifesto instaladas/atualizadas: $INSTALLED_SKILLS"
+  else
+    ok "Skills do manifesto já em dia (installStrategy: always)"
+  fi
+else
+  warn "manifests/modules.json não encontrado — instalação por manifesto pulada"
+fi
+
+# ─────────────────────────────────────────────────────────────────────────────
 step "5.22) Contexts de modo + aliases claude-dev/review/research (T-01-10)"
 # Implanta os 3 contexts em ~/.ideiaos/contexts/ e OFERECE (via snippet) as
 # funções shell que chamam claude --append-system-prompt. Nunca edita .zshrc/.bashrc.

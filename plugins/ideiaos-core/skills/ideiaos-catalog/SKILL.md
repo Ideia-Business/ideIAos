@@ -16,7 +16,7 @@ description: "Lista os módulos do IdeiaOS (agents, skills, hooks, rules, templa
 
 ## Como funciona
 
-O catálogo lê `manifests/modules.json` (fonte de verdade ECC — 60 módulos na Fase 04) e determina, para cada módulo, se está **instalado** ou apenas **disponível**.
+O catálogo lê `manifests/modules.json` (fonte de verdade — contagem real em runtime via `len(d["modules"])`, atualmente 70+ módulos) e determina, para cada módulo, se está **instalado** ou apenas **disponível**.
 
 ### Lógica de status
 
@@ -59,7 +59,7 @@ ls ~/.claude/agents/ 2>/dev/null || echo "sem agents instalados"
 Formato de saída:
 
 ```
-Catálogo IdeiaOS — 60 módulos
+Catálogo IdeiaOS — {len(d['modules'])} módulos
 
 | ID | Kind | Strategy | Status |
 |----|------|----------|--------|
