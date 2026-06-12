@@ -30,11 +30,13 @@ Workflow dispatch disparado via gh; job structural verde; job llm-evals skipa li
 
 ## Tema C — Marketplace pronto (Fase 16)
 
-### R4-08 (P1) — Fluxo de instalação validado de fora
+### R4-08 (P1) — Fluxo de instalação validado de fora ✅ DONE 2026-06-12
 Instalação do plugin validada a partir de um clone limpo em /tmp (estrutura marketplace.json→plugins resolve; claude plugin marketplace add por path local se CLI suportar, senão validação estrutural documentada). Critério: relatório de instalação com evidência.
+**Evidência:** clone limpo + validate (OK com warnings) + marketplace add + install end-to-end, tudo confirmado (commit 6a93a39).
 
-### R4-09 (P2) — Versionamento e docs de release
+### R4-09 (P2) — Versionamento e docs de release ✅ DONE 2026-06-12
 plugin.json 3x + versions.lock + README alinhados (3.0.0); seção de instalação revisada; decisão "repo público" documentada como PENDENTE DO USUÁRIO. Critério: greps de versão consistentes; nota no README.
+**Evidência:** 3x plugin.json 3.0.0; versions.lock ideiaos-plugin=3.0.0; README revisado com nota de visibilidade (commit 6a93a39).
 
 ## Coverage
 

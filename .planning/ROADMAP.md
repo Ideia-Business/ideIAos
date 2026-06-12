@@ -18,7 +18,8 @@
 **Requirements:** R4-06, R4-07
 **Success:** ≥3 casos reais executados localmente com política aplicada; dispatch remoto verde.
 
-### Fase 16: marketplace-ready `16-marketplace-ready`
+### Fase 16: marketplace-ready `16-marketplace-ready` ✅ DONE 2026-06-12
 **Goal:** Marketplace validado de fora, versões 3.0.0 alinhadas, decisão de visibilidade documentada.
-**Requirements:** R4-08, R4-09
+**Requirements:** R4-08 ✅, R4-09 ✅
 **Success:** instalação validada de clone limpo; versões consistentes.
+**Result:** Fluxo real confirmado (clone + validate + add + install); 3x plugin.json 3.0.0; versions.lock 3.0.0; README revisado; decisão visibilidade pública documentada como PENDENTE DO USUÁRIO. Commit: 6a93a39.
