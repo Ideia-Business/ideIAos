@@ -25,6 +25,16 @@ BUMP=0
 
 # Lê um valor do versions.lock (chave=valor)
 read_lock() { [ -f "$LOCK" ] && grep -m1 "^$1=" "$LOCK" 2>/dev/null | cut -d= -f2- || true; }
+
+# GSD pré-redux (get-shit-done-cc, 1.36–1.42) vs redux (@opengsd/…, recomeçou em 1.x):
+# 1.1.0 (redux) é MAIS NOVO que 1.36.0 (pré-redux). Guarda: 1.30–1.99 = legado.
+# Ver scripts/check-versions-lock.sh (mesma regra, enforçada no pre-commit).
+is_legacy_gsd() {
+  case "$1" in
+    1.3[0-9]|1.3[0-9].*|1.4[0-9]|1.4[0-9].*|1.[5-9][0-9]|1.[5-9][0-9].*) return 0 ;;
+  esac
+  return 1
+}
 AIOX_PIN="$(read_lock aiox-core)"
 GSD_PIN="$(read_lock gsd)"
 GSD_INSTALLED=""
@@ -78,7 +88,17 @@ check_gsd_plugin() {
     GSD_INSTALLED="$(tr -d ' \n' < "$gsd_version_file")"
     info "Versão GSD: $GSD_INSTALLED (pin: ${GSD_PIN:-—})"
     if [ -n "${GSD_PIN:-}" ] && [ "$GSD_INSTALLED" != "$GSD_PIN" ]; then
-      warn "DRIFT GSD: instalado $GSD_INSTALLED ≠ pin $GSD_PIN (versions.lock) — re-pin com --bump se intencional"
+      # Mensagem direcional: dizer QUAL lado está errado (a ambiguidade do aviso
+      # genérico causou reverts do pin em 2026-06 — ver check-versions-lock.sh).
+      if is_legacy_gsd "$GSD_INSTALLED"; then
+        warn "GSD INSTALADO é PRÉ-REDUX ($GSD_INSTALLED) — esta máquina está desatualizada."
+        warn "Atualize o plugin GSD pelo Claude Code. NÃO rode --bump nesta máquina."
+      elif is_legacy_gsd "$GSD_PIN"; then
+        warn "PIN LEGADO pré-redux ($GSD_PIN) no versions.lock — o instalado $GSD_INSTALLED (redux) é MAIS NOVO."
+        warn "Corrija com: bash scripts/update-upstream.sh --bump (e commit). Nunca edite o pin na mão."
+      else
+        warn "DRIFT GSD: instalado $GSD_INSTALLED ≠ pin $GSD_PIN (versions.lock) — re-pin com --bump se intencional"
+      fi
     fi
   fi
 
@@ -177,10 +197,19 @@ fi
 if [ "$BUMP" = 1 ] && [ -f "$LOCK" ]; then
   step "--bump: gravando versões instaladas em versions.lock"
   [ -n "$AIOX_INSTALLED" ] && sed -i.bak "s/^aiox-core=.*/aiox-core=$AIOX_INSTALLED/" "$LOCK"
-  [ -n "$GSD_INSTALLED" ]  && sed -i.bak "s/^gsd=.*/gsd=$GSD_INSTALLED/" "$LOCK"
+  # Guarda anti-revert: nunca gravar versão GSD pré-redux no pin. Foi exatamente
+  # isso (--bump em máquina com instalação stale) que reverteu o pin 2× em 2026-06.
+  if [ -n "$GSD_INSTALLED" ]; then
+    if is_legacy_gsd "$GSD_INSTALLED"; then
+      err "RECUSADO: gsd=$GSD_INSTALLED é PRÉ-REDUX (legado) — pin não alterado."
+      echo "    Atualize o plugin GSD desta máquina (redux, 1.x) e rode --bump de novo."
+    else
+      sed -i.bak "s/^gsd=.*/gsd=$GSD_INSTALLED/" "$LOCK"
+    fi
+  fi
   sed -i.bak "s/^updated=.*/updated=$(date +%F)/" "$LOCK"
   rm -f "$LOCK.bak"
-  ok "versions.lock re-pinado: aiox-core=${AIOX_INSTALLED:-?} gsd=${GSD_INSTALLED:-?}"
+  ok "versions.lock re-pinado: aiox-core=${AIOX_INSTALLED:-?} gsd=$(read_lock gsd)"
   echo "    Commit o versions.lock para propagar o pin às outras máquinas."
 fi
 

@@ -11,9 +11,14 @@
 aiox-core=5.2.9
 
 # GSD (plugin Claude Code; ~/.claude/get-shit-done/VERSION)
-# Migrou para @opengsd/get-shit-done-redux (versionamento resetou p/ 1.x).
-# 1.1.0 = npm latest do redux, instalado em ambas as máquinas (2026-06-05).
-gsd=1.36.0
+# ⚠ ARMADILHA DE VERSÃO: migrou para @opengsd/get-shit-done-redux e o
+#   versionamento RECOMEÇOU em 1.x — 1.1.0 (redux) é MAIS NOVO que 1.36.0
+#   (pré-redux). Valores 1.3x/1.4x aqui = legado ERRADO (pin já foi revertido
+#   3× assim em 2026-06).
+# NÃO edite esta linha na mão. Único escritor: scripts/update-upstream.sh --bump.
+#   O pre-commit bloqueia violações (scripts/check-versions-lock.sh) e o
+#   git-autosync ignora este arquivo.
+gsd=1.1.0
 
 # Suíte de Design (vendorizada; fonte nextlevelbuilder/ui-ux-pro-max-skill)
 # ref = tag/branch/commit pinado; commit = hash curto resolvido no último update.

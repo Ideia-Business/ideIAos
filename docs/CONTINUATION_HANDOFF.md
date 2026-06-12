@@ -38,7 +38,7 @@
 
 **Ações do usuário:**
 1. ~~Deny rules / aliases / statusline no Mac mini~~ ✅ Aplicados em 2026-06-12 (deny rules Patch 10, funções no ~/.bashrc, statusline IdeiaOS no settings.json com backup)
-2. **MacBook (e qualquer outra máquina)** — 1 comando: `cd ~/dev/IdeiaOS && git pull && bash scripts/ideiaos-update.sh` (faz sync-all + shell + statusline; idempotente)
+2. **MacBook (e qualquer outra máquina)** — 1 comando: `cd ~/dev/IdeiaOS && git pull && bash scripts/ideiaos-update.sh` (faz sync-all + guarda git-autosync + shell + statusline; idempotente). **Importante pós-fix do pin GSD (2026-06-12):** rodar no MacBook propaga o patch do git-autosync (exclui versions.lock do add -A) e fecha de vez o ciclo de reverts do pin. Se o GSD do MacBook ainda for pré-redux (1.3x), atualizar o plugin GSD pelo Claude Code — o doctor agora avisa direcionalmente.
 3. **Release v2.0 publicada na `main`** (ff-merge work→main em 2026-06-12, commit 66625ae)
 
 **Produto (deferido):**

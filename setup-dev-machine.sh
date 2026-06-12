@@ -164,7 +164,9 @@ sync_one() {
   esac
   if [ "$DIRTY" -eq 1 ]; then
     local HOST; HOST="$(hostname -s 2>/dev/null || echo mac)"
-    git add -A 2>>"$LOG"
+    # versions.lock fora do autosync: pin de frota só muda em commit deliberado
+    # (update-upstream.sh --bump). Evita que árvore stale reverta o pin (2026-06).
+    git add -A -- . ':(exclude)versions.lock' 2>>"$LOG"
     git commit -q -m "wip: autosync $(date '+%Y-%m-%d %H:%M') ($HOST)" 2>>"$LOG" && log "$NAME" "auto-commit em $BRANCH" || log "$NAME" "nada para commitar em $BRANCH"
   fi
   git fetch --quiet origin 2>>"$LOG" || { log "$NAME" "fetch falhou — push adiado"; exit 0; }

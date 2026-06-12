@@ -107,7 +107,18 @@ if [ -f "$LOCK" ]; then
   GVF="$HOME/.claude/get-shit-done/VERSION"
   if [ -f "$GVF" ]; then
     GI="$(tr -d ' \n' < "$GVF")"
-    [ "$GI" = "$GSD_PIN" ] && pass "GSD $GI = pin" || warn "GSD drift: instalado $GI ≠ pin $GSD_PIN (update-upstream.sh --bump se intencional)"
+    # Pré-redux (1.30–1.99) vs redux (recomeçou em 1.x): 1.1.0 > 1.36.0.
+    # Mensagem direcional — o aviso genérico já induziu reverts do pin (2026-06).
+    is_legacy_gsd() { case "$1" in 1.3[0-9]|1.3[0-9].*|1.4[0-9]|1.4[0-9].*|1.[5-9][0-9]|1.[5-9][0-9].*) return 0;; esac; return 1; }
+    if [ "$GI" = "$GSD_PIN" ]; then
+      pass "GSD $GI = pin"
+    elif is_legacy_gsd "$GI"; then
+      warn "GSD INSTALADO é pré-redux ($GI) — atualize o plugin GSD nesta máquina; NÃO rode --bump aqui"
+    elif is_legacy_gsd "$GSD_PIN"; then
+      warn "GSD pin LEGADO pré-redux ($GSD_PIN); instalado $GI (redux) é MAIS NOVO — corrija: update-upstream.sh --bump + commit"
+    else
+      warn "GSD drift: instalado $GI ≠ pin $GSD_PIN (update-upstream.sh --bump se intencional; nunca edite o pin na mão)"
+    fi
   fi
   # Fonte de verdade = INSTALAÇÃO (.aiox-core/package.json), não o CLI global,
   # que pode ficar defasado e exige sudo p/ atualizar. Fallback: CLI.

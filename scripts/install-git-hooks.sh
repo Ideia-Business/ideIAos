@@ -1,5 +1,6 @@
 #!/bin/bash
-# install-git-hooks.sh — instala pre-commit hook que valida README sync.
+# install-git-hooks.sh — instala pre-commit hook que valida README sync e
+# protege o versions.lock (pin GSD) contra reverts pré-redux/edição manual.
 #
 # Rodar uma vez após clone:
 #   bash scripts/install-git-hooks.sh
@@ -40,6 +41,19 @@ SCRIPT="$REPO_DIR/scripts/check-readme-sync.sh"
 
 # Quais arquivos estão sendo commitados?
 STAGED="$(git diff --cached --name-only --diff-filter=ACMRD)"
+
+# ── Guarda do versions.lock (pin GSD) ────────────────────────────────────────
+# Bloqueia: (a) valor pré-redux legado (1.3x/1.4x — ver check-versions-lock.sh);
+#           (b) edição manual do pin que não corresponde à versão instalada.
+# Bypass consciente: IDEIAOS_LOCK_OVERRIDE=1 git commit ...
+if echo "$STAGED" | grep -qx 'versions.lock'; then
+  VCHECK="$REPO_DIR/scripts/check-versions-lock.sh"
+  if [ -f "$VCHECK" ] && ! bash "$VCHECK" --staged; then
+    echo ""
+    echo "❌ Commit bloqueado: versions.lock falhou na validação do pin (acima)."
+    exit 1
+  fi
+fi
 
 # Algum em pasta de componente?
 TOUCHES_COMPONENTS=0
