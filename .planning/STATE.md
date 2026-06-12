@@ -23,8 +23,8 @@ progress:
 |------|--------|
 | PROJECT.md + ROADMAP.md | ✅ Criados via /gsd-import (2026-06-11) |
 | Plano-fonte | `.planning/research/ECC-ABSORPTION-PLAN.md` |
-| Fase 01 — quality-memory-hooks | 📋 Planejada — 4 planos, 2 waves |
-| Fase 02 — security-quarantine | 📋 Planejada — 4 planos, 2 waves |
+| Fase 01 — quality-memory-hooks | ✅ Completa |
+| Fase 02 — security-quarantine | 🔄 Wave 1 completa (02-01/02/03) — Wave 2 pendente (02-04) |
 | Fase 03 — multiharness-rules | ⬜ Não planejada |
 | Fase 04 — ecc-catalog | ⬜ Não planejada |
 | Fase 05 — instincts | ⬜ Não planejada |
@@ -34,7 +34,8 @@ progress:
 
 ## Próximo passo
 
-Fases 01 e 02 planejadas. Próximo: `/gsd-execute-phase 01` e `/gsd-execute-phase 02` (independentes, podem rodar em paralelo). Após ambas: planejar Fase 03.
+Wave 1 da Fase 02 completa (02-01 scan-absorbed.sh, 02-02 Patch 10 + idea-doctor S7, 02-03 kill-switch + memory-hygiene).
+Próximo: executar Wave 2 (02-04: README sync + smoke test integrado + checkpoint).
 
 ## Notas
 
