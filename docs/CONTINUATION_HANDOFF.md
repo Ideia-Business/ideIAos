@@ -28,5 +28,5 @@ Atualizar máquinas; depois `/gsd-new-milestone "IdeiaOS v5"` se desejado.
 
 ## Ultima sessao automatica (2026-06-12)
 
-- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-12-ideiaos-0dc39c83-3226-4cda-8042-33b2fb9f.tmp`
+- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-12-ideiaos-03aa254b-8830-4346-b4c5-68d4f434.tmp`
 - Próximo passo: (definir antes de retomar)

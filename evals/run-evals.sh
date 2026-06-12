@@ -122,15 +122,15 @@ fi
 # ─── Extrai seção de nível ### dentro de uma seção ## pai ────────────────────
 # extract_subsection FILE PARENT_SECTION SUBSECTION
 # Retorna linhas de ### SUBSECTION dentro de ## PARENT_SECTION
+# Nota: variável awk não pode se chamar "sub" (é função reservada do awk)
 extract_subsection() {
   local file="$1" parent="$2" subsec="$3"
-  awk -v par="## ${parent}" -v sub="### ${subsec}" '
-    index($0,par)==1 { in_parent=1; next }
-    in_parent && /^## / { in_parent=0; in_sub=0 }
-    in_parent && index($0,sub)==1 { in_sub=1; next }
-    in_parent && in_sub && /^### / { in_sub=0 }
-    in_parent && in_sub { print }
-  ' "$file"
+  awk -v par="## ${parent}" -v ssec="### ${subsec}" \
+    'index($0,par)==1 && par!="" { in_parent=1; in_sub=0; next }
+     in_parent && /^## / { in_parent=0; in_sub=0 }
+     in_parent && index($0,ssec)==1 && ssec!="" { in_sub=1; next }
+     in_parent && in_sub && /^### / { in_sub=0 }
+     in_parent && in_sub { print }' "$file"
 }
 
 # ─── Avaliador híbrido: Sinais grep → fallback LLM-judge ────────────────────
