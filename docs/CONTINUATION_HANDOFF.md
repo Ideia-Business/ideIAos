@@ -36,10 +36,10 @@
 
 ## Pendências (pós-milestone)
 
-**Ações do usuário (máquina local):**
-1. **Deny rules globais**: `bash scripts/install-global-patches.sh` nesta máquina (G-10)
-2. **Aliases dos contexts**: colar o snippet do setup.sh step 5.22 no `.zshrc` (claude-dev/review/research)
-3. **Statusline**: snippet do step 5.23 no settings.json (opcional)
+**Ações do usuário:**
+1. ~~Deny rules / aliases / statusline no Mac mini~~ ✅ Aplicados em 2026-06-12 (deny rules Patch 10, funções no ~/.bashrc, statusline IdeiaOS no settings.json com backup)
+2. **MacBook (e qualquer outra máquina)** — 1 comando: `cd ~/dev/IdeiaOS && git pull && bash scripts/ideiaos-update.sh` (faz sync-all + shell + statusline; idempotente)
+3. **Release v2.0 publicada na `main`** (ff-merge work→main em 2026-06-12, commit 66625ae)
 
 **Produto (deferido):**
 4. Feature "Novidades" (changelog usuário): NFideia (P2 #4), Ideiapartner (P3). Lapidai = referência.
