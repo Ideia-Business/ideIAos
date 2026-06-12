@@ -16,7 +16,7 @@ cd ideIAos
 # 2. Instale o ambiente global (uma vez na vida): skills + MCPs + hooks + Suíte de Design
 bash setup.sh --global-only
 
-# 3. Aplique o overlay (7 patches sobre GSD/AIOX/Claude) e confira a saúde
+# 3. Aplique o overlay (10 patches sobre GSD/AIOX/Claude) e confira a saúde
 bash scripts/sync-all.sh         # já roda o idea-doctor no final
 
 # 4. (Opcional) Atalho de terminal
@@ -144,9 +144,9 @@ bash ~/dev/IdeiaOS/setup-dev-machine.sh         # ou o caminho do arquivo via Ai
 Executa, em sequência:
 - `gh auth login` (se preciso) + credential helper do git
 - clona os 5 repos em `~/dev/` (cfoai-grupori, IdeiaOS, lapidai, nfideia, ideiapartner) + `npm install`
-- instala o **autosync** (LaunchAgent, a cada 15 min)
+- instala o **autosync** (LaunchAgent, a cada 15 min, com **kill-switch timeout 120s**)
 - `setup.sh --global-only` → **skills** (idea, frontend-visual-loop, motion, web-quality, Suíte de Design) + **MCPs** (chrome-devtools, context7) + hooks + agentes Cursor
-- `sync-all.sh` → aplica os **7 patches** do overlay + roda `idea-doctor`
+- `sync-all.sh` → aplica os **10 patches** do overlay + roda `idea-doctor`
 
 > ⚠️ No passo do **AIOX-core** aparece um prompt interativo de idioma — responda (só roda interativo porque há terminal). Sem terminal, ele é pulado e você roda depois: `npx aiox-core@latest install`.
 
@@ -225,8 +225,9 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | `scripts/install-alias.sh` | Adiciona alias `idea-setup` ao seu shell rc (zsh/bash) |
 | `scripts/install-git-hooks.sh` | Instala pre-commit hook que BLOQUEIA commits sem README sincronizado |
 | `scripts/check-readme-sync.sh` | Audita se README menciona todos os componentes do repo |
-| **`scripts/idea-doctor.sh`** | Diagnóstico read-only: skills, MCPs, 7 patches, versões vs `versions.lock`, drift, autosync |
-| **`scripts/install-global-patches.sh`** | Aplica overlay ideIAos (Caminho C) sobre GSD/AIOX/Claude — idempotente, 7 patches |
+| **`scripts/idea-doctor.sh`** | Diagnóstico read-only: skills, MCPs, 10 patches, versões vs `versions.lock`, drift, autosync, **Seção 7 Security Audit** (deny rules, hooks, secrets, quarentena) |
+| **`scripts/install-global-patches.sh`** | Aplica overlay ideIAos (Caminho C) sobre GSD/AIOX/Claude — idempotente, 10 patches (incl. Patch 10: deny rules baseline) |
+| **`security/scan-absorbed.sh`** | **Pipeline de quarentena obrigatório** — scan unicode invisível/payloads/comandos + AgentShield antes de absorver conteúdo de terceiros em `source/`. Exit 1 = bloqueado. |
 | **`scripts/update-upstream.sh`** | Detecta updates do GSD plugin e AIOX-core vs `versions.lock`; `--bump` re-pina |
 | **`scripts/update-design-suite.sh`** | Atualização CONTROLADA da Suíte de Design (re-vendoriza do nextlevelbuilder, mostra diff, sob demanda) |
 | **`scripts/sync-all.sh`** | Orquestrador — `git pull` → `update-upstream` → `setup.sh --global-only` → overlay → `idea-doctor` |
@@ -474,7 +475,7 @@ A versão também é refletida em `.aiox-ai-config.yaml` (`ideiaos.version: X.Y`
 
 O `setup.sh` cuida dos arquivos do **projeto**. Para os **arquivos globais** (skills Claude Code, workflow GSD, hook Fase A, settings.json, agente qa AIOX-core) o ideIAos aplica um **overlay** via patches idempotentes.
 
-### Os 7 patches do overlay ideIAos
+### Os 10 patches do overlay ideIAos
 
 | # | Onde | O que adiciona |
 |---|------|----------------|
@@ -485,14 +486,17 @@ O `setup.sh` cuida dos arquivos do **projeto**. Para os **arquivos globais** (sk
 | 5 | `.aiox-core/.../agents/qa.md` | Flag `--verification <path>` em `*gate` (Contrato 2) |
 | 6 | `.aiox-core/.../tasks/qa-gate.md` | Seção "Optional Input — ideIAos Composition" |
 | 7 | `~/.claude/skills/design-system/SKILL.md` | Tokens **OKLCH** (`--brand-hue`) na Suíte de Design (upstream de terceiros) |
+| 8 | `~/.claude/settings.json` (SessionStart hook) | `git-sync-check`: auto fast-forward cross-máquina na abertura de sessão |
+| 9 | `~/.config/git/ignore` | Gitignore global: `settings.local.json` + `.DS_Store` (evita dirty tree no autosync) |
+| 10 | `~/.claude/settings.json` (permissions.deny) | **Deny rules baseline de segurança**: `Read(~/.ssh/**)`, `Read(~/.aws/**)`, `Read(**/.env*)`, `Write(~/.ssh/**)`, `Bash(curl * \| bash)`, `Bash(nc *)` |
 
 ### Scripts de manutenção + lockfile
 
 | Comando | Quando usar |
 |---------|-------------|
-| `bash scripts/idea-doctor.sh` | **SEMPRE PRIMEIRO** — diagnóstico read-only: skills, MCPs, 7 patches, versões vs lock, drift, autosync. Não muda nada. |
+| `bash scripts/idea-doctor.sh` | **SEMPRE PRIMEIRO** — diagnóstico read-only: skills, MCPs, 10 patches, versões vs lock, drift, autosync, **Security Audit** (Seção 7). Não muda nada. |
 | `bash scripts/sync-all.sh` | **O DE SEMPRE** — atualiza tudo: `git pull` → `update-upstream` → `setup.sh --global-only` → overlay → `idea-doctor` |
-| `bash scripts/install-global-patches.sh` | só re-aplicar o overlay (7 patches) — idempotente, roda 100x |
+| `bash scripts/install-global-patches.sh` | só re-aplicar o overlay (10 patches, incl. deny rules baseline) — idempotente, roda 100x |
 | `bash scripts/update-upstream.sh` | checar updates de GSD/AIOX vs `versions.lock`. `--bump` re-pina o lock no instalado |
 | `bash scripts/update-design-suite.sh` | atualizar a Suíte de Design do upstream (controlado, mostra diff, **sob demanda**) |
 
@@ -549,7 +553,7 @@ A simulação testada em 2026-05-30: apagar manualmente os 3 gatilhos do hook �
                             ↓ atualiza via npm / plugin manager
 ┌─────────────────────────────────────────────────────────────┐
 │              OVERLAY ideIAos (Caminho C)                    │
-│  install-global-patches.sh aplica 7 patches idempotentes   │
+│  install-global-patches.sh aplica 10 patches idempotentes   │
 │  Detecta marcadores únicos antes de aplicar                 │
 └─────────────────────────────────────────────────────────────┘
                             ↓ sobrescreve com nossa adição
@@ -604,7 +608,7 @@ ideIAos/
 │   ├── install-git-hooks.sh                ← Instala pre-commit hook
 │   ├── check-readme-sync.sh                ← Audita README sync
 │   ├── idea-doctor.sh                      ← Diagnóstico saúde + drift (read-only)
-│   ├── install-global-patches.sh           ← Overlay ideIAos (Caminho C — 7 patches idempotentes)
+│   ├── install-global-patches.sh           ← Overlay ideIAos (Caminho C — 10 patches idempotentes)
 │   ├── update-upstream.sh                  ← Detecta updates GSD + AIOX vs versions.lock (--bump re-pina)
 │   ├── update-design-suite.sh              ← Atualização controlada da Suíte (re-vendoriza do upstream)
 │   └── sync-all.sh                         ← Orquestrador (pull → upstream → setup --global-only → overlay → doctor)
@@ -636,9 +640,14 @@ ideIAos/
 │   └── global-patches/
 │       ├── extract-learnings-reminder.sh   ← Fonte de verdade do hook (3 gatilhos)
 │       └── oklch-tokens.md                  ← Doc OKLCH copiado pelo Patch 7
+├── security/
+│   ├── scan-absorbed.sh                    ← Pipeline de quarentena obrigatório (unicode/payload/comandos/AgentShield)
+│   └── quarantine/                         ← Staging area para conteúdo de terceiros antes do scan
 ├── docs/
 │   ├── IDEIAOS.md                          ← Especificação canônica do ideIAos
-│   └── CONTINUATION_HANDOFF.md
+│   ├── CONTINUATION_HANDOFF.md
+│   └── security/
+│       └── memory-hygiene.md               ← Regras de higiene de memória (sem secrets, reset pós-quarentena)
 ├── AGENTS.md                               ← Identidade do ideIAos
 ├── CLAUDE.md                               ← Instruções Claude para ideIAos
 ├── STATE.md                                ← Estado do ideIAos
@@ -750,7 +759,7 @@ Se não existir, roda `@ideiaos-checker` no chat ou `idea-setup` no terminal.
 
 ### "Como sei se o setup está completo?"
 
-**Comando direto:** `bash scripts/idea-doctor.sh` — diagnóstico read-only que audita skills, MCPs, os 7 patches, versões vs `versions.lock`, drift e autosync. Mostra `OK / WARN / FAIL` por item com a remediação.
+**Comando direto:** `bash scripts/idea-doctor.sh` — diagnóstico read-only que audita skills, MCPs, os 10 patches, versões vs `versions.lock`, drift, autosync e **Security Audit** (deny rules, hooks perigosos, secrets em memória, pipeline de quarentena). Mostra `OK / WARN / FAIL` por item com a remediação. Ver também: [`docs/security/memory-hygiene.md`](docs/security/memory-hygiene.md).
 No Claude Code: `/ideiaos-setup` → mostra ✅/❌ por camada do ideIAos.
 No Cursor: `@ideiaos-checker` → idem.
 
