@@ -85,9 +85,11 @@ O fluxo de uso normal é:
 automaticamente (lista casos sem pedir veredito). Isso garante que `bash run-evals.sh </dev/null`
 nunca trave em pipelines.
 
-**Ponto de extensão futuro:** o script expõe uma função `run_case_with_model()` marcada como
-`TODO` — quando um harness de execução automática (API key + cliente LLM) estiver disponível,
-plugar a chamada nessa função. Nenhuma outra alteração no runner será necessária.
+**Execução automática (Fase 12):** a função `run_case_with_model()` está IMPLEMENTADA —
+executa cada caso via `claude -p` headless (timeout 90s), grava resultados em `evals/results/`
+e aplica a política de bloqueio (pass^k falha → exit 1; pass@k falha → aviso). Use
+`bash evals/run-evals.sh --ci` (requer `claude` no PATH ou `ANTHROPIC_API_KEY` em CI;
+sem key o caso vira `skip` e não conta nas métricas).
 
 ---
 

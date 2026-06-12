@@ -3,7 +3,7 @@
 **Milestone:** v3 — Refinamento e Automação
 **Derivado de:** docs/v3/v3-review.md (gaps G-01..G-15) + docs/v3/v3-roadmap.md
 **Data:** 2026-06-12
-**Total de requisitos v3:** 18
+**Total de requisitos v3:** 19
 
 ---
 

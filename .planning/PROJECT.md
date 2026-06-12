@@ -44,6 +44,14 @@ Base da transformação: absorção curada do framework **ECC** (everything-clau
 - AgentShield: https://github.com/affaan-m/agentshield
 
 
+## Current State (v3 shipped 2026-06-12)
+
+- **Shipped:** v3 — Refinamento pós-auditoria. 5 fases (09-13), 19 reqs, 15/15 gaps G-01..G-15 fechados, tag v3.0.
+- **Destaque:** loop de Continuous Learning FECHADO e provado ao vivo (574 observações → 50 instincts via haiku headless); skills agora instaladas via manifesto (setup 5.21b); evals em CI (GitHub Actions) com política pass^k.
+- **Auditoria:** .planning/v3-MILESTONE-AUDIT.md — PASSED 19/19 (1 blocker corrigido inline).
+
+<details><summary>v2.0 (anterior)</summary>
+
 ## Current State (v2.0 shipped 2026-06-12)
 
 - **Shipped:** v2.0 — Canivete Suíço Universal. 8/8 fases, 29/29 planos, tag v2.0.
@@ -56,3 +64,6 @@ Base da transformação: absorção curada do framework **ECC** (everything-clau
 Fonte: `docs/v3/v3-review.md` (15 gaps priorizados) + `docs/v3/v3-roadmap.md` (6 fases candidatas).
 Ordem sugerida: agent-contracts → token-optimizations → instinct-loop-automation → evals-ci → security-dx + manifest-cleanup.
 Top P1: contratos model/tools nos agents (G-01/G-02) · scheduler do instinct loop (G-03) · automação dos evals (G-04).
+
+
+</details>
