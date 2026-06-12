@@ -13,10 +13,11 @@
 **Requirements:** R4-01..R4-05
 **Success:** cadeia de spawn para em 1 (teste); estoque curado ≤80; /evolve rodado ao vivo.
 
-### Fase 15: evals-production `15-evals-production`
+### Fase 15: evals-production `15-evals-production` ✅ DONE 2026-06-12
 **Goal:** Evals LLM validados fim-a-fim (local + CI remoto).
-**Requirements:** R4-06, R4-07
+**Requirements:** R4-06 ✅, R4-07 ✅
 **Success:** ≥3 casos reais executados localmente com política aplicada; dispatch remoto verde.
+**Result:** 3 casos reais (EVAL-001 pass^k, EVAL-021 pass^k, EVAL-022 pass@k) via `claude --local`; JSONL gravado; exit codes coerentes. CI dispatch run 27439622994: structural green + llm-evals skip limpo. Fix: `--no-color` inválido removido + stdin fechado (`</dev/null`). Achado qualidade: critérios grep-based falham para semântica (comportamento produto correto). Commit: 90517d1.
 
 ### Fase 16: marketplace-ready `16-marketplace-ready` ✅ DONE 2026-06-12
 **Goal:** Marketplace validado de fora, versões 3.0.0 alinhadas, decisão de visibilidade documentada.

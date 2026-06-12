@@ -22,11 +22,13 @@ Com estoque curado, /evolve promove os maduros legítimos (≥0.7 pós-reforço)
 
 ## Tema B — Evals em produção (Fase 15)
 
-### R4-06 (P1) — Job LLM validado fim-a-fim local
+### R4-06 (P1) — Job LLM validado fim-a-fim local ✅ DONE 2026-06-12
 `run-evals.sh --ci` executa ≥3 casos reais via claude local (auth da máquina), grava results e aplica política. Critério: run real com ≥3 casos, exit code coerente com vereditos.
+**Evidência:** EVAL-001 (pass^k exit 1), EVAL-021 (pass^k exit 1), EVAL-022 (pass@k exit 0); JSONL gravado em evals/results/. Commit 90517d1.
 
-### R4-07 (P2) — CI remoto validado
+### R4-07 (P2) — CI remoto validado ✅ DONE 2026-06-12
 Workflow dispatch disparado via gh; job structural verde; job llm-evals skipa limpo sem secret (sem quebrar). Critério: `gh run watch` do dispatch → conclusion success.
+**Evidência:** Run ID 27439622994 conclusion:success; structural 5s green; llm-evals 12s skip clean.
 
 ## Tema C — Marketplace pronto (Fase 16)
 

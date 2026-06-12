@@ -32,21 +32,21 @@
 ## Pendências
 
 **Usuário:**
-1. **MacBook**: `cd ~/dev/IdeiaOS && git pull && bash scripts/ideiaos-update.sh` — propaga v3 (skills por manifesto, hooks novos, doctor 8d)
-2. **GitHub Actions**: primeiro push em evals/ vai disparar o job structural — conferir verde; opcional: configurar secret ANTHROPIC_API_KEY para o job llm-evals
-3. **Produto (deferido):** Feature "Novidades" — NFideia (P2 #4), Ideiapartner (P3)
-
-**Próximo milestone (v4) — candidatos (ver ROADMAP):**
-- Instinct-loop em produção multi-projeto (rodar /evolve quando houver instincts ≥0.7)
-- Evals LLM com key em CI
-- Marketplace público
+1. **MacBook**: `cd ~/dev/IdeiaOS && git pull && bash scripts/ideiaos-update.sh` — propaga updates
+2. **actions/checkout@v4** — deprecação Node.js 20 com deadline 2026-06-16 (4 dias). Atualizar para `@v5` ou adicionar `env: FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true` no workflow antes do deadline
+3. **Fase 14 (instinct-production)** — R4-01..R4-05 pendentes (instinct loop endurecido, curadoria estoque, /evolve ao vivo)
+4. **Produto (deferido):** Feature "Novidades" — NFideia (P2 #4), Ideiapartner (P3)
+5. **Critérios de eval (deferred):** reformular critérios semânticos nos casos como padrões simples ou migrar para LLM-as-judge
 
 ---
 
 ## Próximo passo
 
+Executar Fase 14 (instinct-production). Milestone v4 completa quando R4-01..R4-05 fecharem.
+
 ```
-/gsd-new-milestone "IdeiaOS v4" — definir escopo com o usuário
+# Fase 14 já tem diretório: .planning/phases/14-instinct-production/
+# Verificar o que foi feito lá e completar R4-01..R4-05
 ```
 
 ---
@@ -61,5 +61,5 @@
 
 ## Ultima sessao automatica (2026-06-12)
 
-- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-12-ideiaos-d00355fc-ecfb-4d4e-9f9a-d24490e5.tmp`
+- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-12-ideiaos-f703a4e8-ced6-44ed-bb7a-7fed7a9c.tmp`
 - Próximo passo: (definir antes de retomar)
