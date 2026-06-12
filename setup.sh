@@ -1219,6 +1219,92 @@ echo "     Comportamento: marca session_end na observations.jsonl como gatilho d
 echo "     avaliação para /instinct-analyze. Insumo do Continuous Learning v2."
 
 # ─────────────────────────────────────────────────────────────────────────────
+step "5.22) Contexts de modo + aliases claude-dev/review/research (T-01-10)"
+# Implanta os 3 contexts em ~/.ideiaos/contexts/ e OFERECE (via snippet) as
+# funções shell que chamam claude --append-system-prompt. Nunca edita .zshrc/.bashrc.
+# T-01-10: setup.sh nunca auto-edita dotfiles ou settings.json do usuário.
+
+CONTEXTS_SRC="$SETUP_DIR/source/contexts"
+CONTEXTS_DEST="$HOME/.ideiaos/contexts"
+mkdir -p "$CONTEXTS_DEST"
+
+for mode in dev review research; do
+  src_file="$CONTEXTS_SRC/${mode}.md"
+  if [ -f "$src_file" ]; then
+    cp "$src_file" "$CONTEXTS_DEST/${mode}.md"
+    ok "Context implantado: ~/.ideiaos/contexts/${mode}.md"
+  else
+    warn "Context não encontrado: ${src_file} — certifique-se de rodar após 07-01 (Wave 1)"
+  fi
+done
+
+# Verificar se os aliases já estão nos rc do shell
+if grep -qF "alias claude-review=" "$HOME/.zshrc" 2>/dev/null \
+   || grep -qF "alias claude-review=" "$HOME/.bashrc" 2>/dev/null \
+   || grep -qF "claude-review()" "$HOME/.zshrc" 2>/dev/null \
+   || grep -qF "claude-review()" "$HOME/.bashrc" 2>/dev/null; then
+  ok "Aliases de modo já configurados (~/.zshrc ou ~/.bashrc)"
+else
+  warn "Aliases claude-dev/review/research NÃO configurados — adicione ao seu rc de shell:"
+  cat <<'SNIPPET'
+
+       # IdeiaOS — Modos de contexto Claude (cole no ~/.zshrc ou ~/.bashrc)
+       # Usa --append-system-prompt: adiciona ao prompt padrão (preserva CLAUDE.md,
+       # hooks e memória automáticos). Não use --system-prompt (substitui tudo).
+       claude-dev()      { claude --append-system-prompt "$(cat "$HOME/.ideiaos/contexts/dev.md")" "$@"; }
+       claude-review()   { claude --append-system-prompt "$(cat "$HOME/.ideiaos/contexts/review.md")" "$@"; }
+       claude-research() { claude --append-system-prompt "$(cat "$HOME/.ideiaos/contexts/research.md")" "$@"; }
+SNIPPET
+  echo "     Os contextos já foram implantados em ~/.ideiaos/contexts/."
+  echo "     Após adicionar as funções e recarregar o shell, use:"
+  echo "       claude-review  ← abre em modo review (análise, não edição)"
+  echo "       claude-dev     ← abre em modo dev (implementação + qualidade)"
+  echo "       claude-research← abre em modo research (deep research)"
+fi
+
+# ─────────────────────────────────────────────────────────────────────────────
+step "5.23) Statusline IdeiaOS — deploy + snippet settings.json (T-01-10)"
+# Implanta o script em ~/.ideiaos/statusline/ e OFERECE (via snippet) o campo
+# statusLine para ~/.claude/settings.json. Nunca auto-edita settings.json.
+# T-01-10: setup.sh nunca auto-edita dotfiles ou settings.json do usuário.
+
+STATUSLINE_SRC="$SETUP_DIR/source/statusline/ideiaos-statusline.sh"
+STATUSLINE_DEST_DIR="$HOME/.ideiaos/statusline"
+STATUSLINE_DEST="$STATUSLINE_DEST_DIR/ideiaos-statusline.sh"
+
+mkdir -p "$STATUSLINE_DEST_DIR"
+
+if [ -f "$STATUSLINE_SRC" ]; then
+  cp "$STATUSLINE_SRC" "$STATUSLINE_DEST"
+  chmod +x "$STATUSLINE_DEST"
+  ok "Statusline implantada: ~/.ideiaos/statusline/ideiaos-statusline.sh"
+else
+  warn "Statusline não encontrada: ${STATUSLINE_SRC} — certifique-se de rodar após 07-01 (Wave 1)"
+fi
+
+# Verificar se já está registrada em ~/.claude/settings.json
+SETTINGS_FILE="$HOME/.claude/settings.json"
+if [ -f "$SETTINGS_FILE" ] && grep -q "ideiaos-statusline.sh" "$SETTINGS_FILE" 2>/dev/null; then
+  ok "Statusline IdeiaOS já registrada em ~/.claude/settings.json"
+else
+  warn "Statusline IdeiaOS NÃO registrada em ~/.claude/settings.json — adicione manualmente:"
+  cat <<'SNIPPET'
+
+       Adicione (ou mescle) o campo statusLine no ~/.claude/settings.json:
+
+       {
+         "statusLine": {
+           "type": "command",
+           "command": "bash /Users/<você>/.ideiaos/statusline/ideiaos-statusline.sh"
+         }
+       }
+
+       Substitua /Users/<você> pelo seu home real (ex: /Users/gustavo).
+       IMPORTANTE: este arquivo NÃO foi modificado pelo setup.sh (regra T-01-10).
+SNIPPET
+fi
+
+# ─────────────────────────────────────────────────────────────────────────────
 step "5.10) Skill Claude Code — /idea (orquestrador IdeiaOS)"
 # Comando único de entrada do IdeiaOS — roteia entre GSD/AIOX/Lovable/Fase A
 # automaticamente baseado no que o usuário pediu.
