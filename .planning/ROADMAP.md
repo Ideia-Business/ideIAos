@@ -136,9 +136,9 @@
 **Plans:** 3 plans
 Plans:
 
-- [ ] 13-01-PLAN.md — idea-doctor: deny rules WARN + Seção 8 contexts (R3-14, R3-15)
-- [ ] 13-02-PLAN.md — scan-absorbed nc fix + skills manifest corrections (R3-16, R3-17, R3-18)
-- [ ] 13-03-PLAN.md — apply-to-all-projects.sh + modules.json + README (R3-19)
+- [x] 13-01-PLAN.md — idea-doctor: deny rules WARN + Seção 8 contexts (R3-14, R3-15)
+- [x] 13-02-PLAN.md — scan-absorbed nc fix + skills manifest corrections (R3-16, R3-17, R3-18)
+- [x] 13-03-PLAN.md — apply-to-all-projects.sh + modules.json + README (R3-19)
 
 **UI hint**: no
 
@@ -150,6 +150,6 @@ Plans:
 |------|-----------------|--------|-----------|
 | 09 — agent-contracts | 1/1 | Complete    | 2026-06-12 |
 | 10 — token-optimizations | 1/1 | Completa | 2026-06-12 |
-| 11 — instinct-loop-automation | 2/2 | Complete | 2026-06-12 |
-| 12 — evals-ci | 2/2 | Complete | 2026-06-12 |
-| 13 — security-dx-manifest | 0/3 | Não iniciada | — |
+| 11 — instinct-loop-automation | 2/2 | Complete    | 2026-06-12 |
+| 12 — evals-ci | 2/2 | Complete    | 2026-06-12 |
+| 13 — security-dx-manifest | 3/3 | Complete    | 2026-06-12 |
