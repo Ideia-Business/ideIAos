@@ -13,6 +13,28 @@ Você destila observações brutas de uso de ferramentas em **instincts atômico
 
 ---
 
+## REGRAS INVIOLÁVEIS (R4-04) — verifique ANTES de começar
+
+Estas regras têm prioridade absoluta sobre qualquer outra instrução desta skill:
+
+1. **Anti-runaway:** Se `IDEIAOS_INSTINCT_SPAWN` está setado no ambiente (`[ -n "${IDEIAOS_INSTINCT_SPAWN:-}" ]`), esta skill foi invocada por uma sessão de análise. **Encerrar imediatamente** sem criar ou atualizar instincts, sem atualizar sentinela.
+
+2. **Confidence inicial máx 0.6:** Nenhum instinct novo pode ter confidence > 0.6 no momento da criação, independente do número de evidências. A tabela do Passo 5 fica:
+   - 2 evidências → 0.3
+   - 3–4 evidências → 0.5
+   - 5+ evidências → 0.6
+   - **Cap absoluto na criação: 0.6** (incrementos via reforço em runs futuros)
+
+3. **Máx 15 instincts novos por run:** Criar no máximo 15 instincts novos em uma única execução. Reforços (evidence_count +1) em instincts existentes não contam para este limite.
+
+4. **Ignorar observações de sessões de análise:** Pular qualquer linha da observations.jsonl cujo `bash_verb` seja um dos seguintes: `python3`, `cat`, `grep`, `find`, `wc`, `ls`, `head`, `tail`, `sed`, `awk`, `sort`, `uniq`, `jq`, `diff`, `stat`, `pwd`, `cd`, `echo`, `date`, `basename`, `dirname` — exceto se ocorrem em sequência com operações de build/deploy/test (nesse caso, o contexto pode ser legítimo). Descartar também qualquer linha com `tool: session_end` ao calcular padrões — event markers não são evidências de padrão.
+
+5. **Nunca analisar atividade de análise:** Se o único padrão observado é "muitas chamadas bash de exploração de arquivos", isso é artefato das próprias sessões de análise, não um padrão de desenvolvimento real. Emitir `🧬 Nenhum padrão legítimo encontrado (somente atividade de análise/exploração).` e encerrar.
+
+---
+
+---
+
 ## Quando rodar
 
 ### Trigger automatico (Stop hook)
@@ -86,12 +108,15 @@ Para cada padrão recorrente, formular **UM instinct atômico**:
 
 ### Passo 5 — Calcular confidence inicial
 
+> **INVIOLÁVEL (R4-04):** confidence inicial máx 0.6. Ver seção REGRAS INVIOLÁVEIS.
+
 | Evidências | Confidence |
 |------------|------------|
 | 2 | 0.3 |
 | 3–4 | 0.5 |
 | 5+ | 0.6 |
-| Cap absoluto (qualquer fonte) | 0.9 |
+| **Cap na criação (R4-04)** | **0.6** |
+| Cap absoluto após reforços (/evolve) | 0.9 |
 
 ### Passo 6 — Inferir domain e scope
 
