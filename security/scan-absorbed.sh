@@ -16,7 +16,31 @@ echo "Escaneando: $TARGET"
 echo ""
 
 # Check 1 — Unicode invisível (prompt injection oculto). FAIL automático.
-if rg -nP '[\x{200B}\x{200C}\x{200D}\x{2060}\x{FEFF}\x{202A}-\x{202E}]' "$TARGET" 2>/dev/null; then
+# Usa python3 para confiabilidade cross-plataforma; rg como acelerador opcional.
+INVISIBLE_CODEPOINTS="$(python3 - "$TARGET" <<'PY'
+import sys, os, pathlib
+PATTERNS = ['​','‌','‍','⁠','﻿',
+            '‪','‫','‬','‭','‮']
+target = pathlib.Path(sys.argv[1])
+files = list(target.rglob('*')) if target.is_dir() else [target]
+found = []
+for f in files:
+    if not f.is_file(): continue
+    try:
+        text = f.read_text(errors='replace')
+        for lineno, line in enumerate(text.splitlines(), 1):
+            for cp in PATTERNS:
+                if cp in line:
+                    found.append(f"{f}:{lineno}: <invisible U+{ord(cp):04X}>")
+                    break
+    except Exception:
+        pass
+print('\n'.join(found))
+sys.exit(0 if found else 1)
+PY
+)"
+if [ $? -eq 0 ]; then
+  echo "$INVISIBLE_CODEPOINTS"
   echo "  ✗ FAIL: caractere(s) Unicode invisível(eis) detectado(s)"; FAIL=$((FAIL+1))
 else echo "  ✓ sem unicode invisível"; PASS=$((PASS+1)); fi
 
