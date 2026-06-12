@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+# adapter.sh.tmpl — Template para novos harness adapters
+# Copie para adapters/<harness-name>/adapter.sh e implemente as funções.
+# Uso: bash adapters/<harness>/adapter.sh [--dry-run] [--project-dir PATH]
+set -euo pipefail
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+
+# ============================================================
+# CONFIGURAÇÃO OBRIGATÓRIA — edite estas 3 variáveis
+# ============================================================
+HARNESS_NAME="__HARNESS_NAME__"   # ex: codex, gemini, zed, opencode
+RULES_FORMAT="__RULES_FORMAT__"   # ex: mdc, md, json, txt
+DESTINATION="__DESTINATION__"     # ex: $HOME/.codex/rules, $PROJECT_DIR/.zed
+# ============================================================
+
+IDEIAOS_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
+SOURCE_DIR="$IDEIAOS_DIR/source"
+
+DRY_RUN=false
+PROJECT_DIR="${PWD}"
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --dry-run) DRY_RUN=true; shift ;;
+    --project-dir) PROJECT_DIR="$2"; shift 2 ;;
+    *) echo "Unknown arg: $1"; exit 1 ;;
+  esac
+done
+
+run() {
+  if $DRY_RUN; then echo "[DRY] $*"; else "$@"; fi
+}
+
+# ============================================================
+# IMPLEMENTE ESTAS FUNÇÕES conforme o harness
+# ============================================================
+
+install_rules() {
+  echo "→ Installing rules for $HARNESS_NAME..."
+  # Exemplo (adapte o caminho e extensão):
+  # while IFS= read -r rule_file; do
+  #   rel="${rule_file#$SOURCE_DIR/rules/}"
+  #   slug="ideiaos-$(echo "$rel" | tr '/' '-' | sed "s/\.md$/.$RULES_FORMAT/")"
+  #   run cp "$rule_file" "$DESTINATION/$slug"
+  #   echo "  rule: $rel → $DESTINATION/$slug"
+  # done < <(find "$SOURCE_DIR/rules" -name "*.md" 2>/dev/null || true)
+  echo "  (não implementado — sobrescreva esta função)"
+}
+
+install_hooks() {
+  echo "→ Installing hooks for $HARNESS_NAME..."
+  # Implemente conforme o harness suportar hooks/lifecycle events
+  echo "  (não implementado — sobrescreva esta função)"
+}
+
+install_agents() {
+  echo "→ Installing agents for $HARNESS_NAME..."
+  # Implemente conforme o harness suportar agents
+  echo "  (não implementado — sobrescreva esta função)"
+}
+
+# ============================================================
+# MAIN
+# ============================================================
+echo "build: $HARNESS_NAME adapter (dry-run=$DRY_RUN)"
+run mkdir -p "$DESTINATION"
+install_rules
+install_hooks
+install_agents
+echo ""
+echo "✓ $HARNESS_NAME adapter complete"

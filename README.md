@@ -231,6 +231,7 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | **`scripts/update-upstream.sh`** | Detecta updates do GSD plugin e AIOX-core vs `versions.lock`; `--bump` re-pina |
 | **`scripts/update-design-suite.sh`** | Atualização CONTROLADA da Suíte de Design (re-vendoriza do nextlevelbuilder, mostra diff, sob demanda) |
 | **`scripts/sync-all.sh`** | Orquestrador — `git pull` → `update-upstream` → `setup.sh --global-only` → overlay → `idea-doctor` |
+| **`scripts/build-adapters.sh`** | **Compila `source/` → harnesses** — copia hooks/agents para Claude (`~/.claude/`) e rules para Cursor (`.cursor/rules/*.mdc`). Suporte a `--target claude\|cursor\|all` e `--dry-run`. |
 | **`versions.lock`** | Lockfile de versões (aiox-core, gsd, ref da Suíte, MCPs) que toda máquina deve convergir |
 
 ### Componentes do projeto (instalados quando você roda em projeto específico)
@@ -392,6 +393,54 @@ bash "$HOME/.../ideiaos-setup/setup.sh" --lovable "$PWD"
 ### Idempotência é a chave
 
 O `setup.sh` é **idempotente**: roda 1x ou 100x, dá o mesmo resultado. Isso permite que múltiplas formas de invocá-lo coexistam sem coordenação. Detalhes em `docs/learnings/2026-05-28-idempotency-enables-multi-entry-tooling.md` no projeto ideiapartner (espelho global em memória Claude).
+
+---
+
+## 🔀 Arquitetura Multi-Harness (Fase 03+)
+
+O IdeiaOS v2 separa **fonte de verdade** de **artefatos de harness**. Nunca edite os artefatos gerados diretamente — edite `source/` e recompile.
+
+```
+source/                         manifests/modules.json
+├── skills/                     (catálogo ECC — 33 módulos)
+├── agents/        ──────────────────────┐
+├── hooks/                               │
+├── templates/                           ▼
+└── rules/              scripts/build-adapters.sh
+    ├── common/                          │
+    ├── supabase/          ┌─────────────┴──────────────┐
+    ├── lovable/           ▼                            ▼
+    └── ecc/        adapters/claude/          adapters/cursor/
+        ├── common/ (~/.claude/hooks/          (.cursor/rules/*.mdc
+        ├── typescript/  ~/.claude/agents/)     no projeto-alvo)
+        └── react/
+```
+
+### Rebuild rápido
+
+```bash
+# Rebuild completo (todos os harnesses)
+bash scripts/build-adapters.sh --target all
+
+# Seletivo
+bash scripts/build-adapters.sh --target claude
+bash scripts/build-adapters.sh --target cursor --project-dir /caminho/do/projeto
+
+# Dry-run (ver o que seria feito sem executar)
+bash scripts/build-adapters.sh --target all --dry-run
+```
+
+### Harnesses suportados
+
+| Harness | Status | Destino |
+|---------|--------|---------|
+| `claude` | ATIVO | `~/.claude/hooks/` + `~/.claude/agents/` |
+| `cursor` | ATIVO | `.cursor/rules/*.mdc` no projeto-alvo |
+| `codex` | planejado (Fase 04+) | `adapters/_scaffold/` como template |
+| `gemini` | planejado (Fase 04+) | `adapters/_scaffold/` como template |
+| `zed` | planejado (Fase 04+) | `adapters/_scaffold/` como template |
+
+> **Princípio:** `source/` é imutável durante o dia a dia. `build-adapters.sh` é o único ponto de saída para harnesses. Filtro por stack (`detect_stack()` + `installStrategy` do catálogo) entra na Fase 04 com a skill `/ideiaos-catalog`.
 
 ---
 
@@ -611,7 +660,8 @@ ideIAos/
 │   ├── install-global-patches.sh           ← Overlay ideIAos (Caminho C — 10 patches idempotentes)
 │   ├── update-upstream.sh                  ← Detecta updates GSD + AIOX vs versions.lock (--bump re-pina)
 │   ├── update-design-suite.sh              ← Atualização controlada da Suíte (re-vendoriza do upstream)
-│   └── sync-all.sh                         ← Orquestrador (pull → upstream → setup --global-only → overlay → doctor)
+│   ├── sync-all.sh                         ← Orquestrador (pull → upstream → setup --global-only → overlay → doctor)
+│   └── build-adapters.sh                   ← Compila source/ → harness targets (claude + cursor)
 ├── templates/
 │   ├── aiox-ai-config.yaml                 ← Config IA + marker ideIAos
 │   ├── hybrid/
@@ -640,6 +690,28 @@ ideIAos/
 │   └── global-patches/
 │       ├── extract-learnings-reminder.sh   ← Fonte de verdade do hook (3 gatilhos)
 │       └── oklch-tokens.md                  ← Doc OKLCH copiado pelo Patch 7
+├── source/                                 ← FONTE ÚNICA DE VERDADE (Fase 03+)
+│   ├── skills/                             ← cópia canônica de skills/ (setup.sh aponta aqui)
+│   ├── agents/                             ← cópia canônica de agents/
+│   ├── hooks/                              ← cópia canônica de hooks/
+│   ├── templates/                          ← cópia canônica de templates/
+│   ├── contexts/                           ← vazio — para Fase 07 (contexts-evals)
+│   └── rules/
+│       ├── common/                         ← token-economy, mcp-hygiene, orchestration
+│       ├── supabase/                       ← rls-patterns
+│       ├── lovable/                        ← deployment-protocol
+│       └── ecc/                            ← rules ECC absorvidas via quarentena (MIT)
+│           ├── common/                     ← code-quality, testing, documentation
+│           ├── typescript/                 ← typescript strict rules
+│           └── react/                      ← hooks rules, component patterns
+├── manifests/
+│   └── modules.json                        ← catálogo ECC de 33 módulos IdeiaOS (hooks/agents/skills/templates)
+├── adapters/                               ← artefatos compilados por harness (gerados por build-adapters.sh)
+│   ├── _scaffold/                          ← template para novos harnesses (codex, gemini, zed)
+│   │   ├── README.md                       ← como criar um novo adapter
+│   │   └── adapter.sh.tmpl                 ← template de script de adapter
+│   ├── claude/                             ← output dir para build artifacts Claude
+│   └── cursor/                             ← output dir para build artifacts Cursor
 ├── security/
 │   ├── scan-absorbed.sh                    ← Pipeline de quarentena obrigatório (unicode/payload/comandos/AgentShield)
 │   └── quarantine/                         ← Staging area para conteúdo de terceiros antes do scan
