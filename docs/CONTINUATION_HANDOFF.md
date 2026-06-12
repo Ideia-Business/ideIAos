@@ -18,15 +18,18 @@ cd ~/dev/IdeiaOS && git pull && bash scripts/ideiaos-update.sh
 2. **Repo: manter PRIVADO** — marketplace funciona nas máquinas autenticadas; público só se quiser distribuir como open source
 3. ~~checkout@v4→v5~~ ✅ aplicado (151132a)
 
-## v5 candidatos (ver ROADMAP)
+## v5 — Fase 17 CONCLUÍDA (2026-06-12)
 
-Critérios de eval grep-friendly/LLM-judge · feature Novidades (NFideia/Ideiapartner)
+Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22 casos atualizados, 3 vereditos corrigidos fail→pass. Ver `17-01-SUMMARY.md`.
+
+**Pendente v5:**
+- Feature Novidades (NFideia/Ideiapartner)
 
 ## Próximo passo
 
-Atualizar máquinas; depois `/gsd-new-milestone "IdeiaOS v5"` se desejado.
+Atualizar máquinas (`git pull && bash scripts/ideiaos-update.sh`); depois `/gsd-new-milestone "IdeiaOS v5"` se desejado.
 
 ## Ultima sessao automatica (2026-06-12)
 
-- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-12-ideiaos-03aa254b-8830-4346-b4c5-68d4f434.tmp`
+- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-12-ideiaos-b45a86dc-2b85-4e09-aeb6-ca9209b7.tmp`
 - Próximo passo: (definir antes de retomar)

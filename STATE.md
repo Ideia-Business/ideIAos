@@ -21,6 +21,15 @@
 | **Fase 13 security-dx-manifest** | ✅ Completa (13-01 + 13-02 + 13-03) |
 | Próximo passo | Ver `docs/CONTINUATION_HANDOFF.md` |
 
+## Mudanças recentes (2026-06-12) — Fase 17 eval-criteria completa (v5 item 1)
+
+- **Avaliador híbrido:** `run-evals.sh` ganha `evaluate_response()` — lê subseção `### Sinais` com padrões `+`/`-` (grep -qi); fallback LLM-judge `claude --model claude-haiku-4-5 -p` (timeout 60s; skip se indisponível)
+- **22 casos atualizados** com sinais grep-friendly literais (nomes de tabela, comandos, termos técnicos)
+- **3 vereditos corrigidos** (EVAL-001/021/022): fail → pass — comportamento do produto estava correto; o avaliador anterior é que era frágil
+- **Fix BSD awk** (Rule 1): variável `sub` é função reservada no awk macOS — renomeada para `ssec`
+- **README.md** atualizado com seção "Avaliação Automática: Sinais + LLM-judge"
+- **Commits:** `229728c` (feat runner+casos), `59f8c22` (fix awk+EVAL-022), `5997486` (docs README)
+
 ## Mudanças recentes (2026-06-12) — Fase 13 security-dx-manifest completa
 
 - **Fase 13 completa:** 3 planos, fechando gaps G-09/G-10/G-11/G-12/G-13/G-14/G-15
