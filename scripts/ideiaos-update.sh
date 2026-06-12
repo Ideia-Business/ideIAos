@@ -7,15 +7,12 @@
 #
 #   1. scripts/sync-all.sh             (pull → upstream → setup --global-only
 #                                        → patches globais → idea-doctor)
-<<<<<<< Updated upstream
 #   2. Guarda do git-autosync          (exclui versions.lock do add -A — evita
 #                                        revert do pin GSD por árvore stale)
-=======
-#   2. Registro de hooks IdeiaOS faltantes no ~/.claude/settings.json
+#   3. Registro de hooks IdeiaOS faltantes no ~/.claude/settings.json
 #      (fonte canônica: plugins/ideiaos-core/hooks/hooks.json)
->>>>>>> Stashed changes
-#   3. Funções claude-dev/review/research no profile do shell (idempotente)
-#   4. Statusline IdeiaOS no ~/.claude/settings.json (backup + idempotente)
+#   4. Funções claude-dev/review/research no profile do shell (idempotente)
+#   5. Statusline IdeiaOS no ~/.claude/settings.json (backup + idempotente)
 #
 # DIFERENÇA do setup.sh (decisão T-01-10): o setup.sh NUNCA edita dotfiles ou
 # settings.json do usuário — só imprime snippets. ESTE script edita, porque
@@ -48,17 +45,16 @@ done
 
 # ── 1. sync-all (pull + upstream + setup global + patches + doctor) ──────────
 # Self-update: se o pull do sync-all trouxer versão nova DESTE script, a
-# execução atual continua com a versão antiga — aceitável (as etapas 2-3 são
+# execução atual continua com a versão antiga — aceitável (as etapas 2-5 são
 # estáveis); a próxima execução já usa a nova.
-step "1/4: sync-all.sh (pull → upstream → setup --global-only → patches → doctor)"
+step "1/5: sync-all.sh (pull → upstream → setup --global-only → patches → doctor)"
 bash "$SETUP_DIR/scripts/sync-all.sh" || warn "sync-all terminou com avisos (ver acima)"
 
-<<<<<<< Updated upstream
 # ── 2. Guarda do git-autosync (propagação multi-máquina) ─────────────────────
 # Máquinas com git-autosync antigo fazem `git add -A` sem excluir versions.lock,
 # o que já reverteu o pin GSD 2× via árvore stale (2026-06). Patch in-place,
 # idempotente; a fonte canônica é o heredoc do setup-dev-machine.sh.
-step "2/4: guarda do git-autosync (versions.lock fora do add -A)"
+step "2/5: guarda do git-autosync (versions.lock fora do add -A)"
 AUTOSYNC="$HOME/.local/bin/git-autosync"
 if [ ! -f "$AUTOSYNC" ]; then
   skip "git-autosync não instalado nesta máquina (setup-dev-machine.sh instala)"
@@ -72,12 +68,13 @@ else
   else
     warn "não consegui patchear $AUTOSYNC — re-rode setup-dev-machine.sh (backup em .bak)"
   fi
-=======
-# ── 2. Registro de hooks IdeiaOS faltantes no settings.json ──────────────────
+fi
+
+# ── 3. Registro de hooks IdeiaOS faltantes no settings.json ──────────────────
 # O setup.sh instala os ARQUIVOS dos hooks mas (decisão T-01-10) só imprime o
 # snippet de registro. Este passo registra o que faltar, usando o hooks.json
 # do plugin ideiaos-core como fonte canônica (evento, matcher, timeout, async).
-step "2/4: registro de hooks no settings.json"
+step "3/5: registro de hooks no settings.json"
 SETTINGS="$HOME/.claude/settings.json"
 PLUGIN_HOOKS="$SETUP_DIR/plugins/ideiaos-core/hooks/hooks.json"
 if [ ! -f "$SETTINGS" ]; then
@@ -119,19 +116,17 @@ if added:
     json.dump(settings, open(settings_path, "w"), indent=2, ensure_ascii=False)
     for a in added:
         print(f"  + registrado: {a}")
-    print(f"REGISTERED:{len(added)}")
 else:
-    print("REGISTERED:0")
+    print("  (nenhum hook faltando)")
 PYEOF
   case "$?" in
-    0) ok "Registro de hooks verificado (ver acima o que foi adicionado)" ;;
+    0) ok "Registro de hooks verificado" ;;
     *) warn "Falha no registro de hooks — settings.json não alterado" ;;
   esac
->>>>>>> Stashed changes
 fi
 
-# ── 3. Funções de shell (claude-dev/review/research) ─────────────────────────
-step "3/4: funções de contexto no shell"
+# ── 4. Funções de shell (claude-dev/review/research) ─────────────────────────
+step "4/5: funções de contexto no shell"
 if [ "$NO_SHELL" -eq 1 ]; then
   skip "profile do shell não tocado (--no-shell)"
 else
@@ -154,12 +149,8 @@ else
   fi
 fi
 
-<<<<<<< Updated upstream
-# ── 4. Statusline IdeiaOS no settings.json ───────────────────────────────────
-=======
-# ── 3. Statusline IdeiaOS no settings.json ───────────────────────────────────
->>>>>>> Stashed changes
-step "4/4: statusline IdeiaOS"
+# ── 5. Statusline IdeiaOS no settings.json ───────────────────────────────────
+step "5/5: statusline IdeiaOS"
 SETTINGS="$HOME/.claude/settings.json"
 SL_CMD="bash $HOME/.ideiaos/statusline/ideiaos-statusline.sh"
 if [ "$NO_STATUSLINE" -eq 1 ]; then
