@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
-status: Executing Phase 08
-last_updated: "2026-06-12T12:08:06.482Z"
+status: Complete
+last_updated: "2026-06-12T12:10:00.000Z"
 progress:
   total_phases: 8
   completed_phases: 8
@@ -43,15 +43,15 @@ progress:
 | Fase 07 — contexts-evals | 🔄 Em execução (2/3 planos completos) |
 | — 07-01 contexts + statusline | ✅ Completo (commits 73a442f, 2a54364) |
 | — 07-02 eval suite | ✅ Completo (commits 5a8517b, 0a5cf6a, 5cf37d4) |
-| Fase 08 — ideiaos-v3-review | 🔄 Em execução (3/4 planos completos) |
+| Fase 08 — ideiaos-v3-review | ✅ Completa (4/4 planos) |
 | — 08-01 agents audit | ✅ Completo (commit ae2dbea) |
 | — 08-02 skills guide | ✅ Completo (commit 2ae329c) |
 | — 08-03 token economy review | ✅ Completo (commit ae2dbea + 4638bdd) |
-| — 08-04 otimizações v3 | ⬜ Pendente |
+| — 08-04 síntese v3 + roadmap | ✅ Completo (commits 1e4a2c5 + 2f6d66f) |
 
 ## Próximo passo
 
-Fase 08 em execução (3/4 planos). 08-01, 08-02, 08-03 completos. Próximo: 08-04 (otimizações concretas — alimentadas pelas 8 oportunidades de 08-03).
+Milestone v2.0 completo. Todas as 8 fases executadas (29/29 planos). Próximo: iniciar planejamento v3 usando docs/v3/v3-roadmap.md como input (6 fases candidatas: agent-contracts → token-optimizations → instinct-loop-automation → evals-ci → security-dx + manifest-cleanup).
 
 ## Decisões Registradas
 
@@ -89,6 +89,7 @@ Fase 08 em execução (3/4 planos). 08-01, 08-02, 08-03 completos. Próximo: 08-
 - **08-03:** typescript-lsp adotado com `installStrategy: stack:typescript` — ecossistema Ideia Business é predominantemente TS; pyright-lsp adiado (sem projetos Python ativos significativos).
 - **08-03:** silent-failure-hunter candidato a downgrade opus→sonnet (processo é grep patterns fixos — ~5x economia por invocação).
 - **08-03:** claude-continuation e ideiaos-checker devem receber `model: sonnet` explícito — atualmente herdam default do harness (risco de regressão silenciosa).
+- **08-04:** 15 gaps priorizados (4 P1 · 7 P2 · 4 P3). Top P1: agents sem model/tools (G-01/G-02), instinct-loop sem scheduler (G-03), evals nunca automáticas (G-04). Ordem de fases v3: agent-contracts → token-optimizations → instinct-loop-automation → evals-ci → security-dx + manifest-cleanup. Milestone v2.0 completo.
 
 ## Notas
 
