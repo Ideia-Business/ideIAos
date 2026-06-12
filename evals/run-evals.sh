@@ -64,10 +64,19 @@ if [[ ! -d "$CASES_DIR" ]]; then
   exit 1
 fi
 
-# Coleta arquivos de casos (ordem determinística)
-mapfile -t CASE_FILES < <(ls "${CASES_DIR}"/EVAL-*.md 2>/dev/null | sort)
+# Coleta arquivos de casos (ordem determinística — compatível com bash 3.2/macOS)
+CASE_FILES=()
+for _f in "${CASES_DIR}"/EVAL-*.md; do
+  [ -f "$_f" ] && CASE_FILES+=("$_f")
+done
+# sort portável: reconstruir array via sort
+if [ ${#CASE_FILES[@]} -gt 0 ]; then
+  _sorted=$(printf '%s\n' "${CASE_FILES[@]}" | sort)
+  CASE_FILES=()
+  while IFS= read -r _line; do CASE_FILES+=("$_line"); done <<< "$_sorted"
+fi
 
-if [[ ${#CASE_FILES[@]} -eq 0 ]]; then
+if [ ${#CASE_FILES[@]} -eq 0 ]; then
   echo "Nenhum caso encontrado em $CASES_DIR" >&2
   exit 0
 fi
@@ -90,9 +99,10 @@ extract_field() {
 }
 
 # Extrai conteúdo de uma seção Markdown (## Título até a próxima ##)
+# Passa o título via variável awk para evitar problemas com / em nomes de seção
 extract_section() {
   local file="$1" section="$2"
-  awk "/^## ${section}/{found=1; next} found && /^## /{exit} found{print}" "$file"
+  awk -v sec="## ${section}" 'index($0,sec)==1{found=1; next} found && /^## /{exit} found{print}' "$file"
 }
 
 # ─── Ponto de extensão: execução automática com modelo ───────────────────────
