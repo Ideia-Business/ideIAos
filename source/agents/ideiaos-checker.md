@@ -108,6 +108,8 @@ Apresentar de forma compacta. Se tudo ✅ → terminar com "Setup IdeiaOS comple
 
 ## Passo 3 — Aplicar setup (se houver gaps)
 
+### Modo padrão (interativo)
+
 Se houver pelo menos 1 ❌, perguntar **uma vez** antes de aplicar:
 
 > "Detectei gaps no setup IdeiaOS. Aplicar agora via `bash $DEV_SETUP/setup.sh --project-only --lovable $PWD`? (idempotente — pula o que já está instalado)"
@@ -117,6 +119,21 @@ Se sim, executar:
 ```bash
 bash "$DEV_SETUP/setup.sh" --project-only --lovable "$PWD"
 ```
+
+### Modo agentic: flag `--auto-apply`
+
+Quando o agente é invocado com a flag `--auto-apply` (ex.: por um orquestrador ou pipeline agentic), o Passo 3 **aplica os patches diretamente sem exibir o prompt de confirmação**. O comportamento é idêntico ao "Se sim" acima, mas sem aguardar resposta do usuário.
+
+```bash
+# Invocação com --auto-apply (modo agentic — sem prompt)
+bash "$DEV_SETUP/setup.sh" --project-only --lovable "$PWD"
+```
+
+**Regras para --auto-apply:**
+- Usar apenas em contextos onde confirmação humana não é viável (CI, orchestrador, hook pós-clone).
+- O output ainda mostra linha por linha o que foi instalado vs pulado — nunca silencioso.
+- Se `$DEV_SETUP` não for encontrado (Passo 1 falhou), abortar com mensagem de erro clara independentemente da flag.
+- Sem `--auto-apply`: comportamento padrão com prompt é sempre preservado.
 
 Output deve mostrar linha por linha o que foi instalado vs pulado.
 
