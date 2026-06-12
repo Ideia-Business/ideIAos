@@ -247,6 +247,12 @@ for case_file in "${CASE_FILES[@]}"; do
       "$id" "$metric" "$severity" "$verdict" "$local_ts" >> "$RESULTS_FILE"
   fi
 
+  # skip (sem API key / pulado pelo operador) não conta em nenhuma métrica —
+  # sem isto, skip vira falha pass^k e bloqueia invocação manual sem key
+  if [[ "$verdict" == "skip" ]]; then
+    continue
+  fi
+
   if [[ "$metric" == "pass@k" ]]; then
     pass_k_total=$(( pass_k_total + 1 ))
     [[ "$verdict" == "pass" ]] && pass_k_aprovados=$(( pass_k_aprovados + 1 ))
