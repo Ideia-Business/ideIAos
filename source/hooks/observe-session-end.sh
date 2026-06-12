@@ -92,7 +92,7 @@ except Exception:
 
   # Gate: comparar strings ISO (lexicograficamente corretas para timestamps sem tz)
   # Se a obs mais recente <= última análise, nada a fazer
-  [ "$TS_OBS" \<= "$TS_LAST" ] && exit 0
+  [[ "$TS_OBS" > "$TS_LAST" ]] || exit 0
 
   # Gate passou: spawn haiku background com timeout (fire-and-forget)
   nohup timeout 120 claude --model claude-haiku-4-5 -p "/instinct-analyze" \
