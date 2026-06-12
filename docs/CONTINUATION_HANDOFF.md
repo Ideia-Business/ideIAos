@@ -17,6 +17,13 @@
 
 ## Resumo executivo (2026-06-12)
 
+## Sessão noite (MacBook-Air-2) — Fix definitivo dos reverts do pin GSD
+
+- **Resolvido em definitivo** o churn do `gsd=` no `versions.lock` (revertido 3×): diagnóstico corrigido (autosync stale + agente induzido por aviso ambíguo, armadilha de semver do reset redux) e **6 barreiras ativas** instaladas — ver STATE.md seção "RESOLVIDO" para a lista completa
+- Novo `scripts/check-versions-lock.sh` no pre-commit · git-autosync exclui o lock · `--bump` com guarda · mensagens direcionais · re-pin `gsd=1.1.0` (doctor limpo)
+- 2 learnings globais extraídos e promovidos (repo + memória + vault)
+- Commits: `7a4f54b` · `2d2ded2` · `3528919` (+ STATE/handoff deste fechamento)
+
 # 🏁 MILESTONE v2.0 COMPLETO — 8/8 fases, 29/29 planos
 
 - **Fase 01** (quality-memory-hooks): ✅
@@ -52,6 +59,9 @@
 ---
 
 ## Próximo passo
+
+1. **No Mac mini** (fecha o ciclo do fix do pin GSD): `cd ~/dev/IdeiaOS && git pull && bash scripts/ideiaos-update.sh`
+2. Depois, iniciar o próximo milestone:
 
 ```
 /gsd-new-milestone "IdeiaOS v3" — usando docs/v3/v3-roadmap.md como plano-fonte

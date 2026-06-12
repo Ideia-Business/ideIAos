@@ -20,6 +20,15 @@
 | **Fase 07 contexts-evals** | ✅ Completa (07-01 Wave 1a + 07-02 Wave 1b + 07-03 Wave 2) |
 | Próximo passo | Ver `docs/CONTINUATION_HANDOFF.md` |
 
+## Mudanças recentes (2026-06-12, noite) — Fix definitivo: reverts do pin GSD
+
+- **6 barreiras ativas** contra reverts do `gsd=` no `versions.lock` (detalhes na seção "RESOLVIDO" do Roadmap abaixo): autosync exclui o lock do `add -A` · `scripts/check-versions-lock.sh` (novo) no pre-commit · `--bump` recusa valor pré-redux · mensagens de drift direcionais · comentário anti-armadilha no lock · propagação via `ideiaos-update.sh`
+- Re-pin `gsd=1.1.0` — doctor sem drift (GSD = pin)
+- **2 learnings globais extraídos** (`docs/learnings/2026-06-12-*`), promovidos a memória Claude e vault Obsidian; Changelog do vault atualizado
+- `ideiaos-update.sh` ganhou também passo de **registro de hooks no settings.json** (fonte: hooks.json do plugin ideiaos-core) — agora 5 passos
+- **Commits:** `7a4f54b` (implementação, via autosync) · `2d2ded2` (doc) · `3528919` (learnings)
+- **Máquina:** sessão no MacBook-Air-2 (já protegido). **Pendente: Mac mini** rodar `git pull && bash scripts/ideiaos-update.sh`
+
 ## Mudanças recentes (2026-06-12) — Fase 07 Wave 2 (07-03) completa
 
 - **Fase 07 completa:** contexts de modo + statusline agora instaláveis e catalogados
