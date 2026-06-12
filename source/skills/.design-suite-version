@@ -1,0 +1,5 @@
+# Suíte de Design vendorizada — pin de origem (update-design-suite.sh)
+repo=https://github.com/nextlevelbuilder/ui-ux-pro-max-skill.git
+ref=main
+commit=local-seed-2026-06-02
+updated=2026-06-02

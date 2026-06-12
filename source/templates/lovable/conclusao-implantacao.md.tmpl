@@ -1,0 +1,94 @@
+# Modelo de resposta de conclusão de implantação
+
+> Este arquivo é **referência canônica** para o formato de resposta final que toda IA (Claude, Cursor, Codex, etc.) deve usar ao concluir qualquer implantação não-trivial neste projeto.
+> Não é um arquivo a ser editado por sessão — é a forma. Os blocos 1-6 são obrigatórios; bloco 7 é condicional (só preenche se houve aprendizado).
+
+---
+
+## Estrutura obrigatória (6 + 1 blocos)
+
+### Bloco 1 — Cabeçalho
+
+```
+# ✅ <INC-NN | FEATURE-SLUG> — <título curto descritivo>
+
+**Commit:** `<hash>` em `<branch>` · **Tipo:** <fix|feat|chore|refactor|docs> · **Projeto:** <nome>
+```
+
+### Bloco 2 — Entendimento do problema
+
+- O sintoma original em 2-3 frases (não copiar literalmente o pedido do usuário — sintetizar).
+- Evidência confirmada no código/dados (não suposições).
+- Se for reincidência: citar postmortems anteriores com link.
+
+### Bloco 3 — Causa raiz
+
+- A causa fundamental, com referências `arquivo:linha`.
+- Se forem múltiplas causas cumulativas, separar em "Gap A / Gap B / …".
+- Mostrar trechos de código curtos quando a leitura visual ajuda.
+- **Não** confundir sintoma com causa.
+
+### Bloco 4 — Correção aplicada
+
+- Tabela `arquivo | mudança | porquê` para mudanças relevantes.
+- Quando a correção tem matriz de comportamento (ex.: condições aplicadas / não aplicadas), incluir a matriz de convergência.
+- Explicar **por que essa abordagem** e não outras consideradas (decisão).
+
+### Bloco 5 — Verificação executada
+
+Checklist literal:
+
+```
+- ✅ Typecheck — <resultado, hash do log se relevante>
+- ✅ Testes — <quais rodaram, resultado>
+- ✅ Commit `<hash>` em `<branch>` ("<mensagem>")
+- ✅ Push em `origin/<branch>`
+- ✅ Handoff Lovable: `docs/lovable/<SLUG>.md` (se houve DDL/edges/secrets)
+- ✅ Postmortem: `docs/postmortems/<INC-NN>-<slug>.md` (se recorrência ou não-óbvio)
+```
+
+### Bloco 6 — Ação necessária ⚠️ (OBRIGATÓRIO, mesmo quando "Não")
+
+Tabela `Quem | O quê | Onde`. Categorias:
+
+- **Lovable** — aplicar migration X, redeployar edge Y, configurar secret Z
+- **Humano** — UAT, configuração no painel, decisão estratégica
+- **Nenhuma** — explicitar: "Lovable puxará automaticamente, sem ação manual"
+
+Sempre **explicitar a resposta SIM/NÃO**, mesmo se "Não" — o usuário precisa ver que essa pergunta foi considerada.
+
+### Bloco 7 — Aprendizado registrado (condicional)
+
+Se a sessão gerou aprendizado não-trivial:
+
+```
+📚 Learning registrado: `docs/learnings/YYYY-MM-DD-<slug>.md` — <título curto>
+   Tags: [tag1, tag2]  ·  Aplica-se a: [projeto1] | [global]
+```
+
+Se foi sessão puramente operacional sem aprendizado (dep bump, doc fix, rename trivial): omitir o bloco.
+
+### Bloco 8 — Próximo passo sugerido (opcional)
+
+Uma frase curta apontando ação imediata, se houver. Não inventar próximos passos se a entrega é auto-contida.
+
+---
+
+## Tom e tamanho
+
+- **Direto, técnico, sem narrativa.** Evitar "vamos…", "decidi…", "aqui está…".
+- Frases curtas. Tabelas e bullets para densidade.
+- Links em formato `[texto](caminho:linha)` quando ajudam navegação.
+- **Tamanho-alvo:** 30-60 linhas para implantações médias. Mais que isso = entregar em handoff separado.
+
+## Anti-padrões
+
+- ❌ Repetir o pedido do usuário em vez de sintetizar.
+- ❌ Bloco "Resumo" no final que duplica blocos 1-5.
+- ❌ Esconder bloco 6 atrás de prosa ("a Lovable não precisa fazer nada, mas…"). Use a tabela.
+- ❌ Misturar causa com sintoma.
+- ❌ Citar arquivos sem linha quando a linha é decisiva.
+
+## Exemplo preenchido
+
+Ver `docs/learnings/EXAMPLE-INC-351-response.md` (gerado pelo setup) para um exemplo real preenchido seguindo este formato.

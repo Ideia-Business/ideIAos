@@ -1,0 +1,30 @@
+# AGENTS.md — __PROJECT_NAME__
+
+> Este projeto opera sob **IdeiaOS** — Sistema Operacional unificado da Ideia Business.
+> Visão geral: `IDEIAOS.md` (raiz) · Guia operacional para IAs: `docs/ideiaos/GUIDE-AI.md` · Matriz de roteamento: `docs/ideiaos/DECISION-MATRIX.md`
+> **Comando único de entrada (recomendado):** `/idea <pedido em linguagem natural>`
+
+## Continue / resume (padrão híbrido)
+
+Quando o pedido for genérico ("continuar", "retomar", etc.), leia nesta ordem:
+
+1. `IDEIAOS.md` (manifesto IdeiaOS — sempre primeiro)
+2. `docs/CONTINUATION_HANDOFF.md` (estado operacional no `main`)
+3. `STATE.md` (snapshot curto)
+4. `planning:.planning/STATE.md` e `planning:.planning/ROADMAP.md` (quando existir no projeto)
+
+## Fechamento de sessão (obrigatório)
+
+Antes de encerrar qualquer sessão:
+
+1. Atualize `STATE.md` com estado real.
+2. Atualize `docs/CONTINUATION_HANDOFF.md` com:
+   - o que foi feito,
+   - pendências,
+   - próximo passo executável.
+3. Se houve decisão estratégica, sincronize `.planning/*` no branch `planning` (quando aplicável).
+
+## Fonte de verdade
+
+- Curto prazo operacional: `STATE.md` + `docs/CONTINUATION_HANDOFF.md`.
+- Médio/longo prazo: `.planning/*` no branch `planning` (quando o projeto usar esse fluxo).

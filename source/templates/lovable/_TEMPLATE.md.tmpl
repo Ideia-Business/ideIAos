@@ -1,0 +1,73 @@
+# <INC-NN | FEATURE-SLUG> — Lovable Cloud Handoff
+
+**Data:** __DATE__
+**Branch / Commit:** `main` / `<hash>`
+**Motivo:** <bug fix INC-NN | feature X | rollout Y>
+
+## O que mudou no repo
+
+- **Frontend:** <arquivos principais, comportamento esperado>
+- **Migrations criadas:**
+  - `supabase/migrations/YYYYMMDDHHMMSS_<slug>.sql` — <descrição>
+- **Edge functions modificadas:**
+  - `supabase/functions/<nome>/index.ts` — <descrição>
+- **Secrets esperados:** <NOME_SECRET_1>, <NOME_SECRET_2>
+
+## Passos para Lovable Cloud
+
+### 1. Aplicar migrations (ordem fixa)
+
+```sql
+-- migrations/YYYYMMDDHHMMSS_<slug>.sql
+-- (copiar conteúdo ou aplicar via SQL Editor / Plano Lovable)
+```
+
+> Idempotência: <sim/não — se sim, re-rodar é seguro>.
+
+### 2. Redeploy edges
+
+| Edge | Caminho | Reason |
+|------|---------|--------|
+| <nome> | `supabase/functions/<nome>/index.ts` | <motivo> |
+
+### 3. Secrets
+
+- `<NOME_SECRET>` — <onde obter / qual valor>
+
+### 4. Verificação SQL (SQL Editor)
+
+```sql
+-- Query 1: confirmar policy/RPC/coluna foi aplicada
+SELECT ...;
+
+-- Query 2: smoke test funcional
+SELECT ...;
+```
+
+**Esperado:** <descrever resultado esperado de cada query>.
+
+### 5. UAT
+
+| Usuário | Passos | Esperado |
+|---------|--------|----------|
+| <perfil> | <ação> | <resultado> |
+
+## Encerramento (após UAT)
+
+```sql
+UPDATE incidents
+SET status = 'corrigido', resolved_at = now(),
+    admin_feedback = '<descrição da correção e causa raiz>'
+WHERE incident_number = <NN>;
+```
+
+## Riscos e rollback
+
+| Risco | Mitigação | Como reverter |
+|-------|-----------|---------------|
+| <ex: policy bloqueia leitura> | <ex: queries de teste antes> | <ex: re-aplicar migration anterior> |
+
+## Referências
+
+- Postmortem: `docs/postmortems/<INC-NN>-<slug>.md`
+- Handoffs relacionados: `docs/lovable/<outro>_LOVABLE_HANDOFF.md`

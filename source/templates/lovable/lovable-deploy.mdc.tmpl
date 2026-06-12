@@ -1,0 +1,61 @@
+---
+description: 'Doutrina Lovable (todos os projetos): só `main` sincroniza, PR aberto ≠ deploy, Update/Publish é MANUAL, confirmar bundle real. Nunca Action de rebuild on:push (trava o Update).'
+alwaysApply: true
+---
+
+# Doutrina de deploy na Lovable — canônica (todos os projetos Lovable Cloud)
+
+> Consolida as **decisões de operador (2026-05-30 e 2026-05-31)** + o incidente do
+> **"botão Update cinza" (nfideia, 2026-06-04)**. **Idêntica em todos os repos Lovable.**
+
+## 1. Só `main` sincroniza — PR aberto ≠ deploy
+
+- A Lovable **Update sincroniza apenas `main`**. Feature branch / PR aberto → Update mostra "Up to date" sem mudança.
+- **Encerrar entrega só com URL de PR aberto NÃO é entregar.**
+
+## 2. Cadeia de entrega do agente (Cursor/Claude)
+
+1. `feat/*` → commit → push → PR
+2. **Merge em `main`** (salvo o operador dizer "só abra o PR")
+3. **Verificar**: `git fetch origin && git log origin/main -1` contém o fix
+4. (Se o projeto usar) atualizar `.lovable/SYNC_TRIGGER.json` (`main_head`) + push `main`
+5. Handoff `docs/lovable/*_LOVABLE_HANDOFF.md` se houver migration/edge/secret
+6. **Só então** instruir o humano: Lovable → **Update** → **Publish**
+
+Gate antes de instruir "faça Update": `gh pr view <N> --json state` = `MERGED` **e** `origin/main` atualizado.
+
+## 3. Frontend: Update/Publish é MANUAL (humano)
+
+Push no `main` **não publica**. O deploy de frontend é um **clique humano** no editor da Lovable. A IA **não clica** — ela **avisa** que precisa de Update/Publish.
+
+## 4. Armadilha: botão "Update" CINZA
+
+Causa (incidente nfideia 2026-06-04): um Action que reescreve `src/version.ts` a cada push
+deixa um commit `github-actions[bot]` como `HEAD`, **atropelando** o commit de publish da
+Lovable (`gpt-engineer-app[bot]`, "Sincronizado e rebuildado") → a Lovable não gera deploy
+publicável → o botão fica cinza.
+
+- **Nunca** use Action de rebuild com `on: push`. Se existir, deixe `on: workflow_dispatch`.
+- Destravar: peça à Lovable (chat) para **sincronizar com `main`** e fazer uma **micro-edição real**
+  (ex.: comentário em `src/main.tsx`) → vira `HEAD` publicável → o **Update reativa**.
+
+## 5. SEMPRE confirmar no bundle real (nunca confiar em "sincronizei")
+
+```bash
+SITE="https://SEU-DOMINIO"   # domínio publicado deste projeto
+curl -s "$SITE/?cb=$(date +%s)" | grep -oE 'assets/index-[A-Za-z0-9_-]+\.js'   # o hash muda ao rebuildar
+```
+Strings novas ficam nos **chunks lazy** (`<Pagina>-<hash>.js`), **não** no `index`. Acentos podem
+estar **escapados** → buscar **substrings ASCII**. Passo a passo: `docs/lovable/publicacao-frontend.md`.
+
+## 6. Backend (migrations/edges): política POR PROJETO — ver `CLAUDE.md`
+
+Diverge legitimamente entre projetos; **não unifique sem decisão do operador**:
+
+- **Via Lovable Update** (ex.: `cfoai-grupori`): migrations/edges aplicadas no Update após merge
+  `main`. Proibido `db push` / MCP Supabase no Cursor / SQL manual como fluxo padrão.
+- **Via CLI** (ex.: `nfideia`): `supabase functions deploy` / `db push` direto, independentes da
+  Lovable (autorizado no `CLAUDE.md` do projeto).
+
+> Esta regra trata do **fluxo Lovable** (seções 1–5 são universais). A seção 6 aponta para a
+> política de backend de cada projeto — não a sobreponha.

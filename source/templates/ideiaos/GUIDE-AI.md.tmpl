@@ -1,0 +1,323 @@
+# ideIAos — Guia para IAs · __PROJECT_NAME__
+
+> **Para Claude Code, Cursor, Codex, Gemini ou qualquer IA operando neste projeto.**
+> Este arquivo é instrução operacional, não documentação narrativa.
+> Última atualização: __DATE__
+
+---
+
+## Princípio zero
+
+Este projeto opera sob **ideIAos** — Sistema Operacional unificado. Sua responsabilidade como IA é:
+
+1. **Ler antes de agir** — `IDEIAOS.md`, `AGENTS.md`, `STATE.md`, `CONTINUATION_HANDOFF.md`
+2. **Rotear pela camada certa** — não use martelo onde precisa de bisturi
+3. **Respeitar gates** — quality gates, constitution gates, hooks bloqueantes não são sugestões
+4. **Aplicar Fase A** — recall no início, extract no fim
+5. **Falar português brasileiro** com o usuário
+
+---
+
+## Ao iniciar QUALQUER sessão
+
+Execute esta sequência mentalmente, sem perguntar ao usuário:
+
+```
+1. ls IDEIAOS.md && cat IDEIAOS.md
+   → Se ausente: sugerir /ideiaos-setup ANTES de qualquer outra coisa.
+
+2. cat AGENTS.md
+   → Identidade do projeto, padrões invioláveis, marker Lovable.
+
+3. cat STATE.md
+   → Snapshot operacional (curto, 1-2 telas).
+
+4. cat docs/CONTINUATION_HANDOFF.md
+   → Próximo passo executável + pendências.
+
+5. ls .planning/STATE.md 2>/dev/null && cat .planning/STATE.md
+   → (Se branch planning ou estrutura GSD) snapshot estratégico.
+
+6. /recall-learnings (skill — não confunda com bash)
+   → Carrega learnings recentes + memória relacionada.
+```
+
+**NUNCA pule esses passos**, mesmo sob pressão. O custo de pular é ressuscitar bugs já resolvidos.
+
+---
+
+## Gatilho "Deia" — alias humano do `/idea`
+
+O usuário pode invocar o orquestrador ideIAos por nome próprio:
+
+```
+Deia, <pedido>
+Deia <pedido>
+deia, <pedido>
+Déia, <pedido>
+```
+
+Quando detectar esse prefixo (também via hook `deia-trigger.sh` que injeta `additionalContext`), **trate como invocação explícita da skill `/idea`**. NÃO exija barra. Reconheça também variantes lowercase/com acento.
+
+## Roteamento — decisão única (modelo de composição)
+
+**AIOX-Core e GSD não competem. Operam em planos diferentes e se compõem:**
+
+| Plano | Camada | Artefato canônico |
+|-------|--------|-------------------|
+| O QUÊ (intenção + critério de pronto) | AIOX-Core | `docs/stories/{N}.story.md` |
+| COMO (execução técnica) | GSD | `.planning/phases/{N}/PLAN.md` + `VERIFICATION.md` |
+| ONDE (produção) | Lovable Handoff | `docs/lovable/*` |
+| MEMÓRIA (transversal) | Fase A | `docs/learnings/*` |
+| TRÂNSITO (transversal) | Continuation | `STATE.md` + `HANDOFF.md` |
+
+A Deia roteia para **um ponto de entrada**. Os planos se compõem internamente.
+
+### Avaliação — 2 exceções + 1 decisão única
+
+```
+Pedido entra →
+
+EXCEÇÃO 1: É RETOMADA? ("retoma", "onde parei", "ontem...", "antes do almoço...")
+  → Continuation: ler CONTINUATION_HANDOFF.md + STATE.md, mostrar próximo passo, PARAR.
+
+EXCEÇÃO 2: É BUG reprodutível? ("isso não funciona", "voltou aquele erro")
+  → /gsd-debug. NÃO cria story. Investiga + fixa + postmortem se incidente.
+
+DECISÃO ÚNICA: Existe ou precisa existir "O QUÊ formal"?
+  Avaliar 5 critérios (qualquer SIM → entrada AIOX):
+    1. Stakeholder externo no loop? (cliente, compliance, legal, produto)
+    2. Aceite formal antes de mergulhar? (PRD, AC, escopo travado)
+    3. Mudança visível a usuário final que precisa validação UX?
+    4. Será dividido entre 2+ executores?
+    5. Pedido contém: "story", "epic", "AC", "PRD", "validação formal"?
+
+  SIM → entrada AIOX:
+    - Story existe + InProgress → @dev *develop-story
+    - Story existe + Draft → @po *validate-story-draft
+    - Criar do zero → @sm *draft → @po *validate
+
+  NÃO → entrada GSD (default):
+    - /gsd-do <pedido> (auto-classifica quick vs plan)
+```
+
+**Default em ambiguidade:** GSD. Se mid-flight descobrir que precisava de story, AIOX pode ser invocado retroativamente.
+
+### Composição interna (após a entrada)
+
+A execução técnica passa por GSD. AIOX define O QUÊ; GSD executa o COMO; AIOX valida o pronto.
+
+**Fluxo AIOX entrada (com story):**
+```
+@sm draft → @po validate → /gsd-plan-phase --story X.story.md →
+/gsd-execute-phase → /gsd-verify-work →
+@qa *qa-gate --verification VERIFICATION.md →
+(se Lovable) /lovable-handoff → (hook) lembrete Fase A
+```
+
+**Fluxo GSD entrada (sem story):**
+```
+/gsd-do → execute → verify →
+(se Lovable) /lovable-handoff → (hook) lembrete Fase A
+```
+
+### Os 3 contratos AIOX ↔ GSD
+
+| Contrato | Comando | Quando |
+|----------|---------|--------|
+| Plan aceita story | `/gsd-plan-phase --story <path>` | Após AIOX validar story (goal = AC) |
+| QA-gate aceita verification | `@qa *qa-gate --verification <path>` | Após GSD verificar (skip-if-verified) |
+| Hook lembra extract | automático | Após qa-gate PASS ou verify SUCCESS |
+
+### Roteamentos diretos (não passam pela decisão única)
+
+| Sinal | Roteamento |
+|-------|-----------|
+| "primeira vez", "setup", "tá faltando coisa" | `/ideiaos-setup` (Claude) ou `@ideiaos-checker` (Cursor) |
+| "publica", "deploy Lovable", "sobe pra produção" | `/lovable-handoff` |
+| "registra aprendizado", "fim de sessão" | `/extract-learnings` (aplica gate triplo) |
+| "review", "valida", "audita" | `/code-review` ou `/code-review ultra` |
+| "git push", "PR", "merge", "MCP", "CI" | DELEGAR para `@devops` (Gage) — EXCLUSIVO |
+| "schema", "DDL", "RLS detalhado" | DELEGAR para `@data-engineer` (Dara) |
+
+---
+
+## Camadas — referência rápida
+
+### GSD (Get Stuff Done) — executa o COMO
+Execução técnica com commits atômicos e verificação goal-backward.
+**Skills principais:** `/gsd-do`, `/gsd-quick`, `/gsd-plan-phase`, `/gsd-execute-phase`, `/gsd-verify-work`, `/gsd-debug`, `/gsd-code-review`, `/gsd-resume-work`.
+**Catálogo completo:** `/gsd-help`.
+
+### AIOX-Core — define o O QUÊ e valida o pronto
+Story-driven com personas de autoridade exclusiva e Constitution gates.
+**Personas:** `@dev` `@qa` `@pm` `@po` `@sm` `@architect` `@data-engineer` `@ux-design-expert` `@devops` `@analyst` `@aiox-master`.
+**Catálogo completo:** `@aiox-master *help`.
+
+### Lovable Handoff — leva o COMO para produção
+**Skill:** `/lovable-handoff`. Ativa se projeto tem marker (`lovable.config.*`, `.lovable/`).
+
+### Fase A — memória transversal
+**Skills:** `/recall-learnings` (início), `/extract-learnings` (fim com gate triplo).
+
+### Continuation — trânsito entre IDEs/sessões
+**Skills:** `/cursor-continuation` (Claude lê Cursor), `@claude-continuation` (Cursor lê Claude).
+
+---
+
+## Padrões invioláveis (debugging em produção)
+
+Aplique estes 4 padrões SEM EXCEÇÃO em projeto Lovable:
+
+### 1. Bug persiste após fix → check deploy ANTES de mexer no código
+80%+ é deploy drift. Verifique:
+```bash
+git log -1 --format="%h %ad %s" --date=relative  # último commit
+# Compare com timestamp do último deploy Lovable
+```
+Se commit é depois do último deploy → bug não está corrigido em produção. Aguarde redeploy ou force push.
+
+### 2. Schema-first verification antes de UPDATE/INSERT em produção
+NUNCA confie em "deveria existir". Sempre:
+```sql
+SELECT column_name, data_type FROM information_schema.columns
+WHERE table_name = 'nome_tabela';
+```
+Antes de qualquer UPDATE/INSERT, valide schema real.
+
+### 3. Hotfixes inline (Lovable/IA externa) precisam sync explícito pro repo
+Se Lovable AI corrigiu algo direto no edge function, **antes do próximo redeploy**:
+```bash
+git fetch
+git pull origin main  # pega o hotfix
+# verifica se o hotfix está no repo
+```
+Sem isso, próximo redeploy reverte o hotfix.
+
+### 4. cTribNac com 4 dígitos (NFS-e) — placeholder silencioso
+`cTribNac` = "09.02" → 4 dígitos é placeholder, não válido. Causa E0312 silencioso na ABRASF. Validação client-side obrigatória antes de submeter.
+
+---
+
+## Arquivos protegidos (NUNCA editar localmente)
+
+*Em projeto Lovable:*
+
+- `src/integrations/supabase/client.ts`
+- `src/integrations/supabase/types.ts`
+- `.env`
+- `supabase/config.toml`
+
+Estes são gerados/mantidos pela Lovable Cloud. Edição local = drift garantido no próximo redeploy. Se precisar de mudança nesses arquivos, faça via painel Lovable Cloud ou supabase CLI (DDL).
+
+---
+
+## Hooks ativos neste ambiente (Claude Code)
+
+Você está sujeito a hooks que injetam contexto. Ignore-os é perder enforcement crítico:
+
+| Hook | Quando dispara | O que faz |
+|------|---------------|-----------|
+| `extract-learnings-reminder` | Após `git commit` | Injeta lembrete do gate triplo |
+| `ideiaos-detector` | SessionStart | Detecta projeto sem Fase A e sugere `/ideiaos-setup` |
+| `ideiaos-readme-reminder` | Edit/Write em hooks/skills/agents/scripts/templates do ideIAos | Lembra de sync README |
+| `git-sync-check` | SessionStart | `git fetch` + fast-forward automático quando o tree está limpo e atrás (mantém o repo alinhado entre máquinas) |
+
+---
+
+## Git: sincronização multi-máquina & push
+
+Se você trabalha em **mais de uma máquina**, o IdeiaOS mantém os repos alinhados automaticamente. Regras para não perder nem duplicar trabalho:
+
+- **Sincronização automática:** `git-autosync` (launchd, 15 min) puxa `main` (pull-only) e faz commit+push de branches `work`. Além dele, o hook `git-sync-check` (SessionStart) faz fast-forward no início de cada sessão. Se suspeitar de estado velho: `git fetch && git status`.
+- **Arquivos locais nunca sujam o tree:** `~/.config/git/ignore` (global) ignora `.claude/settings.local.json` e `.DS_Store` — sem isso o autosync PULA o pull (proteção dirty em `main`) e o repo fica atrás em silêncio.
+- **Push é @devops-exclusivo** (AIOX, Article II — hook `enforce-git-push-authority.cjs`). **NÃO desligue a trava.** Quando precisar empurrar, **delegue ao @devops** declarando o papel no próprio comando:
+  ```bash
+  AIOX_ACTIVE_AGENT=devops git push origin <branch>
+  ```
+  (idem para `gh pr create` / `gh pr merge`). Isso preserva o controle (evita push acidental) e remove o push manual no terminal.
+- **`main` é pull-only no autosync** (branch viva da Lovable) — commits em `main` precisam de push deliberado, via a delegação acima.
+
+---
+
+## Cross-IDE: Cursor lendo este arquivo
+
+Cursor carrega `.cursor/rules/agents-md-protocol.mdc` em todo turno (alwaysApply). Essa rule referencia AGENTS.md, que referencia este arquivo. Sequência de prioridade:
+
+1. **`.cursor/rules/*.mdc`** — sempre carregadas
+2. **AGENTS.md** — identidade do projeto
+3. **IDEIAOS.md** — manifesto operacional
+4. **CLAUDE.md** — instruções específicas Claude (ignorado por Cursor)
+5. **Este arquivo (GUIDE-AI.md)** — referência operacional detalhada
+
+---
+
+## Ao concluir QUALQUER sessão não-trivial
+
+Execute esta sequência:
+
+```
+1. Atualizar STATE.md com estado real.
+2. Atualizar docs/CONTINUATION_HANDOFF.md:
+   - o que foi feito
+   - pendências
+   - próximo passo executável
+3. /extract-learnings — aplicar gate triplo
+4. Se houve decisão estratégica → sync .planning/* no branch planning (se aplicável)
+5. Se foi implantação Lovable → resposta final no formato 8 blocos (docs/lovable/conclusao-implantacao.md)
+```
+
+---
+
+## Quando perguntar ao usuário (AskUserQuestion)
+
+Pergunte se:
+- Pedido é genuinamente ambíguo (2+ camadas viáveis)
+- Falta input crítico que só ele tem (credentials, decisão de UX, prioridade)
+- Ação tem blast radius alto (force push, drop table, delete branch)
+
+NÃO pergunte se:
+- Pedido é claro mas você está inseguro — leia mais código
+- É decisão técnica padrão (qual nome de função, onde colocar arquivo) — decida e siga
+- É revisão de plano já aprovado — execute
+
+---
+
+## Comunicação com o usuário
+
+- **Português brasileiro** sempre
+- **Direto e conciso** — sem preâmbulos longos
+- **Mostrar comando antes de executar** quando rotear via `/idea`
+- **Resposta final em 8 blocos** se foi implantação Lovable
+- **Sem emojis** a menos que o usuário use primeiro
+
+---
+
+## Memória global Claude (cross-session)
+
+Você tem memória persistente em `~/.claude/projects/<encoded-path>/memory/`. Use para:
+- `user_*.md` — perfil do usuário
+- `feedback_*.md` — correções e validações
+- `project_*.md` — contexto de projeto
+- `reference_*.md` — pointers para sistemas externos
+- `learning_*.md` — padrões replicáveis
+
+**Nunca grave em memória:**
+- Código (está no repo)
+- Git history (está no git)
+- Conversa atual (efêmera)
+- Coisas já em AGENTS.md/CLAUDE.md/IDEIAOS.md
+
+---
+
+## Quando ignorar este guia
+
+- Usuário explicitamente disse "ignora o ideIAos" ou "não roteia"
+- Tarefa é puramente conversacional ("o que é X?")
+- Você foi spawnado como subagente com prompt específico
+
+---
+
+*Este guia é instrução, não filosofia. Cada item aqui resolve um modo de falha real observado. Trate como contrato.*
+
+*Mantido sincronizado com ideIAos ([github.com/Ideia-Business/ideIAos](https://github.com/Ideia-Business/ideIAos)).*

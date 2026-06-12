@@ -1,0 +1,196 @@
+# ideIAos — Decision Matrix · __PROJECT_NAME__
+
+> **NÃO é catálogo. É árvore de decisão.**
+> Para catálogo completo de skills: `/gsd-help` (GSD) e `@aiox-master *help` (AIOX).
+> Atualizado em: __DATE__
+
+---
+
+## 1. Modelo conceitual — composição em vez de exclusão
+
+AIOX-Core e GSD **não competem**. Operam em planos diferentes e se compõem:
+
+| Plano | Camada | Artefato canônico | Responde |
+|-------|--------|-------------------|----------|
+| **O QUÊ** (intenção + critério de pronto) | AIOX-Core | `docs/stories/{N}.story.md` | "está pronto quando..." |
+| **COMO** (execução técnica) | GSD | `.planning/phases/{N}/PLAN.md` + `VERIFICATION.md` | "executar e verificar" |
+| **ONDE** (produção) | Lovable Handoff | `docs/lovable/*` | "publicar" |
+| **MEMÓRIA** (transversal) | Fase A | `docs/learnings/*` | "registrar padrão" |
+| **TRÂNSITO** (transversal) | Continuation | `STATE.md` + `CONTINUATION_HANDOFF.md` | "retomar" |
+
+A Deia roteia para **um ponto de entrada**. Os planos se compõem internamente.
+
+---
+
+## 2. A árvore mestre — 90% dos casos
+
+```
+Pedido entra →
+
+├─ É RETOMADA? ("retoma", "onde parei", "ontem...")
+│   → Continuation (lê HANDOFF + STATE, mostra próximo passo, PARA)
+│
+├─ É BUG reprodutível? ("isso não funciona", "voltou aquele erro")
+│   → /gsd-debug (NÃO cria story, investiga + fixa + postmortem se incidente)
+│
+└─ PRECISA DE "O QUÊ FORMAL"? (avaliar 5 critérios — seção 3)
+    │
+    ├─ SIM → ENTRADA AIOX
+    │   ├─ Story existe + InProgress → @dev *develop-story
+    │   ├─ Story existe + Draft → @po *validate-story-draft
+    │   └─ Criar do zero → @sm *draft → @po *validate
+    │       (depois compõe com GSD — seção 4)
+    │
+    └─ NÃO → ENTRADA GSD (default)
+        └─ /gsd-do <pedido>  (auto-classifica quick vs plan-phase)
+```
+
+**Regra default:** quando ambíguo, escolha GSD. Se descobrir mid-flight que precisava de story, AIOX pode ser invocado retroativamente (`@sm *draft --from-phase <path>`).
+
+---
+
+## 3. Os 5 critérios de "O QUÊ formal"
+
+**Avaliar TODOS antes de decidir. Qualquer SIM → entrada AIOX.**
+
+| # | Critério | Pergunta |
+|---|----------|----------|
+| 1 | Stakeholder externo no loop | Tem cliente, compliance, legal ou time de produto que precisa aprovar? |
+| 2 | Aceite formal necessário | Precisa de PRD, AC ou escopo travado antes de mergulhar? |
+| 3 | Validação UX obrigatória | Mudança visível a usuário final que precisa validação de UX? |
+| 4 | Múltiplos executores | Trabalho será dividido entre 2+ pessoas/agentes? |
+| 5 | Palavras-chave explícitas | Pedido contém "story", "epic", "AC", "PRD", "validação formal"? |
+
+**Todos NÃO → entrada GSD (default).**
+
+---
+
+## 4. Os 3 contratos AIOX ↔ GSD (composição interna)
+
+Independente da entrada, **a execução técnica passa por GSD**. AIOX define O QUÊ; GSD executa o COMO; AIOX valida o pronto.
+
+### Contrato 1 — `/gsd-plan-phase --story <path>`
+Quando vem de AIOX:
+- O **goal** do PLAN.md = **acceptance criteria** da story (1:1).
+- O VERIFICATION.md final marca cada AC como ✅ ou ❌.
+- PLAN.md referencia a story no header: `Source: docs/stories/X.story.md`.
+
+### Contrato 2 — `@qa *qa-gate --verification <path>`
+Quando vem de GSD:
+- AC já marcados ✅ no VERIFICATION são assumidos verificados.
+- qa-gate complementa (não duplica) com aceite formal e validação de stakeholder.
+- Verdict final atualiza status da story: InReview → Done (PASS) ou InProgress (REJECT).
+
+### Contrato 3 — Hook Fase A no fim
+Após qualquer um destes eventos terminar com sucesso:
+- `@qa *qa-gate` com verdict PASS
+- `/gsd-verify-work` com goal atingido
+- `/lovable-handoff` concluído
+
+O hook injeta lembrete do **gate triplo** (replicável + não-óbvio + estável). Não força extract — lembra avaliar.
+
+---
+
+## 5. Fluxos compostos canônicos
+
+### Fluxo A — AIOX entrada (com story)
+```
+@sm *draft (story.md com AC)
+  → @po *validate-story-draft (10-point)
+    → /gsd-plan-phase --story docs/stories/X.story.md
+      → /gsd-execute-phase (waves)
+        → /gsd-verify-work (VERIFICATION.md marca AC ✅/❌)
+          → @qa *qa-gate --verification .planning/phases/X/VERIFICATION.md
+            → (se Lovable) /lovable-handoff
+              → (hook automático) lembrete Fase A
+```
+
+### Fluxo B — GSD entrada (sem story)
+```
+/gsd-do <pedido>
+  → (auto) /gsd-quick OU /gsd-plan-phase + /gsd-execute-phase
+    → /gsd-verify-work
+      → (se Lovable) /lovable-handoff
+        → (hook automático) lembrete Fase A
+```
+
+### Fluxo C — Debug entrada
+```
+/gsd-debug
+  → hipótese → teste → fix → verifica
+    → docs/postmortems/YYYY-MM-DD-<slug>.md (se incidente)
+      → /extract-learnings (sempre — bug recorrente é padrão)
+```
+
+### Fluxo D — Retomada
+```
+Continuation (lê HANDOFF + STATE)
+  → mostra próximo passo executável
+    → retorna ao fluxo A, B ou C correspondente
+```
+
+---
+
+## 6. Casos especiais — 10% restantes
+
+| Caso | Resolução |
+|------|-----------|
+| Trabalho híbrido (AIOX começou, GSD entra mid-flight) | `/gsd-plan-phase --story <path>` referencia story existente |
+| GSD começou, precisa de aceite formal retroativo | `@sm *draft --from-phase <path>` gera story a partir do PLAN |
+| Hotfix urgente sem story nem fase | `/gsd-quick` → `/lovable-handoff` |
+| Setup, MCP, infra | DELEGAR para `@devops` (EXCLUSIVO) |
+| Push, PR, merge | DELEGAR para `@devops` (EXCLUSIVO) |
+| Schema/DDL detalhado | DELEGAR para `@data-engineer` |
+
+---
+
+## 7. Quando usar a Deia (`/idea`) vs comando direto
+
+**Chame a Deia** (`Deia, ...` ou `/idea ...`):
+- Não tem certeza qual entrada (AIOX ou GSD)
+- Pedido em linguagem natural
+- Está aprendendo o sistema
+- Quer ver o roteamento antes de agir
+
+**Use comando direto:**
+- Sabe que é GSD entrada → `/gsd-do` ou skill específica
+- Sabe que é AIOX entrada → `@sm *draft` ou `@dev *develop-story`
+- Tarefa repetitiva conhecida
+
+> A "Deia" é apenas o nome amigável do orquestrador `/idea`. Ambos invocam a mesma skill — o sistema reconhece "Deia,", "Deia ", "deia,", "Déia," via hook UserPromptSubmit + matching de description.
+
+---
+
+## 8. Quando usar `/gsd-quick` vs `/gsd-do` vs `/gsd-plan-phase`
+
+| Característica | `/gsd-quick` | `/gsd-do` | `/gsd-plan-phase` |
+|----------------|------------|-----------|--------------------|
+| Escopo | 1-3 arquivos | Varia (auto-detect) | 3+ arquivos |
+| Plano explícito | ❌ | ❌ (Quick auto) | ✅ PLAN.md |
+| Verificação goal-backward | Parcial | Parcial | ✅ Completa |
+| Wave-based parallelization | ❌ | Parcial | ✅ Em `execute-phase` |
+| Aceita `--story <path>` | ❌ | ❌ | ✅ (Contrato 1) |
+| Tempo médio | <5 min | 5-30 min | 30 min - 4 h |
+
+---
+
+## 9. Atalhos de terminal
+
+| Atalho | Equivalente |
+|--------|-------------|
+| `idea-setup` | `bash ~/Projects/ideIAos/setup.sh --lovable .` |
+
+---
+
+## 10. Catálogo completo de comandos
+
+Esta matriz cobre a **decisão**, não o catálogo. Para listas completas:
+
+- **GSD skills:** `/gsd-help`
+- **AIOX comandos:** `@aiox-master *help`
+- **Detalhes de uma skill:** `~/.claude/skills/<nome>/SKILL.md`
+- **Detalhes de um agente:** `.aiox-core/development/agents/<nome>.md` (se existir)
+
+---
+
+*Matriz mantida pelo ideIAos. Se você identificar um caminho recorrente não documentado, `/extract-learnings` → vira atualização desta matriz no próximo refresh.*

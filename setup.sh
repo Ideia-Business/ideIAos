@@ -198,13 +198,13 @@ setup_lovable_project() {
   # 1. Anexa fragmento ao AGENTS.md
   append_lovable_to_agents_md \
     "$project_dir/AGENTS.md" \
-    "$SETUP_DIR/templates/lovable/AGENTS.lovable.md.tmpl"
+    "$SETUP_DIR/source/templates/lovable/AGENTS.lovable.md.tmpl"
 
   # 2. Playbook em docs/
   if [ ! -f "$project_dir/docs/playbook-implantacao.md" ]; then
     mkdir -p "$project_dir/docs"
     sed -e "s|__PROJECT_NAME__|$project_name|g" -e "s|__DATE__|$today|g" \
-      "$SETUP_DIR/templates/lovable/playbook-implantacao.md.tmpl" \
+      "$SETUP_DIR/source/templates/lovable/playbook-implantacao.md.tmpl" \
       > "$project_dir/docs/playbook-implantacao.md"
     ok "docs/playbook-implantacao.md criado"
   else
@@ -215,7 +215,7 @@ setup_lovable_project() {
   if [ ! -f "$project_dir/docs/lovable/_TEMPLATE.md" ]; then
     mkdir -p "$project_dir/docs/lovable"
     sed -e "s|__PROJECT_NAME__|$project_name|g" -e "s|__DATE__|$today|g" \
-      "$SETUP_DIR/templates/lovable/_TEMPLATE.md.tmpl" \
+      "$SETUP_DIR/source/templates/lovable/_TEMPLATE.md.tmpl" \
       > "$project_dir/docs/lovable/_TEMPLATE.md"
     ok "docs/lovable/_TEMPLATE.md criado"
   else
@@ -232,7 +232,7 @@ setup_lovable_project() {
   # 5. Modelo de resposta de conclusão (referência canônica)
   if [ ! -f "$project_dir/docs/lovable/conclusao-implantacao.md" ]; then
     sed -e "s|__PROJECT_NAME__|$project_name|g" -e "s|__DATE__|$today|g" \
-      "$SETUP_DIR/templates/lovable/conclusao-implantacao.md.tmpl" \
+      "$SETUP_DIR/source/templates/lovable/conclusao-implantacao.md.tmpl" \
       > "$project_dir/docs/lovable/conclusao-implantacao.md"
     ok "docs/lovable/conclusao-implantacao.md criado (modelo de resposta final)"
   else
@@ -251,7 +251,7 @@ setup_lovable_project() {
 
   # 7. Cursor rules Lovable — doutrina ÚNICA (mandato global — sempre sincroniza do template)
   mkdir -p "$project_dir/.cursor/rules"
-  cp "$SETUP_DIR/templates/lovable/lovable-deploy.mdc.tmpl" \
+  cp "$SETUP_DIR/source/templates/lovable/lovable-deploy.mdc.tmpl" \
     "$project_dir/.cursor/rules/lovable-deploy.mdc"
   # Migração (2026-06-04): as 3 regras antigas foram consolidadas em lovable-deploy.mdc.
   rm -f "$project_dir/.cursor/rules/lovable-agent-delivery.mdc" \
@@ -277,7 +277,7 @@ setup_learnings_layer() {
 
   if [ ! -f "$project_dir/docs/learnings/README.md" ]; then
     sed -e "s|__PROJECT_NAME__|$project_name|g" -e "s|__DATE__|$today|g" \
-      "$SETUP_DIR/templates/learnings/README.md.tmpl" \
+      "$SETUP_DIR/source/templates/learnings/README.md.tmpl" \
       > "$project_dir/docs/learnings/README.md"
     ok "docs/learnings/README.md criado"
   else
@@ -287,7 +287,7 @@ setup_learnings_layer() {
   # 2. Template de learning (esqueleto referencial — não é um learning, é o modelo)
   if [ ! -f "$project_dir/docs/learnings/_TEMPLATE.md" ]; then
     sed -e "s|__PROJECT_NAME__|$project_name|g" -e "s|__DATE__|$today|g" \
-      "$SETUP_DIR/templates/learnings/_TEMPLATE.md.tmpl" \
+      "$SETUP_DIR/source/templates/learnings/_TEMPLATE.md.tmpl" \
       > "$project_dir/docs/learnings/_TEMPLATE.md"
     ok "docs/learnings/_TEMPLATE.md criado"
   else
@@ -346,12 +346,12 @@ setup_ideiaos_layer() {
 
   # 2. IDEIAOS.md com detecção de versão (bundle master)
   local target_version installed_version original_install_date
-  target_version="$(ideiaos_version_of "$SETUP_DIR/templates/ideiaos/IDEIAOS.md.tmpl")"
+  target_version="$(ideiaos_version_of "$SETUP_DIR/source/templates/ideiaos/IDEIAOS.md.tmpl")"
   local bundle_refresh=0
 
   if [ ! -f "$project_dir/IDEIAOS.md" ]; then
     sed -e "s|__PROJECT_NAME__|$project_name|g" -e "s|__DATE__|$today|g" \
-      "$SETUP_DIR/templates/ideiaos/IDEIAOS.md.tmpl" \
+      "$SETUP_DIR/source/templates/ideiaos/IDEIAOS.md.tmpl" \
       > "$project_dir/IDEIAOS.md"
     ok "IDEIAOS.md criado (manifesto na raiz) — v${target_version:-?}"
     bundle_refresh=1  # first install → render todos os docs do bundle
@@ -363,7 +363,7 @@ setup_ideiaos_layer() {
       [ -z "$original_install_date" ] && original_install_date="$today"
 
       sed -e "s|__PROJECT_NAME__|$project_name|g" -e "s|__DATE__|$original_install_date|g" \
-        "$SETUP_DIR/templates/ideiaos/IDEIAOS.md.tmpl" \
+        "$SETUP_DIR/source/templates/ideiaos/IDEIAOS.md.tmpl" \
         > "$project_dir/IDEIAOS.md"
       ok "IDEIAOS.md atualizado: v${installed_version:-?} → v${target_version}"
       warn "Bundle IdeiaOS sendo refeito — docs/ideiaos/* serão sobrescritos (são artefatos gerados, não customizáveis localmente)"
@@ -379,14 +379,14 @@ setup_ideiaos_layer() {
   if [ "$bundle_refresh" = "1" ]; then
     for tmpl_name in GUIDE-HUMANS GUIDE-AI DECISION-MATRIX; do
       sed -e "s|__PROJECT_NAME__|$project_name|g" -e "s|__DATE__|$today|g" \
-        "$SETUP_DIR/templates/ideiaos/${tmpl_name}.md.tmpl" \
+        "$SETUP_DIR/source/templates/ideiaos/${tmpl_name}.md.tmpl" \
         > "$project_dir/docs/ideiaos/${tmpl_name}.md"
       ok "docs/ideiaos/${tmpl_name}.md atualizado (bundle v${target_version})"
     done
   else
-    ensure_file_from_template "$SETUP_DIR/templates/ideiaos/GUIDE-HUMANS.md.tmpl" "$project_dir/docs/ideiaos/GUIDE-HUMANS.md" "$project_name"
-    ensure_file_from_template "$SETUP_DIR/templates/ideiaos/GUIDE-AI.md.tmpl" "$project_dir/docs/ideiaos/GUIDE-AI.md" "$project_name"
-    ensure_file_from_template "$SETUP_DIR/templates/ideiaos/DECISION-MATRIX.md.tmpl" "$project_dir/docs/ideiaos/DECISION-MATRIX.md" "$project_name"
+    ensure_file_from_template "$SETUP_DIR/source/templates/ideiaos/GUIDE-HUMANS.md.tmpl" "$project_dir/docs/ideiaos/GUIDE-HUMANS.md" "$project_name"
+    ensure_file_from_template "$SETUP_DIR/source/templates/ideiaos/GUIDE-AI.md.tmpl" "$project_dir/docs/ideiaos/GUIDE-AI.md" "$project_name"
+    ensure_file_from_template "$SETUP_DIR/source/templates/ideiaos/DECISION-MATRIX.md.tmpl" "$project_dir/docs/ideiaos/DECISION-MATRIX.md" "$project_name"
   fi
 
   # 4. Marker em .aiox-ai-config.yaml (registra que projeto está sob IdeiaOS)
@@ -489,7 +489,7 @@ step "3) Agente Cursor — claude-continuation"
 
 CURSOR_AGENTS_DIR="$HOME/.cursor/agents"
 CURSOR_AGENT="$CURSOR_AGENTS_DIR/claude-continuation.md"
-CURSOR_TEMPLATE="$SETUP_DIR/agents/claude-continuation.md"
+CURSOR_TEMPLATE="$SETUP_DIR/source/agents/claude-continuation.md"
 
 mkdir -p "$CURSOR_AGENTS_DIR"
 
@@ -512,7 +512,7 @@ step "3.5) Agente Cursor — setup-checker"
 # Espelho da skill /ideiaos-setup do Claude Code. Audita + completa setup do projeto.
 
 SETUP_CHECKER="$CURSOR_AGENTS_DIR/ideiaos-checker.md"
-SETUP_CHECKER_TEMPLATE="$SETUP_DIR/agents/ideiaos-checker.md"
+SETUP_CHECKER_TEMPLATE="$SETUP_DIR/source/agents/ideiaos-checker.md"
 
 if [ -f "$SETUP_CHECKER" ]; then
   if diff -q "$SETUP_CHECKER_TEMPLATE" "$SETUP_CHECKER" &>/dev/null; then
@@ -546,7 +546,7 @@ step "4) Skill Claude Code — cursor-continuation"
 
 CLAUDE_SKILL_DIR="$HOME/.claude/skills/cursor-continuation"
 CLAUDE_SKILL="$CLAUDE_SKILL_DIR/SKILL.md"
-CLAUDE_TEMPLATE="$SETUP_DIR/skills/cursor-continuation/SKILL.md"
+CLAUDE_TEMPLATE="$SETUP_DIR/source/skills/cursor-continuation/SKILL.md"
 
 mkdir -p "$CLAUDE_SKILL_DIR"
 
@@ -570,7 +570,7 @@ step "5) Skill Claude Code — lovable-handoff"
 
 LOVABLE_SKILL_DIR="$HOME/.claude/skills/lovable-handoff"
 LOVABLE_SKILL="$LOVABLE_SKILL_DIR/SKILL.md"
-LOVABLE_TEMPLATE="$SETUP_DIR/skills/lovable-handoff/SKILL.md"
+LOVABLE_TEMPLATE="$SETUP_DIR/source/skills/lovable-handoff/SKILL.md"
 
 mkdir -p "$LOVABLE_SKILL_DIR"
 
@@ -595,7 +595,7 @@ step "5.5) Hook Claude Code — extract-learnings-reminder"
 
 HOOK_DIR="$HOME/.claude/hooks"
 HOOK_FILE="$HOOK_DIR/extract-learnings-reminder.sh"
-HOOK_TEMPLATE="$SETUP_DIR/hooks/extract-learnings-reminder.sh"
+HOOK_TEMPLATE="$SETUP_DIR/source/hooks/extract-learnings-reminder.sh"
 
 mkdir -p "$HOOK_DIR"
 
@@ -644,7 +644,7 @@ step "5.6) Hook SessionStart Claude Code — ideiaos-detector"
 # Idempotente: silencia se Fase A já instalada, projeto não é Lovable, ou é IdeiaOS.
 
 DETECTOR_FILE="$HOOK_DIR/ideiaos-detector.sh"
-DETECTOR_TEMPLATE="$SETUP_DIR/hooks/ideiaos-detector.sh"
+DETECTOR_TEMPLATE="$SETUP_DIR/source/hooks/ideiaos-detector.sh"
 
 if [ -f "$DETECTOR_FILE" ]; then
   if diff -q "$DETECTOR_TEMPLATE" "$DETECTOR_FILE" &>/dev/null; then
@@ -686,7 +686,7 @@ step "5.7) Skill Claude Code — /ideiaos-setup"
 for SKILL_NAME in ideiaos-setup; do
   S_DIR="$HOME/.claude/skills/$SKILL_NAME"
   S_FILE="$S_DIR/SKILL.md"
-  S_TEMPLATE="$SETUP_DIR/skills/$SKILL_NAME/SKILL.md"
+  S_TEMPLATE="$SETUP_DIR/source/skills/$SKILL_NAME/SKILL.md"
 
   mkdir -p "$S_DIR"
 
@@ -711,7 +711,7 @@ step "5.8) Hook Claude Code — ideiaos-readme-reminder"
 # Reforço pelo lado da IA antes do pre-commit Git bloquear no commit.
 
 README_HOOK="$HOOK_DIR/ideiaos-readme-reminder.sh"
-README_HOOK_TEMPLATE="$SETUP_DIR/hooks/ideiaos-readme-reminder.sh"
+README_HOOK_TEMPLATE="$SETUP_DIR/source/hooks/ideiaos-readme-reminder.sh"
 
 if [ -f "$README_HOOK" ]; then
   if diff -q "$README_HOOK_TEMPLATE" "$README_HOOK" &>/dev/null; then
@@ -770,7 +770,7 @@ step "5.12) Hook Claude Code — deia-trigger (UserPromptSubmit)"
 # ("Deia, faz X") em vez do comando /idea.
 
 DEIA_HOOK="$HOOK_DIR/deia-trigger.sh"
-DEIA_HOOK_TEMPLATE="$SETUP_DIR/hooks/deia-trigger.sh"
+DEIA_HOOK_TEMPLATE="$SETUP_DIR/source/hooks/deia-trigger.sh"
 
 if [ -f "$DEIA_HOOK" ]; then
   if diff -q "$DEIA_HOOK_TEMPLATE" "$DEIA_HOOK" &>/dev/null; then
@@ -898,7 +898,7 @@ step "5.15) Hook Claude Code — typecheck-on-edit (PostToolUse .ts/.tsx async)"
 # Não bloqueia — async:true + asyncRewake:true obrigatórios no settings.json.
 
 HOOK_FILE="$HOOK_DIR/typecheck-on-edit.sh"
-HOOK_TEMPLATE="$SETUP_DIR/hooks/typecheck-on-edit.sh"
+HOOK_TEMPLATE="$SETUP_DIR/source/hooks/typecheck-on-edit.sh"
 
 if [ -f "$HOOK_FILE" ]; then
   if diff -q "$HOOK_TEMPLATE" "$HOOK_FILE" &>/dev/null; then
@@ -944,7 +944,7 @@ step "5.16) Hook Claude Code — console-log-guard (PostToolUse Edit|Write)"
 # Avisa Claude com additionalContext — nunca bloqueia (sem decision:block).
 
 HOOK_FILE="$HOOK_DIR/console-log-guard.sh"
-HOOK_TEMPLATE="$SETUP_DIR/hooks/console-log-guard.sh"
+HOOK_TEMPLATE="$SETUP_DIR/source/hooks/console-log-guard.sh"
 
 if [ -f "$HOOK_FILE" ]; then
   if diff -q "$HOOK_TEMPLATE" "$HOOK_FILE" &>/dev/null; then
@@ -988,7 +988,7 @@ step "5.17) Hook Claude Code — strategic-compact (PreToolUse — contador de t
 # Sem matcher: roda em TODOS os PreToolUse. Silencioso abaixo do limiar.
 
 HOOK_FILE="$HOOK_DIR/strategic-compact.sh"
-HOOK_TEMPLATE="$SETUP_DIR/hooks/strategic-compact.sh"
+HOOK_TEMPLATE="$SETUP_DIR/source/hooks/strategic-compact.sh"
 
 if [ -f "$HOOK_FILE" ]; then
   if diff -q "$HOOK_TEMPLATE" "$HOOK_FILE" &>/dev/null; then
@@ -1031,7 +1031,7 @@ step "5.18) Hook Claude Code — precompact-state-save (PreCompact)"
 # não seja perdido na compactação. Sem matcher (PreCompact não suporta).
 
 HOOK_FILE="$HOOK_DIR/precompact-state-save.sh"
-HOOK_TEMPLATE="$SETUP_DIR/hooks/precompact-state-save.sh"
+HOOK_TEMPLATE="$SETUP_DIR/source/hooks/precompact-state-save.sh"
 
 if [ -f "$HOOK_FILE" ]; then
   if diff -q "$HOOK_TEMPLATE" "$HOOK_FILE" &>/dev/null; then
@@ -1074,7 +1074,7 @@ step "5.19) Hook Claude Code — session-summary (Stop)"
 # atualiza docs/CONTINUATION_HANDOFF.md (se existir no cwd).
 
 HOOK_FILE="$HOOK_DIR/session-summary.sh"
-HOOK_TEMPLATE="$SETUP_DIR/hooks/session-summary.sh"
+HOOK_TEMPLATE="$SETUP_DIR/source/hooks/session-summary.sh"
 
 if [ -f "$HOOK_FILE" ]; then
   if diff -q "$HOOK_TEMPLATE" "$HOOK_FILE" &>/dev/null; then
@@ -1118,7 +1118,7 @@ step "5.10) Skill Claude Code — /idea (orquestrador IdeiaOS)"
 
 IDEA_SKILL_DIR="$HOME/.claude/skills/idea"
 IDEA_SKILL="$IDEA_SKILL_DIR/SKILL.md"
-IDEA_TEMPLATE="$SETUP_DIR/skills/idea/SKILL.md"
+IDEA_TEMPLATE="$SETUP_DIR/source/skills/idea/SKILL.md"
 
 mkdir -p "$IDEA_SKILL_DIR"
 
@@ -1162,7 +1162,7 @@ step "6) Skills Claude Code — recall-learnings + extract-learnings"
 for SKILL_NAME in recall-learnings extract-learnings; do
   L_DIR="$HOME/.claude/skills/$SKILL_NAME"
   L_FILE="$L_DIR/SKILL.md"
-  L_TEMPLATE="$SETUP_DIR/skills/$SKILL_NAME/SKILL.md"
+  L_TEMPLATE="$SETUP_DIR/source/skills/$SKILL_NAME/SKILL.md"
 
   mkdir -p "$L_DIR"
 
@@ -1190,7 +1190,7 @@ step "6.1) Skills de design (dev-loop) — frontend-visual-loop + motion + web-q
 
 for SKILL_NAME in frontend-visual-loop motion web-quality; do
   D_DIR="$HOME/.claude/skills/$SKILL_NAME"
-  D_TEMPLATE="$SETUP_DIR/skills/$SKILL_NAME"
+  D_TEMPLATE="$SETUP_DIR/source/skills/$SKILL_NAME"
 
   if [ -d "$D_DIR" ] && diff -rq "$D_TEMPLATE" "$D_DIR" &>/dev/null; then
     ok "Skill $SKILL_NAME já está na versão mais recente"
@@ -1211,7 +1211,7 @@ step "6.2) Suíte de Design (vendorizada) — ui-ux-pro-max + 6 skills"
 
 for SKILL_NAME in ui-ux-pro-max design design-system ui-styling brand banner-design slides; do
   G_DIR="$HOME/.claude/skills/$SKILL_NAME"
-  G_TEMPLATE="$SETUP_DIR/skills/$SKILL_NAME"
+  G_TEMPLATE="$SETUP_DIR/source/skills/$SKILL_NAME"
 
   if [ ! -d "$G_TEMPLATE" ]; then
     warn "Suíte: $SKILL_NAME ausente no repo — rode scripts/update-design-suite.sh"
@@ -1252,7 +1252,7 @@ else
 
   # AIOX config
   if [ ! -f ".aiox-ai-config.yaml" ]; then
-    cp "$SETUP_DIR/templates/aiox-ai-config.yaml" ".aiox-ai-config.yaml"
+    cp "$SETUP_DIR/source/templates/aiox-ai-config.yaml" ".aiox-ai-config.yaml"
     ok ".aiox-ai-config.yaml criado no projeto"
     warn "Configure OPENROUTER_API_KEY no .env para habilitar fallback de IA"
   else
@@ -1332,14 +1332,14 @@ MEMMD
 
   # Estrutura híbrida de continuidade (main + planning)
   PROJECT_NAME="$(basename "$PROJECT_DIR")"
-  ensure_file_from_template "$SETUP_DIR/templates/hybrid/AGENTS.md.tmpl" "$PROJECT_DIR/AGENTS.md" "$PROJECT_NAME"
-  ensure_file_from_template "$SETUP_DIR/templates/hybrid/CLAUDE.md.tmpl" "$PROJECT_DIR/CLAUDE.md" "$PROJECT_NAME"
-  ensure_file_from_template "$SETUP_DIR/templates/hybrid/STATE.md.tmpl" "$PROJECT_DIR/STATE.md" "$PROJECT_NAME"
-  ensure_file_from_template "$SETUP_DIR/templates/hybrid/CONTINUATION_HANDOFF.md.tmpl" "$PROJECT_DIR/docs/CONTINUATION_HANDOFF.md" "$PROJECT_NAME"
-  ensure_file_from_template "$SETUP_DIR/templates/hybrid/session-continuation.mdc.tmpl" "$PROJECT_DIR/.cursor/rules/session-continuation.mdc" "$PROJECT_NAME"
-  ensure_file_from_template "$SETUP_DIR/templates/hybrid/agents-md-protocol.mdc.tmpl" "$PROJECT_DIR/.cursor/rules/agents-md-protocol.mdc" "$PROJECT_NAME"
-  ensure_file_from_template "$SETUP_DIR/templates/hybrid/planning-branch.mdc.tmpl" "$PROJECT_DIR/.cursor/rules/planning-branch.mdc" "$PROJECT_NAME"
-  ensure_file_from_template "$SETUP_DIR/templates/hybrid/CONTRIBUTING.md.tmpl" "$PROJECT_DIR/CONTRIBUTING.md" "$PROJECT_NAME"
+  ensure_file_from_template "$SETUP_DIR/source/templates/hybrid/AGENTS.md.tmpl" "$PROJECT_DIR/AGENTS.md" "$PROJECT_NAME"
+  ensure_file_from_template "$SETUP_DIR/source/templates/hybrid/CLAUDE.md.tmpl" "$PROJECT_DIR/CLAUDE.md" "$PROJECT_NAME"
+  ensure_file_from_template "$SETUP_DIR/source/templates/hybrid/STATE.md.tmpl" "$PROJECT_DIR/STATE.md" "$PROJECT_NAME"
+  ensure_file_from_template "$SETUP_DIR/source/templates/hybrid/CONTINUATION_HANDOFF.md.tmpl" "$PROJECT_DIR/docs/CONTINUATION_HANDOFF.md" "$PROJECT_NAME"
+  ensure_file_from_template "$SETUP_DIR/source/templates/hybrid/session-continuation.mdc.tmpl" "$PROJECT_DIR/.cursor/rules/session-continuation.mdc" "$PROJECT_NAME"
+  ensure_file_from_template "$SETUP_DIR/source/templates/hybrid/agents-md-protocol.mdc.tmpl" "$PROJECT_DIR/.cursor/rules/agents-md-protocol.mdc" "$PROJECT_NAME"
+  ensure_file_from_template "$SETUP_DIR/source/templates/hybrid/planning-branch.mdc.tmpl" "$PROJECT_DIR/.cursor/rules/planning-branch.mdc" "$PROJECT_NAME"
+  ensure_file_from_template "$SETUP_DIR/source/templates/hybrid/CONTRIBUTING.md.tmpl" "$PROJECT_DIR/CONTRIBUTING.md" "$PROJECT_NAME"
 
   # Camada Lovable (detector + flags --lovable / --no-lovable)
   setup_lovable_project "$PROJECT_DIR" "$PROJECT_NAME"

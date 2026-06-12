@@ -1,0 +1,120 @@
+<!-- BEGIN: lovable-deploy-section (managed by ideIAos) -->
+## Deploy & Stack
+
+**Deploy:** Lovable Cloud — sync via GitHub **`main` apenas** → Lovable build → produção.
+
+**Update só lê `main`:** o botão Update no editor Lovable sincroniza exclusivamente com o branch **`main`**. Trabalho em `feat/*` exige PR → merge em `main` → **depois** Update. **PR aberto ≠ deployável** — ver `.cursor/rules/lovable-deploy.mdc`.
+
+**Implicações inegociáveis:**
+
+| Camada | Onde rodar | NUNCA fazer localmente |
+|--------|-----------|------------------------|
+| Migrations DDL | Lovable **Update** após merge `main` | `supabase db push`, SQL Editor manual como padrão |
+| Edge Functions | Lovable **Update** / sync (mesmo fluxo) | `supabase functions deploy` local |
+| Secrets (env) | Lovable Cloud (painel) | editar `.env` em produção |
+| Frontend | Lovable build (após push em `main`) | publish manual |
+
+**Botão "Update" cinza?** Quase sempre é um Action de rebuild (`on: push`) deixando um commit de bot (`github-actions[bot]`) como `HEAD`, atropelando o commit de publish da Lovable (`gpt-engineer-app[bot]`). Mantenha Actions de rebuild em `on: workflow_dispatch`. **Nunca afirme "em produção" sem confirmar o bundle real** (o hash do `index-*.js` muda; strings ficam nos chunks lazy → buscar ASCII) — ver `.cursor/rules/lovable-deploy.mdc` §4–5.
+
+**Arquivos protegidos (não editar):**
+
+- `src/integrations/supabase/client.ts`
+- `src/integrations/supabase/types.ts`
+- `.env` (gerenciado pela Lovable Cloud)
+- `supabase/config.toml`
+
+## Playbook de implantação (obrigatório)
+
+Ao concluir qualquer implantação significativa, executar **em sequência, sem esperar ser perguntado**:
+
+1. **Typecheck** — `npx tsc --noEmit` (ou equivalente do projeto) → bloqueia se falhar.
+2. **Commit** — mensagem descritiva, causa raiz no corpo se for fix.
+3. **Push** — `git push origin <branch>` imediatamente.
+4. **Merge em `main`** — PR mergeado e verificado em `origin/main` **antes** de instruir Lovable Update (mandato global — PR aberto ≠ deployável). Atualizar `.lovable/SYNC_TRIGGER.json` quando o projeto usar gatilho de sync.
+5. **Handoff Lovable** (se houve DDL, edge function nova, ou mudança de secret):
+   - Criar `docs/lovable/<INCIDENTE_OU_FEATURE>_LOVABLE_HANDOFF.md` a partir de `docs/lovable/_TEMPLATE.md`.
+   - Listar migrations a aplicar, edges a redeploy, queries SQL de verificação.
+6. **Postmortem** (se bug recorrente ou não óbvio): `docs/postmortems/<INC-NN>-<slug>.md` com causa raiz + correção + UAT.
+7. **Alertar Lovable na conversa final:** só após merge em `main` — Update → Publish (frontend). Nunca encerrar com PR aberto.
+
+Detalhes completos: [`docs/playbook-implantacao.md`](docs/playbook-implantacao.md).
+
+## Coordenação multi-IA
+
+- Schema/migrations/edges → fonte da verdade = Lovable. Cursor/Claude criam migration files em `supabase/migrations/`, mas a aplicação no Cloud é feita pela Lovable.
+- UI/lib refactors locais → branch + PR.
+- Nunca editar o mesmo arquivo simultaneamente com Lovable aberto na mesma área.
+
+## Loop de aprendizado contínuo (obrigatório)
+
+Toda sessão da IA deve seguir este ritual de 3 momentos:
+
+**1. Antes do planejamento — `/recall-learnings`** (automático em todo pedido de implementação/correção):
+
+A IA lê obrigatoriamente, antes de propor qualquer plano:
+- `AGENTS.md` (este arquivo) e `STATE.md`
+- 5 arquivos mais recentes em `docs/learnings/`
+- Postmortems relacionados em `docs/postmortems/`
+- Memória Claude global (`~/.claude/projects/.../memory/`)
+- (Se conectado) Obsidian Vault via MCP
+
+Saída: bloco compacto "🧠 Contexto carregado" com 3-5 bullets do que é relevante.
+
+**2. Durante a sessão:** marcar mentalmente candidatos a aprendizado (causas raiz surpreendentes, gotchas, decisões arquiteturais não-óbvias). Não interromper o trabalho.
+
+**3. Ao concluir — `/extract-learnings`** (automático no bloco 7 do modelo de resposta):
+
+Se a sessão gerou aprendizado **replicável, não-óbvio e estável**, criar `docs/learnings/YYYY-MM-DD-<slug>.md` seguindo `docs/learnings/_TEMPLATE.md`. Se `applies_to_projects: [global]`, promover para memória Claude global.
+
+> **Enforcement (Claude Code):** hook PostToolUse em `~/.claude/hooks/extract-learnings-reminder.sh` injeta gate triplo após cada `git commit` em projeto com este arquivo. Sem ele, auto-invocação falha sob pressão (memória `feedback_extract_learning_under_pressure`).
+
+## Padrões obrigatórios de debugging em produção
+
+Estes 3 padrões emergiram de incidentes recorrentes em produção e devem ser aplicados antes de qualquer mexida adicional no código:
+
+### 1. "Bug persiste após fix" → check deploy ANTES de mexer no código
+
+Quando bug que parece já corrigido (commit no `main`, fix aparente) continua aparecendo em produção, antes de propor MAIS código:
+
+1. **Confirmar timestamp do deploy** vs timestamp do commit (`git log -1 --format='%cI <hash>'`). Lovable Cloud → Edge Functions → Last updated.
+2. **Confirmar que sintoma é fresh**, não estado armazenado (data dos registros vs deploy).
+3. **Validar via logs do edge** se o caminho do fix está sendo exercitado.
+4. **Comparar código deployado vs main** (hash check).
+5. **Última hipótese**: mexer no código.
+
+Em 80%+ desses casos é **deploy drift**, não código errado. Espiral de "mais código pra resolver o que já está resolvido" é o anti-padrão.
+
+### 2. Schema-first verification antes de UPDATE/INSERT em produção
+
+Antes de qualquer SQL `UPDATE/INSERT` em produção (cleanup, fix-up manual, migration ad-hoc):
+
+1. **Validar schema real** via `SELECT` correspondente:
+   ```sql
+   SELECT id, <colunas_que_vou_escrever> FROM <tabela> WHERE <condição> LIMIT 1;
+   ```
+   Se der `column does not exist`, o UPDATE também daria.
+2. **Em código de edge function**: usar `Database['public']['Tables']['X']['Update']` explícito ao invés de `as any` — o TS pega antes do runtime.
+3. **Não confiar em types desatualizados** ou intuição semântica ("coluna `cancelled_at` deveria existir"). Schema real > inferência.
+
+### 3. Hotfixes inline em sistemas externos → sync explícito pro repo
+
+Quando outro sistema (Lovable chat, painel cloud, IA externa) corrigir bug no código deployado **sem passar pelo Git**:
+
+1. **Confirmar via** `git fetch origin main && git log HEAD..origin/main` — sync automático rodou?
+2. **Se não**: pedir o trecho exato (linha + contexto) ao operador externo.
+3. **Aplicar no repo manualmente**, auditar padrões similares (grep), commit com referência à origem do hotfix.
+4. **Não fechar incidente** sem confirmar que está no `main`.
+
+Sem essa disciplina, o débito técnico se acumula invisível: o próximo redeploy a partir do `main` re-introduz o bug.
+
+> Esses 3 padrões têm versão expandida em [[learning-bug-persists-check-deploy-first]], [[learning-schema-first-verification]], [[learning-inline-hotfixes-need-sync]] na memória Claude global, e cópias em `docs/learnings/` do repo.
+
+## Modelo de resposta de conclusão de implantação
+
+Toda implantação não-trivial encerra com a resposta no formato canônico definido em:
+
+→ [`docs/lovable/conclusao-implantacao.md`](docs/lovable/conclusao-implantacao.md)
+
+**Estrutura obrigatória:** 6 blocos fixos (Cabeçalho · Entendimento · Causa raiz · Correção · Verificação · Ação necessária ⚠️) + bloco 7 condicional (Aprendizado registrado) + bloco 8 opcional (Próximo passo). O bloco 6 é obrigatório **mesmo quando a resposta é "Lovable não precisa fazer nada"** — sempre explicitar SIM/NÃO.
+
+<!-- END: lovable-deploy-section (managed by ideIAos) -->
