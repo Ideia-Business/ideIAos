@@ -7,8 +7,13 @@
 #
 #   1. scripts/sync-all.sh             (pull → upstream → setup --global-only
 #                                        → patches globais → idea-doctor)
+<<<<<<< Updated upstream
 #   2. Guarda do git-autosync          (exclui versions.lock do add -A — evita
 #                                        revert do pin GSD por árvore stale)
+=======
+#   2. Registro de hooks IdeiaOS faltantes no ~/.claude/settings.json
+#      (fonte canônica: plugins/ideiaos-core/hooks/hooks.json)
+>>>>>>> Stashed changes
 #   3. Funções claude-dev/review/research no profile do shell (idempotente)
 #   4. Statusline IdeiaOS no ~/.claude/settings.json (backup + idempotente)
 #
@@ -48,6 +53,7 @@ done
 step "1/4: sync-all.sh (pull → upstream → setup --global-only → patches → doctor)"
 bash "$SETUP_DIR/scripts/sync-all.sh" || warn "sync-all terminou com avisos (ver acima)"
 
+<<<<<<< Updated upstream
 # ── 2. Guarda do git-autosync (propagação multi-máquina) ─────────────────────
 # Máquinas com git-autosync antigo fazem `git add -A` sem excluir versions.lock,
 # o que já reverteu o pin GSD 2× via árvore stale (2026-06). Patch in-place,
@@ -66,6 +72,62 @@ else
   else
     warn "não consegui patchear $AUTOSYNC — re-rode setup-dev-machine.sh (backup em .bak)"
   fi
+=======
+# ── 2. Registro de hooks IdeiaOS faltantes no settings.json ──────────────────
+# O setup.sh instala os ARQUIVOS dos hooks mas (decisão T-01-10) só imprime o
+# snippet de registro. Este passo registra o que faltar, usando o hooks.json
+# do plugin ideiaos-core como fonte canônica (evento, matcher, timeout, async).
+step "2/4: registro de hooks no settings.json"
+SETTINGS="$HOME/.claude/settings.json"
+PLUGIN_HOOKS="$SETUP_DIR/plugins/ideiaos-core/hooks/hooks.json"
+if [ ! -f "$SETTINGS" ]; then
+  warn "~/.claude/settings.json não existe — rode o Claude Code uma vez e re-execute"
+elif [ ! -f "$PLUGIN_HOOKS" ]; then
+  warn "plugins/ideiaos-core/hooks/hooks.json não encontrado — pulando registro"
+else
+  /usr/bin/python3 - "$SETTINGS" "$PLUGIN_HOOKS" "$HOME" <<'PYEOF'
+import json, sys, shutil, os
+
+settings_path, plugin_hooks_path, home = sys.argv[1], sys.argv[2], sys.argv[3]
+settings = json.load(open(settings_path))
+canon = json.load(open(plugin_hooks_path))["hooks"]
+
+registered = json.dumps(settings.get("hooks", {}))
+added = []
+for event, entries in canon.items():
+    for entry in entries:
+        for hk in entry.get("hooks", []):
+            name = hk["command"].rstrip('"').split("/")[-1]
+            if name in registered:
+                continue
+            local = f'{home}/.claude/hooks/{name}'
+            if not os.path.exists(local):
+                print(f"  ⚠ {name}: arquivo não instalado em ~/.claude/hooks — pulando")
+                continue
+            new_hk = {"type": "command", "command": f'bash "{local}"'}
+            for fld in ("timeout", "async", "asyncRewake"):
+                if fld in hk:
+                    new_hk[fld] = hk[fld]
+            new_entry = {"hooks": [new_hk]}
+            if "matcher" in entry:
+                new_entry["matcher"] = entry["matcher"]
+            settings.setdefault("hooks", {}).setdefault(event, []).append(new_entry)
+            added.append(f"{event}/{name}")
+
+if added:
+    shutil.copy(settings_path, settings_path + ".bak-hooks")
+    json.dump(settings, open(settings_path, "w"), indent=2, ensure_ascii=False)
+    for a in added:
+        print(f"  + registrado: {a}")
+    print(f"REGISTERED:{len(added)}")
+else:
+    print("REGISTERED:0")
+PYEOF
+  case "$?" in
+    0) ok "Registro de hooks verificado (ver acima o que foi adicionado)" ;;
+    *) warn "Falha no registro de hooks — settings.json não alterado" ;;
+  esac
+>>>>>>> Stashed changes
 fi
 
 # ── 3. Funções de shell (claude-dev/review/research) ─────────────────────────
@@ -92,7 +154,11 @@ else
   fi
 fi
 
+<<<<<<< Updated upstream
 # ── 4. Statusline IdeiaOS no settings.json ───────────────────────────────────
+=======
+# ── 3. Statusline IdeiaOS no settings.json ───────────────────────────────────
+>>>>>>> Stashed changes
 step "4/4: statusline IdeiaOS"
 SETTINGS="$HOME/.claude/settings.json"
 SL_CMD="bash $HOME/.ideiaos/statusline/ideiaos-statusline.sh"
