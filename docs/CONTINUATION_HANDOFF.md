@@ -61,3 +61,8 @@ Ao retomar qualquer projeto: `/recall-learnings` — o Passo 5 busca no vault e 
 - [x] `docs/CONTINUATION_HANDOFF.md` atualizado
 - [x] Próximo passo explícito
 - [x] Memórias gravadas
+
+## Ultima sessao automatica (2026-06-11)
+
+- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-11-ideiaos-0dc39c83-3226-4cda-8042-33b2fb9f.tmp`
+- Próximo passo: (definir antes de retomar)
