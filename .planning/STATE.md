@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
-status: Executing Phase null
-last_updated: "2026-06-12T04:33:38.143Z"
+status: Executing Phase 08
+last_updated: "2026-06-12T04:46:00.000Z"
 progress:
   total_phases: 8
   completed_phases: 7
   total_plans: 29
-  completed_plans: 27
-  percent: 93
+  completed_plans: 28
+  percent: 97
 ---
 
 # State — IdeiaOS v2
@@ -43,11 +43,15 @@ progress:
 | Fase 07 — contexts-evals | 🔄 Em execução (2/3 planos completos) |
 | — 07-01 contexts + statusline | ✅ Completo (commits 73a442f, 2a54364) |
 | — 07-02 eval suite | ✅ Completo (commits 5a8517b, 0a5cf6a, 5cf37d4) |
-| Fase 08 — ideiaos-v3-review | ⬜ Não planejada (após 04-07) |
+| Fase 08 — ideiaos-v3-review | 🔄 Em execução (3/4 planos completos) |
+| — 08-01 agents audit | ✅ Completo (commit ae2dbea) |
+| — 08-02 skills guide | ✅ Completo (commit 2ae329c) |
+| — 08-03 token economy review | ✅ Completo (commit ae2dbea + 4638bdd) |
+| — 08-04 otimizações v3 | ⬜ Pendente |
 
 ## Próximo passo
 
-Fase 07 em execução (2/3 planos). 07-01 e 07-02 completos. Próximo: 07-03 (aliases + setup.sh Wave 2).
+Fase 08 em execução (3/4 planos). 08-01, 08-02, 08-03 completos. Próximo: 08-04 (otimizações concretas — alimentadas pelas 8 oportunidades de 08-03).
 
 ## Decisões Registradas
 
@@ -81,6 +85,10 @@ Fase 07 em execução (2/3 planos). 07-01 e 07-02 completos. Próximo: 07-03 (al
 - **07-02:** runner run-evals.sh é manual por design (sem API key); `run_case_with_model()` é o ponto de extensão nomeado para execução automática futura.
 - **07-02:** `mapfile` (bash 4+) substituído por glob+sort portável — macOS usa bash 3.2. `awk -v sec=` em vez de interpolação de regex — `/` em `Setup/Prompt` quebrava o delimitador awk.
 - **07-02:** EVAL-019 evita literal `<!--` no próprio corpo do caso — usa placeholders descritivos per no-HTML-comment constraint.
+- **08-03:** mgrep adiado — sem benchmark IdeiaOS confirmado; trigger para adotar: >30% redução medida em buscas reais do code-explorer.
+- **08-03:** typescript-lsp adotado com `installStrategy: stack:typescript` — ecossistema Ideia Business é predominantemente TS; pyright-lsp adiado (sem projetos Python ativos significativos).
+- **08-03:** silent-failure-hunter candidato a downgrade opus→sonnet (processo é grep patterns fixos — ~5x economia por invocação).
+- **08-03:** claude-continuation e ideiaos-checker devem receber `model: sonnet` explícito — atualmente herdam default do harness (risco de regressão silenciosa).
 
 ## Notas
 
