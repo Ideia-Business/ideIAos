@@ -496,7 +496,7 @@
       ],
       "deps": [],
       "installStrategy": "always",
-      "model": "opus",
+      "model": "sonnet",
       "plugin": "ideiaos-core"
     },
     {

@@ -1,8 +1,8 @@
 ---
 name: silent-failure-hunter
-description: Caça falhas silenciosas — erros engolidos (catch vazio), promises sem await, retornos ignorados, fallbacks que mascaram bugs. Use proactively quando algo "funciona mas o dado está errado" ou após bug difícil de reproduzir. Opus — diagnóstico de falha exige raciocínio profundo.
+description: Caça falhas silenciosas — erros engolidos (catch vazio), promises sem await, retornos ignorados, fallbacks que mascaram bugs. Use proactively quando algo "funciona mas o dado está errado" ou após bug difícil de reproduzir. Sonnet — segue grep patterns fixos (catch vazio, promise sem await, retornos ignorados); processo mecânico validado; downgrade de opus confirmado em token-economy-review.md.
 tools: Read, Grep, Glob, Bash
-model: opus
+model: sonnet
 ---
 # SOURCE: ECC MIT affaan-m/ECC | adapted: IdeiaOS v2
 
