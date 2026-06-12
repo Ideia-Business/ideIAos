@@ -85,11 +85,52 @@ O fluxo de uso normal é:
 automaticamente (lista casos sem pedir veredito). Isso garante que `bash run-evals.sh </dev/null`
 nunca trave em pipelines.
 
-**Execução automática (Fase 12):** a função `run_case_with_model()` está IMPLEMENTADA —
-executa cada caso via `claude -p` headless (timeout 90s), grava resultados em `evals/results/`
+**Execução automática:** a função `run_case_with_model()` está IMPLEMENTADA —
+executa cada caso via `claude -p` headless (timeout 120s), grava resultados em `evals/results/`
 e aplica a política de bloqueio (pass^k falha → exit 1; pass@k falha → aviso). Use
 `bash evals/run-evals.sh --ci` (requer `claude` no PATH ou `ANTHROPIC_API_KEY` em CI;
 sem key o caso vira `skip` e não conta nas métricas).
+
+---
+
+## Avaliação Automática: Sinais + LLM-judge
+
+O avaliador usa uma estratégia híbrida para cada caso:
+
+### 1. Sinais (avaliação por grep — prioritária)
+
+Cada caso pode ter uma subseção `### Sinais (avaliação automática)` dentro de
+`## Critérios de Aprovação` com padrões grep-friendly:
+
+```markdown
+### Sinais (avaliação automática)
+
++ padrão que DEVE aparecer na resposta (case-insensitive)
+- padrão que NÃO DEVE aparecer na resposta (case-insensitive)
+```
+
+Regras:
+- Todos os sinais `+` devem ser encontrados na resposta (`grep -qi`).
+- Nenhum sinal `-` pode ser encontrado na resposta.
+- Use strings técnicas literais: nomes de tabela, comandos, termos como `INSERT`, `RETURNING`, `queryClient.clear`.
+- Sinais são case-insensitive.
+
+### 2. LLM-judge (fallback — casos sem Sinais)
+
+Se o caso não tiver seção `### Sinais`, o runner chama:
+```
+claude --model claude-haiku-4-5 -p "[critérios + resposta] → VEREDITO: pass|fail"
+```
+- Timeout: 60s.
+- Se o judge não estiver disponível ou falhar: resultado `skip` (nunca `fail` por ausência de judge).
+- O judge extrai a linha `VEREDITO: pass` ou `VEREDITO: fail` da resposta.
+
+### Adicionar Sinais a um novo caso
+
+1. Ler o `## Comportamento Esperado` e `## Critérios de Aprovação` do caso.
+2. Identificar strings técnicas que aparecem literalmente na resposta correta (nomes de tabela, métodos, termos de domínio).
+3. Identificar padrões que indicam falha (ex: `INSERT INTO client_subscriptions` em caso que deve recusar isso).
+4. Adicionar a subseção após os critérios existentes (ver `_TEMPLATE.md` para formato).
 
 ---
 
