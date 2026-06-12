@@ -87,14 +87,17 @@ new_section = (
 open(state_file, 'w').write(content + new_section)
 PYEOF
 
-# Emitir additionalContext informando que STATE.md foi preservado
+# Emitir systemMessage informando que STATE.md foi preservado
+# (PreCompact não suporta hookSpecificOutput/additionalContext — schema aceita
+#  apenas campos raiz: continue, suppressOutput, stopReason, decision, reason,
+#  systemMessage)
 # Truncado a < 5000 chars (Pitfall 6)
 MSG="STATE.md atualizado com Compact Snapshot ($TIMESTAMP). Contexto preservado no resumo do /compact. Arquivo: $STATE_FILE"
 
 /usr/bin/python3 -c "
 import json, sys
 msg = sys.argv[1]
-print(json.dumps({'hookSpecificOutput': {'hookEventName': 'PreCompact', 'additionalContext': msg}}))
+print(json.dumps({'systemMessage': msg}))
 " "$MSG" 2>/dev/null || true
 
 exit 0
