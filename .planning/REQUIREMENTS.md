@@ -149,10 +149,10 @@
 
 | Requisito | Fase | Status |
 |-----------|------|--------|
-| R3-01 | Fase 09 | Pendente |
-| R3-02 | Fase 09 | Pendente |
-| R3-03 | Fase 09 | Pendente |
-| R3-04 | Fase 09 | Pendente |
+| R3-01 | Fase 09 | Completo |
+| R3-02 | Fase 09 | Completo |
+| R3-03 | Fase 09 | Completo |
+| R3-04 | Fase 09 | Completo |
 | R3-05 | Fase 10 | Pendente |
 | R3-06 | Fase 10 | Pendente |
 | R3-07 | Fase 10 | Pendente |

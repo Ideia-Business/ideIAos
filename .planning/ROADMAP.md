@@ -117,7 +117,7 @@
 
 | Fase | Planos Completos | Status | Concluída |
 |------|-----------------|--------|-----------|
-| 09 — agent-contracts | 0/3 | Não iniciada | — |
+| 09 — agent-contracts | 1/1 | Completa | 2026-06-12 |
 | 10 — token-optimizations | 0/3 | Não iniciada | — |
 | 11 — instinct-loop-automation | 0/3 | Não iniciada | — |
 | 12 — evals-ci | 0/4 | Não iniciada | — |

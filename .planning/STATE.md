@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v3
 milestone_name: Refinamento e Automação
-status: Ready to plan
+status: In progress
 last_updated: "2026-06-12"
 progress:
   total_phases: 5
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 16
-  completed_plans: 0
-  percent: 0
+  completed_plans: 1
+  percent: 20
 ---
 
 # State — IdeiaOS v3
@@ -21,27 +21,34 @@ progress:
 
 | Fase | Status |
 |------|--------|
-| Fase 09 — agent-contracts | ⬜ Não iniciada |
+| Fase 09 — agent-contracts | ✅ Complete |
 | Fase 10 — token-optimizations | ⬜ Não iniciada |
 | Fase 11 — instinct-loop-automation | ⬜ Não iniciada |
 | Fase 12 — evals-ci | ⬜ Não iniciada |
 | Fase 13 — security-dx-manifest | ⬜ Não iniciada |
 
-**Progresso:** 0/5 fases · 0/16 planos (estimado)
+**Progresso:** 1/5 fases · 1/16 planos (estimado)
 
 ```
-[                                        ] 0%
+[########                                ] 20%
 ```
 
 ## Próximo Passo
 
-`/gsd-plan-phase 09`
-
-Fase 09 (agent-contracts) tem custo zero e elimina o risco de comportamento imprevisível em agents críticos — executar primeiro.
+`/gsd-plan-phase 10` — token-optimizations (Fase 10, depende Fase 09 — agora completa)
 
 ## Decisões Registradas
 
-_(nenhuma ainda — milestone v3 recém iniciado)_
+- Nome canônico `ideiaos-checker` (não `setup-checker`) — alinhado com filename (Fase 09)
+- validate_agent_contracts() chamada antes do build, não como step separado (Fase 09)
+- Docs históricos recebem nota "(corrigido na Fase 09)" sem reescrever história (Fase 09)
+
+## Evidências Recentes
+
+- `eddfc29` — docs(phase-09): plan 09-01 agent-contracts
+- `9bd9469` — feat(09-01): R3-01+R3-02 frontmatter contracts + canonical name ideiaos-checker
+- `a81d421` — feat(09-01): R3-03 frontmatter contract validation in build-adapters.sh
+- `4e21c57` — feat(09-01): R3-04 --auto-apply flag in ideiaos-checker agent spec
 
 ## Notas
 
