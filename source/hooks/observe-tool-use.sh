@@ -12,7 +12,7 @@
 # NUNCA loga: conteúdo de arquivo, diff, comando bash completo, env, secrets.
 #
 # Requisitos: <100ms overhead, fail-silent (exit 0 sempre), cria dirs sob demanda,
-#             não bloqueia o tool use. Sem jq — só /usr/bin/python3. set -uo pipefail.
+#             não bloqueia o tool use. Sem-jq: só /usr/bin/python3. set -uo pipefail.
 # Entrada (stdin): JSON PostToolUse { session_id, cwd, tool_name, tool_input, tool_response }
 # Saída: NENHUMA (exit 0 puro).
 # =============================================================================

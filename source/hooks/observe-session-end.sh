@@ -9,7 +9,7 @@
 # marca o fim; /instinct-analyze (skill, plan 05-02) é quem processa depois.
 #
 # Mesmo contrato de privacidade do observe-tool-use: só metadados.
-# Sem jq — só /usr/bin/python3. set -uo pipefail. exit 0 puro.
+# Sem-jq: só /usr/bin/python3. set -uo pipefail. exit 0 puro.
 # Entrada (stdin): JSON Stop { session_id, transcript_path, cwd }
 # Saída: NENHUMA (exit 0).
 # =============================================================================
