@@ -226,7 +226,7 @@ generate_plugin_json() {
   node -e "
 const obj = {
   name: '${plugin_name}',
-  version: '2.0.0',
+  version: '3.0.0',
   description: '${description}',
   author: { name: 'Ideia Business', email: 'gustavo@redeideia.com.br' },
   homepage: 'https://github.com/Ideia-Business/IdeiaOS',

@@ -116,27 +116,32 @@ Detalhes completos: cada projeto ideIAos recebe [`docs/ideiaos/DECISION-MATRIX.m
 
 Máquina nova pode instalar os componentes ideIAos via plugin nativo do Claude Code — versionado, com `/plugin update` automático.
 
+> **Pré-requisito de visibilidade:** O marketplace lê diretamente do repositório. Se o repo `Ideia-Business/IdeiaOS` ainda não estiver público no GitHub, use o path local em vez do slug GitHub: `claude plugin marketplace add /caminho/para/IdeiaOS`. **Decisão de tornar o repo público: pendente do usuário.**
+
 ```bash
 # Adicionar o marketplace ideIAos (uma vez)
-/plugin marketplace add Ideia-Business/IdeiaOS
+# Opção A — via GitHub (quando o repo for público):
+claude plugin marketplace add Ideia-Business/IdeiaOS
+# Opção B — via path local (repo privado ou clone já na máquina):
+claude plugin marketplace add /caminho/para/IdeiaOS
 
 # Instalar o núcleo (sempre — orquestrador, agents, hooks, skills de workflow)
-/plugin install ideiaos-core@ideiaos
+claude plugin install ideiaos-core@ideiaos
 
 # Instalar a Suíte de Design (perfil UI/design)
-/plugin install ideiaos-design-suite@ideiaos
+claude plugin install ideiaos-design-suite@ideiaos
 
 # Instalar a camada Lovable (projetos Lovable)
-/plugin install ideiaos-lovable@ideiaos
+claude plugin install ideiaos-lovable@ideiaos
 ```
 
-| Plugin | Conteúdo | Quando instalar |
-|--------|----------|-----------------|
-| `ideiaos-core` | 15 agents + 11 hooks + 23 skills (idea, tdd, evolve, instincts…) | Sempre — núcleo do sistema |
-| `ideiaos-design-suite` | 10 skills de design (ui-ux-pro-max, design-system, brand…) | Quem faz UI/design |
-| `ideiaos-lovable` | Skill `/lovable-handoff` + doutrina de deploy + templates | Projetos Lovable |
+| Plugin | Versão | Conteúdo | Quando instalar |
+|--------|--------|----------|-----------------|
+| `ideiaos-core` | 3.0.0 | 15 agents + 11 hooks + 23 skills (idea, tdd, evolve, instincts…) | Sempre — núcleo do sistema |
+| `ideiaos-design-suite` | 3.0.0 | 10 skills de design (ui-ux-pro-max, design-system, brand…) | Quem faz UI/design |
+| `ideiaos-lovable` | 3.0.0 | Skill `/lovable-handoff` + doutrina de deploy + templates | Projetos Lovable |
 
-> **Plugin e setup.sh são complementares** — não excludentes. O plugin entrega skills/agents/hooks versionados com atualização nativa (`/plugin update`). O `setup.sh` entrega o ambiente de máquina completo: working-dirs, autosync (LaunchAgent), vault Obsidian, git hooks e config de projeto. Para uma máquina nova do zero, use o setup.sh (ou o bootstrap `setup-dev-machine.sh`) — ele faz tudo em sequência.
+> **Plugin e setup.sh são complementares** — não excludentes. O plugin entrega skills/agents/hooks versionados com atualização nativa (`claude plugin update`). O `setup.sh` entrega o ambiente de máquina completo: working-dirs, autosync (LaunchAgent), vault Obsidian, git hooks e config de projeto. Para uma máquina nova do zero, use o setup.sh (ou o bootstrap `setup-dev-machine.sh`) — ele faz tudo em sequência.
 
 ---
 
