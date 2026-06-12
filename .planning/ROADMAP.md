@@ -4,23 +4,11 @@
 
 - **v2.0 — Canivete Suíço Universal (absorção ECC)** ✅ SHIPPED 2026-06-12 — 8 fases, 29 planos, 33→70 módulos. Detalhes: [milestones/v2.0-ROADMAP.md](milestones/v2.0-ROADMAP.md)
 - **v3 — Refinamento pós-auditoria** ✅ SHIPPED 2026-06-12 — 5 fases (09-13), 10 planos, 19 reqs, 15/15 gaps fechados; loop de instincts provado ao vivo. Detalhes: [milestones/v3-ROADMAP.md](milestones/v3-ROADMAP.md)
-- **v4 — Produção do plano maior** 🔄 IN PROGRESS — fases 14-16
+- **v4 — Produção do plano maior** ✅ SHIPPED 2026-06-12 — fases 14-16: anti-runaway provado (incidente 1331 spawns → 3 barreiras), evals LLM fim-a-fim, marketplace 3.0.0 com install real validado. Detalhes: [milestones/v4-ROADMAP.md](milestones/v4-ROADMAP.md)
 
-## v4 — Phase Details
+## Próximo (v5 — a definir, candidatos)
 
-### Fase 14: instinct-production `14-instinct-production`
-**Goal:** Loop de instincts endurecido pós-incidente runaway (1331 spawns em 2026-06-12) e rodando em produção com curadoria.
-**Requirements:** R4-01..R4-05
-**Success:** cadeia de spawn para em 1 (teste); estoque curado ≤80; /evolve rodado ao vivo.
-
-### Fase 15: evals-production `15-evals-production` ✅ DONE 2026-06-12
-**Goal:** Evals LLM validados fim-a-fim (local + CI remoto).
-**Requirements:** R4-06 ✅, R4-07 ✅
-**Success:** ≥3 casos reais executados localmente com política aplicada; dispatch remoto verde.
-**Result:** 3 casos reais (EVAL-001 pass^k, EVAL-021 pass^k, EVAL-022 pass@k) via `claude --local`; JSONL gravado; exit codes coerentes. CI dispatch run 27439622994: structural green + llm-evals skip limpo. Fix: `--no-color` inválido removido + stdin fechado (`</dev/null`). Achado qualidade: critérios grep-based falham para semântica (comportamento produto correto). Commit: 90517d1.
-
-### Fase 16: marketplace-ready `16-marketplace-ready` ✅ DONE 2026-06-12
-**Goal:** Marketplace validado de fora, versões 3.0.0 alinhadas, decisão de visibilidade documentada.
-**Requirements:** R4-08 ✅, R4-09 ✅
-**Success:** instalação validada de clone limpo; versões consistentes.
-**Result:** Fluxo real confirmado (clone + validate + add + install); 3x plugin.json 3.0.0; versions.lock 3.0.0; README revisado; decisão visibilidade pública documentada como PENDENTE DO USUÁRIO. Commit: 6a93a39.
+- Critérios semânticos dos eval cases → grep-friendly ou LLM-as-judge (deferred da Fase 15)
+- actions/checkout v4→v5 (deadline 2026-06-16)
+- Repo público + secret ANTHROPIC_API_KEY (decisões do usuário)
+- Feature "Novidades" nos produtos (NFideia P2, Ideiapartner P3)
