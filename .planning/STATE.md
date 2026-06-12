@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
-status: Executing Phase null
-last_updated: "2026-06-12T02:01:49.252Z"
+status: Executing Phase 04
+last_updated: "2026-06-12T03:30:00.000Z"
 progress:
   total_phases: 8
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 16
-  completed_plans: 12
-  percent: 75
+  completed_plans: 16
+  percent: 100
 ---
 
 # State — IdeiaOS v2
@@ -30,7 +30,11 @@ progress:
 | — 03-02 manifests + stack detection | ✅ Completo (commit 0ca4a27) |
 | — 03-03 rules layer | ✅ Completo (commit ebcfc06) |
 | — 03-04 build-adapters.sh + Wave 2 | ✅ Completo (commit 4ada601) |
-| Fase 04 — ecc-catalog | ⬜ Não planejada |
+| Fase 04 — ecc-catalog | ✅ Completa (4/4 planos) |
+| — 04-01 ECC review agents | ✅ Completo (commit 6555a16) |
+| — 04-02 ECC worker agents | ✅ Completo (commit 2cb9d98) |
+| — 04-03 ECC workflow skills | ✅ Completo (commit eccc1ac) |
+| — 04-04 receitas + catalog + manifests + /idea + README | ✅ Completo (commit 2197f2f) |
 | Fase 05 — instincts | ⬜ Não planejada |
 | Fase 06 — plugin-marketplace | ⬜ Não planejada |
 | Fase 07 — contexts-evals | ⬜ Não planejada |
@@ -38,7 +42,7 @@ progress:
 
 ## Próximo passo
 
-Fase 03 completa (4/4 planos). Próximo: Fase 04 (ecc-catalog — skill /ideiaos-catalog + instalação seletiva por stack).
+Fase 04 completa (4/4 planos). Próximo: Fase 05 (instincts) ou Fase 08 (ideiaos-v3-review) conforme ROADMAP.
 
 ## Decisões Registradas
 
@@ -50,6 +54,11 @@ Fase 03 completa (4/4 planos). Próximo: Fase 04 (ecc-catalog — skill /ideiaos
 - **03-04:** Header ECC absorvido como `# SOURCE: ECC MIT` (Markdown heading) em vez de `<!--SOURCE:...-->` (HTML comment) — scan-absorbed.sh Check 2 detecta `<!--` como payload HTML, falso positivo bloqueante.
 - **03-04:** Dirs originais (skills/, agents/, hooks/) mantidos — remoção definitiva na Fase 06.
 - **03-04:** ECC rules (common, typescript, react) criadas inline com curadoria IdeiaOS; WARNs de `nc ` são falsos positivos (substring em "function"/"sync"/"async"), inspecionados e aprovados.
+- **04-04:** skills-receita ECC (two-instance-kickoff, llms-txt, mcp-to-cli) com `installStrategy: manual` — receitas sob demanda.
+- **04-04:** skill-ideiaos-catalog com `installStrategy: always` — meta-ferramenta universal.
+- **04-04:** campo `model` adicionado ao schema de agent em modules.json (extensão retrocompatível).
+- **04-04:** mgrep e LSP plugins documentados como candidatos Fase 08 — nada instalado nesta fase.
+- **04-04:** manifests/modules.json: 33→60 módulos (+27: 13 agents + 14 skills da Fase 04).
 
 ## Notas
 
