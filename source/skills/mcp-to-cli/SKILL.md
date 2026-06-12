@@ -1,9 +1,9 @@
-# SOURCE: ECC MIT affaan-m/ECC | adapted: IdeiaOS v2
 ---
 name: mcp-to-cli
 description: "Converte uma integração MCP pesada em skill + CLI equivalente, reduzindo tokens e tools ativos. Use proactively quando um MCP consome muito contexto ou há >10 MCPs ativos. Implementa a regra mcp-hygiene."
 ---
 
+# SOURCE: ECC MIT affaan-m/ECC | adapted: IdeiaOS v2
 # Skill: MCP-to-CLI — Converter MCP em Skill + CLI
 
 ## Quando usar

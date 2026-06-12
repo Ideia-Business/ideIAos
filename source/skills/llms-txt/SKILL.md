@@ -1,9 +1,9 @@
-# SOURCE: ECC MIT affaan-m/ECC | adapted: IdeiaOS v2
 ---
 name: llms-txt
 description: "Gera docs LLM-otimizadas (llms.txt) para uma codebase/produto: índice navegável que um agente lê para entender o projeto rápido. Use proactively para projetos que serão consumidos por IA."
 ---
 
+# SOURCE: ECC MIT affaan-m/ECC | adapted: IdeiaOS v2
 # Skill: llms.txt — Docs LLM-Otimizadas
 
 ## Quando usar

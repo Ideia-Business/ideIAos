@@ -1,9 +1,9 @@
-# SOURCE: IdeiaOS v2
 ---
 name: ideiaos-catalog
 description: "Lista os módulos do IdeiaOS (agents, skills, hooks, rules, templates) a partir de manifests/modules.json — instalados vs disponíveis, filtrável por kind e stack. Use quando o usuário pergunta 'o que tem disponível', 'quais agents/skills existem', ou quer instalar algo sob demanda."
 ---
 
+# SOURCE: IdeiaOS v2
 # Skill: /ideiaos-catalog — Catálogo de Módulos IdeiaOS
 
 ## Quando usar

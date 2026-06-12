@@ -1,9 +1,9 @@
-# SOURCE: ECC MIT affaan-m/ECC | adapted: IdeiaOS v2
 ---
 name: two-instance-kickoff
 description: "Kickoff de projeto novo com 2 instâncias em paralelo: uma faz scaffold/setup, outra faz research do domínio. Use proactively ao iniciar projeto do zero."
 ---
 
+# SOURCE: ECC MIT affaan-m/ECC | adapted: IdeiaOS v2
 # Skill: Two-Instance Kickoff
 
 ## Quando usar
