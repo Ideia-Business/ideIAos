@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
 status: Ready to plan
-last_updated: "2026-06-12T02:45:00.000Z"
+last_updated: "2026-06-12T02:52:14.154Z"
 progress:
   total_phases: 8
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 19
   completed_plans: 19
   percent: 100
@@ -35,16 +35,17 @@ progress:
 | — 04-02 ECC worker agents | ✅ Completo (commit 2cb9d98) |
 | — 04-03 ECC workflow skills | ✅ Completo (commit eccc1ac) |
 | — 04-04 receitas + catalog + manifests + /idea + README | ✅ Completo (commit 2197f2f) |
-| Fase 05 — instincts | 🔄 Em andamento (05-01 + 05-02 completos) |
+| Fase 05 — instincts | ✅ Completa (3/3 planos) |
 | — 05-01 captura de observações | ✅ Completo (commit f9137a5) |
 | — 05-02 motor de instincts | ✅ Completo (commit 24f1e92) |
+| — 05-03 integração Wave 2 | ✅ Completo (commit 0b16996) |
 | Fase 06 — plugin-marketplace | ⬜ Não planejada |
 | Fase 07 — contexts-evals | ⬜ Não planejada |
 | Fase 08 — ideiaos-v3-review | ⬜ Não planejada (após 04-07) |
 
 ## Próximo passo
 
-05-01 e 05-02 completos (Wave 1). Próximo: 05-03 (/evolve + setup.sh + manifests + README) — Wave 2 da Fase 05.
+Fase 05 completa (3/3 planos). Próximo: Fase 06 — plugin-marketplace (não planejada ainda).
 
 ## Decisões Registradas
 
@@ -67,6 +68,9 @@ progress:
 - **05-02:** docs/instincts/instincts-layout.md entrou no repo via autosync (commit 3303c7a) antes do feat commit — conteúdo correto, desvio documentado.
 - **05-01:** bash_verb captura somente o 1º token do comando Bash, descartando args/flags — privacidade por design. "jq " em comentário era falso positivo no Check 6; corrigido para "Sem-jq:".
 - **05-01:** session_end usa tool+event ambos como "session_end" para facilitar detecção em 05-02 sem campo adicional.
+- **05-03:** /evolve usa referência em prosa ao formato de rule header (sem literal HTML-comment no corpo da skill, per no-`<!--` constraint; reader é direcionado para `source/rules/common/*.mdc`).
+- **05-03:** recall-learnings Passo 6 instincts inserido antes de postmortems; postmortems renumerado Passo 7. Saída esperada ganhou linha "Instincts aplicáveis".
+- **05-03:** manifests/modules.json: 60→66 módulos (+6: 2 hooks observe + 4 skills instinct-analyze/instinct-status/learn/evolve). Fase 05 completa.
 
 ## Notas
 
