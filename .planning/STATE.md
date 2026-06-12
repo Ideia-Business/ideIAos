@@ -39,10 +39,11 @@ progress:
 | — 05-01 captura de observações | ✅ Completo (commit f9137a5) |
 | — 05-02 motor de instincts | ✅ Completo (commit 24f1e92) |
 | — 05-03 integração Wave 2 | ✅ Completo (commit 0b16996) |
-| Fase 06 — plugin-marketplace | ⬜ Não planejada |
-| Fase 07 — contexts-evals | 🔄 Em execução (2/3 planos completos) |
+| Fase 06 — plugin-marketplace | ✅ Completa (3/3 planos, commit conjunto 5171cd9) |
+| Fase 07 — contexts-evals | ✅ Completa (3/3 planos) |
 | — 07-01 contexts + statusline | ✅ Completo (commits 73a442f, 2a54364) |
 | — 07-02 eval suite | ✅ Completo (commits 5a8517b, 0a5cf6a, 5cf37d4) |
+| — 07-03 aliases + manifests + README | ✅ Completo (commits 4973609, 3f2be17) |
 | Fase 08 — ideiaos-v3-review | ✅ Completa (4/4 planos) |
 | — 08-01 agents audit | ✅ Completo (commit ae2dbea) |
 | — 08-02 skills guide | ✅ Completo (commit 2ae329c) |
@@ -94,7 +95,7 @@ Milestone v2.0 completo. Todas as 8 fases executadas (29/29 planos). Próximo: i
 ## Notas
 
 - Decisões travadas em PROJECT.md `<decisions>` — quarentena obrigatória antes de qualquer absorção de terceiros.
-- Plans: 12 criados (4 por fase para fases 01-03), 9 executados (fases 01+02 completas + 03-01).
+- Plans: 29/29 executados (8 fases completas). Milestone v2.0 encerrado em 2026-06-12.
 - Fase 02 checker: 3 warnings menores (sem blockers) — I-01 cosmético, I-02 HTML payload test, I-03 python3 quoting (endereçar na execução).
 
 ## Compact Snapshot

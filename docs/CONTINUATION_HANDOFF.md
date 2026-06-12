@@ -2,82 +2,67 @@
 
 **Projeto:** `IdeiaOS`  
 **Repo:** https://github.com/Ideia-Business/IdeiaOS  
-**Branch:** `work`  
-**Atualizado:** 2026-06-11
+**Branch:** `work` (pushed em origin/work)  
+**Atualizado:** 2026-06-12
 
 ---
 
 ## Como retomar (rápido)
 
 1. Ler `AGENTS.md`.
-2. Ler `STATE.md`.
+2. Ler `.planning/STATE.md`.
 3. Executar a primeira pendência abaixo.
 
 ---
 
-## Resumo executivo (2026-06-11)
+## Resumo executivo (2026-06-12)
 
-- **Fase 01** (quality-memory-hooks): ✅ Completa
-- **Fase 02** (security-quarantine): ✅ Completa — scan-absorbed.sh, Patch 10 deny rules, idea-doctor Seção 7, LaunchAgent kill-switch, memory-hygiene
-- **Fase 03** (multiharness-rules): 📋 **PLANEJADA** — 4 planos criados, checker PASS, pronta para executar
+# 🏁 MILESTONE v2.0 COMPLETO — 8/8 fases, 29/29 planos
 
----
+- **Fase 01** (quality-memory-hooks): ✅
+- **Fase 02** (security-quarantine): ✅
+- **Fase 03** (multiharness-rules): ✅ — source/ fonte única, manifests, rules, build-adapters
+- **Fase 04** (ecc-catalog): ✅ — 13 agents + 14 skills ECC via quarentena, model routing, /ideiaos-catalog
+- **Fase 05** (instincts): ✅ — observação automática, /instinct-analyze, /learn, /evolve → vault
+- **Fase 06** (plugin-marketplace): ✅ — /plugin marketplace add Ideia-Business/IdeiaOS, 3 sub-plugins, dirs-raiz removidos
+- **Fase 07** (contexts-evals): ✅ — claude-dev/review/research (--append-system-prompt), 22 eval cases reais, statusline
+- **Fase 08** (ideiaos-v3-review): ✅ — auditoria completa, 15 gaps priorizados, v3-roadmap
 
-## O que foi feito nesta sessão (2026-06-11)
+**Verificações:** 04: 11/11 · 05: 10/10 · 06: 11/11 · 07: 9/9 (teste vivo review-mode PASS) · 08: 8/8
 
-**Fase 02 — Security Baseline (concluída):**
-- `security/scan-absorbed.sh`: pipeline de quarentena com 4 checks Python3 (unicode, HTML/JS, cmds suspeitos, AgentShield)
-- Patch 10: 6 deny rules + 2 ask rules (ssh/scp) em `install-global-patches.sh`
-- `idea-doctor.sh` Seção 7: Security Audit (deny rules, hooks curl|bash, secrets, scan-absorbed)
-- `setup-dev-machine.sh`: LaunchAgent com `timeout 120` + `AbandonProcessGroup false`
-- `docs/security/memory-hygiene.md`: 3 regras formalizadas
-- README sync: 10 patches, estrutura security/, troubleshooting
-
-**Fase 03 — Multiharness Rules (planejada):**
-- `03-01-PLAN.md`: source/ migration — skills/agents/hooks/templates → source/
-- `03-02-PLAN.md`: manifests/modules.json (ECC format) + detect_stack() no setup.sh
-- `03-03-PLAN.md`: rules layer — common/ (token-economy, mcp-hygiene, orchestration) + supabase/ + lovable/
-- `03-04-PLAN.md`: build-adapters.sh + ECC rules (5 stacks via quarentena) + README sync (Wave 2)
-- gsd-plan-checker: **PASS** (2 warnings menores endereçados como notas nos planos)
+**Estado final:** 70 módulos em manifests/modules.json · 15 agents · 34 skills · 13 hooks · 4 contexts · 22 eval cases
 
 ---
 
-## Pendências
+## Pendências (pós-milestone)
 
-**Alta prioridade:**
-1. **Executar Fase 03**: `/gsd-execute-phase 03` — Wave 1 paralela (03-01, 03-02, 03-03), depois Wave 2 (03-04)
-2. **Deny rules globais**: `bash scripts/install-global-patches.sh` nesta máquina — idea-doctor reporta FAILs (correto, regras não instaladas ainda)
+**Ações do usuário (máquina local):**
+1. **Deny rules globais**: `bash scripts/install-global-patches.sh` nesta máquina (G-10)
+2. **Aliases dos contexts**: colar o snippet do setup.sh step 5.22 no `.zshrc` (claude-dev/review/research)
+3. **Statusline**: snippet do step 5.23 no settings.json (opcional)
 
 **Produto (deferido):**
-3. Feature "Novidades" (changelog usuário): NFideia (P2 #4), Ideiapartner (P3). Lapidai = referência.
+4. Feature "Novidades" (changelog usuário): NFideia (P2 #4), Ideiapartner (P3). Lapidai = referência.
 
-**Sequência restante após Fase 03:**
-- Fase 04 (ecc-catalog) — depends 02+03
-- Fase 05 (instincts) — depends 01
-- Fase 06 (plugin-marketplace) — depends 03
-- Fase 07 (contexts-evals) — depends 03
-- Fase 08 (ideiaos-v3-review) — depends 04-07
+**Próximo milestone (v3):**
+- Input: `docs/v3/v3-review.md` (15 gaps) + `docs/v3/v3-roadmap.md` (6 fases candidatas)
+- Ordem sugerida: agent-contracts → token-optimizations → instinct-loop-automation → evals-ci → security-dx + manifest-cleanup
+- Top P1: agents sem model/tools (G-01/G-02) · instinct loop sem scheduler (G-03) · evals nunca automáticas (G-04)
 
 ---
 
 ## Próximo passo
 
 ```
-/gsd-execute-phase 03
+/gsd-new-milestone "IdeiaOS v3" — usando docs/v3/v3-roadmap.md como plano-fonte
 ```
-
-Wave 1 executa 03-01, 03-02, 03-03 em paralelo. Wave 2 executa 03-04 (build-adapters.sh + ECC absorption + README sync).
 
 ---
 
 ## Checklist de fechamento
 
-- [x] `STATE.md` atualizado
+- [x] `.planning/STATE.md` atualizado (milestone complete, 8/8)
 - [x] `docs/CONTINUATION_HANDOFF.md` atualizado
+- [x] Vault Changelog/IdeiaOS.md atualizado
+- [x] Push origin/work
 - [x] Próximo passo explícito
-- [x] Planos Phase 03 criados e verificados (checker PASS)
-
-## Ultima sessao automatica (2026-06-11)
-
-- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-11-ideiaos-0dc39c83-3226-4cda-8042-33b2fb9f.tmp`
-- Próximo passo: (definir antes de retomar)
