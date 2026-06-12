@@ -49,3 +49,11 @@ Toda mudança em `hooks/`, `skills/`, `agents/`, `scripts/` ou `templates/` **DE
 - Validação manual: `bash scripts/check-readme-sync.sh` — output ✅/❌ por componente.
 
 **Por que existe:** em 28/05/2026 o README ficou 1 sessão inteira desatualizado sem ninguém notar — barreira ativa > documentação passiva ([[learning-protocol-discipline-needs-hooks-not-guidelines]]).
+
+## Segurança de sessão (obrigatório)
+
+Toda sessão deve respeitar [`docs/security/memory-hygiene.md`](docs/security/memory-hygiene.md):
+
+1. **Sem secrets em memória**: nunca gravar API keys, tokens ou credenciais em `~/.claude/projects/`, vault ou arquivos de contexto GSD.
+2. **Reset pós-quarentena**: após absorver/testar conteúdo de terceiros em `security/quarantine/`, iniciar nova sessão antes de continuar trabalho confiável.
+3. **Verificação**: `bash scripts/idea-doctor.sh` (Seção 7) audita deny rules, hooks perigosos e secrets em memória.

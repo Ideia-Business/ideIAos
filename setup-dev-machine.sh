@@ -20,6 +20,7 @@ DEV="$HOME/dev"
 BIN_DIR="$HOME/.local/bin"
 STATE_DIR="$HOME/.local/state"
 SCRIPT_PATH="$BIN_DIR/git-autosync"
+TIMEOUT_BIN="$BIN_DIR/timeout"
 LIST="$STATE_DIR/git-autosync-repos.txt"
 NPM_CACHE="$STATE_DIR/npm-cache"
 LABEL="com.ideiaos.gitautosync"
@@ -214,13 +215,14 @@ cat > "$PLIST" <<PLIST_EOF
 <dict>
     <key>Label</key><string>$LABEL</string>
     <key>ProgramArguments</key>
-    <array><string>$SCRIPT_PATH</string><string>--all</string></array>
+    <array><string>$TIMEOUT_BIN</string><string>120</string><string>$SCRIPT_PATH</string><string>--all</string></array>
     <key>StartInterval</key><integer>900</integer>
     <key>RunAtLoad</key><true/>
     <key>StandardOutPath</key><string>$STATE_DIR/git-autosync.out.log</string>
     <key>StandardErrorPath</key><string>$STATE_DIR/git-autosync.err.log</string>
     <key>EnvironmentVariables</key>
     <dict><key>PATH</key><string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string></dict>
+    <key>AbandonProcessGroup</key><false/>
 </dict>
 </plist>
 PLIST_EOF
