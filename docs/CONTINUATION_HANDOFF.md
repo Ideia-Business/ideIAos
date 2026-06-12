@@ -12,14 +12,15 @@
 cd ~/dev/IdeiaOS && git pull && bash scripts/ideiaos-update.sh
 ```
 
-## Decisões pendentes DO USUÁRIO
+## Decisões registradas (2026-06-12)
 
-1. **Repo público?** (marketplace aberto — README documenta opção A/B)
-2. **Secret ANTHROPIC_API_KEY no GitHub?** (ativa job llm-evals em CI)
+1. **Secret ANTHROPIC_API_KEY: NÃO** — evals LLM só localmente (`bash evals/run-evals.sh --ci`); job de CI skipa limpo por design
+2. **Repo: manter PRIVADO** — marketplace funciona nas máquinas autenticadas; público só se quiser distribuir como open source
+3. ~~checkout@v4→v5~~ ✅ aplicado (151132a)
 
 ## v5 candidatos (ver ROADMAP)
 
-Critérios de eval grep-friendly/LLM-judge · checkout@v5 (deadline 2026-06-16) · feature Novidades (NFideia/Ideiapartner)
+Critérios de eval grep-friendly/LLM-judge · feature Novidades (NFideia/Ideiapartner)
 
 ## Próximo passo
 

@@ -9,6 +9,10 @@
 ## Próximo (v5 — a definir, candidatos)
 
 - Critérios semânticos dos eval cases → grep-friendly ou LLM-as-judge (deferred da Fase 15)
-- actions/checkout v4→v5 (deadline 2026-06-16)
-- Repo público + secret ANTHROPIC_API_KEY (decisões do usuário)
 - Feature "Novidades" nos produtos (NFideia P2, Ideiapartner P3)
+
+## Decisões registradas (2026-06-12)
+
+- ~~actions/checkout v4→v5~~ ✅ Aplicado (commit 151132a)
+- **Secret ANTHROPIC_API_KEY em CI: NÃO** (decisão do usuário) — evals LLM rodam localmente via `bash evals/run-evals.sh --ci` com o auth da máquina; o job de CI skipa limpo por design
+- **Repo público: manter PRIVADO** (recomendação acatada) — marketplace funciona nas máquinas autenticadas do usuário; público só se houver intenção de distribuir como open source
