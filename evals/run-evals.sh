@@ -161,12 +161,14 @@ run_case_with_model() {
   criteria_raw="$(extract_section "$_case_file" "Critérios de Aprovação")"
 
   # Chamar claude headless com timeout
+  # --no-color removido: versões recentes do Claude CLI não suportam essa flag
+  # </dev/null: garante stdin fechado (sem TTY) para evitar bloqueio em captura de subshell
   local response=""
   local exit_code=0
   if command -v timeout >/dev/null 2>&1; then
-    response="$(timeout 90 claude -p "$prompt_text" --no-color 2>/dev/null)" || exit_code=$?
+    response="$(timeout 120 claude -p "$prompt_text" </dev/null 2>/dev/null)" || exit_code=$?
   else
-    response="$(perl -e 'alarm 90; exec @ARGV' -- claude -p "$prompt_text" --no-color 2>/dev/null)" || exit_code=$?
+    response="$(perl -e 'alarm 120; exec @ARGV' -- claude -p "$prompt_text" </dev/null 2>/dev/null)" || exit_code=$?
   fi
 
   if [[ $exit_code -ne 0 && $exit_code -ne 124 ]]; then
