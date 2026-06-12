@@ -59,7 +59,7 @@ Fase 03 completa (4/4 planos). Próximo: Fase 04 (ecc-catalog — skill /ideiaos
 
 ## Compact Snapshot
 
-**Auto-saved:** 2026-06-11 21:57 (PreCompact hook, trigger: auto)
+**Auto-saved:** 2026-06-11 22:49 (PreCompact hook, trigger: manual)
 
 - Snapshot automático antes do /compact.
 - Detalhes da sessão em ~/.claude/sessions/ (session-summary hook).
