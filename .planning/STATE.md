@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
-status: Executing Phase 02
-last_updated: "2026-06-12T00:05:13.403Z"
+status: Executing Phase 03
+last_updated: "2026-06-11T22:10:00.000Z"
 progress:
   total_phases: 8
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 8
-  completed_plans: 4
-  percent: 50
+  completed_plans: 8
+  percent: 25
 ---
 
 # State — IdeiaOS v2
@@ -24,8 +24,8 @@ progress:
 | PROJECT.md + ROADMAP.md | ✅ Criados via /gsd-import (2026-06-11) |
 | Plano-fonte | `.planning/research/ECC-ABSORPTION-PLAN.md` |
 | Fase 01 — quality-memory-hooks | ✅ Completa |
-| Fase 02 — security-quarantine | 🔄 Wave 1 completa (02-01/02/03) — Wave 2 pendente (02-04) |
-| Fase 03 — multiharness-rules | ⬜ Não planejada |
+| Fase 02 — security-quarantine | ✅ Completa (VERIFICATION.md PASSED) |
+| Fase 03 — multiharness-rules | 🔜 Próxima — não planejada ainda |
 | Fase 04 — ecc-catalog | ⬜ Não planejada |
 | Fase 05 — instincts | ⬜ Não planejada |
 | Fase 06 — plugin-marketplace | ⬜ Não planejada |
@@ -34,8 +34,7 @@ progress:
 
 ## Próximo passo
 
-Wave 1 da Fase 02 completa (02-01 scan-absorbed.sh, 02-02 Patch 10 + idea-doctor S7, 02-03 kill-switch + memory-hygiene).
-Próximo: executar Wave 2 (02-04: README sync + smoke test integrado + checkpoint).
+Fases 01 e 02 completas. Próximo: `/gsd-plan-phase 03` (multiharness-rules — fonte única → adapters, rules 18 stacks, build-adapters.sh). Depende de Fase 02 ✅.
 
 ## Notas
 
