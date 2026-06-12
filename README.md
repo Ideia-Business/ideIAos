@@ -251,6 +251,10 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | **MCP `chrome-devtools`** | user scope (via `claude mcp`) | Auditoria de console/rede do browser direto no Claude Code |
 | **MCP `context7`** | user scope (via `claude mcp`) | Docs versionadas de 1000+ libs (React/Tailwind/etc) ao vivo |
 | **Alias `idea-setup`** | `~/.zshrc` ou `~/.bashrc` (via `install-alias.sh`) | Atalho terminal — `cd projeto && idea-setup` |
+| **Contexts de modo** | `~/.ideiaos/contexts/` (via setup.sh 5.22) | `source/contexts/` — dev.md / review.md / research.md |
+| **Funções `claude-dev` / `claude-review` / `claude-research`** | snippet oferecido pelo setup.sh (opt-in no rc) | Abre Claude em modo focado via `--append-system-prompt` (preserva CLAUDE.md/hooks/memória) |
+| **Statusline IdeiaOS** | `~/.ideiaos/statusline/ideiaos-statusline.sh` (via setup.sh 5.23) | Exibe branch · modelo · dir no status bar do Claude Code (snippet settings.json — opt-in) |
+| **Suíte de evals** | `evals/` (repo-level — não instalável) | ≥20 casos reais + `bash evals/run-evals.sh` — regressão de qualidade do IdeiaOS |
 
 ### Agents ECC (Fase 04 — source/agents/)
 
@@ -416,6 +420,41 @@ Sem alias:
 ```bash
 bash "$HOME/.../ideiaos-setup/setup.sh" --lovable "$PWD"
 ```
+
+#### Modos de contexto (Fase 07 — source/contexts/)
+
+O setup.sh implanta os contexts em `~/.ideiaos/contexts/` e oferece funções shell via snippet (opt-in).
+Após adicionar ao seu rc de shell (`~/.zshrc` ou `~/.bashrc`):
+
+```bash
+claude-dev       # abre em modo dev — implementação, qualidade, commits atômicos
+claude-review    # abre em modo review — análise, critique, nunca edita arquivos
+claude-research  # abre em modo research — deep research, mapeamento de domínio
+```
+
+Usa `--append-system-prompt` (preserva CLAUDE.md, hooks e memória automáticos do IdeiaOS).
+**Não usa** `--system-prompt` (que substituiria o prompt padrão inteiro).
+
+#### Statusline IdeiaOS (source/statusline/ideiaos-statusline.sh)
+
+Após instalar via setup.sh (passo 5.23), adicione ao `~/.claude/settings.json`:
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "bash /Users/<você>/.ideiaos/statusline/ideiaos-statusline.sh"
+  }
+}
+```
+Exibe: branch · modelo · dir · fase GSD · context ativo. O setup.sh **não modifica** `settings.json` (T-01-10).
+
+#### Suíte de evals (evals/)
+
+```bash
+bash evals/run-evals.sh --list   # lista os ≥20 casos
+bash evals/run-evals.sh          # roda todos os casos
+```
+Ativo de repo-level (não instalável via setup.sh) — regressão de qualidade do IdeiaOS.
 
 ---
 
@@ -723,7 +762,8 @@ ideIAos/
 │   ├── agents/                             ← 15 agents ECC
 │   ├── hooks/                              ← 11 hooks de produto + 3 test-hooks
 │   ├── templates/                          ← templates de projeto (hybrid/ideiaos/lovable/learnings/global-patches)
-│   ├── contexts/                           ← vazio — para Fase 07 (contexts-evals)
+│   ├── contexts/                           ← contexts de modo (dev.md / review.md / research.md)
+│   ├── statusline/                         ← ideiaos-statusline.sh
 │   └── rules/
 │       ├── common/                         ← token-economy, mcp-hygiene, orchestration
 │       ├── supabase/                       ← rls-patterns
@@ -733,7 +773,7 @@ ideIAos/
 │           ├── typescript/                 ← typescript strict rules
 │           └── react/                      ← hooks rules, component patterns
 ├── manifests/
-│   ├── modules.json                        ← catálogo ECC de 66 módulos (hooks/agents/skills/templates) + campo plugin
+│   ├── modules.json                        ← catálogo de 70 módulos (hooks/agents/skills/templates/contexts/statusline) + campo plugin
 │   └── plugin-membership.md               ← mapeamento módulo → plugin (fonte de verdade legível)
 ├── adapters/                               ← artefatos compilados por harness (gerados por build-adapters.sh)
 │   ├── _scaffold/                          ← template para novos harnesses (codex, gemini, zed)
@@ -749,6 +789,10 @@ ideIAos/
 │   ├── CONTINUATION_HANDOFF.md
 │   └── security/
 │       └── memory-hygiene.md               ← Regras de higiene de memória (sem secrets, reset pós-quarentena)
+├── evals/                                  ← suíte de regressão (≥20 casos reais) + run-evals.sh
+│   ├── run-evals.sh                        ← runner: bash evals/run-evals.sh [--list]
+│   ├── cases/                              ← EVAL-*.md (≥20 casos com input/expected/actual)
+│   └── README.md                          ← documentação da suíte
 ├── AGENTS.md                               ← Identidade do ideIAos
 ├── CLAUDE.md                               ← Instruções Claude para ideIAos
 ├── STATE.md                                ← Estado do ideIAos

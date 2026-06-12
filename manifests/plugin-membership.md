@@ -123,6 +123,25 @@ Templates de projeto (`hybrid`, `ideiaos`, `learnings`, `aiox-ai-config`, `globa
 
 ---
 
+## Setup-only (não-plugin): contexts + statusline
+
+Os 3 contexts de modo (`context-dev`, `context-review`, `context-research`) e o `statusline-ideiaos` são instalados pelo `setup.sh` (passos 5.22 e 5.23) e vivem em `~/.ideiaos/`. São `plugin: null` em `manifests/modules.json`.
+
+**Rationale:** Contexts e statusline não são skills/agents/hooks do Claude Code e não seguem o modelo de cópia do `build-plugins.sh` (que itera arrays `CORE_*` de `source/hooks/`, `source/skills/`, `source/agents/`). Um novo `kind` no `modules.json` é compatível com versões anteriores — `build-plugins.sh` ignora kinds que não reconhece. O `build-plugins.sh` permanece inalterado.
+
+**Instalação:** `setup.sh` copia `source/contexts/*.md` → `~/.ideiaos/contexts/` e oferece as funções shell via snippet (offer-not-edit, T-01-10). A statusline é copiada para `~/.ideiaos/statusline/` e o campo `statusLine` do `settings.json` é oferecido via snippet.
+
+| Módulo | Fonte | Destino | Plugin |
+|--------|-------|---------|--------|
+| context-dev | source/contexts/dev.md | ~/.ideiaos/contexts/dev.md | null |
+| context-review | source/contexts/review.md | ~/.ideiaos/contexts/review.md | null |
+| context-research | source/contexts/research.md | ~/.ideiaos/contexts/research.md | null |
+| statusline-ideiaos | source/statusline/ideiaos-statusline.sh | ~/.ideiaos/statusline/ideiaos-statusline.sh | null |
+
+**evals/:** A suíte de regressão (`evals/`) é um ativo de repo-level (≥20 casos reais + `evals/run-evals.sh`) e não é registrada em `modules.json` — não é um módulo instalável, é infraestrutura de qualidade do próprio IdeiaOS.
+
+---
+
 ## Referência cruzada
 
 - Gerador: `scripts/build-plugins.sh`

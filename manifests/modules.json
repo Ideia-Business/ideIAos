@@ -829,6 +829,54 @@
       "deps": [],
       "installStrategy": "always",
       "plugin": "ideiaos-core"
+    },
+    {
+      "id": "context-dev",
+      "kind": "context",
+      "description": "Dev mode context — implementation focus: code quality, tests, atomic commits",
+      "source": "source/contexts/dev.md",
+      "targets": [
+        "claude"
+      ],
+      "deps": [],
+      "installStrategy": "manual",
+      "plugin": null
+    },
+    {
+      "id": "context-review",
+      "kind": "context",
+      "description": "Review mode context — analysis only: critique, suggest, never edit files",
+      "source": "source/contexts/review.md",
+      "targets": [
+        "claude"
+      ],
+      "deps": [],
+      "installStrategy": "manual",
+      "plugin": null
+    },
+    {
+      "id": "context-research",
+      "kind": "context",
+      "description": "Research mode context — deep research: map domain, identify patterns, synthesize findings",
+      "source": "source/contexts/research.md",
+      "targets": [
+        "claude"
+      ],
+      "deps": [],
+      "installStrategy": "manual",
+      "plugin": null
+    },
+    {
+      "id": "statusline-ideiaos",
+      "kind": "statusline",
+      "description": "IdeiaOS standard statusline — branch, model, dir, GSD phase, context",
+      "source": "source/statusline/ideiaos-statusline.sh",
+      "targets": [
+        "claude"
+      ],
+      "deps": [],
+      "installStrategy": "manual",
+      "plugin": null
     }
   ]
 }
