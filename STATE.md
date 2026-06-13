@@ -1,6 +1,6 @@
 # Estado do projeto — ideIAos
 
-**Atualizado:** 2026-06-12 · **Branch:** `work` → `main` · **Versão ideIAos:** v3 em andamento (v2.0 base)
+**Atualizado:** 2026-06-13 · **Branch:** `work` → `main` · **Versão ideIAos:** v5 em andamento (Fase 17 concluída; v2.0/v3/v4 shipped 2026-06-12)
 
 ## Snapshot
 
@@ -20,6 +20,15 @@
 | **Fase 07 contexts-evals** | ✅ Completa (07-01 Wave 1a + 07-02 Wave 1b + 07-03 Wave 2) |
 | **Fase 13 security-dx-manifest** | ✅ Completa (13-01 + 13-02 + 13-03) |
 | Próximo passo | Ver `docs/CONTINUATION_HANDOFF.md` |
+
+## Mudanças recentes (2026-06-13) — padronização AIOX + escopo do manifesto
+
+- **Decisão estratégica AIOX (ADR):** `docs/decisions/aiox-gitignore-npx-vs-global.md` — AIOX tem 2 camadas: **instrução** (GSD + `/idea`/Deia + personas `@dev`/`@qa`/`@architect`) = **global** (`~/.claude`/`~/.cursor`); **engine** `.aiox-core` (npm `@aiox-squads/core-internal` v5.2.x, stateful, ~58M) = **por-máquina, gitignored**, tratado como `node_modules` e instalado via `npx aiox-core@latest install`. Orquestrador oficial = `/idea` (Deia) + IdeiaOS.
+- **`setup.sh`:** passa a gitignorar `.aiox-core/` + agentes multi-IDE (`.antigravity/ .codex/ .gemini/ .kimi/ .cursor/rules/agents/ .github/agents/`) em todo projeto → previne o drift observado (4 repos divergiram entre commitar 14-58M vs gitignorar). Output do install ganhou nota sobre `npx` em clone novo.
+- **Aplicado retroativamente nos 4 repos** (ideiapartner, nfideia, lapidai, cfoai-grupori): `.aiox-core` v5.2.9 local + gitignored, tracking antigo removido (`git rm --cached`).
+- **Manifesto v1.1** (`manifests/modules.json`): novo campo `catalogScope` deixa explícito que o manifesto cataloga só **código-fonte próprio** (`source/`, o "src/" do projeto); GSD e AIOX são 2 das 5 camadas oficiais do ecossistema — **centrais e de primeira classe** (a Deia orquestra ambas) — mas consumidas como **dependências upstream** (rastreadas/fixadas em `versions.lock` = "package.json" do IdeiaOS), não vendorizadas. Confirmado 1:1 com `source/`; accessibility + database-migrations instaladas globalmente.
+- **Fix:** `source/skills/idea/SKILL.md` — referência morta `/dev-setup` → `/ideiaos-setup` (6 ocorrências).
+- **Commits:** `d53c1e7` (feat setup + ADR) · `5a81b48` + `5619d17` (manifest v1.1 escopo) · `761f8a8` (fix idea)
 
 ## Mudanças recentes (2026-06-12) — Fase 17 eval-criteria completa (v5 item 1)
 

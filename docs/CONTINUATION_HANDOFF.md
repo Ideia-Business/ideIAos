@@ -1,6 +1,19 @@
 # Handoff — continuar em outro turno
 
-**Projeto:** `IdeiaOS` · **Branch:** `work` (= main) · **Atualizado:** 2026-06-12
+**Projeto:** `IdeiaOS` · **Branch:** `work` (= main) · **Atualizado:** 2026-06-13
+
+## Sessão 2026-06-13 — padronização AIOX + escopo do manifesto
+
+**Decisão estratégica AIOX (ADR `docs/decisions/aiox-gitignore-npx-vs-global.md`):**
+- **Instrução = global, engine = por-máquina.** GSD + `/idea`/Deia + personas AIOX (`@dev`/`@qa`/`@architect`) ficam globais (`~/.claude`/`~/.cursor`); o engine `.aiox-core` (npm `@aiox-squads/core-internal` v5.2.x, stateful, ~58M) é tratado como `node_modules` — instalado por máquina via `npx aiox-core@latest install` e **nunca versionado**. Orquestrador oficial = `/idea` (Deia) + IdeiaOS.
+- **`setup.sh`** passou a gitignorar `.aiox-core/` + agentes multi-IDE em todo projeto (previne o drift que divergiu os 4 repos).
+- **Aplicado retroativamente nos 4 repos** (ideiapartner, nfideia, lapidai, cfoai-grupori): `.aiox-core` v5.2.9 local + gitignored, tracking antigo `git rm --cached`.
+
+**Manifesto v1.1** (`manifests/modules.json`): `catalogScope` esclarece que o manifesto = só código-fonte próprio (`source/`); GSD/AIOX são camadas centrais mas **dependências upstream** rastreadas em `versions.lock`. Confirmado 1:1 com `source/`.
+
+**Fix:** `source/skills/idea/SKILL.md` — referência morta `/dev-setup` → `/ideiaos-setup` (6×).
+
+**Commits:** `d53c1e7` · `5a81b48` · `5619d17` · `761f8a8` (+ autosyncs). Working tree limpo, `work` = `origin/work`.
 
 ## 🏁 PLANO MAIOR 100% CONCLUÍDO
 
@@ -29,9 +42,11 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 
 ## Próximo passo
 
-Atualizar máquinas (`git pull && bash scripts/ideiaos-update.sh`); depois `/gsd-new-milestone "IdeiaOS v5"` se desejado.
+1. Aplicar o novo padrão AIOX nas máquinas: `cd ~/dev/IdeiaOS && git pull && bash scripts/ideiaos-update.sh`.
+2. Em clone novo / máquina nova, regenerar o engine por projeto: `npx aiox-core@latest install` (personas e `/idea` já são globais — funcionam sem isso).
+3. Depois, `/gsd-new-milestone "IdeiaOS v5"` se desejar abrir o próximo ciclo.
 
 ## Ultima sessao automatica (2026-06-13)
 
-- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-13-ideiaos-8e82d972-bc6a-436d-91a7-33da6a19.tmp`
+- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-13-ideiaos-32df5c2a-1220-4b2b-877f-3821faf9.tmp`
 - Próximo passo: (definir antes de retomar)
