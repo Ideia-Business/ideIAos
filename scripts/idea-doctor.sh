@@ -75,13 +75,13 @@ else
   warn "Claude Code CLI não encontrado — não checou MCPs"
 fi
 
-# ── 4) Overlay (7 patches) ────────────────────────────────────────────────────
-step "4) Overlay — 7 patches"
+# ── 4) Overlay (11 patches) ───────────────────────────────────────────────────
+step "4) Overlay — 11 patches"
 chk() { # nome, arquivo, marcador
   if [ ! -f "$2" ]; then warn "$1: alvo ausente ($2)"; return; fi
   if grep -qF -- "$3" "$2" 2>/dev/null; then pass "$1"; else warn "$1 NÃO aplicado — rode: bash scripts/install-global-patches.sh"; fi
 }
-# Ordem sequencial 1→7. Patch 3 (hook) não tem marcador de string — checa presença.
+# Ordem 1→9 + 11 (Patch 10 deny-rules conferido na Seção 7). Patch 3 (hook) não tem marcador — checa presença.
 chk "Patch 1 (gsd-plan-phase --story)"   "$GSKILLS/gsd-plan-phase/SKILL.md"                 "--story <file>"
 chk "Patch 2 (plan-phase STORY_MODE)"    "$HOME/.claude/get-shit-done/workflows/plan-phase.md" "STORY_MODE"
 if [ -f "$HOME/.claude/hooks/extract-learnings-reminder.sh" ]; then pass "Patch 3 (hook Fase A presente)"; else warn "Patch 3 ausente — install-global-patches.sh"; fi
