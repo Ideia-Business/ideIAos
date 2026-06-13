@@ -15,6 +15,7 @@
 #   6. .aiox-core/.../tasks/qa-gate.md                   — IdeiaOS Composition
 #   7. ~/.claude/skills/design-system/SKILL.md           — OKLCH (--brand-hue)
 #   8. ~/.claude/hooks/git-sync-check.sh + settings.json — SessionStart fast-forward cross-máquina
+#   8b ~/.claude/hooks/backlog-sync-check.sh + settings.json — SessionStart backlog real do prod (ideiapartner)
 #   9. ~/.config/git/ignore                               — gitignore global (settings.local.json, .DS_Store)
 #
 # Uso:
@@ -652,6 +653,103 @@ PY
   esac
 }
 
+# ── PATCH 11: SessionStart backlog-sync-check.sh ─────────────────────────────
+# Análogo de RUNTIME do git-sync-check (que cuida do estado de CÓDIGO/git).
+# Consulta read-only o ops-db-gateway (incident_backlog_snapshot) e injeta a
+# contagem REAL de incidentes abertos em prod — confronta o "Pendências Cloud"
+# do handoff/STATE com a verdade, evitando que uma sessão persiga backlog
+# fantasma (já resolvido) ou ignore incidente novo. Gated para repos com
+# scripts/ops-db-query.mjs (= ideiapartner); silencioso em qualquer outro.
+patch_backlog_sync() {
+  local target="$HOME/.claude/hooks/backlog-sync-check.sh"
+  local source="$PATCHES_DIR/backlog-sync-check.sh"
+
+  if [ ! -f "$source" ]; then
+    err "Patch 11: template ausente em $source"
+    FAILED=$((FAILED+1))
+    return 0
+  fi
+
+  mkdir -p "$(dirname "$target")"
+  if [ -f "$target" ] && diff -q "$source" "$target" &>/dev/null; then
+    skip "Patch 11: backlog-sync-check.sh já está na versão mais recente"
+    SKIPPED=$((SKIPPED+1))
+  else
+    cp "$source" "$target"
+    chmod +x "$target"
+    ok "Patch 11: backlog-sync-check.sh instalado → $target"
+    APPLIED=$((APPLIED+1))
+  fi
+
+  # Registro idempotente em settings.json (SessionStart, logo após o git-sync).
+  local settings="$HOME/.claude/settings.json"
+  if [ ! -f "$settings" ]; then
+    warn "Patch 11: ~/.claude/settings.json não existe — registre backlog-sync-check manualmente em hooks.SessionStart"
+    return 0
+  fi
+
+  local result_str
+  result_str=$(python3 - "$settings" <<'PY'
+import json, sys, os
+path = sys.argv[1]
+marker = "backlog-sync-check.sh"
+home = os.path.expanduser('~/.claude/hooks/backlog-sync-check.sh')
+
+try:
+    with open(path, 'r', encoding='utf-8') as f:
+        cfg = json.load(f)
+except Exception as e:
+    print(f"FAILED: {e}", file=sys.stderr)
+    sys.exit(2)
+
+hooks = cfg.setdefault("hooks", {})
+ss = hooks.get("SessionStart", [])
+
+for entry in ss:
+    for h in entry.get("hooks", []):
+        if marker in h.get("command", ""):
+            print("SKIPPED")
+            sys.exit(0)
+
+# Posição 1 = logo após o git-sync-check (inserido em 0). Mantém os dois guards
+# de sincronização juntos. Se SessionStart tiver < 2 entradas, insert(1) anexa.
+ss.insert(1, {
+    "hooks": [{
+        "type": "command",
+        "command": f'bash "{home}"',
+        "timeout": 15
+    }]
+})
+hooks["SessionStart"] = ss
+cfg["hooks"] = hooks
+
+with open(path, 'w', encoding='utf-8') as f:
+    json.dump(cfg, f, indent=2, ensure_ascii=False)
+    f.write('\n')
+print("APPLIED")
+PY
+)
+  local py_exit=$?
+
+  if [ $py_exit -ne 0 ]; then
+    err "Patch 11: Python falhou ao registrar backlog-sync-check em settings.json"
+    FAILED=$((FAILED+1))
+    return 0
+  fi
+
+  case "$result_str" in
+    APPLIED)
+      ok "Patch 11: backlog-sync-check registrado em settings.json (SessionStart)"
+      APPLIED=$((APPLIED+1)) ;;
+    SKIPPED)
+      skip "Patch 11: backlog-sync-check já registrado em settings.json"
+      SKIPPED=$((SKIPPED+1)) ;;
+    *)
+      err "Patch 11: resposta Python inesperada: $result_str"
+      FAILED=$((FAILED+1)) ;;
+  esac
+}
+
 # ── PATCH 9: gitignore global (arquivos locais por-máquina) ──────────────────
 # ~/.config/git/ignore (caminho XDG padrão do git, sem precisar de core.excludesfile).
 # Sem isto, .claude/settings.local.json deixa o working tree "sujo" e o git-autosync
@@ -715,35 +813,38 @@ PY
   esac
 }
 
-step "Patch 1/10: --story em gsd-plan-phase SKILL.md"
+step "Patch 1/11: --story em gsd-plan-phase SKILL.md"
 patch_gsd_skill
 
-step "Patch 2/10: STORY_MODE em workflows/plan-phase.md"
+step "Patch 2/11: STORY_MODE em workflows/plan-phase.md"
 patch_gsd_workflow
 
-step "Patch 3/10: 3 gatilhos em extract-learnings-reminder.sh"
+step "Patch 3/11: 3 gatilhos em extract-learnings-reminder.sh"
 patch_extract_hook
 
-step "Patch 4/10: matcher expandido em settings.json"
+step "Patch 4/11: matcher expandido em settings.json"
 patch_settings_json
 
-step "Patch 5/10: --verification em AIOX-core agents/qa.md"
+step "Patch 5/11: --verification em AIOX-core agents/qa.md"
 patch_aiox_qa_agent
 
-step "Patch 6/10: IdeiaOS Composition em AIOX-core tasks/qa-gate.md"
+step "Patch 6/11: IdeiaOS Composition em AIOX-core tasks/qa-gate.md"
 patch_aiox_qa_task
 
-step "Patch 7/10: OKLCH (--brand-hue) em design-system SKILL.md"
+step "Patch 7/11: OKLCH (--brand-hue) em design-system SKILL.md"
 patch_design_system_oklch
 
-step "Patch 8/10: SessionStart git-sync-check (auto fast-forward cross-máquina)"
+step "Patch 8/11: SessionStart git-sync-check (auto fast-forward cross-máquina)"
 patch_git_sync
 
-step "Patch 9/10: gitignore global (settings.local.json + .DS_Store)"
+step "Patch 9/11: gitignore global (settings.local.json + .DS_Store)"
 patch_global_gitignore
 
-step "Patch 10/10: deny rules baseline em settings.json"
+step "Patch 10/11: deny rules baseline em settings.json"
 patch_deny_rules
+
+step "Patch 11/11: SessionStart backlog-sync-check (backlog real do prod — ideiapartner)"
+patch_backlog_sync
 
 # ── Resumo ───────────────────────────────────────────────────────────────────
 echo -e "\n${CYAN}${BOLD}━━━ Resumo ━━━${NC}"

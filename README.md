@@ -648,7 +648,7 @@ A versão também é refletida em `.aiox-ai-config.yaml` (`ideiaos.version: X.Y`
 
 O `setup.sh` cuida dos arquivos do **projeto**. Para os **arquivos globais** (skills Claude Code, workflow GSD, hook Fase A, settings.json, agente qa AIOX-core) o ideIAos aplica um **overlay** via patches idempotentes.
 
-### Os 10 patches do overlay ideIAos
+### Os 11 patches do overlay ideIAos
 
 | # | Onde | O que adiciona |
 |---|------|----------------|
