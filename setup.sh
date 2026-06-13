@@ -448,11 +448,11 @@ detect_stack() {
     grep -q '"@supabase/' "$project_dir/package.json" 2>/dev/null && stacks+=("supabase")
   fi
 
-  [[ -d "$project_dir/supabase" ]] && ! grep -q "supabase" <<< "${stacks[*]}" && stacks+=("supabase")
+  [[ -d "$project_dir/supabase" ]] && ! grep -q "supabase" <<< "${stacks[*]:-}" && stacks+=("supabase")
   [[ -f "$project_dir/lovable.config.js" || -d "$project_dir/docs/lovable" ]] && stacks+=("lovable")
   [[ -f "$project_dir/requirements.txt" || -f "$project_dir/pyproject.toml" ]] && stacks+=("python")
 
-  echo "${stacks[*]}"
+  echo "${stacks[*]:-}"
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
