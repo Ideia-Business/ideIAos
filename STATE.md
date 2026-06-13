@@ -30,6 +30,13 @@
 - **Fix:** `source/skills/idea/SKILL.md` — referência morta `/dev-setup` → `/ideiaos-setup` (6 ocorrências).
 - **Commits:** `d53c1e7` (feat setup + ADR) · `5a81b48` + `5619d17` (manifest v1.1 escopo) · `761f8a8` (fix idea)
 
+## Mudanças recentes (2026-06-13, cont.) — segundo cérebro (Obsidian) sincronizado
+
+- **Gap fechado:** `Changelog/IdeiaOS` do vault parou em 12/jun e a pasta `Decisions/` estava vazia desde 28/mai (ADRs do repo nunca espelhados). A sincronização repo→vault é manual (sem hook).
+- **Vault atualizado:** entrada `2026-06-13` em `Changelog/IdeiaOS.md`; 2 ADRs espelhados em `Decisions/` (AIOX, mgrep+LSP); `00 Index.md` alinhado ao real (Refs 4, Changelog 5, Learnings 5, Decisões 2). Verificado por 3 agentes adversariais (0 issues).
+- **Protocolo encodado:** `extract-learnings` ganhou **Passo 4c** (espelhar ADRs `docs/decisions/` → `Decisions/`), propagado ao plugin `ideiaos-core`; `build-plugins.sh` também sincronizou o fix `idea` ao plugin.
+- **Commit:** `caf5ad8` (Passo 4c + plugins). Vault é iCloud/Obsidian Sync (não-git).
+
 ## Mudanças recentes (2026-06-12) — Fase 17 eval-criteria completa (v5 item 1)
 
 - **Avaliador híbrido:** `run-evals.sh` ganha `evaluate_response()` — lê subseção `### Sinais` com padrões `+`/`-` (grep -qi); fallback LLM-judge `claude --model claude-haiku-4-5 -p` (timeout 60s; skip se indisponível)
