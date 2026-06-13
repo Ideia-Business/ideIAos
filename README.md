@@ -311,7 +311,7 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | `scripts/check-readme-sync.sh` | Audita se README menciona todos os componentes do repo |
 | **`scripts/check-versions-lock.sh`** | **Guarda do pin GSD** — bloqueia valor pré-redux (1.3x/1.4x) e edição manual do `gsd=` que não corresponda à versão instalada (único escritor: `update-upstream.sh --bump`; bypass: `IDEIAOS_LOCK_OVERRIDE=1`). Roda no pre-commit. |
 | **`scripts/idea-doctor.sh`** | Diagnóstico read-only: skills, MCPs, 10 patches, versões vs `versions.lock`, drift, autosync, **Seção 7 Security Audit** (deny rules, hooks, secrets, quarentena), **Seção 8 Contexts** (~/.ideiaos/contexts/, funções claude-dev/review/research, statusline) |
-| **`scripts/install-global-patches.sh`** | Aplica overlay ideIAos (Caminho C) sobre GSD/AIOX/Claude — idempotente, 10 patches (incl. Patch 10: deny rules baseline) |
+| **`scripts/install-global-patches.sh`** | Aplica overlay ideIAos (Caminho C) sobre GSD/AIOX/Claude — idempotente, 11 patches (incl. Patch 11: backlog-sync-check) |
 | **`security/scan-absorbed.sh`** | **Pipeline de quarentena obrigatório** — scan unicode invisível/payloads/comandos + AgentShield antes de absorver conteúdo de terceiros em `source/`. Exit 1 = bloqueado. |
 | **`scripts/update-upstream.sh`** | Detecta updates do GSD plugin e AIOX-core vs `versions.lock`; `--bump` re-pina |
 | **`scripts/update-design-suite.sh`** | Atualização CONTROLADA da Suíte de Design (re-vendoriza do nextlevelbuilder, mostra diff, sob demanda) |
@@ -662,6 +662,7 @@ O `setup.sh` cuida dos arquivos do **projeto**. Para os **arquivos globais** (sk
 | 8 | `~/.claude/settings.json` (SessionStart hook) | `git-sync-check`: auto fast-forward cross-máquina na abertura de sessão |
 | 9 | `~/.config/git/ignore` | Gitignore global: `settings.local.json` + `.DS_Store` (evita dirty tree no autosync) |
 | 10 | `~/.claude/settings.json` (permissions.deny) | **Deny rules baseline de segurança**: `Read(~/.ssh/**)`, `Read(~/.aws/**)`, `Read(**/.env*)`, `Write(~/.ssh/**)`, `Bash(curl * \| bash)`, `Bash(nc *)` |
+| 11 | `~/.claude/settings.json` (SessionStart hook) | `backlog-sync-check`: análogo de **runtime** do git-sync-check — injeta a contagem REAL de incidentes abertos em prod (ops-db-gateway, read-only) na abertura de sessão, confrontando "Pendências Cloud" do handoff com a verdade. Gated p/ repos com `scripts/ops-db-query.mjs` (ideiapartner); silencioso nos demais |
 
 ### Scripts de manutenção + lockfile
 
@@ -669,7 +670,7 @@ O `setup.sh` cuida dos arquivos do **projeto**. Para os **arquivos globais** (sk
 |---------|-------------|
 | `bash scripts/idea-doctor.sh` | **SEMPRE PRIMEIRO** — diagnóstico read-only: skills, MCPs, 10 patches, versões vs lock, drift, autosync, **Security Audit** (Seção 7). Não muda nada. |
 | `bash scripts/sync-all.sh` | **O DE SEMPRE** — atualiza tudo: `git pull` → `update-upstream` → `setup.sh --global-only` → overlay → `idea-doctor` |
-| `bash scripts/install-global-patches.sh` | só re-aplicar o overlay (10 patches, incl. deny rules baseline) — idempotente, roda 100x |
+| `bash scripts/install-global-patches.sh` | só re-aplicar o overlay (11 patches, incl. deny rules + backlog-sync-check) — idempotente, roda 100x |
 | `bash scripts/update-upstream.sh` | checar updates de GSD/AIOX vs `versions.lock`. `--bump` re-pina o lock no instalado |
 | `bash scripts/update-design-suite.sh` | atualizar a Suíte de Design do upstream (controlado, mostra diff, **sob demanda**) |
 | `bash scripts/apply-to-all-projects.sh` | propagar `setup.sh --project-only` a todos os repos `~/dev/*` — dry-run por padrão; `--apply` executa; `--only proj1,proj2` filtra |
@@ -727,7 +728,7 @@ A simulação testada em 2026-05-30: apagar manualmente os 3 gatilhos do hook �
                             ↓ atualiza via npm / plugin manager
 ┌─────────────────────────────────────────────────────────────┐
 │              OVERLAY ideIAos (Caminho C)                    │
-│  install-global-patches.sh aplica 10 patches idempotentes   │
+│  install-global-patches.sh aplica 11 patches idempotentes   │
 │  Detecta marcadores únicos antes de aplicar                 │
 └─────────────────────────────────────────────────────────────┘
                             ↓ sobrescreve com nossa adição
@@ -761,7 +762,7 @@ ideIAos/
 │   ├── check-readme-sync.sh                ← Audita README sync (aponta para source/)
 │   ├── check-versions-lock.sh              ← Guarda do pin GSD no versions.lock (anti-revert pré-redux)
 │   ├── idea-doctor.sh                      ← Diagnóstico saúde + drift (read-only)
-│   ├── install-global-patches.sh           ← Overlay ideIAos (Caminho C — 10 patches idempotentes)
+│   ├── install-global-patches.sh           ← Overlay ideIAos (Caminho C — 11 patches idempotentes)
 │   ├── update-upstream.sh                  ← Detecta updates GSD + AIOX vs versions.lock (--bump re-pina)
 │   ├── update-design-suite.sh              ← Atualização controlada da Suíte (re-vendoriza do upstream)
 │   ├── sync-all.sh                         ← Orquestrador (pull → upstream → setup --global-only → overlay → doctor)

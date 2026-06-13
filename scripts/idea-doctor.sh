@@ -6,7 +6,7 @@
 #   1. Skills globais (orquestração + dev-loop + Suíte de Design) e GSD
 #   2. Drift: cópia global vs fonte do repo (source/skills/) — pede setup --global-only
 #   3. MCPs (chrome-devtools, context7)
-#   4. Os 10 patches do overlay (markers de idempotência)
+#   4. Os 11 patches do overlay (markers de idempotência)
 #   5. Versões instaladas vs versions.lock (aiox-core, gsd) + pin da Suíte
 #   6. Autosync (LaunchAgent) ativo
 #   7. Security Audit (deny rules, hooks perigosos, secrets em memória, quarentena)
@@ -99,6 +99,9 @@ if [ -f "$HOME/.claude/hooks/git-sync-check.sh" ]; then pass "Patch 8 (hook git-
 chk "Patch 8 (git-sync no SessionStart)" "$HOME/.claude/settings.json"                     "git-sync-check.sh"
 # Patch 9 (gitignore global) — settings.local.json não pode sujar o tree
 if grep -qxF ".claude/settings.local.json" "$HOME/.config/git/ignore" 2>/dev/null; then pass "Patch 9 (gitignore global)"; else warn "Patch 9 ausente — install-global-patches.sh"; fi
+# Patch 11 (hook backlog-sync) — presença do script + registro no settings.json (gated p/ ideiapartner)
+if [ -f "$HOME/.claude/hooks/backlog-sync-check.sh" ]; then pass "Patch 11 (hook backlog-sync presente)"; else warn "Patch 11 ausente — install-global-patches.sh"; fi
+chk "Patch 11 (backlog-sync no SessionStart)" "$HOME/.claude/settings.json"                "backlog-sync-check.sh"
 
 # ── 5) Versões vs lock ────────────────────────────────────────────────────────
 step "5) Versões vs versions.lock"
