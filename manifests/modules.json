@@ -1,7 +1,8 @@
 {
-  "version": "1.0",
-  "generated": "2026-06-12",
+  "version": "1.1",
+  "generated": "2026-06-13",
   "source": "IdeiaOS v2 — multi-harness catalog",
+  "catalogScope": "Lista APENAS os módulos PRÓPRIOS do IdeiaOS (skills/agents/hooks/templates que o IdeiaOS possui e instala). GSD (skills gsd-*, pacote upstream @opengsd/get-shit-done-redux) e AIOX (personas @pm/@dev/@qa..., pacote @aiox-squads/core-internal) NÃO são enumerados aqui — são catálogos UPSTREAM, referenciados e fixados em versions.lock (gsd, aiox-core) e instalados por seus próprios pacotes. Decisão: docs/decisions/ (escopo core vs upstream). v1.1 (2026-06-13): confirmado 1:1 com source/; accessibility e database-migrations instaladas globalmente (installStrategy stack:react/stack:supabase).",
   "modules": [
     {
       "id": "hook-typecheck-on-edit",
