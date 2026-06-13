@@ -48,5 +48,5 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 
 ## Ultima sessao automatica (2026-06-13)
 
-- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-13-ideiaos-32df5c2a-1220-4b2b-877f-3821faf9.tmp`
+- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-13-ideiaos-76732081-d569-4f03-bfe3-28a930eb.tmp`
 - Próximo passo: (definir antes de retomar)
