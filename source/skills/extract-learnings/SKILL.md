@@ -1,6 +1,6 @@
 ---
 name: extract-learnings
-description: Ao final de uma implantação não-trivial, extrai aprendizado em formato estruturado (padrão > evidência > regra prática > falsos positivos) e grava em `docs/learnings/YYYY-MM-DD-<slug>.md`. Promove para memória global quando o padrão for replicável. Integra-se ao final da skill lovable-handoff e roda standalone em projetos não-Lovable.
+description: Ao final de uma implantação não-trivial, extrai aprendizado em formato estruturado (padrão > evidência > regra prática > falsos positivos) e grava em `docs/learnings/YYYY-MM-DD-<slug>.md`. Promove para memória global quando o padrão for replicável. Também espelha ADRs novos (`docs/decisions/`) ao vault Obsidian (`Decisions/`). Integra-se ao final da skill lovable-handoff e roda standalone em projetos não-Lovable.
 ---
 
 # Skill: extract-learnings
@@ -99,6 +99,18 @@ VAULT="$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/Ideia Busines
 
 Só promover o que é **cross-projeto e estável** — o vault é curadoria, não despejo.
 Se o vault não existir no caminho, pular e deixar `promote_to_vault: true` como sinal pendente.
+
+### Passo 4c — Espelhar ADRs novos ao vault (Decisions/)
+
+Se a sessão **produziu ou alterou um ADR** (Architecture Decision Record em `docs/decisions/<slug>.md` do repo), espelhe-o no vault. A pasta `Decisions/` é o registro cross-projeto de decisões estratégicas, e a sincronização repo→vault é **manual** (não há hook) — se este passo for pulado, a pasta defasa silenciosamente (aconteceu: ficou vazia de 28/mai a 13/jun-2026 mesmo com ADRs no repo).
+
+1. Para cada ADR novo/alterado em `docs/decisions/`, criar/atualizar `$VAULT/Decisions/<Título legível>.md` — **nome humano**, não slug.
+2. Base: `$VAULT/_Templates/Decision.md`. Frontmatter: `type: decision`, `status`, `created`, `affects_projects: [...]`, `source_repo`, `source_file` (caminho do ADR canônico no repo), `tags` `#decision/...`.
+3. É um **espelho condensado**, não cópia crua: callout no topo marcando "espelho de `docs/decisions/<slug>.md` (fonte canônica)"; preservar Contexto/Decisão/Consequências **sem inventar nem omitir** decisão.
+4. Cross-references em **wiki-links** `[[Nota]]`: incluir `[[00 Index]]`, `[[Projects/<Projeto>]]` e `[[Changelog/<Projeto>]]`.
+5. Linkar de volta: `[[ADR]]` na entrada do `Changelog/<Projeto>.md` **e** na seção "## Decisões (ADRs)" do `00 Index.md`.
+
+O ADR no repo continua sendo a **fonte canônica**; o vault é a vista cross-projeto navegável. Se o vault não existir no caminho, pular (mesmo critério do Passo 4b).
 
 ### Passo 5 — Linkar de volta
 
