@@ -66,7 +66,7 @@ Use a matriz abaixo para detectar intenção. **Apenas UMA camada deve ser ativa
 | "deploy Lovable", "subir pra Lovable", "publicar" | **Lovable** → `/lovable-handoff` |
 | "antes de planejar", "carregar contexto", "ler aprendizados" | **Fase A** → `/recall-learnings` |
 | "registra esse aprendizado", "fim da sessão", "consolida" | **Fase A** → `/extract-learnings` |
-| "setup", "config inicial", "instalar tudo" | **dev-setup** → `/dev-setup` |
+| "setup", "config inicial", "instalar tudo" | **ideiaos-setup** → `/ideiaos-setup` |
 | "debugar bug", "investigar problema", "issue persistente" | **GSD** → `/gsd-debug` |
 | "code review profundo", "ultrareview", "review extenso" | **GSD/AIOX** → `/code-review ultra` |
 | "revise segurança", "tem vulnerabilidade?", "auditar antes de deploy" | **Agent** → `security-reviewer` (opus) |
@@ -104,16 +104,16 @@ Antes de rotear, valide rapidamente:
 
 ```bash
 # 1. Setup do projeto está completo?
-test -f AGENTS.md && test -f IDEIAOS.md || echo "⚠️ Setup incompleto — sugerir /dev-setup primeiro"
+test -f AGENTS.md && test -f IDEIAOS.md || echo "⚠️ Setup incompleto — sugerir /ideiaos-setup primeiro"
 
 # 2. .planning/ existe (para fluxos GSD)?
-test -d .planning && echo "✅ GSD-ready" || echo "⚠️ .planning/ ausente — /dev-setup cria"
+test -d .planning && echo "✅ GSD-ready" || echo "⚠️ .planning/ ausente — /ideiaos-setup cria"
 
 # 3. AIOX disponível?
 test -d .aiox-core && echo "✅ AIOX local" || echo "ℹ️  AIOX só global"
 ```
 
-Se faltar setup → primeiro `/dev-setup`, depois retoma o pedido original.
+Se faltar setup → primeiro `/ideiaos-setup`, depois retoma o pedido original.
 
 ### Passo 3 — Mostrar a decisão antes de delegar
 
@@ -203,9 +203,9 @@ Você: 🎯 IdeiaOS — Roteamento
 
 Pedido: "cria uma feature de busca"
 ⚠️ Detectei que IDEIAOS.md está ausente — setup não completo.
-Vou rodar /dev-setup primeiro pra garantir as camadas, depois sigo com a feature.
+Vou rodar /ideiaos-setup primeiro pra garantir as camadas, depois sigo com a feature.
 
-[Invocar /dev-setup → ao concluir, invocar /gsd-do "cria uma feature de busca"]
+[Invocar /ideiaos-setup → ao concluir, invocar /gsd-do "cria uma feature de busca"]
 ```
 
 ---
