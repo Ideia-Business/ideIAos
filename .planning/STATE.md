@@ -34,3 +34,11 @@ Atualizar as máquinas (MacBook etc.). Depois, se desejado: /gsd-new-milestone "
 
 - Visibilidade pública do repo (marketplace público)
 - Secret ANTHROPIC_API_KEY no GitHub (job llm-evals em CI)
+
+
+## Compact Snapshot
+
+**Auto-saved:** 2026-06-13 11:06 (PreCompact hook, trigger: manual)
+
+- Snapshot automático antes do /compact.
+- Detalhes da sessão em ~/.claude/sessions/ (session-summary hook).
