@@ -33,5 +33,5 @@ Atualizar máquinas (`git pull && bash scripts/ideiaos-update.sh`); depois `/gsd
 
 ## Ultima sessao automatica (2026-06-13)
 
-- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-13-ideiaos-c9030c83-d513-4ab5-a037-f9ee435f.tmp`
+- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-13-ideiaos-b72e9e5c-67db-4b2f-97ef-e84e4ee3.tmp`
 - Próximo passo: (definir antes de retomar)
