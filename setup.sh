@@ -1511,6 +1511,9 @@ else
         if npx aiox-core@latest install --quiet --merge </dev/null; then
           if [ -d ".aiox-core" ]; then
             ok "AIOX Core inicializado no projeto (.aiox-core)"
+            echo "      ℹ️  .aiox-core é local-only (gitignored, ~58M). Em clone novo/máquina nova,"
+            echo "         rode: npx aiox-core@latest install  (igual a 'npm install'). As personas"
+            echo "         (@dev/@qa/@architect) e o /idea (Deia) já são globais — funcionam sem isso."
           else
             warn "AIOX Core executado, mas .aiox-core não foi criado automaticamente"
           fi
@@ -1558,9 +1561,15 @@ MEMMD
   fi
 
   # .gitignore — proteções mínimas
+  # ADR docs/decisions/aiox-gitignore-npx-vs-global.md: AIOX Core é tratado como
+  # node_modules — instalado por máquina via `npx aiox-core@latest install` e NUNCA
+  # versionado (.aiox-core/ ~58M + agentes multi-IDE). A camada de instrução (GSD,
+  # /idea, personas AIOX) é global; só o engine/estado fica por-máquina.
   if [ ! -f ".gitignore" ]; then touch .gitignore; fi
   added=0
-  for entry in ".env" ".env.local" "node_modules/" ".aiox/"; do
+  for entry in ".env" ".env.local" "node_modules/" ".aiox/" \
+               ".aiox-core/" ".antigravity/" ".codex/" ".gemini/" ".kimi/" \
+               ".cursor/rules/agents/" ".github/agents/"; do
     if ! gitignore_has_pattern ".gitignore" "$entry"; then
       echo "$entry" >> .gitignore
       added=$((added + 1))
