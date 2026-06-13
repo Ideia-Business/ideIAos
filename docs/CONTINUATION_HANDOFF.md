@@ -31,7 +31,7 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 
 Atualizar máquinas (`git pull && bash scripts/ideiaos-update.sh`); depois `/gsd-new-milestone "IdeiaOS v5"` se desejado.
 
-## Ultima sessao automatica (2026-06-12)
+## Ultima sessao automatica (2026-06-13)
 
-- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-12-ideiaos-d72e88f3-9213-46b2-ade0-69f8dcb7.tmp`
+- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-13-ideiaos-c9030c83-d513-4ab5-a037-f9ee435f.tmp`
 - Próximo passo: (definir antes de retomar)
