@@ -48,7 +48,7 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 2. Em clone novo / máquina nova, regenerar o engine por projeto: `npx aiox-core@latest install` (personas e `/idea` já são globais — funcionam sem isso).
 3. Depois, `/gsd-new-milestone "IdeiaOS v5"` se desejar abrir o próximo ciclo.
 
-## Ultima sessao automatica (2026-06-13)
+## Ultima sessao automatica (2026-06-14)
 
-- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-13-ideiaos-11a76302-704c-40c4-9c72-f1863c11.tmp`
+- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-14-ideiaos-6894cb82-2e04-4b3c-8682-fa14d053.tmp`
 - Próximo passo: (definir antes de retomar)
