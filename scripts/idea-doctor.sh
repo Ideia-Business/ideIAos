@@ -285,6 +285,28 @@ fi
 chk "memory-import registrado (Patch 12)" "$HOME/.claude/settings.json" "memory-import.sh"
 chk "memory-export registrado (Patch 13)" "$HOME/.claude/settings.json" "memory-export.sh"
 
+# d) guard de git instalado (pre-commit/pre-merge barram memória no main) + e) varredura de vazamento no main
+if git -C "$(pwd)" rev-parse --git-dir >/dev/null 2>&1; then
+  GITDIR="$(git rev-parse --git-dir 2>/dev/null)"
+  if [ -f "$GITDIR/hooks/pre-commit" ] && grep -q "check-memory-not-on-main" "$GITDIR/hooks/pre-commit" 2>/dev/null; then
+    pass "guard git instalado (pre-commit barra memória no main)"
+  else
+    warn "guard git ausente — rode: bash scripts/install-git-hooks.sh (barreira anti-churn no main)"
+  fi
+  # e) varredura: memória vazada no main (Lovable lê main — não pode conter memória)
+  MAIN_REF=""
+  git rev-parse --verify --quiet main >/dev/null 2>&1 && MAIN_REF="main"
+  [ -z "$MAIN_REF" ] && git rev-parse --verify --quiet origin/main >/dev/null 2>&1 && MAIN_REF="origin/main"
+  if [ -n "$MAIN_REF" ]; then
+    LEAK=$(git ls-tree -r --name-only "$MAIN_REF" 2>/dev/null | grep -E '\.lovable_mem_tmp\.md$|^\.planning/memory/|/memory-bridge\.mdc$' | head -3 || true)
+    if [ -n "$LEAK" ]; then
+      fail "VAZAMENTO de memória em $MAIN_REF (Lovable lê main): ${LEAK//$'\n'/ } — remova: git rm --cached <arquivo> + .gitignore"
+    else
+      pass "main limpo: sem memória vazada em $MAIN_REF"
+    fi
+  fi
+fi
+
 # ── Resumo ────────────────────────────────────────────────────────────────────
 echo -e "\n${CYAN}${BOLD}━━━ Resumo ━━━${NC}"
 echo -e "  ${GREEN}OK:${NC} $PASS   ${YELLOW}WARN:${NC} $WARN   ${RED}FAIL:${NC} $FAIL"
