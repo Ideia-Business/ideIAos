@@ -44,8 +44,32 @@ Base da transformação: absorção curada do framework **ECC** (everything-clau
 - AgentShield: https://github.com/affaan-m/agentshield
 
 
-## Current State (v3 shipped 2026-06-12)
+## Current Milestone: v5 — Memória compartilhada entre IDEs
 
+**Goal:** Sincronizar a memória durável dos agentes (instincts/learnings/decisões) entre Claude Code, Cursor e outras IDEs — por projeto e por membro — usando o branch `planning` como transporte, sem nunca poluir o `main` sincronizado com a Lovable.
+
+**Target features:**
+- Store canônico de memória em `.planning/memory/` no branch `planning` (nunca `main`), com split `shared/` (commitado, time) vs `local/` (gitignored, por membro)
+- Bridge de import (hook SessionStart, lado Claude) que traz a memória compartilhada do `planning` para a memória nativa da IDE
+- Bridge de export via skill `/memory-sync` (explícito) que leva a memória nativa de volta ao `planning` via git plumbing (worktree como fallback)
+- Ponte Cursor via `.cursor/rules/*.mdc` (`alwaysApply`), gitignored e regenerada localmente (Cursor não tem hooks nem memória em filesystem)
+- 6 barreiras espelhando o precedente `versions.lock` para manter todo churn de memória fora do `main`
+- Integração com o loop de aprendizado existente (3 camadas: local → shared/planning → vault Obsidian)
+
+**Decisões travadas (v5):**
+- Transporte = branch `planning` (reuso), nunca `main`; guard de pre-commit barra merge `planning`→`main`
+- Export = skill-driven (`/memory-sync`), não hook automático (Claude Code não tem evento SessionEnd; Stop dispara por turno)
+- Cursor bridge = `.mdc` gitignored, regenerado por máquina
+- Promoção de instincts faseada: MVP export-only; `extract-learnings` Passo 4d depois; `/evolve` auto no futuro
+- Pré-requisito: limpar o leak `.lovable_mem_tmp.md` do `nfideia:main` (commit 604c0a19) antes de escrever tooling de memória
+- Obsidian permanece a biblioteca cross-projeto, não o transporte
+
+**Key context:** Restrição inegociável = Lovable. `main` é o branch que a Lovable Cloud lê (Update lê só `main`, puxa automático); `/lovable-handoff` segue como único gate pro `main`. Pesquisa em `.planning/research/` (SUMMARY.md), HIGH confidence, git plumbing provado ao vivo.
+
+
+## Current State (v4 shipped 2026-06-12)
+
+- **Shipped:** v4 — Produção do plano maior. 3 fases (14-16): anti-runaway provado (1331 spawns → 3 barreiras), evals LLM fim-a-fim, marketplace 3.0.0 com install real validado, tag v4.0. Auditoria 8/9 + 1 warn aceito.
 - **Shipped:** v3 — Refinamento pós-auditoria. 5 fases (09-13), 19 reqs, 15/15 gaps G-01..G-15 fechados, tag v3.0.
 - **Destaque:** loop de Continuous Learning FECHADO e provado ao vivo (574 observações → 50 instincts via haiku headless); skills agora instaladas via manifesto (setup 5.21b); evals em CI (GitHub Actions) com política pass^k.
 - **Auditoria:** .planning/v3-MILESTONE-AUDIT.md — PASSED 19/19 (1 blocker corrigido inline).
