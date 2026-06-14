@@ -1,6 +1,6 @@
 # Estado do projeto — ideIAos
 
-**Atualizado:** 2026-06-13 · **Branch:** `work` → `main` · **Versão ideIAos:** v5 em andamento (Fase 17 concluída; v2.0/v3/v4 shipped 2026-06-12)
+**Atualizado:** 2026-06-14 · **Branch:** `work` → `main` · **Versão ideIAos:** v4 shipped (2026-06-12); Fase 17 (eval-criteria) concluída · v5 ainda **não** aberto como milestone
 
 ## Snapshot
 
@@ -20,6 +20,16 @@
 | **Fase 07 contexts-evals** | ✅ Completa (07-01 Wave 1a + 07-02 Wave 1b + 07-03 Wave 2) |
 | **Fase 13 security-dx-manifest** | ✅ Completa (13-01 + 13-02 + 13-03) |
 | Próximo passo | Ver `docs/CONTINUATION_HANDOFF.md` |
+
+## Mudanças recentes (2026-06-14) — auditoria de pendências + doctor
+
+- **idea-doctor:** 51 OK · 0 WARN · 0 FAIL — ambiente saudável (11/11 patches do overlay, 0 drift, versões = pin).
+- **11º patch do overlay registrado:** `backlog-sync-check` no SessionStart (`c0da5d1`); doctor passou de "7 patches" → "11 patches" (`94083bf`) e corrigiu `$REPO_DIR` na seção typescript-lsp (`a58bb17`). Esses 3 commits de 06-13 não estavam refletidos aqui.
+- **Pendências obsoletas limpas** (handoff + STATE):
+  - "atualizar máquinas" → ✅ feito no `MacBook-Air-2` (doctor confirma); Mac mini segue como confirmação **opcional** (baixo risco).
+  - Feature "Novidades" → ✅ **mergeada** em `ideiapartner` e `nfideia` (`feature/novidades*` não existe mais; commits no `main`). Registro "branches aguardando o usuário" estava defasado.
+  - Stub "Ultima sessão automática" (próximo passo vazio) → consolidado.
+- **Aberto (não-obrigatório):** deploy em prod das Novidades (migration + Lovable Publish) = decisão do usuário; `/gsd-new-milestone "IdeiaOS v5"` se desejar (não há milestone v5 em `.planning/`).
 
 ## Mudanças recentes (2026-06-13) — padronização AIOX + escopo do manifesto
 
@@ -66,7 +76,7 @@
 - **2 learnings globais extraídos** (`docs/learnings/2026-06-12-*`), promovidos a memória Claude e vault Obsidian; Changelog do vault atualizado
 - `ideiaos-update.sh` ganhou também passo de **registro de hooks no settings.json** (fonte: hooks.json do plugin ideiaos-core) — agora 5 passos
 - **Commits:** `7a4f54b` (implementação, via autosync) · `2d2ded2` (doc) · `3528919` (learnings)
-- **Máquina:** sessão no MacBook-Air-2 (já protegido). **Pendente: Mac mini** rodar `git pull && bash scripts/ideiaos-update.sh`
+- **Máquina:** sessão no MacBook-Air-2 (já protegido). **Mac mini:** baixo risco — esteve ativo em 06-13 e as 6 barreiras protegem repo-wide; confirmar com doctor quando conveniente (não-bloqueante).
 
 ## Mudanças recentes (2026-06-12) — Fase 07 Wave 2 (07-03) completa
 
