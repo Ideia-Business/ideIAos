@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v5
 milestone_name: Memória compartilhada entre IDEs
 status: planning
-last_updated: "2026-06-14T21:32:32.888Z"
+last_updated: "2026-06-14"
 last_activity: 2026-06-14
 progress:
-  total_phases: 0
+  total_phases: 5
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -15,7 +15,7 @@ progress:
 
 # State — IdeiaOS
 
-**Atualizado:** 2026-06-12
+**Atualizado:** 2026-06-14
 
 ## Snapshot
 
@@ -24,28 +24,35 @@ progress:
 | v2.0 — Canivete Suíço (absorção ECC, 8 fases) | ✅ SHIPPED — tag v2.0 |
 | v3 — Refinamento (fases 09-13) | ✅ SHIPPED — tag v3.0 |
 | v4 — Produção do plano maior (fases 14-16) | ✅ SHIPPED — tag v4.0, auditoria 8/9 + 1 warn aceito |
-| **PLANO MAIOR (ECC absorption)** | **🏁 100% CONCLUÍDO** |
-| Atualização das máquinas | ⬜ Liberada — `git pull && bash scripts/ideiaos-update.sh` |
+| **PLANO MAIOR (ECC absorption)** | **✅ 100% CONCLUÍDO** |
+| **v5 — Memória compartilhada entre IDEs** | **🚧 IN PROGRESS — roadmap criado, 5 fases (18-22)** |
 
 ## Próximo passo
 
-Atualizar as máquinas (MacBook etc.). Depois, se desejado: /gsd-new-milestone "IdeiaOS v5" (candidatos no ROADMAP).
+Planejar Fase 18 (`/gsd-plan-phase 18`): limpar `.lovable_mem_tmp.md` do nfideia:main + implementar 6 barreiras anti-churn + documentar topologia de branches.
 
 ## Decisões pendentes DO USUÁRIO
 
 - Visibilidade pública do repo (marketplace público)
 - Secret ANTHROPIC_API_KEY no GitHub (job llm-evals em CI)
 
-## Compact Snapshot
-
-**Auto-saved:** 2026-06-13 11:06 (PreCompact hook, trigger: manual)
-
-- Snapshot automático antes do /compact.
-- Detalhes da sessão em ~/.claude/sessions/ (session-summary hook).
-
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 18 (Guardrails Lovable-safe) — Not started
 Plan: —
-Status: Defining requirements
-Last activity: 2026-06-14 — Milestone v5 started
+Status: Roadmap criado; aguardando planejamento da Fase 18
+Last activity: 2026-06-14 — Roadmap v5 criado (fases 18-22, 11 requisitos mapeados)
+
+## v5 Progress
+
+```
+[          ] 0% — 0/5 fases completas
+```
+
+| Fase | Status |
+|------|--------|
+| 18. Guardrails Lovable-safe | Not started |
+| 19. Store & formato canônico | Not started |
+| 20. Import bridge | Not started |
+| 21. Export bridge & Cursor | Not started |
+| 22. Verificação & integração do loop | Not started |
