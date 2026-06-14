@@ -21,8 +21,12 @@ Milestone v5 aberto E implementado nesta sessão (5 fases 18-22, 11 reqs). Orque
 
 **Verificação adversarial:** 10 PASS / 1 PARTIAL / 1 FAIL → ambos remediados (PARTIAL R5-10 = patches não instalados → instalados; FAIL invariante = guard não instalado + defesa → guard instalado + `.git/info/exclude` + doctor leak-scan). Re-provado em sandbox isolado.
 
+### ✅ Dogfood ao vivo + bug corrigido (2026-06-14, fim)
+- Usuário publicou `origin/planning`. O `memory-export.sh` rodou de verdade num Stop e exportou **4 fatos reais** para `planning:.planning/memory/shared/facts/` — sistema provado end-to-end com dados reais.
+- **Bug pego pelo dogfood:** o export commitava `.planning/memory/local/staging/` (via `update-index`, que ignora `.gitignore`) → buffer per-máquina vazava pro remoto (viola Phase 19 SC#4). **Corrigido** (`945a09b`): export só commita `shared/facts/` + `MEMORY.md`. Regressão T5 adicionada. `planning` limpo via worktree (`ec36f36`). Plugin hooks sincronizados.
+
 ### ⏳ Follow-ups operacionais (gated por @devops — Constitution Art. II)
-1. **Push `planning`** (store) e **`work`** (código v5) para origin. `work` o autosync empurra; `planning` precisa de 1º push (`git push -u origin planning`) — bloqueado pra mim (guard @devops).
+1. **Re-push `planning`** — está **1 commit à frente** do origin (limpeza do staging `ec36f36`): `AIOX_ACTIVE_AGENT=github-devops git -C ~/dev/IdeiaOS push origin planning`. **`work`** o autosync empurra.
 2. **R5-01 — leak `.lovable_mem_tmp.md` em `nfideia:main`** (commit `604c0a19`): NÃO executei. ⚠️ O `main` do nfideia está **sujo** (`AGENTS.md`, `docs/CONTINUATION_HANDOFF.md` modificados não-commitados, de outra sessão) E o autosync do nfideia faz `git add -A` em main — commitar ali agora arriscaria empurrar esses arquivos sujos pra produção Lovable. Fazer cirúrgico: `git -C ~/dev/nfideia rm --cached .lovable_mem_tmp.md && echo '.lovable_mem_tmp.md' >> ~/dev/nfideia/.gitignore && git -C ~/dev/nfideia commit -- .lovable_mem_tmp.md .gitignore -m "chore: untrack leak (v5 R5-01)"` → push @devops. Depois: `idea-doctor` no nfideia deixa de acusar VAZAMENTO.
 3. Deploy do v5 nas máquinas/projetos: `bash scripts/ideiaos-update.sh` (registra hooks memory 12/13 + guard via install-git-hooks).
 
@@ -89,5 +93,5 @@ Não há pendência de trabalho travando o repo (`work` = `origin/work`, tree li
 
 ## Ultima sessao automatica (2026-06-14)
 
-- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-14-ideiaos-2bda3908-98bf-4bfb-9e1d-ccae8dd6.tmp`
+- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-14-ideiaos-94dc1e35-340a-4b4b-885c-a0648146.tmp`
 - Próximo passo: (definir antes de retomar)
