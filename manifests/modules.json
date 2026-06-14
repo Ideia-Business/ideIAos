@@ -905,6 +905,70 @@
       "deps": [],
       "installStrategy": "manual",
       "plugin": "ideiaos-core"
+    },
+    {
+      "id": "hook-memory-import",
+      "kind": "hook",
+      "description": "SessionStart (v5) — imports shared facts from the planning branch store into native IDE memory (~/.claude/projects/<slug>/memory/) and regenerates the Cursor bridge (.cursor/rules/memory-bridge.mdc, gitignored); runs after git-sync-check; freshness guard by SHA; exit 0 offline-safe; never touches main",
+      "source": "source/hooks/memory-import.sh",
+      "targets": [
+        "claude"
+      ],
+      "deps": [],
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
+    },
+    {
+      "id": "hook-memory-export",
+      "kind": "hook",
+      "description": "Stop (v5) — exports changed native IDE memory to the planning branch via git plumbing (hash-object→commit-tree→update-ref); secret-scan gate refuses facts with credentials; no working-tree residue; never touches main; real write is skill-driven via /memory-sync export",
+      "source": "source/hooks/memory-export.sh",
+      "targets": [
+        "claude"
+      ],
+      "deps": [],
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
+    },
+    {
+      "id": "skill-memory-sync",
+      "kind": "skill",
+      "description": "Manual trigger for cross-IDE/cross-machine shared memory (v5) — export (native memory → planning, git plumbing, Lovable-safe) and import (planning → native memory + Cursor bridge); status deferred (v5.x)",
+      "source": "source/skills/memory-sync/SKILL.md",
+      "targets": [
+        "claude"
+      ],
+      "deps": [
+        "hook-memory-import",
+        "hook-memory-export"
+      ],
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
+    },
+    {
+      "id": "script-check-memory-not-on-main",
+      "kind": "script",
+      "description": "Lovable-safe memory guard (v5) — blocks any memory path (.planning/memory/, .lovable_mem_tmp.md, .cursor/rules/memory-bridge.mdc) staged on the main branch and the planning→main merge; directional message; bypass via IDEIAOS_MEM_OVERRIDE=1; modes --staged (pre-commit) and --merge (pre-merge-commit)",
+      "source": "scripts/check-memory-not-on-main.sh",
+      "targets": [
+        "cli"
+      ],
+      "deps": [],
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
+    },
+    {
+      "id": "template-memory",
+      "kind": "template",
+      "description": "Memory store templates (v5): MEMORY.header.md (anti-trap shared index header), fact.schema.md (canonical fact format mirroring native memory), planning.gitignore (ignores memory/local/ on the planning branch)",
+      "source": "source/templates/memory",
+      "targets": [
+        "claude",
+        "cursor"
+      ],
+      "deps": [],
+      "installStrategy": "always",
+      "plugin": null
     }
   ]
 }

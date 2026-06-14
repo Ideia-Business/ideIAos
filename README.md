@@ -137,7 +137,7 @@ claude plugin install ideiaos-lovable@ideiaos
 
 | Plugin | Versão | Conteúdo | Quando instalar |
 |--------|--------|----------|-----------------|
-| `ideiaos-core` | 3.0.0 | 15 agents + 11 hooks + 23 skills (idea, tdd, evolve, instincts…) | Sempre — núcleo do sistema |
+| `ideiaos-core` | 3.0.0 | 15 agents + 13 hooks + 24 skills (idea, tdd, evolve, instincts, memory-sync…) | Sempre — núcleo do sistema |
 | `ideiaos-design-suite` | 3.0.0 | 10 skills de design (ui-ux-pro-max, design-system, brand…) | Quem faz UI/design |
 | `ideiaos-lovable` | 3.0.0 | Skill `/lovable-handoff` + doutrina de deploy + templates | Projetos Lovable |
 
@@ -249,10 +249,13 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | **Hook Claude `session-summary.sh`** | `~/.claude/hooks/` | Stop — persiste resumo ECC em `~/.claude/sessions/` e atualiza CONTINUATION_HANDOFF.md |
 | **Hook Claude `observe-tool-use.sh`** | `~/.claude/hooks/` | PostToolUse Edit/Write/Bash — anexa observação (só metadados) em `~/.ideiaos/observations/` |
 | **Hook Claude `observe-session-end.sh`** | `~/.claude/hooks/` | Stop — marca session_end como gatilho do /instinct-analyze |
+| **Hook Claude `memory-import.sh`** | `~/.claude/hooks/` | SessionStart (v5) — importa os fatos `shared/` do branch `planning` para a memória nativa da IDE (`~/.claude/projects/<slug>/memory/`); roda após git-sync-check; regenera a ponte Cursor `.cursor/rules/memory-bridge.mdc` (gitignored); freshness guard por SHA; exit 0 offline-safe (nunca bloqueia SessionStart) |
+| **Hook Claude `memory-export.sh`** | `~/.claude/hooks/` | Stop (v5) — exporta a memória nativa alterada para o branch `planning` via git plumbing (`hash-object`→`commit-tree`→`update-ref`); NUNCA toca `main`, sem resíduo no working tree; secret-scan gate (recusa fatos com credencial); escrita real é skill-driven (`/memory-sync export`) |
 | **Skill Claude `/instinct-analyze`** | `~/.claude/skills/instinct-analyze/` | Agente haiku background — observações → instincts atômicos |
 | **Skill Claude `/instinct-status`** | `~/.claude/skills/instinct-status/` | Lista instincts com barras de confidence por domínio/scope |
 | **Skill Claude `/learn`** | `~/.claude/skills/learn/` | Extração manual mid-session — instinct confidence 0.5 |
 | **Skill Claude `/evolve`** | `~/.claude/skills/evolve/` | Promove instincts maduros (≥0.7) → vault Obsidian ou source/rules/ |
+| **Skill Claude `/memory-sync`** | `~/.claude/skills/memory-sync/` | Gatilho manual da memória compartilhada entre IDEs/máquinas (v5) — `export` (memória nativa → `planning`, git plumbing, Lovable-safe) e `import` (`planning` → memória nativa + ponte Cursor); `status` diferido (v5.x) |
 | **MCP `chrome-devtools`** | user scope (via `claude mcp`) | Auditoria de console/rede do browser direto no Claude Code |
 | **MCP `context7`** | user scope (via `claude mcp`) | Docs versionadas de 1000+ libs (React/Tailwind/etc) ao vivo |
 | **Alias `idea-setup`** | `~/.zshrc` ou `~/.bashrc` (via `install-alias.sh`) | Atalho terminal — `cd projeto && idea-setup` |
@@ -310,6 +313,7 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | `scripts/install-git-hooks.sh` | Instala pre-commit hook que BLOQUEIA commits sem README sincronizado E protege o pin GSD do `versions.lock` |
 | `scripts/check-readme-sync.sh` | Audita se README menciona todos os componentes do repo |
 | **`scripts/check-versions-lock.sh`** | **Guarda do pin GSD** — bloqueia valor pré-redux (1.3x/1.4x) e edição manual do `gsd=` que não corresponda à versão instalada (único escritor: `update-upstream.sh --bump`; bypass: `IDEIAOS_LOCK_OVERRIDE=1`). Roda no pre-commit. |
+| **`scripts/check-memory-not-on-main.sh`** | **Guarda Lovable-safe da memória (v5)** — bloqueia qualquer caminho de memória (`.planning/memory/`, `.lovable_mem_tmp.md`, `.cursor/rules/memory-bridge.mdc`) staged no branch `main` e o merge `planning`→`main`; mensagem direcional (diz qual lado está errado); bypass consciente: `IDEIAOS_MEM_OVERRIDE=1`. Modos `--staged` (pre-commit) e `--merge` (pre-merge-commit). |
 | **`scripts/idea-doctor.sh`** | Diagnóstico read-only: skills, MCPs, 10 patches, versões vs `versions.lock`, drift, autosync, **Seção 7 Security Audit** (deny rules, hooks, secrets, quarentena), **Seção 8 Contexts** (~/.ideiaos/contexts/, funções claude-dev/review/research, statusline) |
 | **`scripts/install-global-patches.sh`** | Aplica overlay ideIAos (Caminho C) sobre GSD/AIOX/Claude — idempotente, 11 patches (incl. Patch 11: backlog-sync-check) |
 | **`security/scan-absorbed.sh`** | **Pipeline de quarentena obrigatório** — scan unicode invisível/payloads/comandos + AgentShield antes de absorver conteúdo de terceiros em `source/`. Exit 1 = bloqueado. |
@@ -526,7 +530,7 @@ O IdeiaOS v2 separa **fonte de verdade** de **artefatos de harness**. Nunca edit
 
 ```
 source/                         manifests/modules.json
-├── skills/                     (catálogo ECC — 66 módulos)
+├── skills/                     (catálogo — 77 módulos)
 ├── agents/        ──────────────────────┐
 ├── hooks/                               │
 ├── templates/                           ▼
@@ -753,7 +757,7 @@ ideIAos/
 ├── .claude-plugin/
 │   └── marketplace.json                    ← marketplace 'ideiaos' (3 plugins: core/design-suite/lovable)
 ├── plugins/                                ← GERADO por scripts/build-plugins.sh — não editar à mão (edite source/)
-│   ├── ideiaos-core/                       ← 15 agents + 11 hooks + 23 skills de workflow
+│   ├── ideiaos-core/                       ← 15 agents + 13 hooks + 24 skills de workflow
 │   ├── ideiaos-design-suite/               ← 10 skills de design (ui-ux-pro-max, design-system, brand…)
 │   └── ideiaos-lovable/                    ← skill /lovable-handoff + doutrina + templates
 ├── scripts/
@@ -761,6 +765,7 @@ ideIAos/
 │   ├── install-git-hooks.sh                ← Instala pre-commit hook
 │   ├── check-readme-sync.sh                ← Audita README sync (aponta para source/)
 │   ├── check-versions-lock.sh              ← Guarda do pin GSD no versions.lock (anti-revert pré-redux)
+│   ├── check-memory-not-on-main.sh          ← Guarda Lovable-safe (v5): memória nunca no main; bloqueia merge planning→main
 │   ├── idea-doctor.sh                      ← Diagnóstico saúde + drift (read-only)
 │   ├── install-global-patches.sh           ← Overlay ideIAos (Caminho C — 11 patches idempotentes)
 │   ├── update-upstream.sh                  ← Detecta updates GSD + AIOX vs versions.lock (--bump re-pina)
@@ -770,10 +775,10 @@ ideIAos/
 │   ├── build-adapters.sh                   ← Compila source/ → harness targets (claude + cursor)
 │   └── build-plugins.sh                    ← Gera plugins/ a partir de source/ (marketplace)
 ├── source/                                 ← FONTE ÚNICA DE VERDADE (Fase 03+)
-│   ├── skills/                             ← 34 skills (23 core + 10 design + 1 lovable)
+│   ├── skills/                             ← 35 skills (24 core incl. /memory-sync + 10 design + 1 lovable)
 │   ├── agents/                             ← 15 agents ECC
-│   ├── hooks/                              ← 11 hooks de produto + 3 test-hooks
-│   ├── templates/                          ← templates de projeto (hybrid/ideiaos/lovable/learnings/global-patches)
+│   ├── hooks/                              ← 13 hooks de produto (incl. memory-import.sh + memory-export.sh) + 3 test-hooks
+│   ├── templates/                          ← templates de projeto (hybrid/ideiaos/lovable/learnings/memory/global-patches)
 │   ├── contexts/                           ← contexts de modo (dev.md / review.md / research.md)
 │   ├── statusline/                         ← ideiaos-statusline.sh
 │   └── rules/
@@ -785,7 +790,7 @@ ideIAos/
 │           ├── typescript/                 ← typescript strict rules
 │           └── react/                      ← hooks rules, component patterns
 ├── manifests/
-│   ├── modules.json                        ← catálogo de 70 módulos (hooks/agents/skills/templates/contexts/statusline) + campo plugin
+│   ├── modules.json                        ← catálogo de 77 módulos (hooks/agents/skills/templates/contexts/statusline/lsp/script) + campo plugin
 │   └── plugin-membership.md               ← mapeamento módulo → plugin (fonte de verdade legível)
 ├── adapters/                               ← artefatos compilados por harness (gerados por build-adapters.sh)
 │   ├── _scaffold/                          ← template para novos harnesses (codex, gemini, zed)

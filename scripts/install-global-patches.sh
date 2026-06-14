@@ -17,6 +17,8 @@
 #   8. ~/.claude/hooks/git-sync-check.sh + settings.json — SessionStart fast-forward cross-máquina
 #   8b ~/.claude/hooks/backlog-sync-check.sh + settings.json — SessionStart backlog real do prod (ideiapartner)
 #   9. ~/.config/git/ignore                               — gitignore global (settings.local.json, .DS_Store)
+#   12. ~/.claude/hooks/memory-import.sh + settings.json  — SessionStart import memória shared (planning → nativa)
+#   13. ~/.claude/hooks/memory-export.sh + settings.json  — Stop export memória nativa → planning (git plumbing)
 #
 # Uso:
 #   bash scripts/install-global-patches.sh
@@ -750,6 +752,199 @@ PY
   esac
 }
 
+# ── PATCH 12: SessionStart memory-import.sh ──────────────────────────────────
+# Importa a memória compartilhada (canônica) do branch `planning` para a memória
+# nativa da IDE no início da sessão. Lê via `git show`/`git archive planning`
+# (read-only, sem checkout, sem poluir o working tree) e registra-se DEPOIS do
+# git-sync-check e do backlog-sync-check no SessionStart — depende dos refs já
+# buscados (fetch) por aqueles guards. exit 0 em qualquer falha (offline, sem
+# branch planning, sem memória). Fonte canônica: source/hooks/memory-import.sh.
+patch_memory_import() {
+  local target="$HOME/.claude/hooks/memory-import.sh"
+  local source="$SETUP_DIR/source/hooks/memory-import.sh"
+
+  if [ ! -f "$source" ]; then
+    err "Patch 12: template ausente em $source"
+    FAILED=$((FAILED+1))
+    return 0
+  fi
+
+  mkdir -p "$(dirname "$target")"
+  if [ -f "$target" ] && diff -q "$source" "$target" &>/dev/null; then
+    skip "Patch 12: memory-import.sh já está na versão mais recente"
+    SKIPPED=$((SKIPPED+1))
+  else
+    cp "$source" "$target"
+    chmod +x "$target"
+    ok "Patch 12: memory-import.sh instalado → $target"
+    APPLIED=$((APPLIED+1))
+  fi
+
+  # Registro idempotente em settings.json (SessionStart, ao FINAL do array —
+  # garante que roda após git-sync-check (pos 0) e backlog-sync-check (pos 1),
+  # que buscam os refs que o import lê).
+  local settings="$HOME/.claude/settings.json"
+  if [ ! -f "$settings" ]; then
+    warn "Patch 12: ~/.claude/settings.json não existe — registre memory-import manualmente em hooks.SessionStart"
+    return 0
+  fi
+
+  local result_str
+  result_str=$(python3 - "$settings" <<'PY'
+import json, sys, os
+path = sys.argv[1]
+marker = "memory-import.sh"
+home = os.path.expanduser('~/.claude/hooks/memory-import.sh')
+
+try:
+    with open(path, 'r', encoding='utf-8') as f:
+        cfg = json.load(f)
+except Exception as e:
+    print(f"FAILED: {e}", file=sys.stderr)
+    sys.exit(2)
+
+hooks = cfg.setdefault("hooks", {})
+ss = hooks.get("SessionStart", [])
+
+for entry in ss:
+    for h in entry.get("hooks", []):
+        if marker in h.get("command", ""):
+            print("SKIPPED")
+            sys.exit(0)
+
+# Anexa ao FINAL — depois de git-sync-check e backlog-sync-check.
+ss.append({
+    "hooks": [{
+        "type": "command",
+        "command": f'bash "{home}"',
+        "timeout": 15
+    }]
+})
+hooks["SessionStart"] = ss
+cfg["hooks"] = hooks
+
+with open(path, 'w', encoding='utf-8') as f:
+    json.dump(cfg, f, indent=2, ensure_ascii=False)
+    f.write('\n')
+print("APPLIED")
+PY
+)
+  local py_exit=$?
+
+  if [ $py_exit -ne 0 ]; then
+    err "Patch 12: Python falhou ao registrar memory-import em settings.json"
+    FAILED=$((FAILED+1))
+    return 0
+  fi
+
+  case "$result_str" in
+    APPLIED)
+      ok "Patch 12: memory-import registrado em settings.json (SessionStart, ao final)"
+      APPLIED=$((APPLIED+1)) ;;
+    SKIPPED)
+      skip "Patch 12: memory-import já registrado em settings.json"
+      SKIPPED=$((SKIPPED+1)) ;;
+    *)
+      err "Patch 12: resposta Python inesperada: $result_str"
+      FAILED=$((FAILED+1)) ;;
+  esac
+}
+
+# ── PATCH 13: Stop memory-export.sh ──────────────────────────────────────────
+# Exporta os fatos novos/alterados da memória nativa da IDE para o branch
+# `planning` via git plumbing (hash-object → commit-tree → update-ref), sem
+# resíduo no working tree e sem tocar o `main` (invariante Lovable). Secret-scan
+# antes de cada export. Registra-se no array Stop (junto de session-summary e
+# observe-session-end). exit 0 sempre — Stop nunca bloqueia. Fonte canônica:
+# source/hooks/memory-export.sh.
+patch_memory_export() {
+  local target="$HOME/.claude/hooks/memory-export.sh"
+  local source="$SETUP_DIR/source/hooks/memory-export.sh"
+
+  if [ ! -f "$source" ]; then
+    err "Patch 13: template ausente em $source"
+    FAILED=$((FAILED+1))
+    return 0
+  fi
+
+  mkdir -p "$(dirname "$target")"
+  if [ -f "$target" ] && diff -q "$source" "$target" &>/dev/null; then
+    skip "Patch 13: memory-export.sh já está na versão mais recente"
+    SKIPPED=$((SKIPPED+1))
+  else
+    cp "$source" "$target"
+    chmod +x "$target"
+    ok "Patch 13: memory-export.sh instalado → $target"
+    APPLIED=$((APPLIED+1))
+  fi
+
+  # Registro idempotente em settings.json (Stop).
+  local settings="$HOME/.claude/settings.json"
+  if [ ! -f "$settings" ]; then
+    warn "Patch 13: ~/.claude/settings.json não existe — registre memory-export manualmente em hooks.Stop"
+    return 0
+  fi
+
+  local result_str
+  result_str=$(python3 - "$settings" <<'PY'
+import json, sys, os
+path = sys.argv[1]
+marker = "memory-export.sh"
+home = os.path.expanduser('~/.claude/hooks/memory-export.sh')
+
+try:
+    with open(path, 'r', encoding='utf-8') as f:
+        cfg = json.load(f)
+except Exception as e:
+    print(f"FAILED: {e}", file=sys.stderr)
+    sys.exit(2)
+
+hooks = cfg.setdefault("hooks", {})
+stop = hooks.get("Stop", [])
+
+for entry in stop:
+    for h in entry.get("hooks", []):
+        if marker in h.get("command", ""):
+            print("SKIPPED")
+            sys.exit(0)
+
+stop.append({
+    "hooks": [{
+        "type": "command",
+        "command": f'bash "{home}"',
+        "timeout": 30
+    }]
+})
+hooks["Stop"] = stop
+cfg["hooks"] = hooks
+
+with open(path, 'w', encoding='utf-8') as f:
+    json.dump(cfg, f, indent=2, ensure_ascii=False)
+    f.write('\n')
+print("APPLIED")
+PY
+)
+  local py_exit=$?
+
+  if [ $py_exit -ne 0 ]; then
+    err "Patch 13: Python falhou ao registrar memory-export em settings.json"
+    FAILED=$((FAILED+1))
+    return 0
+  fi
+
+  case "$result_str" in
+    APPLIED)
+      ok "Patch 13: memory-export registrado em settings.json (Stop)"
+      APPLIED=$((APPLIED+1)) ;;
+    SKIPPED)
+      skip "Patch 13: memory-export já registrado em settings.json"
+      SKIPPED=$((SKIPPED+1)) ;;
+    *)
+      err "Patch 13: resposta Python inesperada: $result_str"
+      FAILED=$((FAILED+1)) ;;
+  esac
+}
+
 # ── PATCH 9: gitignore global (arquivos locais por-máquina) ──────────────────
 # ~/.config/git/ignore (caminho XDG padrão do git, sem precisar de core.excludesfile).
 # Sem isto, .claude/settings.local.json deixa o working tree "sujo" e o git-autosync
@@ -813,38 +1008,44 @@ PY
   esac
 }
 
-step "Patch 1/11: --story em gsd-plan-phase SKILL.md"
+step "Patch 1/13: --story em gsd-plan-phase SKILL.md"
 patch_gsd_skill
 
-step "Patch 2/11: STORY_MODE em workflows/plan-phase.md"
+step "Patch 2/13: STORY_MODE em workflows/plan-phase.md"
 patch_gsd_workflow
 
-step "Patch 3/11: 3 gatilhos em extract-learnings-reminder.sh"
+step "Patch 3/13: 3 gatilhos em extract-learnings-reminder.sh"
 patch_extract_hook
 
-step "Patch 4/11: matcher expandido em settings.json"
+step "Patch 4/13: matcher expandido em settings.json"
 patch_settings_json
 
-step "Patch 5/11: --verification em AIOX-core agents/qa.md"
+step "Patch 5/13: --verification em AIOX-core agents/qa.md"
 patch_aiox_qa_agent
 
-step "Patch 6/11: IdeiaOS Composition em AIOX-core tasks/qa-gate.md"
+step "Patch 6/13: IdeiaOS Composition em AIOX-core tasks/qa-gate.md"
 patch_aiox_qa_task
 
-step "Patch 7/11: OKLCH (--brand-hue) em design-system SKILL.md"
+step "Patch 7/13: OKLCH (--brand-hue) em design-system SKILL.md"
 patch_design_system_oklch
 
-step "Patch 8/11: SessionStart git-sync-check (auto fast-forward cross-máquina)"
+step "Patch 8/13: SessionStart git-sync-check (auto fast-forward cross-máquina)"
 patch_git_sync
 
-step "Patch 9/11: gitignore global (settings.local.json + .DS_Store)"
+step "Patch 9/13: gitignore global (settings.local.json + .DS_Store)"
 patch_global_gitignore
 
-step "Patch 10/11: deny rules baseline em settings.json"
+step "Patch 10/13: deny rules baseline em settings.json"
 patch_deny_rules
 
-step "Patch 11/11: SessionStart backlog-sync-check (backlog real do prod — ideiapartner)"
+step "Patch 11/13: SessionStart backlog-sync-check (backlog real do prod — ideiapartner)"
 patch_backlog_sync
+
+step "Patch 12/13: SessionStart memory-import (memória shared planning → nativa)"
+patch_memory_import
+
+step "Patch 13/13: Stop memory-export (memória nativa → planning, git plumbing)"
+patch_memory_export
 
 # ── Resumo ───────────────────────────────────────────────────────────────────
 echo -e "\n${CYAN}${BOLD}━━━ Resumo ━━━${NC}"

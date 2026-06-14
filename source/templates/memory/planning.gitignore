@@ -1,0 +1,14 @@
+# .planning/.gitignore — branch `planning` ONLY
+# -----------------------------------------------------------------------------
+# Seeded pelo orchestrator do IdeiaOS no store de memória do branch `planning`.
+# NÃO existe no `main` nem em feature branches — só no `planning`, onde vive
+# .planning/memory/.
+#
+# Mantém o staging/memória per-máquina FORA do versionamento, para que apenas o
+# store canônico `.planning/memory/shared/` seja commitado e sincronizado entre
+# máquinas. O `local/` é buffer de exportação por-máquina e nunca deve ser
+# empurrado para origin.
+# -----------------------------------------------------------------------------
+
+# Staging/memória local por-máquina (buffer do export — nunca compartilhado)
+memory/local/

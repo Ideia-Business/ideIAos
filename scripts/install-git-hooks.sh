@@ -12,7 +12,9 @@ set -euo pipefail
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 HOOKS_DIR="$REPO_DIR/.git/hooks"
 PRECOMMIT="$HOOKS_DIR/pre-commit"
+PREMERGE="$HOOKS_DIR/pre-merge-commit"
 MARKER="# ideiaos-readme-sync-hook"
+MERGE_MARKER="# ideiaos-memory-merge-guard"
 
 if [ ! -d "$HOOKS_DIR" ]; then
   echo "❌ $HOOKS_DIR não existe. Estamos em um clone Git válido?"
@@ -53,6 +55,18 @@ if echo "$STAGED" | grep -qx 'versions.lock'; then
     echo "❌ Commit bloqueado: versions.lock falhou na validação do pin (acima)."
     exit 1
   fi
+fi
+
+# ── Guarda de memória (Lovable-safe) ─────────────────────────────────────────
+# Bloqueia memória (.planning/memory/, .lovable_mem_tmp.md, .cursor/rules/
+# memory-bridge.mdc) staged quando o branch corrente é `main` — a Lovable Cloud
+# lê `main` e um commit de memória dispara Update indevido. Mensagem direcional.
+# Bypass consciente: IDEIAOS_MEM_OVERRIDE=1 git commit ...
+MCHECK="$REPO_DIR/scripts/check-memory-not-on-main.sh"
+if [ -f "$MCHECK" ] && ! bash "$MCHECK" --staged; then
+  echo ""
+  echo "❌ Commit bloqueado: guarda de memória falhou (acima)."
+  exit 1
 fi
 
 # Algum em pasta de componente?
@@ -101,6 +115,36 @@ HOOK
 
 chmod +x "$PRECOMMIT"
 
+# ── pre-merge-commit: barra merge planning→main de memória ────────────────────
+# Roda ANTES do commit de merge ser criado. Bloqueia um merge `planning`→`main`
+# (a memória vive no planning e nunca pode aterrissar no main). Idempotente.
+if [ -f "$PREMERGE" ] && ! grep -qF "$MERGE_MARKER" "$PREMERGE" 2>/dev/null; then
+  echo "⚠️  $PREMERGE já existe e NÃO é nosso. Backup em pre-merge-commit.bak"
+  cp "$PREMERGE" "$PREMERGE.bak"
+fi
+
+cat > "$PREMERGE" <<'MERGEHOOK'
+#!/bin/bash
+# ideiaos-memory-merge-guard
+# Bloqueia merge planning→main (e qualquer memória entrando no main via merge).
+# A Lovable Cloud lê `main`; memória ali dispara Update indevido. Direcional.
+# Bypass consciente: IDEIAOS_MEM_OVERRIDE=1 git merge ...
+
+set -uo pipefail
+
+REPO_DIR="$(git rev-parse --show-toplevel)"
+MCHECK="$REPO_DIR/scripts/check-memory-not-on-main.sh"
+
+if [ -f "$MCHECK" ] && ! bash "$MCHECK" --merge; then
+  echo ""
+  echo "❌ Merge bloqueado: guarda de memória falhou (acima)."
+  exit 1
+fi
+MERGEHOOK
+
+chmod +x "$PREMERGE"
+
+echo "✅ Pre-merge-commit hook instalado em $PREMERGE"
 echo "✅ Pre-commit hook instalado em $PRECOMMIT"
 echo ""
 echo "A partir de agora, commits que tocarem em source/scripts/plugins/manifests"

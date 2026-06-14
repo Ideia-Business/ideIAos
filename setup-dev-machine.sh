@@ -141,6 +141,19 @@ LOG="${HOME}/.local/state/git-autosync.log"
 mkdir -p "$(dirname "$LOG")"
 log()    { echo "$(date '+%Y-%m-%d %H:%M:%S') [$1] ${*:2}" >> "$LOG"; }
 notify() { /usr/bin/osascript -e "display notification \"$2\" with title \"$1\"" >/dev/null 2>&1 || true; }
+# push_planning_ref — propaga o branch `planning` (transporte de memória v5).
+# O memory-export commita no `planning` LOCAL via git plumbing; o autosync o
+# empurra para origin. NUNCA faz checkout do planning nem toca sua árvore — só
+# sincroniza o ref se houver upstream e estiver à frente. Offline-safe.
+push_planning_ref() {
+  local NAME="$1"
+  git rev-parse --verify --quiet planning >/dev/null 2>&1 || return 0
+  git rev-parse --verify --quiet planning@{u} >/dev/null 2>&1 || return 0
+  local PAHEAD; PAHEAD="$(git rev-list --count 'planning@{u}..planning' 2>/dev/null || echo 0)"
+  [ "$PAHEAD" -gt 0 ] || return 0
+  git push --quiet origin planning 2>>"$LOG" && log "$NAME" "push planning OK ($PAHEAD)" \
+    || log "$NAME" "push planning FALHOU"
+}
 sync_one() {
   local REPO="$1"; local NAME; NAME="$(basename "$REPO")"
   cd "$REPO" 2>/dev/null || { log "$NAME" "ERRO: repo não encontrado em $REPO"; exit 1; }
@@ -160,13 +173,29 @@ sync_one() {
         local AHEAD; AHEAD="$(git rev-list --count '@{u}..@' 2>/dev/null || echo 0)"
         [ "$AHEAD" -gt 0 ] && { log "$NAME" "$AHEAD commit(s) no $BRANCH — push MANUAL"; notify "Git sync — main protegido" "$NAME: $AHEAD commit(s) aguardando push manual."; }
       fi
+      # Mesmo em main (protegido), propaga o ref `planning` (memória v5) se
+      # estiver à frente do upstream. Nunca escreve no main; só empurra planning.
+      push_planning_ref "$NAME"
       exit 0 ;;
   esac
   if [ "$DIRTY" -eq 1 ]; then
     local HOST; HOST="$(hostname -s 2>/dev/null || echo mac)"
     # versions.lock fora do autosync: pin de frota só muda em commit deliberado
     # (update-upstream.sh --bump). Evita que árvore stale reverta o pin (2026-06).
-    git add -A -- . ':(exclude)versions.lock' 2>>"$LOG"
+    #
+    # Memória fora do autosync (v5): .planning/memory/local e a ponte Cursor
+    # .cursor/rules/memory-bridge.mdc nunca entram no auto-commit. O store
+    # canônico é escrito no branch `planning` via git plumbing (memory-export /
+    # /memory-sync), não pela árvore do branch corrente. Guard de branch extra:
+    # se por algum motivo o branch corrente for `main`, NUNCA stage memória —
+    # main é lido pela Lovable Cloud (incidente .lovable_mem_tmp.md em nfideia).
+    local MEM_EXCLUDES=(":(exclude)versions.lock" ":(exclude).planning/memory/local" ":(exclude).cursor/rules/memory-bridge.mdc")
+    if [ "$BRANCH" = "main" ] || [ "$BRANCH" = "master" ]; then
+      # Defesa em profundidade: além de versions.lock e memória local, o store
+      # shared também jamais pode ser staged no main.
+      MEM_EXCLUDES+=(":(exclude).planning/memory" ":(exclude).lovable_mem_tmp.md")
+    fi
+    git add -A -- . "${MEM_EXCLUDES[@]}" 2>>"$LOG"
     git commit -q -m "wip: autosync $(date '+%Y-%m-%d %H:%M') ($HOST)" 2>>"$LOG" && log "$NAME" "auto-commit em $BRANCH" || log "$NAME" "nada para commitar em $BRANCH"
   fi
   git fetch --quiet origin 2>>"$LOG" || { log "$NAME" "fetch falhou — push adiado"; exit 0; }
@@ -180,6 +209,7 @@ sync_one() {
   else
     git push --quiet -u origin "$BRANCH" 2>>"$LOG" && log "$NAME" "push inicial OK em $BRANCH" || { log "$NAME" "push inicial FALHOU $BRANCH"; notify "Git sync — push falhou" "$NAME ($BRANCH)."; }
   fi
+  push_planning_ref "$NAME"
   exit 0
 }
 if [ "${1:-}" = "--all" ] || [ "$#" -eq 0 ]; then

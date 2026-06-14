@@ -70,6 +70,23 @@ else
   fi
 fi
 
+# ── 2b. Guarda de memória + push do planning no git-autosync (v5) ────────────
+# Máquinas com autosync antigo (só exclui versions.lock) não excluem memória
+# nem propagam o branch `planning` (transporte de memória v5). O patch in-place
+# aqui é limitado: se o autosync não tiver a forma nova (array de exclusões +
+# push_planning_ref), o caminho seguro é re-rodar setup-dev-machine.sh, que
+# regrava o heredoc canônico. Detecta e avisa de forma direcional.
+step "2b/5: memória fora do autosync + push do branch planning (v5)"
+if [ ! -f "$AUTOSYNC" ]; then
+  skip "git-autosync não instalado nesta máquina"
+elif grep -qF "push_planning_ref" "$AUTOSYNC" && grep -qF "(exclude).cursor/rules/memory-bridge.mdc" "$AUTOSYNC"; then
+  skip "git-autosync já exclui memória e propaga o branch planning"
+else
+  warn "git-autosync desta máquina não tem a guarda de memória v5 (memória fora"
+  warn "do add -A + push do planning). Re-rode: bash $SETUP_DIR/setup-dev-machine.sh"
+  warn "(regrava o git-autosync canônico — idempotente, não duplica nada)."
+fi
+
 # ── 3. Registro de hooks IdeiaOS faltantes no settings.json ──────────────────
 # O setup.sh instala os ARQUIVOS dos hooks mas (decisão T-01-10) só imprime o
 # snippet de registro. Este passo registra o que faltar, usando o hooks.json

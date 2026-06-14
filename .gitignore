@@ -19,6 +19,14 @@ node_modules/
 /docs/learnings/_TEMPLATE.md
 /.cursor/rules/agents-md-protocol.mdc
 /.cursor/rules/planning-branch.mdc
+# Ponte Cursor de memória (v5): regenerada por máquina a cada import, nunca
+# commitada — alwaysApply:true, conteúdo da memória shared inline (local-only).
+/.cursor/rules/memory-bridge.mdc
+# Staging local de memória que possa aflorar numa working tree normal (o store
+# canônico vive em planning:.planning/memory/shared/ — NÃO ignorar esse). Aqui
+# só barramos resíduos locais e o leak histórico (.lovable_mem_tmp.md).
+/.planning/memory/local/
+.lovable_mem_tmp.md
 
 # plugins/ é gerado por scripts/build-plugins.sh (versionado para /plugin marketplace add)
 # Apenas ignorar lixo de filesystem — o conteúdo gerado é commitado

@@ -86,6 +86,15 @@
             "timeout": 3
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/memory-import.sh",
+            "timeout": 15
+          }
+        ]
       }
     ],
     "PreCompact": [
@@ -115,6 +124,15 @@
             "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/observe-session-end.sh",
             "timeout": 10
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/memory-export.sh",
+            "timeout": 30
           }
         ]
       }

@@ -6,7 +6,7 @@
 #   1. Skills globais (orquestração + dev-loop + Suíte de Design) e GSD
 #   2. Drift: cópia global vs fonte do repo (source/skills/) — pede setup --global-only
 #   3. MCPs (chrome-devtools, context7)
-#   4. Os 11 patches do overlay (markers de idempotência)
+#   4. Os 13 patches do overlay (markers de idempotência)
 #   5. Versões instaladas vs versions.lock (aiox-core, gsd) + pin da Suíte
 #   6. Autosync (LaunchAgent) ativo
 #   7. Security Audit (deny rules, hooks perigosos, secrets em memória, quarentena)
@@ -75,13 +75,13 @@ else
   warn "Claude Code CLI não encontrado — não checou MCPs"
 fi
 
-# ── 4) Overlay (11 patches) ───────────────────────────────────────────────────
-step "4) Overlay — 11 patches"
+# ── 4) Overlay (13 patches) ───────────────────────────────────────────────────
+step "4) Overlay — 13 patches"
 chk() { # nome, arquivo, marcador
   if [ ! -f "$2" ]; then warn "$1: alvo ausente ($2)"; return; fi
   if grep -qF -- "$3" "$2" 2>/dev/null; then pass "$1"; else warn "$1 NÃO aplicado — rode: bash scripts/install-global-patches.sh"; fi
 }
-# Ordem 1→9 + 11 (Patch 10 deny-rules conferido na Seção 7). Patch 3 (hook) não tem marcador — checa presença.
+# Ordem 1→9 + 11→13 (Patch 10 deny-rules conferido na Seção 7). Patch 3 (hook) não tem marcador — checa presença.
 chk "Patch 1 (gsd-plan-phase --story)"   "$GSKILLS/gsd-plan-phase/SKILL.md"                 "--story <file>"
 chk "Patch 2 (plan-phase STORY_MODE)"    "$HOME/.claude/get-shit-done/workflows/plan-phase.md" "STORY_MODE"
 if [ -f "$HOME/.claude/hooks/extract-learnings-reminder.sh" ]; then pass "Patch 3 (hook Fase A presente)"; else warn "Patch 3 ausente — install-global-patches.sh"; fi
@@ -102,6 +102,12 @@ if grep -qxF ".claude/settings.local.json" "$HOME/.config/git/ignore" 2>/dev/nul
 # Patch 11 (hook backlog-sync) — presença do script + registro no settings.json (gated p/ ideiapartner)
 if [ -f "$HOME/.claude/hooks/backlog-sync-check.sh" ]; then pass "Patch 11 (hook backlog-sync presente)"; else warn "Patch 11 ausente — install-global-patches.sh"; fi
 chk "Patch 11 (backlog-sync no SessionStart)" "$HOME/.claude/settings.json"                "backlog-sync-check.sh"
+# Patch 12 (hook memory-import) — presença do script + registro no SessionStart (memória v5)
+if [ -f "$HOME/.claude/hooks/memory-import.sh" ]; then pass "Patch 12 (hook memory-import presente)"; else warn "Patch 12 ausente — install-global-patches.sh"; fi
+chk "Patch 12 (memory-import no SessionStart)" "$HOME/.claude/settings.json"               "memory-import.sh"
+# Patch 13 (hook memory-export) — presença do script + registro no Stop (memória v5)
+if [ -f "$HOME/.claude/hooks/memory-export.sh" ]; then pass "Patch 13 (hook memory-export presente)"; else warn "Patch 13 ausente — install-global-patches.sh"; fi
+chk "Patch 13 (memory-export no Stop)" "$HOME/.claude/settings.json"                       "memory-export.sh"
 
 # ── 5) Versões vs lock ────────────────────────────────────────────────────────
 step "5) Versões vs versions.lock"
@@ -242,6 +248,42 @@ if [ -f "tsconfig.json" ] || [ -f "$(pwd)/tsconfig.json" ]; then
 else
   pass "typescript-lsp: n/a (projeto atual não é TypeScript)"
 fi
+
+# ── 9) Memória (v5) ───────────────────────────────────────────────────────────
+# Sistema de memória compartilhada entre IDEs/máquinas via branch `planning`
+# (v5). Tudo READ-ONLY: usa `git rev-parse`/`git cat-file` contra os refs já
+# existentes — nunca faz checkout do planning (invariante Lovable). Checa:
+#   a) branch planning alcançável (ref local OU origin/planning)
+#   b) store canônico planning:.planning/memory/shared/ existe (WARN se ausente —
+#      o primeiro export pode ainda não ter rodado; não é FAIL)
+#   c) patches 12 (import) e 13 (export) registrados no settings.json
+step "9) Memória compartilhada (v5)"
+if git -C "$(pwd)" rev-parse --git-dir >/dev/null 2>&1; then
+  # a) planning alcançável (local ou remoto)
+  PLANNING_REF=""
+  if git rev-parse --verify --quiet planning >/dev/null 2>&1; then
+    PLANNING_REF="planning"
+  elif git rev-parse --verify --quiet origin/planning >/dev/null 2>&1; then
+    PLANNING_REF="origin/planning"
+  fi
+  if [ -n "$PLANNING_REF" ]; then
+    pass "branch planning alcançável ($PLANNING_REF)"
+    # b) store shared/ existe no planning (read-only via ls-tree; sem checkout)
+    if git ls-tree --name-only "$PLANNING_REF" .planning/memory/shared/ 2>/dev/null | grep -q .; then
+      MEM_N=$(git ls-tree --name-only -r "$PLANNING_REF" .planning/memory/shared/facts/ 2>/dev/null | grep -c '\.md$' || true)
+      pass "store canônico $PLANNING_REF:.planning/memory/shared/ existe (${MEM_N:-0} fato(s))"
+    else
+      warn "$PLANNING_REF:.planning/memory/shared/ ausente — primeiro /memory-sync export ainda não rodou (não-crítico)"
+    fi
+  else
+    warn "branch planning não alcançável (sem ref local nem origin/planning) — memória v5 inativa neste repo"
+  fi
+else
+  info "Memória v5: cwd não é um repositório git — checagem de store n/a"
+fi
+# c) patches 12/13 registrados (reusa o mesmo settings.json da Seção 4)
+chk "memory-import registrado (Patch 12)" "$HOME/.claude/settings.json" "memory-import.sh"
+chk "memory-export registrado (Patch 13)" "$HOME/.claude/settings.json" "memory-export.sh"
 
 # ── Resumo ────────────────────────────────────────────────────────────────────
 echo -e "\n${CYAN}${BOLD}━━━ Resumo ━━━${NC}"
