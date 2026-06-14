@@ -1,29 +1,7 @@
-<!-- ════════════════════════════════════════════════════════════════════════
-     IdeiaOS — Shared Memory Store INDEX
-     ────────────────────────────────────────────────────────────────────────
-     ⚠️  ESTE STORE VIVE EXCLUSIVAMENTE NO BRANCH `planning`.
-         NUNCA faça merge de `.planning/memory/` para `main`.
-         O `main` é lido continuamente pela Lovable Cloud — memória ali
-         dispara um Lovable Update indevido (vide o leak `.lovable_mem_tmp.md`).
+# MEMORY.md — IdeiaOS
 
-     REGRAS DO STORE:
-       • Um arquivo por fato em `facts/` (nome `<type>_<slug>.md`). Nunca
-         edite fatos in-place no índice — escreva/atualize o arquivo do fato.
-       • ESTE ÍNDICE É GERADO. Reconstruído deterministicamente a partir de
-         `facts/` por `memory-export.sh` / `/memory-sync`. Edições manuais
-         aqui são sobrescritas no próximo scan. Para mudar uma linha, edite
-         o frontmatter (`description`) do arquivo do fato correspondente.
-       • Leitura sem checkout:  git show planning:.planning/memory/shared/MEMORY.md
-       • Escrita: git plumbing (hash-object→commit-tree→update-ref planning).
-         Jamais escreva staging no working tree da branch corrente.
-       • `local/` (staging por-máquina) é gitignored no `planning` — não entra
-         aqui nem em `shared/`.
-
-     Formato de cada linha (uma por fato, ordenado por nome de arquivo):
-       - [<description>](facts/<type>_<slug>.md) — <one-liner>
-     ════════════════════════════════════════════════════════════════════════ -->
-
-# MEMORY.md — Shared Store (planning branch)
-
-<!-- BEGIN:facts (gerado por scan de facts/ — não editar manualmente) -->
-<!-- END:facts -->
+- [.gitkeep](facts/.gitkeep)
+- [Aviso de diagnóstico ambíguo (\"X ≠ Y — corrija se intencional\") induz agente de IA a \"corrigir\" na direção errada — mensagens devem ser direcionais](facts/learning_ambiguous-drift-warning-induces-agent-revert.md) — learning-ambiguous-drift-warning-induces-agent-revert
+- [Para ignorar um arquivo gerado em QUALQUER branch (não só o atual), use .git/info/exclude — .gitignore é per-branch e vaza](facts/learning_git-info-exclude-branch-agnostic-ignore.md) — git-info-exclude-branch-agnostic-ignore
+- [Valide guards de pre-commit em sandbox /tmp limpo — testar no repo vivo com stash+checkout dá falso resultado se o checkout falhar silenciosamente](facts/learning_verify-guards-in-sandbox-not-live-repo.md) — verify-guards-in-sandbox-not-live-repo
+- [Migração de pacote com reset de versionamento inverte semver (1.1.0 redux > 1.36.0 pré-redux) — guardas de pin devem ser package-aware](facts/learning_version-reset-migration-semver-trap.md) — learning-version-reset-migration-semver-trap
