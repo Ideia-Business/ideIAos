@@ -232,7 +232,7 @@ fi
 # d) TypeScript LSP em projetos TypeScript (R3-07 — módulo typescript-lsp)
 #    Só relevante quando o cwd é um projeto TS (tsconfig.json presente).
 if [ -f "tsconfig.json" ] || [ -f "$(pwd)/tsconfig.json" ]; then
-  if grep -q '"id": "typescript-lsp"' "$REPO_DIR/manifests/modules.json" 2>/dev/null || grep -q '"id": "typescript-lsp"' manifests/modules.json 2>/dev/null; then
+  if grep -q '"id": "typescript-lsp"' "$SETUP_DIR/manifests/modules.json" 2>/dev/null || grep -q '"id": "typescript-lsp"' manifests/modules.json 2>/dev/null; then
     if command -v typescript-language-server >/dev/null 2>&1 || ls "$HOME/.claude/plugins" 2>/dev/null | grep -qi "typescript-lsp\|ts-lsp"; then
       pass "typescript-lsp disponível para projeto TS"
     else
