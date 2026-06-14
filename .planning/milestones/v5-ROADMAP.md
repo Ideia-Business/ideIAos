@@ -1,9 +1,10 @@
 # Milestone v5: Memória compartilhada entre IDEs
 
-**Status:** In progress
-**Fases:** 18–22
-**Total de Planos:** TBD
-**Branch:** `work`
+**Status:** Implementado + verificado (local) — 2026-06-14 · pushes operacionais pendentes (@devops)
+**Fases:** 18–22 (todas implementadas)
+**Total de Planos:** entregue via workflows (build 6 agentes + verify 13 céticos adversariais)
+**Branch:** `work` (código) · `planning` (store de memória)
+**Verificação:** 10 PASS / 1 PARTIAL / 1 FAIL → ambos remediados (patches 12/13 instalados; invariante fechada com guard instalado + `.git/info/exclude` + varredura no doctor). `idea-doctor` = 0 FAIL. 3 suites de teste verdes.
 
 ---
 
@@ -19,11 +20,11 @@ IdeiaOS v5 adiciona uma camada de sincronização de memória compartilhada entr
 
 ## Phases
 
-- [ ] **Phase 18: Guardrails Lovable-safe** — Prerequisito: limpar o leak existente + 6 barreiras anti-churn + topologia documentada
-- [ ] **Phase 19: Store & formato canônico** — Split shared/local, frontmatter canônico, índice idempotente, secret-scan
-- [ ] **Phase 20: Import bridge** — Hook SessionStart que importa memória shared do planning para memória nativa da IDE
-- [ ] **Phase 21: Export bridge & Cursor** — Skill /memory-sync (export explícito via git plumbing) + ponte Cursor via .mdc
-- [ ] **Phase 22: Verificação & integração do loop** — Doctor + patches 12/13 + modelo de 3 camadas documentado
+- [x] **Phase 18: Guardrails Lovable-safe** — 6 barreiras anti-churn + topologia/ADR + guard instalado (pre-commit/pre-merge). ⚠️ R5-01 (limpeza do leak `.lovable_mem_tmp.md` em `nfideia:main`) = pendente push @devops (produção)
+- [x] **Phase 19: Store & formato canônico** — Split shared/local, frontmatter canônico, índice idempotente, secret-scan (16/16 testes)
+- [x] **Phase 20: Import bridge** — Hook SessionStart importa shared do planning → memória nativa; tolera slug #30828; exit-0 offline; idempotente
+- [x] **Phase 21: Export bridge & Cursor** — Skill /memory-sync + export git plumbing (worktree fallback) + ponte Cursor `.mdc` (gitignored + `.git/info/exclude`)
+- [x] **Phase 22: Verificação & integração do loop** — Doctor seção 9 (0 FAIL) + patches 12/13 instalados + modelo 3 camadas documentado
 
 ---
 
@@ -102,11 +103,11 @@ IdeiaOS v5 adiciona uma camada de sincronização de memória compartilhada entr
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 18. Guardrails Lovable-safe | 0/? | Not started | - |
-| 19. Store & formato canônico | 0/? | Not started | - |
-| 20. Import bridge | 0/? | Not started | - |
-| 21. Export bridge & Cursor | 0/? | Not started | - |
-| 22. Verificação & integração do loop | 0/? | Not started | - |
+| 18. Guardrails Lovable-safe | ✔ | Done (R5-01 push @devops pendente) | 2026-06-14 |
+| 19. Store & formato canônico | ✔ | Done | 2026-06-14 |
+| 20. Import bridge | ✔ | Done | 2026-06-14 |
+| 21. Export bridge & Cursor | ✔ | Done | 2026-06-14 |
+| 22. Verificação & integração do loop | ✔ | Done | 2026-06-14 |
 
 ---
 

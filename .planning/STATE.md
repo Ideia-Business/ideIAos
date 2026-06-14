@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v5
 milestone_name: Memória compartilhada entre IDEs
-status: planning
+status: implemented
 last_updated: "2026-06-14"
 last_activity: 2026-06-14
 progress:
   total_phases: 5
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  completed_phases: 5
+  total_plans: 5
+  completed_plans: 5
+  percent: 100
 ---
 
 # State — IdeiaOS
@@ -25,7 +25,7 @@ progress:
 | v3 — Refinamento (fases 09-13) | ✅ SHIPPED — tag v3.0 |
 | v4 — Produção do plano maior (fases 14-16) | ✅ SHIPPED — tag v4.0, auditoria 8/9 + 1 warn aceito |
 | **PLANO MAIOR (ECC absorption)** | **✅ 100% CONCLUÍDO** |
-| **v5 — Memória compartilhada entre IDEs** | **🚧 IN PROGRESS — roadmap criado, 5 fases (18-22)** |
+| **v5 — Memória compartilhada entre IDEs** | **✅ IMPLEMENTADO (2026-06-14) — 5 fases (18-22), doctor 0 FAIL, 3 suites verdes; pushes operacionais pendentes (@devops)** |
 
 ## Próximo passo
 

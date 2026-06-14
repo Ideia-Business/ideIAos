@@ -21,6 +21,14 @@
 | **Fase 13 security-dx-manifest** | ✅ Completa (13-01 + 13-02 + 13-03) |
 | Próximo passo | Ver `docs/CONTINUATION_HANDOFF.md` |
 
+## Mudanças recentes (2026-06-14, tarde) — v5 Memória entre IDEs IMPLEMENTADO
+
+- **Milestone v5 aberto + implementado** numa sessão (ultracode/workflows): research (4+1) → build (6 agentes) → verificação adversarial (13 céticos). 5 fases (18-22), 11 reqs (R5-01..R5-11).
+- **Sistema:** memória durável sincroniza entre IDEs via branch `planning` (nunca `main` — invariante Lovable). Import hook (SessionStart) + export skill `/memory-sync` (git plumbing) + ponte Cursor `.mdc`. Store em `planning:.planning/memory/shared/` (split shared/local). 6 barreiras anti-churn no main (espelham `versions.lock`).
+- **Verificado local:** 3 suites de teste verdes; `idea-doctor` 0 FAIL (Seção 9 memória toda ✓); guard provado (bloqueia memória em main). Propagado via build-plugins/build-adapters; README 96/96.
+- **Pendente (gated @devops):** push `planning`+`work`; R5-01 limpeza do leak `.lovable_mem_tmp.md` em `nfideia:main` (main do nfideia está sujo — fazer cirúrgico, ver handoff); deploy via `ideiaos-update.sh`.
+- **Detalhes:** `docs/CONTINUATION_HANDOFF.md` (sessão 06-14 tarde) + `.planning/milestones/v5-ROADMAP.md`.
+
 ## Mudanças recentes (2026-06-14) — auditoria de pendências + doctor
 
 - **idea-doctor:** 51 OK · 0 WARN · 0 FAIL — ambiente saudável (11/11 patches do overlay, 0 drift, versões = pin).

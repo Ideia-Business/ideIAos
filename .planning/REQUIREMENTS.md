@@ -76,16 +76,16 @@ O modelo local → shared/`planning` → vault Obsidian é documentado explicita
 
 | Requisito | Fase | Status |
 |-----------|------|--------|
-| R5-01 (P1) — Limpar leak existente no main | Phase 18 | Pending |
-| R5-02 (P1) — 6 barreiras anti-churn no main | Phase 18 | Pending |
-| R5-03 (P1) — Topologia: planning como transporte | Phase 18 | Pending |
-| R5-04 (P1) — Split shared/local, um arquivo por fato | Phase 19 | Pending |
-| R5-05 (P1) — Frontmatter canônico + índice idempotente | Phase 19 | Pending |
-| R5-06 (P2) — Secret-scan no export | Phase 19 | Pending |
-| R5-07 (P1) — Import hook (SessionStart, lado Claude) | Phase 20 | Pending |
-| R5-08 (P1) — Export via skill /memory-sync | Phase 21 | Pending |
-| R5-09 (P2) — Ponte Cursor (mdc gitignored) | Phase 21 | Pending |
-| R5-10 (P2) — Doctor + registro dos hooks | Phase 22 | Pending |
-| R5-11 (P2) — Modelo de 3 camadas documentado | Phase 22 | Pending |
+| R5-01 (P1) — Limpar leak existente no main | Phase 18 | Code-side Done · nfideia:main push pendente (@devops) |
+| R5-02 (P1) — 6 barreiras anti-churn no main | Phase 18 | Done |
+| R5-03 (P1) — Topologia: planning como transporte | Phase 18 | Done |
+| R5-04 (P1) — Split shared/local, um arquivo por fato | Phase 19 | Done |
+| R5-05 (P1) — Frontmatter canônico + índice idempotente | Phase 19 | Done |
+| R5-06 (P2) — Secret-scan no export | Phase 19 | Done |
+| R5-07 (P1) — Import hook (SessionStart, lado Claude) | Phase 20 | Done |
+| R5-08 (P1) — Export via skill /memory-sync | Phase 21 | Done |
+| R5-09 (P2) — Ponte Cursor (mdc gitignored) | Phase 21 | Done |
+| R5-10 (P2) — Doctor + registro dos hooks | Phase 22 | Done |
+| R5-11 (P2) — Modelo de 3 camadas documentado | Phase 22 | Done |
 
 **Cobertura: 11/11 — nenhum requisito órfão.**

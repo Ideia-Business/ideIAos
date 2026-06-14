@@ -2,6 +2,30 @@
 
 **Projeto:** `IdeiaOS` · **Branch:** `work` (= main) · **Atualizado:** 2026-06-14
 
+## Sessão 2026-06-14 (tarde) — v5 Memória entre IDEs IMPLEMENTADO
+
+Milestone v5 aberto E implementado nesta sessão (5 fases 18-22, 11 reqs). Orquestrado por workflows (ultracode): research 4+1 agentes → build 6 agentes → verificação adversarial 13 céticos.
+
+**Entregue (tudo no `work`, verificado local):**
+- `source/hooks/memory-import.sh` (SessionStart: planning shared → memória nativa; tolera slug #30828; exit-0 offline; gera ponte Cursor `.mdc`; defesa `.git/info/exclude`)
+- `source/hooks/memory-export.sh` (Stop: nativa → planning via **git plumbing** primário, worktree fallback; secret-scan; nunca toca main)
+- `source/skills/memory-sync/SKILL.md` (export explícito `/memory-sync`)
+- `source/templates/memory/` (MEMORY.header, fact.schema, planning.gitignore)
+- `scripts/check-memory-not-on-main.sh` + wiring em `install-git-hooks.sh` (pre-commit/pre-merge) — guard instalado e provado (bloqueia memória em main, permite em work, override OK)
+- autosync (`setup-dev-machine.sh`): exclui memória + branch guard + push planning
+- `docs/decisions/v5-memory-topology.md` (ADR) + `docs/memory-sync-model.md` (3 camadas)
+- `scripts/install-global-patches.sh` Patches 12/13 (instalados live) + `scripts/idea-doctor.sh` Seção 9 (memória) + varredura de leak no main
+- `tests/v5-memory/` 3 suites (import, export 16/16, guardrails 10/10) — **todas verdes**
+- Store semeado no branch **`planning`** (`.planning/memory/shared/` + `.planning/.gitignore`)
+- Propagado: `build-plugins.sh` + `build-adapters.sh`. README sync 96/96. **`idea-doctor` = 0 FAIL (61 OK)**.
+
+**Verificação adversarial:** 10 PASS / 1 PARTIAL / 1 FAIL → ambos remediados (PARTIAL R5-10 = patches não instalados → instalados; FAIL invariante = guard não instalado + defesa → guard instalado + `.git/info/exclude` + doctor leak-scan). Re-provado em sandbox isolado.
+
+### ⏳ Follow-ups operacionais (gated por @devops — Constitution Art. II)
+1. **Push `planning`** (store) e **`work`** (código v5) para origin. `work` o autosync empurra; `planning` precisa de 1º push (`git push -u origin planning`) — bloqueado pra mim (guard @devops).
+2. **R5-01 — leak `.lovable_mem_tmp.md` em `nfideia:main`** (commit `604c0a19`): NÃO executei. ⚠️ O `main` do nfideia está **sujo** (`AGENTS.md`, `docs/CONTINUATION_HANDOFF.md` modificados não-commitados, de outra sessão) E o autosync do nfideia faz `git add -A` em main — commitar ali agora arriscaria empurrar esses arquivos sujos pra produção Lovable. Fazer cirúrgico: `git -C ~/dev/nfideia rm --cached .lovable_mem_tmp.md && echo '.lovable_mem_tmp.md' >> ~/dev/nfideia/.gitignore && git -C ~/dev/nfideia commit -- .lovable_mem_tmp.md .gitignore -m "chore: untrack leak (v5 R5-01)"` → push @devops. Depois: `idea-doctor` no nfideia deixa de acusar VAZAMENTO.
+3. Deploy do v5 nas máquinas/projetos: `bash scripts/ideiaos-update.sh` (registra hooks memory 12/13 + guard via install-git-hooks).
+
 ## Sessão 2026-06-14 — auditoria + limpeza de pendências obsoletas
 
 idea-doctor: **51 OK · 0 WARN · 0 FAIL** (ambiente saudável). Auditadas as pendências registradas contra a realidade — 3 eram registro obsoleto, agora corrigidas:
