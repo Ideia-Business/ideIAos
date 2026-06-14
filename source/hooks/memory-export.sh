@@ -198,9 +198,9 @@ fi
 # write-tree → commit-tree → update-ref. NUNCA toca o working tree nem o índice
 # real do repo; opera só na camada de objetos/refs. Validado contra o nfideia.
 #
-# Além dos fatos shared/, gravamos um espelho em STAGING_PREFIX (dentro da MESMA
-# árvore do commit em planning), satisfazendo "staging só na árvore do planning,
-# nunca no working tree do branch corrente".
+# SÓ os fatos shared/facts/ (+ índice MEMORY.md) entram no commit. O buffer
+# local/staging/ é per-máquina, gitignored, e NUNCA é commitado — ele só existiria
+# como rascunho efêmero; não o adicionamos à árvore do planning.
 #
 # Em colisão de fast-forward (planning andou entre o read-tree e o update-ref),
 # refazemos UMA vez após um fetch+fast-forward do planning local.
@@ -216,13 +216,16 @@ do_plumbing_commit() {
     rm -f "$tmpidx"; return 1
   fi
 
-  # Inserir cada fato em shared/ e o espelho em staging/.
+  # Inserir cada fato APENAS em shared/facts/. O buffer local/staging é
+  # per-máquina e gitignored (.planning/.gitignore: memory/local/) — NUNCA entra
+  # no commit do planning. `update-index` ignora o .gitignore, então a barreira
+  # tem de ser AQUI: não adicionar staging à árvore (senão o buffer por-máquina
+  # vaza pro remoto compartilhado — viola Phase 19 SC #4). Ref: bug do dogfood
+  # 2026-06-14 (staging commitado no origin/planning).
   while IFS="$(printf '\t')" read -r fname blob; do
     [ -z "$fname" ] && continue
     GIT_INDEX_FILE="$tmpidx" git -C "$REPO" update-index --add \
       --cacheinfo "100644,$blob,$FACTS_PREFIX/$fname" 2>/dev/null || { rm -f "$tmpidx"; return 1; }
-    GIT_INDEX_FILE="$tmpidx" git -C "$REPO" update-index --add \
-      --cacheinfo "100644,$blob,$STAGING_PREFIX/$MEM_DATE-$fname" 2>/dev/null || { rm -f "$tmpidx"; return 1; }
   done < "$TMP_LIST"
 
   # Regenerar o índice MEMORY.md de shared/ de forma DETERMINÍSTICA a partir da

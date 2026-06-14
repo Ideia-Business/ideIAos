@@ -288,6 +288,23 @@ PYEOF
 CURSOR_RULES_DIR="$REPO_ROOT/.cursor/rules"
 MDC_FILE="$CURSOR_RULES_DIR/memory-bridge.mdc"
 mkdir -p "$CURSOR_RULES_DIR" 2>/dev/null || true
+
+# Defesa branch-agnóstica (invariante Lovable): garante que o .mdc gerado e os
+# paths de memória local fiquem ignorados via .git/info/exclude — local à máquina,
+# vale em QUALQUER branch (inclusive main/Lovable), sem depender do .gitignore
+# versionado por-branch. Fecha o caminho em que o .mdc escrito no working tree de
+# um branch sem a entrada no .gitignore poderia ser commitado para o main.
+GIT_DIR_PATH="$(git -C "$REPO_ROOT" rev-parse --git-dir 2>/dev/null || true)"
+if [ -n "$GIT_DIR_PATH" ]; then
+  case "$GIT_DIR_PATH" in /*) : ;; *) GIT_DIR_PATH="$REPO_ROOT/$GIT_DIR_PATH" ;; esac
+  EXCLUDE_FILE="$GIT_DIR_PATH/info/exclude"
+  mkdir -p "$GIT_DIR_PATH/info" 2>/dev/null || true
+  for pat in ".cursor/rules/memory-bridge.mdc" ".planning/memory/local/" ".lovable_mem_tmp.md"; do
+    if [ ! -f "$EXCLUDE_FILE" ] || ! grep -qxF "$pat" "$EXCLUDE_FILE" 2>/dev/null; then
+      printf '%s\n' "$pat" >> "$EXCLUDE_FILE" 2>/dev/null || true
+    fi
+  done
+fi
 /usr/bin/python3 - "$MEM_DIR" "$PROJ_NAME" "$MDC_FILE" <<'PYEOF' 2>/dev/null || true
 import sys, os, re
 
