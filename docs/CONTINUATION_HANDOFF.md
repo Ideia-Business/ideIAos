@@ -25,10 +25,12 @@ Milestone v5 aberto E implementado nesta sessão (5 fases 18-22, 11 reqs). Orque
 - Usuário publicou `origin/planning`. O `memory-export.sh` rodou de verdade num Stop e exportou **4 fatos reais** para `planning:.planning/memory/shared/facts/` — sistema provado end-to-end com dados reais.
 - **Bug pego pelo dogfood:** o export commitava `.planning/memory/local/staging/` (via `update-index`, que ignora `.gitignore`) → buffer per-máquina vazava pro remoto (viola Phase 19 SC#4). **Corrigido** (`945a09b`): export só commita `shared/facts/` + `MEMORY.md`. Regressão T5 adicionada. `planning` limpo via worktree (`ec36f36`). Plugin hooks sincronizados.
 
-### ⏳ Follow-ups operacionais (gated por @devops — Constitution Art. II)
-1. **Re-push `planning`** — está **1 commit à frente** do origin (limpeza do staging `ec36f36`): `AIOX_ACTIVE_AGENT=github-devops git -C ~/dev/IdeiaOS push origin planning`. **`work`** o autosync empurra.
-2. **R5-01 — leak `.lovable_mem_tmp.md` em `nfideia:main`** (commit `604c0a19`): NÃO executei. ⚠️ O `main` do nfideia está **sujo** (`AGENTS.md`, `docs/CONTINUATION_HANDOFF.md` modificados não-commitados, de outra sessão) E o autosync do nfideia faz `git add -A` em main — commitar ali agora arriscaria empurrar esses arquivos sujos pra produção Lovable. Fazer cirúrgico: `git -C ~/dev/nfideia rm --cached .lovable_mem_tmp.md && echo '.lovable_mem_tmp.md' >> ~/dev/nfideia/.gitignore && git -C ~/dev/nfideia commit -- .lovable_mem_tmp.md .gitignore -m "chore: untrack leak (v5 R5-01)"` → push @devops. Depois: `idea-doctor` no nfideia deixa de acusar VAZAMENTO.
-3. Deploy do v5 nas máquinas/projetos: `bash scripts/ideiaos-update.sh` (registra hooks memory 12/13 + guard via install-git-hooks).
+### ✅ v5 (deliverable IdeiaOS) = COMPLETO. Itens abaixo são de OUTROS repos/máquinas.
+**Re-escopo (2026-06-14, fim):** R5-01 misturava 2 coisas. A **prevenção** de leak (guard, `.gitignore`, doctor Seção 9) é trabalho de v5 e está no IdeiaOS = ✅ feita. A **remediação** do arquivo `.lovable_mem_tmp.md` é de UM artefato pré-existente que vive em `nfideia:main` (outro repo de produção, commit `604c0a19`) — **NÃO é construção de v5**; é housekeeping operacional de outro repo. IdeiaOS está limpo em todos os branches.
+
+1. **Re-push `planning`** (se ainda à frente) — `AIOX_ACTIVE_AGENT=github-devops git -C ~/dev/IdeiaOS push origin planning`. (work o autosync empurra). [pode já estar sincronizado]
+2. **nfideia housekeeping (opcional, fora do v5):** remover `.lovable_mem_tmp.md` de `nfideia:main`. O `.gitignore` do nfideia **já contém** o padrão (não recorre), então não há urgência. Fazer com nfideia em `main` limpo: `cd ~/dev/nfideia && git rm -f .lovable_mem_tmp.md && git commit -m "chore: remove leak" -- .lovable_mem_tmp.md && AIOX_ACTIVE_AGENT=github-devops git push origin main`. ⚠️ nfideia é produção em dev ativo (branches mudando) — fazer deliberadamente, não automatizado.
+3. Deploy do v5 nas demais máquinas/projetos: `bash scripts/ideiaos-update.sh`.
 
 ## Sessão 2026-06-14 — auditoria + limpeza de pendências obsoletas
 
@@ -93,5 +95,5 @@ Não há pendência de trabalho travando o repo (`work` = `origin/work`, tree li
 
 ## Ultima sessao automatica (2026-06-14)
 
-- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-14-ideiaos-3363b21c-0ebb-4411-ab7b-e9ff163e.tmp`
+- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-14-ideiaos-ba2c1863-d79c-46dd-a48d-d52b42e2.tmp`
 - Próximo passo: (definir antes de retomar)

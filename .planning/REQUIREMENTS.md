@@ -76,7 +76,7 @@ O modelo local → shared/`planning` → vault Obsidian é documentado explicita
 
 | Requisito | Fase | Status |
 |-----------|------|--------|
-| R5-01 (P1) — Limpar leak existente no main | Phase 18 | Code-side Done · nfideia:main push pendente (@devops) |
+| R5-01 (P1) — Limpar leak existente no main | Phase 18 | Prevenção (IdeiaOS) ✅ · remediação do arquivo existe só em nfideia:main (outro repo) = housekeeping operacional separado, fora do deliverable IdeiaOS |
 | R5-02 (P1) — 6 barreiras anti-churn no main | Phase 18 | Done |
 | R5-03 (P1) — Topologia: planning como transporte | Phase 18 | Done |
 | R5-04 (P1) — Split shared/local, um arquivo por fato | Phase 19 | Done |

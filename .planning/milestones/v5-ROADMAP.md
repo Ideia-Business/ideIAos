@@ -20,7 +20,7 @@ IdeiaOS v5 adiciona uma camada de sincronização de memória compartilhada entr
 
 ## Phases
 
-- [x] **Phase 18: Guardrails Lovable-safe** — 6 barreiras anti-churn + topologia/ADR + guard instalado (pre-commit/pre-merge). ⚠️ R5-01 (limpeza do leak `.lovable_mem_tmp.md` em `nfideia:main`) = pendente push @devops (produção)
+- [x] **Phase 18: Guardrails Lovable-safe** — 6 barreiras anti-churn + topologia/ADR + guard instalado (pre-commit/pre-merge). **Prevenção de leak (escopo IdeiaOS) = ✅ completa.** R5-01 nota: a limpeza do `.lovable_mem_tmp.md` é remediação de UM arquivo pré-existente que vive em `nfideia:main` (outro repo de produção, commit `604c0a19`) — housekeeping operacional separado, NÃO construção de v5. IdeiaOS está limpo em todos os branches; o `.gitignore` do nfideia já contém o padrão (não recorre). Fazer no nfideia quando o repo estiver calmo.
 - [x] **Phase 19: Store & formato canônico** — Split shared/local, frontmatter canônico, índice idempotente, secret-scan (16/16 testes)
 - [x] **Phase 20: Import bridge** — Hook SessionStart importa shared do planning → memória nativa; tolera slug #30828; exit-0 offline; idempotente
 - [x] **Phase 21: Export bridge & Cursor** — Skill /memory-sync + export git plumbing (worktree fallback) + ponte Cursor `.mdc` (gitignored + `.git/info/exclude`)

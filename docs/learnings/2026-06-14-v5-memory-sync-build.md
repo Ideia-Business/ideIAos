@@ -35,3 +35,13 @@
 **Regra prática:** Push permanece ação do usuário / @devops real (ativado na sessão principal). Não delegue push esperando bypass; e nunca aja sobre output de subagente que circundou um guard (veio com SECURITY WARNING). O guard funcionando + o subagente sendo barrado é o sistema operando corretamente.
 
 **Falsos positivos:** N/A.
+
+## L5 — Separe PREVENÇÃO (no OS) de REMEDIAÇÃO (nos repos-produto) ao escopar milestone
+
+**Padrão:** Um milestone do IdeiaOS que cria uma barreira tende a juntar, no mesmo requisito, "construir a prevenção" (guard/gitignore/doctor — trabalho de framework, vive no IdeiaOS) com "limpar a instância antiga do problema" (que já está num repo-produto). São coisas diferentes em repos diferentes.
+
+**Evidência:** v5 R5-01 juntou "prevenir leak" (IdeiaOS, ✅ feito) com "remover `.lovable_mem_tmp.md` de `nfideia:main`" (outro repo, produção em dev ativo). Resultado: confusão de "pra onde gravar?", tentativas de escrita arriscadas num repo de produção com branch mudando, e falso flag de "v5 incompleto" — quando o trabalho de v5 já estava 100% no IdeiaOS. O usuário pegou o erro de escopo.
+
+**Regra prática:** No REQUIREMENTS, escreva a prevenção como requisito verificável no IdeiaOS (entra no "done" do milestone) e liste a remediação de instâncias pré-existentes como **item operacional separado, fora do "done"**, a ser feito no repo-produto quando estiver calmo. Prevenção bem-feita já contém o problema → a remediação vira opcional/sem urgência. Nunca dirija escrita automatizada num repo-produto com estado instável.
+
+**Falsos positivos:** se a "instância antiga" estiver no PRÓPRIO IdeiaOS, aí sim entra no milestone — a regra é sobre cross-repo (OS vs produto).
