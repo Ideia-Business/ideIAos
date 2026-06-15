@@ -95,5 +95,5 @@ Não há pendência de trabalho travando o repo (`work` = `origin/work`, tree li
 
 ## Ultima sessao automatica (2026-06-15)
 
-- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-15-ideiaos-2951422f-404c-4978-9140-4f155458.tmp`
+- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-15-ideiaos-af4aa8b6-9e62-4008-a648-39421d49.tmp`
 - Próximo passo: (definir antes de retomar)
