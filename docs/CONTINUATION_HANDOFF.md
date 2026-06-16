@@ -128,10 +128,12 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 - **Fase 2** — **drift-guard** `scripts/check-plugin-membership.sh`: cruza `plugin:` do manifesto × arrays do `build-plugins.sh`; wired no pre-commit + idea-doctor (seção 10). Pegou `memory-import`/`export` (v5) → marcados `plugin:null` (patch-installed). 69 módulos, 0 deriva.
 - **Fase 3** — rollout: 2ª capability `nfideia/specs/cofre-digital/spec.md` (RN-050..053) na mesma branch (`ffc48c9c`).
 
-**Resta (Fase 4 — decisão do usuário):**
-1. **DeepSeek V4 Pro** — legados aposentam **2026-07-24** (habilitar nos produtos ou no Claude Code; ver memória `project-deepseek-v4-enablement-pending`).
-2. **gsd-browser / agent-inbox** — opt-in quando publicados (ADRs em `docs/decisions/`).
+**Resta (Fase 4 — backlog passivo, NÃO bloqueante — nada depende de ação do usuário):**
+1. **gsd-browser** — monitorar upstream (ainda não publicado no npm/crates); avaliar quando sair.
+2. **agent-inbox** — uso sob demanda (só se uma tarefa precisar testar auth-email num produto).
 3. **PRs no nfideia**: branch `spec/multi-tenancy-pilot` tem 2 specs (multi-tenancy + cofre-digital) prontas para revisar/merge quando quiser.
+
+> **DeepSeek removido do plano (2026-06-16):** decisão do usuário — habilitado no nível dos **produtos**, fora do escopo IdeiaOS.
 
 > **Lição de segurança:** nfideia É Lovable (`lovable-tagger` + `componentTagger` no vite.config) — cuidar só dos projetos Lovable; IdeiaOS não é Lovable (commit livre). Memória: `feedback-lovable-projects-branch-commit`.
 

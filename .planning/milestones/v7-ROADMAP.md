@@ -34,9 +34,13 @@ nfideia **é Lovable** (lovable-tagger + componentTagger). `specs/` commitados n
 
 Segunda capability autorada: `nfideia/specs/cofre-digital/spec.md` (4 reqs das RN-050..053 — A1-only, tokens efêmeros, alertas de validade, auditoria). Provou repetibilidade num 2º domínio. Na branch `spec/multi-tenancy-pilot` (`ffc48c9c`). Cobre R7-09.
 
-### Fase 4 — Decisões opt-in com prazo ⬜ BACKLOG
+### Fase 4 — Backlog passivo (monitorar upstream) ⬜ NÃO-BLOQUEANTE
 
-DeepSeek V4 Pro (prazo 2026-07-24, R7-10) · gsd-browser/agent-inbox quando publicados. Decisões do usuário.
+Sem trabalho de IdeiaOS pendente — itens dependem de **terceiros**, não do usuário:
+- **gsd-browser** — CLI Rust do ecossistema GSD ainda **não publicado** no npm/crates. Quando publicarem, avaliar como substituto +barato do chrome-devtools MCP. Ação: monitorar upstream.
+- **agent-inbox** — MCP de e-mail descartável, uso **sob demanda** (só se uma tarefa precisar testar signup/auth por e-mail num produto). Não é decisão pendente.
+
+> **DeepSeek V4 Pro removido do plano (2026-06-16):** decisão do usuário — habilitado **no nível dos produtos** (cfoai/nfideia etc.), fora do escopo do IdeiaOS. Ver memória `project-deepseek-v4-enablement-pending`.
 
 ---
 
@@ -48,4 +52,4 @@ DeepSeek V4 Pro (prazo 2026-07-24, R7-10) · gsd-browser/agent-inbox quando publ
 | 1b — Versionar (Lovable-safe) | ✅ DONE |
 | 2 — Drift-guard | ✅ DONE |
 | 3 — Rollout delta-spec | ✅ DONE |
-| 4 — Opt-in com prazo | ⬜ BACKLOG (decisão do usuário) |
+| 4 — Backlog passivo (monitorar upstream) | ⬜ não-bloqueante |

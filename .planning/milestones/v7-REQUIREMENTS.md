@@ -25,7 +25,7 @@ O v6 entregou a capability `/spec` (delta-spec brownfield) com testes unitários
 | R7-07 | Deve existir um **gate** que detecte deriva entre os arrays de `build-plugins.sh` e as atribuições `plugin:` do `modules.json`, prevenindo recorrência do R7-06 | SHOULD | ✅ DONE (`check-plugin-membership.sh`) |
 | R7-08 | Os artefatos de spec do piloto devem ser versionados no nfideia de forma **Lovable-safe** (branch, nunca main automática) | MUST | ✅ DONE (branch `spec/multi-tenancy-pilot`) |
 | R7-09 | Rollout: autorar specs vivas para +1 capability brownfield (candidatos: nfideia cofre-digital/billing, ou ideiapartner/cfoai) | COULD | ✅ DONE (`cofre-digital`) |
-| R7-10 | Decisão DeepSeek V4 Pro (prazo: legados aposentam 2026-07-24) — habilitar nos produtos ou no Claude Code | SHOULD | ⬜ Backlog (decisão do usuário) |
+| R7-10 | ~~Decisão DeepSeek V4 Pro~~ — **REMOVIDO do escopo (2026-06-16)**: decisão do usuário é habilitar no nível dos **produtos**, fora do IdeiaOS | — | ➖ Fora de escopo |
 
 ---
 
