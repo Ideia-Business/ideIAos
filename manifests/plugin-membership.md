@@ -158,7 +158,7 @@ Templates de projeto (`hybrid`, `ideiaos`, `learnings`, `aiox-ai-config`, `globa
 
 **Skills opt-in v8 (catálogo):** `observability` e `deprecation-migration` são `plugin: null` + `installStrategy: manual` — surgem via `/ideiaos-catalog`, **não** empacotadas por default.
 
-> **Carry-forward (herdado de v7):** rules em `source/rules/common/` com `plugin: ideiaos-core` (`delta-spec`, `operating-discipline`) ainda não têm etapa de deploy para projetos-alvo **Claude Code** (só `.cursor/rules/` via `build-adapters.sh`; e `.claude/rules/` no próprio repo IdeiaOS). Fechar numa próxima iteração: adicionar cópia de `source/rules/common/*.md` ao `setup.sh` por projeto.
+> **R8-09 fechado (2026-06-16):** `build-adapters.sh build_claude_project_rules()` deploya `source/rules/common/*.md` → `<projeto>/.claude/rules/ideiaos-common-*.md` (paridade com o Cursor `.mdc`; Claude Code auto-carrega `.claude/rules/*.md`). Só `common/` (disciplina universal); stack/domínio ficam Cursor-side.
 
 ---
 

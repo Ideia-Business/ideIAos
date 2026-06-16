@@ -35,7 +35,7 @@ progress:
 
 ## Próximo passo
 
-Milestone v8 (Camada de Disciplina) SHIPPED — tag v8.0. `/doubt` e `/context-engineering` no marketplace; `/observability` e `/deprecation-migration` no catálogo opt-in. Próximo (opt-in, decisão do usuário): fechar **R8-09** (deploy de `source/rules/common/*` para projetos Claude-Code-alvo via `setup.sh` — herdado de v7); ou novas demandas.
+Milestone v8 (Camada de Disciplina) SHIPPED — tag v8.0. `/doubt` e `/context-engineering` no marketplace; `/observability` e `/deprecation-migration` no catálogo opt-in. **R8-09 FECHADO (2026-06-16):** `build-adapters.sh` deploya `source/rules/common/*` → `.claude/rules/ideiaos-common-*.md` (paridade Claude×Cursor). **Sem pendências do v8.** Próximo: novas demandas.
 
 ## Pendências (opt-in, decisão do usuário)
 - Piloto /spec (delta-spec) num produto brownfield (nfideia) — spike documentado na fase 30.

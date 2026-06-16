@@ -16,7 +16,7 @@
 | R8-06 | Absorção via pipeline de quarentena (`security/scan-absorbed.sh`, exit 0) + atribuição MIT `# SOURCE: agent-skills MIT addyosmani/agent-skills` | ✅ DONE |
 | R8-07 | Dogfood: rodar `/doubt` (revisor adversarial) sobre o próprio diff do milestone antes do ship; reconciliar achados | ✅ DONE |
 | R8-08 | Wiring consistente (Deia matrix, CORE_SKILLS, modules.json, plugin-membership, README) + gates binários verdes (membership 71/0, readme 111/111, build, doctor 0 FAIL, bats 27/27) | ✅ DONE |
-| R8-09 | **Carry-forward (herdado de v7):** deploy de `source/rules/common/*.md` para projetos-alvo Claude Code (hoje só `.cursor/` + `.claude/rules/` do próprio repo) | ⬜ DEFERIDO |
+| R8-09 | Deploy de `source/rules/common/*.md` para projetos-alvo Claude Code (`.claude/rules/ideiaos-common-*.md` via `build_claude_project_rules()` no `build-adapters.sh`) — paridade com Cursor | ✅ DONE |
 
 ## Fora de escopo (decisão consciente)
 - Lifecycle skills do Osmani que duplicam GSD (planning-and-task-breakdown, incremental-implementation) — GSD é superior.

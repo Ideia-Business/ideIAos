@@ -39,5 +39,5 @@ Wiring: Deia matrix (+2 linhas), `CORE_SKILLS` (+doubt, +context-engineering), `
 | C — Opt-in catálogo | ✅ DONE |
 | D — Wiring + gates + dogfood | ✅ DONE |
 
-## Carry-forward (R8-09, herdado de v7)
-Rules `source/rules/common/*` com `plugin: ideiaos-core` (`delta-spec`, `operating-discipline`) ainda não têm deploy para projetos-alvo **Claude Code** (só `.cursor/` + `.claude/rules/` do próprio repo). Fechar adicionando cópia ao `setup.sh`.
+## R8-09 — FECHADO (2026-06-16, follow-up)
+`build-adapters.sh` ganhou `build_claude_project_rules()`: deploy de `source/rules/common/*.md` → `<projeto>/.claude/rules/ideiaos-common-*.md` (paridade com o Cursor `.mdc`; Claude Code auto-carrega `.claude/rules/*.md`). Só `common/` (disciplina universal); stack/domínio (marketing, supabase) ficam Cursor-side para não inflar o always-on. **Verificado em sandbox `/tmp` limpo** (7 rules, conteúdo idêntico à fonte, stack rules não vazam) e **dogfoodado no próprio repo** (manual `operating-discipline.md` removido → substituído pelo gerado).
