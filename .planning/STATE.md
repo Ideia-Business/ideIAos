@@ -1,7 +1,7 @@
 ---
 gsd_state_version: 1.0
-milestone: v7
-milestone_name: Delta-Spec Brownfield + Robustez de Empacotamento
+milestone: v8
+milestone_name: Camada de Disciplina (Discipline Layer)
 status: shipped
 last_updated: "2026-06-16"
 progress:
@@ -24,6 +24,7 @@ progress:
 | v5 (memória cross-IDE) | ✅ SHIPPED |
 | **v6 (Resiliência + Marketing + GSD/OpenSpec)** | ✅ **SHIPPED 2026-06-16** — 9 fases, auditoria 15/15, tag v6.0 |
 | **v7 (Delta-Spec Brownfield + Robustez de Empacotamento)** | ✅ **SHIPPED 2026-06-16** — 4 fases, auditoria PASSED, tag v7.0: piloto `/spec` (specs vivas multi-tenancy + cofre-digital) + 4 bugs/gaps corrigidos + **drift-guard**. Fase 4 = backlog passivo (upstream). |
+| **v8 (Camada de Disciplina)** | ✅ **SHIPPED 2026-06-16** — 4 waves, auditoria PASSED, tag v8.0: absorção de `addyosmani/agent-skills` (MIT) — `/doubt` (doubt-driven) + rule `operating-discipline` (6 condutas) + `/context-engineering` + convenção anti-racionalização + opt-in `/observability`+`/deprecation-migration`. **Dogfood:** doubt-driven achou e corrigiu citação fabricada no próprio `/doubt`. |
 
 ## Decisões Tecnicas Canonicas
 
@@ -34,7 +35,7 @@ progress:
 
 ## Próximo passo
 
-Milestone v6 completo. Próximo: definir v7 (candidatos: piloto delta-spec brownfield num produto; gsd-browser se publicado; outras absorções). Ou novas demandas.
+Milestone v8 (Camada de Disciplina) SHIPPED — tag v8.0. `/doubt` e `/context-engineering` no marketplace; `/observability` e `/deprecation-migration` no catálogo opt-in. Próximo (opt-in, decisão do usuário): fechar **R8-09** (deploy de `source/rules/common/*` para projetos Claude-Code-alvo via `setup.sh` — herdado de v7); ou novas demandas.
 
 ## Pendências (opt-in, decisão do usuário)
 - Piloto /spec (delta-spec) num produto brownfield (nfideia) — spike documentado na fase 30.

@@ -119,7 +119,12 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 
 ## Próximo passo
 
-**v2.0–v6 SHIPPED. v7 ABERTO** (Delta-Spec Brownfield + Robustez de Empacotamento) — ver `.planning/milestones/v7-ROADMAP.md`.
+**v2.0–v8 todos SHIPPED.** v8 (Camada de Disciplina) fechado em 2026-06-16 — 4 waves, auditoria PASSED, tag `v8.0`. Absorção de `addyosmani/agent-skills` (MIT): `/doubt` (doubt-driven) + rule sempre-on `operating-discipline` (6 condutas) + `/context-engineering` + convenção de autoria anti-racionalização + opt-in `/observability`/`/deprecation-migration`. **Dogfood:** doubt-driven rodado sobre o próprio diff achou e corrigiu citação fabricada no `/doubt`. Detalhes em `.planning/v8-MILESTONE-AUDIT.md`.
+
+**Próximo (opt-in, decisão do usuário):** fechar **R8-09** — deploy de `source/rules/common/*` para projetos-alvo Claude Code via `setup.sh` (rules `operating-discipline`/`delta-spec` hoje só vão p/ `.cursor/` + `.claude/rules/` do próprio repo). Herdado de v7. Ou novas demandas.
+
+---
+_Histórico v7 abaixo:_
 
 **v2.0–v7 todos SHIPPED.** v7 fechado em 2026-06-16 (4 fases entregáveis, auditoria PASSED, tag `v7.0`). Nada bloqueia o repo. Detalhes em `.planning/v7-MILESTONE-AUDIT.md`.
 
