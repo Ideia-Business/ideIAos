@@ -4,6 +4,15 @@
 
 ---
 
+## Linhagem GSD — VERDADE CANONICA
+
+GSD neste projeto = @opengsd/get-shit-done-redux 1.1.0 (org opengsd).
+NAO e gsd-pi (3.x) nem pacote da org gsd-build.
+Pin revertido 3x — ver versions.lock (nota expandida) e check-versions-lock.sh.
+Proibido editar gsd= no versions.lock manualmente.
+
+---
+
 ## 🎯 PRÓXIMA SESSÃO — FECHAR A ATUALIZAÇÃO DO IDEIAOS (milestone v6)
 
 Tudo planejado. A próxima sessão executa as 8 fases pendentes e fecha o v6.

@@ -149,6 +149,12 @@
   - **Barreiras instaladas:** (1) `git-autosync` exclui `versions.lock` do `add -A` (fonte: `setup-dev-machine.sh`; propagado às máquinas pelo passo 2/4 do `ideiaos-update.sh`); (2) pre-commit roda `scripts/check-versions-lock.sh` — bloqueia valor pré-redux (1.30–1.99) e edição manual que não corresponda ao instalado (bypass: `IDEIAOS_LOCK_OVERRIDE=1`); (3) `update-upstream.sh --bump` recusa gravar valor pré-redux; (4) mensagens de drift do `idea-doctor`/`update-upstream` agora são direcionais (dizem qual lado está errado); (5) comentário anti-armadilha no próprio `versions.lock`; (6) re-pin `gsd=1.1.0`.
   - **Obsolescência:** remover o padrão anti-legado (1.30–1.99) quando o redux se aproximar de 1.30 (anos) — documentado em `check-versions-lock.sh`.
 
+## Decisoes Tecnicas Canonicas
+
+### GSD — Linhagem Definitiva (R6-11, 2026-06-16)
+
+Pacote canônico: @opengsd/get-shit-done-redux, org opengsd, pin 1.1.0 (instalado em ~/.claude/get-shit-done/). O versionamento da linha redux RECOMEÇOU em 1.x em 2025 — logo 1.1.0 (redux) é MAIS NOVO que 1.36.0 (pré-redux get-shit-done-cc). gsd-pi (3.x) é um produto de org diferente, incompatível; gsd-build é outro ecossistema, não usado aqui. O pin foi revertido 3x em 2026-06 (commits c7fc184, 3724ee9 e um agente de IA) por confusão entre as linhas. Guardas ativas: check-versions-lock.sh (pre-commit) bloqueia legado (1.3x/1.4x) e Pi-drift (2.x/3.x); idea-doctor.sh (secao 5) emite aviso direcional. Único escritor do pin: scripts/update-upstream.sh --bump. Proibido editar gsd= no versions.lock manualmente. Nota expandida com 5 pontos em versions.lock.
+
 ## Nota
 
 - Este repositório atua como base de setup para projetos novos.
