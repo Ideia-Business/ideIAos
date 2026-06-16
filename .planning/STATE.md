@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v6
 milestone_name: — Phase Details
 status: Executing Phase null
-last_updated: "2026-06-16T05:11:13.827Z"
+last_updated: "2026-06-16T05:30:37.816Z"
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 7
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -32,7 +32,6 @@ Planejar fases 23-27 (planners paralelos); executar Fase 26 (camada de Marketing
 ## Decisões pendentes
 
 - Deploy v6 nas máquinas via `ideiaos-update.sh` após shipping.
-
 
 ## Compact Snapshot
 
