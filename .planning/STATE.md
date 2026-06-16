@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v6
 milestone_name: — Phase Details
 status: Phase 26 Complete
-last_updated: "2026-06-16T00:00:00.000Z"
+last_updated: "2026-06-16T13:56:19.250Z"
 progress:
-  total_phases: 5
-  completed_phases: 1
-  total_plans: 7
-  completed_plans: 5
-  percent: 71
+  total_phases: 9
+  completed_phases: 5
+  total_plans: 11
+  completed_plans: 7
+  percent: 56
 ---
 
 # State — IdeiaOS
@@ -29,6 +29,7 @@ progress:
 ## Próximo passo
 
 Fase 26 completa. Planos 01-03 entregues:
+
 - Plano 01: 22 best-practices absorvidas do OpenSquad MIT (source/rules/marketing/)
 - Plano 02: 4 content agents (mkt-estrategista/copywriter/designer/revisor) + marketing-research
 - Plano 03: Orquestrador /marketing + Deia routing + IDEIAOS.md 6 camadas + plugin ideiaos-marketing
