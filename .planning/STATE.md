@@ -39,3 +39,11 @@ Milestone v6 completo. Próximo: definir v7 (candidatos: piloto delta-spec brown
 ## Pendências (opt-in, decisão do usuário)
 - Piloto /spec (delta-spec) num produto brownfield (nfideia) — spike documentado na fase 30.
 - gsd-browser: reavaliar quando publicar npm/crates (ADR docs/decisions/).
+
+
+## Compact Snapshot
+
+**Auto-saved:** 2026-06-16 12:03 (PreCompact hook, trigger: manual)
+
+- Snapshot automático antes do /compact.
+- Detalhes da sessão em ~/.claude/sessions/ (session-summary hook).
