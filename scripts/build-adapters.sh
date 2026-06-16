@@ -14,21 +14,24 @@ CLAUDE_AGENTS_DIR="${CLAUDE_AGENTS_DIR:-$HOME/.claude/agents}"
 CURSOR_RULES_DIR="${CURSOR_RULES_DIR:-${PWD}/.cursor/rules}"
 
 usage() {
-  echo "Usage: $0 [--target claude|cursor|all] [--project-dir PATH] [--dry-run]"
+  echo "Usage: $0 [--target claude|cursor|all] [--project-dir PATH] [--dry-run] [--validate-parity]"
   echo "  --target: which harness to build for (default: all)"
   echo "  --project-dir: project to install cursor rules into (default: cwd)"
   echo "  --dry-run: show what would be done without doing it"
+  echo "  --validate-parity: check semantic equivalence between claude and cursor targets"
 }
 
 TARGET="all"
 DRY_RUN=false
 PROJECT_DIR="$PWD"
+VALIDATE_PARITY=false
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --target) TARGET="$2"; shift 2 ;;
     --project-dir) PROJECT_DIR="$2"; CURSOR_RULES_DIR="$2/.cursor/rules"; shift 2 ;;
     --dry-run) DRY_RUN=true; shift ;;
+    --validate-parity) VALIDATE_PARITY=true; shift ;;
     --help|-h) usage; exit 0 ;;
     *) echo "Unknown arg: $1"; usage; exit 1 ;;
   esac
@@ -72,6 +75,104 @@ validate_agent_contracts() {
     exit 1
   fi
   echo "✓ All agents have valid frontmatter contracts (model + tools)"
+}
+
+validate_parity() {
+  echo "→ Validating cross-target parity..."
+  local errors=0
+  local checked=0
+  local report=""
+
+  local current_id=""
+  local current_kind=""
+  local current_strategy=""
+  local in_targets=0
+  local has_claude=0
+  local has_cursor=0
+
+  while IFS= read -r line; do
+    # Detect "id": "value"
+    case "$line" in
+      *'"id":'*)
+        id_val="${line#*'"id":'}"
+        id_val="${id_val#*\"}"
+        id_val="${id_val%%\"*}"
+        current_id="$id_val"
+        current_kind=""
+        current_strategy=""
+        in_targets=0
+        has_claude=0
+        has_cursor=0
+        ;;
+      *'"kind":'*)
+        kind_val="${line#*'"kind":'}"
+        kind_val="${kind_val#*\"}"
+        kind_val="${kind_val%%\"*}"
+        current_kind="$kind_val"
+        ;;
+      *'"installStrategy":'*)
+        strat_val="${line#*'"installStrategy":'}"
+        strat_val="${strat_val#*\"}"
+        strat_val="${strat_val%%\"*}"
+        current_strategy="$strat_val"
+        ;;
+      *'"targets":'*)
+        in_targets=1
+        case "$line" in *'"claude"'*) has_claude=1 ;; esac
+        case "$line" in *'"cursor"'*) has_cursor=1 ;; esac
+        ;;
+      *']'*)
+        if [ "$in_targets" -eq 1 ]; then
+          in_targets=0
+        fi
+        ;;
+    esac
+
+    if [ "$in_targets" -eq 1 ]; then
+      case "$line" in *'"claude"'*) has_claude=1 ;; esac
+      case "$line" in *'"cursor"'*) has_cursor=1 ;; esac
+    fi
+
+    # Evaluate on block close
+    case "$line" in
+      *'}'*)
+        if [ -n "$current_id" ] && [ -n "$current_kind" ]; then
+          case "$current_kind" in
+            skill|agent)
+              if [ "$has_claude" -eq 1 ] && [ "$has_cursor" -eq 0 ]; then
+                checked=$((checked + 1))
+                if [ "$current_strategy" != "manual" ]; then
+                  report="${report}  DIVERGENCE: ${current_id} — in claude but NOT cursor\n"
+                  errors=$((errors + 1))
+                fi
+              elif [ "$has_cursor" -eq 1 ] && [ "$has_claude" -eq 0 ]; then
+                checked=$((checked + 1))
+                if [ "$current_strategy" != "manual" ]; then
+                  report="${report}  DIVERGENCE: ${current_id} — in cursor but NOT claude\n"
+                  errors=$((errors + 1))
+                fi
+              elif [ "$has_claude" -eq 1 ] && [ "$has_cursor" -eq 1 ]; then
+                checked=$((checked + 1))
+              fi
+              current_id=""
+              current_kind=""
+              current_strategy=""
+              has_claude=0
+              has_cursor=0
+              in_targets=0
+              ;;
+          esac
+        fi
+        ;;
+    esac
+  done < "$MANIFESTS"
+
+  if [ "$errors" -gt 0 ]; then
+    printf "%b" "$report" >&2
+    echo "ERROR: $errors parity divergence(s) found. Add to both targets or set installStrategy: manual." >&2
+    exit 1
+  fi
+  echo "✓ Cross-target parity OK ($checked modules checked)"
 }
 
 build_claude() {
@@ -125,6 +226,7 @@ build_cursor() {
 }
 
 validate_agent_contracts
+if $VALIDATE_PARITY; then validate_parity; fi
 
 case "$TARGET" in
   claude) build_claude ;;
