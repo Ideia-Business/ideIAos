@@ -347,7 +347,7 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | Script | O que faz |
 |--------|-----------|
 | `scripts/install-alias.sh` | Adiciona alias `idea-setup` ao seu shell rc (zsh/bash) |
-| `scripts/install-git-hooks.sh` | Instala pre-commit hook que BLOQUEIA commits sem README sincronizado E protege o pin GSD do `versions.lock` |
+| `scripts/install-git-hooks.sh` | Instala pre-commit (README sync + versions.lock) + post-merge (propagação automática) + pre-merge-commit (guarda memória) |
 | `scripts/check-readme-sync.sh` | Audita se README menciona todos os componentes do repo |
 | **`scripts/check-versions-lock.sh`** | **Guarda do pin GSD** — bloqueia valor pré-redux (1.3x/1.4x) e edição manual do `gsd=` que não corresponda à versão instalada (único escritor: `update-upstream.sh --bump`; bypass: `IDEIAOS_LOCK_OVERRIDE=1`). Roda no pre-commit. |
 | **`scripts/check-memory-not-on-main.sh`** | **Guarda Lovable-safe da memória (v5)** — bloqueia qualquer caminho de memória (`.planning/memory/`, `.lovable_mem_tmp.md`, `.cursor/rules/memory-bridge.mdc`) staged no branch `main` e o merge `planning`→`main`; mensagem direcional (diz qual lado está errado); bypass consciente: `IDEIAOS_MEM_OVERRIDE=1`. Modos `--staged` (pre-commit) e `--merge` (pre-merge-commit). |
@@ -359,6 +359,7 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | **`scripts/update-design-suite.sh`** | Atualização CONTROLADA da Suíte de Design (re-vendoriza do nextlevelbuilder, mostra diff, sob demanda) |
 | **`scripts/sync-all.sh`** | Orquestrador — `git pull` → `update-upstream` → `setup.sh --global-only` → overlay → `idea-doctor` |
 | **`scripts/apply-to-all-projects.sh`** | Propaga `setup.sh --project-only` a todos os repos `~/dev/*`. Dry-run por padrão; use `--apply` para executar. `--only proj1,proj2` para filtrar. |
+| **`scripts/propagate-if-changed.sh`** | Propagação **automática** — após pull no IdeiaOS, detecta diff em templates/skills/setup e roda global + `apply-to-all --apply`. Gatilhos: `git-autosync`, `post-merge` hook, `sync-all.sh`. Log: `~/.local/state/propagate-projects.log`. |
 | **`scripts/ideiaos-update.sh`** | **Atualização de máquina em 1 comando** — sync-all + guarda do git-autosync (versions.lock fora do add -A) + funções claude-dev/review/research no shell + statusline no settings.json (idempotente, com backup; edita config do usuário por consentimento explícito — diferente do setup.sh/T-01-10) |
 | **`scripts/build-adapters.sh`** | **Compila `source/` → harnesses** — copia hooks/agents para Claude (`~/.claude/`) e rules para Cursor (`.cursor/rules/*.mdc`). Suporte a `--target claude\|cursor\|all` e `--dry-run`. |
 | **`scripts/build-plugins.sh`** | **Gera `plugins/` a partir de `source/`** — gerador idempotente dos 3 sub-plugins do marketplace. Suporte a `--plugin core\|design-suite\|lovable\|all` e `--dry-run`. |
@@ -718,6 +719,8 @@ O `setup.sh` cuida dos arquivos do **projeto**. Para os **arquivos globais** (sk
 | `bash scripts/update-upstream.sh` | checar updates de GSD/AIOX vs `versions.lock`. `--bump` re-pina o lock no instalado |
 | `bash scripts/update-design-suite.sh` | atualizar a Suíte de Design do upstream (controlado, mostra diff, **sob demanda**) |
 | `bash scripts/apply-to-all-projects.sh` | propagar `setup.sh --project-only` a todos os repos `~/dev/*` — dry-run por padrão; `--apply` executa; `--only proj1,proj2` filtra |
+| `bash scripts/propagate-if-changed.sh` | propagação automática pós-pull (global + projetos) — `--dry-run` preview; `--force` ignora filtro de paths; roda sozinho via autosync/post-merge/sync-all |
+| `bash scripts/install-git-hooks.sh` | instala pre-commit + post-merge (propagação) + pre-merge-commit (memória) |
 
 > **`versions.lock`** (raiz do repo) fixa as versões que toda máquina deve convergir (aiox-core CLI, gsd, ref da Suíte, specs de MCP). `idea-doctor` acusa drift; `update-upstream --bump` re-pina.
 
@@ -802,7 +805,7 @@ ideIAos/
 │   └── ideiaos-lovable/                    ← skill /lovable-handoff + doutrina + templates
 ├── scripts/
 │   ├── install-alias.sh                    ← Instala alias idea-setup
-│   ├── install-git-hooks.sh                ← Instala pre-commit hook
+│   ├── install-git-hooks.sh                ← Pre-commit + post-merge (propagação) + pre-merge-commit
 │   ├── check-readme-sync.sh                ← Audita README sync (aponta para source/)
 │   ├── check-versions-lock.sh              ← Guarda do pin GSD no versions.lock (anti-revert pré-redux)
 │   ├── check-memory-not-on-main.sh          ← Guarda Lovable-safe (v5): memória nunca no main; bloqueia merge planning→main
@@ -811,7 +814,9 @@ ideIAos/
 │   ├── install-global-patches.sh           ← Overlay ideIAos (Caminho C — 13 patches idempotentes)
 │   ├── update-upstream.sh                  ← Detecta updates GSD + AIOX vs versions.lock (--bump re-pina)
 │   ├── update-design-suite.sh              ← Atualização controlada da Suíte (re-vendoriza do upstream)
-│   ├── sync-all.sh                         ← Orquestrador (pull → upstream → setup --global-only → overlay → doctor)
+│   ├── apply-to-all-projects.sh            ← Propaga setup --project-only a ~/dev/*
+│   ├── propagate-if-changed.sh             ← Auto-propagação pós-pull (autosync + post-merge + sync-all)
+│   ├── sync-all.sh                         ← Orquestrador (pull → upstream → setup --global-only → overlay → propagate → doctor)
 │   ├── ideiaos-update.sh                   ← Atualização de máquina em 1 comando (sync-all + shell + statusline)
 │   ├── build-adapters.sh                   ← Compila source/ → harness targets (claude + cursor)
 │   └── build-plugins.sh                    ← Gera plugins/ a partir de source/ (marketplace)

@@ -160,7 +160,30 @@ MERGEHOOK
 
 chmod +x "$PREMERGE"
 
+# ── post-merge: propaga setup para ~/dev/* após git pull ─────────────────────
+POSTMERGE="$HOOKS_DIR/post-merge"
+PROPAGATE_MARKER="# ideiaos-propagate-hook"
+
+if [ -f "$POSTMERGE" ] && ! grep -qF "$PROPAGATE_MARKER" "$POSTMERGE" 2>/dev/null; then
+  echo "⚠️  $POSTMERGE já existe e NÃO é nosso. Backup em post-merge.bak"
+  cp "$POSTMERGE" "$POSTMERGE.bak"
+fi
+
+cat > "$POSTMERGE" <<'POSTMERGEHOOK'
+#!/bin/bash
+# ideiaos-propagate-hook — após git pull/merge, propaga setup se paths mudaram
+set -uo pipefail
+
+REPO_DIR="$(git rev-parse --show-toplevel)"
+PROP="$REPO_DIR/scripts/propagate-if-changed.sh"
+[ -f "$PROP" ] || exit 0
+bash "$PROP" || true
+POSTMERGEHOOK
+
+chmod +x "$POSTMERGE"
+
 echo "✅ Pre-merge-commit hook instalado em $PREMERGE"
+echo "✅ Post-merge hook instalado em $POSTMERGE (propagação automática pós-pull)"
 echo "✅ Pre-commit hook instalado em $PRECOMMIT"
 echo ""
 echo "A partir de agora, commits que tocarem em source/scripts/plugins/manifests"

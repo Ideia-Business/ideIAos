@@ -917,6 +917,20 @@
       "plugin": "ideiaos-core"
     },
     {
+      "id": "script-propagate-if-changed",
+      "kind": "script",
+      "description": "Propagação automática pós-pull no IdeiaOS — diff em templates/skills/setup dispara global + apply-to-all; gatilhos: git-autosync, post-merge, sync-all",
+      "source": "scripts/propagate-if-changed.sh",
+      "targets": [
+        "cli"
+      ],
+      "deps": [
+        "script-apply-to-all-projects"
+      ],
+      "installStrategy": "manual",
+      "plugin": "ideiaos-core"
+    },
+    {
       "id": "hook-memory-import",
       "kind": "hook",
       "description": "SessionStart (v5) — imports shared facts from the planning branch store into native IDE memory (~/.claude/projects/<slug>/memory/) and regenerates the Cursor bridge (.cursor/rules/memory-bridge.mdc, gitignored); runs after git-sync-check; freshness guard by SHA; exit 0 offline-safe; never touches main",
