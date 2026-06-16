@@ -119,10 +119,16 @@ if [ -f "$LOCK" ]; then
     # Pré-redux (1.30–1.99) vs redux (recomeçou em 1.x): 1.1.0 > 1.36.0.
     # Mensagem direcional — o aviso genérico já induziu reverts do pin (2026-06).
     is_legacy_gsd() { case "$1" in 1.3[0-9]|1.3[0-9].*|1.4[0-9]|1.4[0-9].*|1.[5-9][0-9]|1.[5-9][0-9].*) return 0;; esac; return 1; }
+    # gsd-pi (2.x/3.x) é produto DIFERENTE do redux (@opengsd/get-shit-done-redux, 1.x).
+    is_gsd_pi() { case "$1" in 2.*|3.*|[4-9]*) return 0;; esac; return 1; }
     if [ "$GI" = "$GSD_PIN" ]; then
       pass "GSD $GI = pin"
     elif is_legacy_gsd "$GI"; then
-      warn "GSD INSTALADO é pré-redux ($GI) — atualize o plugin GSD nesta máquina; NÃO rode --bump aqui"
+      warn "GSD INSTALADO é pré-redux ($GI) — atualize o plugin GSD nesta máquina; NÃO rode --bump aqui (@opengsd/get-shit-done-redux, nao gsd-pi)"
+    elif is_gsd_pi "$GI"; then
+      warn "GSD INSTALADO parece ser gsd-PI ($GI) — produto diferente do redux."
+      warn "O IdeiaOS usa @opengsd/get-shit-done-redux (1.x, org opengsd)."
+      warn "Remova o gsd-pi e instale o redux pelo marketplace do Claude Code."
     elif is_legacy_gsd "$GSD_PIN"; then
       warn "GSD pin LEGADO pré-redux ($GSD_PIN); instalado $GI (redux) é MAIS NOVO — corrija: update-upstream.sh --bump + commit"
     else
