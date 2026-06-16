@@ -93,7 +93,7 @@ Não há pendência de trabalho travando o repo (`work` = `origin/work`, tree li
 2. Em clone novo / máquina nova, regenerar o engine por projeto: `npx aiox-core@latest install` (personas e `/idea` já são globais — funcionam sem isso).
 3. (Opcional) `/gsd-new-milestone "IdeiaOS v5"` para abrir o próximo ciclo — ainda **não há** milestone v5 em `.planning/` (só v2.0/v3/v4).
 
-## Ultima sessao automatica (2026-06-15)
+## Ultima sessao automatica (2026-06-16)
 
-- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-15-ideiaos-1882c4ed-ab51-4c24-aa39-0a2720b4.tmp`
+- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-16-ideiaos-e6f45689-9b68-42a4-b0ec-00c27a2a.tmp`
 - Próximo passo: (definir antes de retomar)

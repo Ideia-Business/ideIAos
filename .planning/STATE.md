@@ -32,3 +32,11 @@ Planejar fases 23-27 (planners paralelos); executar Fase 26 (camada de Marketing
 ## Decisões pendentes
 
 - Deploy v6 nas máquinas via `ideiaos-update.sh` após shipping.
+
+
+## Compact Snapshot
+
+**Auto-saved:** 2026-06-16 02:16 (PreCompact hook, trigger: auto)
+
+- Snapshot automático antes do /compact.
+- Detalhes da sessão em ~/.claude/sessions/ (session-summary hook).
