@@ -16,7 +16,7 @@
 # Fail-silent: exit 0 em TODO caminho — nunca bloqueia SessionStart.
 # Sem-jq: só /usr/bin/python3 e bash 3.2 builtins.
 # Breadcrumbs ficam em ~/.ideiaos (FORA do repo) — mesma localização da sentinela.
-# Nunca usa `<!--`. Header "# SOURCE: IdeiaOS v2" obrigatório.
+# Header markdown "# SOURCE: IdeiaOS v2"; sem comentário HTML.
 # =============================================================================
 set -uo pipefail
 
