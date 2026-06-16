@@ -22,17 +22,17 @@ Provar a capability `/spec` (delta-spec) num produto brownfield real, endurecer 
 
 **Cobre:** R7-01, R7-02, R7-03, R7-04, R7-05, R7-06.
 
-### Fase 1b — Versionar artefatos do piloto (Lovable-safe) ⬜ TODO
+### Fase 1b — Versionar artefatos do piloto (Lovable-safe) ✅ DONE (2026-06-16)
 
-nfideia **é projeto Lovable** (lovable-tagger + componentTagger). Commitar `specs/` em **branch** (ex.: `spec/multi-tenancy-pilot`), nunca disparar deploy. Cobre R7-08.
+nfideia **é Lovable** (lovable-tagger + componentTagger). `specs/` commitados na branch `spec/multi-tenancy-pilot` e **pushados** (`origin/spec/multi-tenancy-pilot`), main intacta. Cobre R7-08.
 
-### Fase 2 — Drift-guard manifesto×plugin-arrays ⬜ TODO
+### Fase 2 — Drift-guard manifesto×plugin-arrays ✅ DONE (2026-06-16)
 
-Gate binário que falha se alguma skill/agent/hook `plugin: X` no `modules.json` não estiver no array correspondente do `build-plugins.sh` (e vice-versa). Wire no `idea-doctor` e/ou pre-commit. Previne a recorrência do R7-06. Cobre R7-07. **Antifragile** (barreira ativa > doc passiva).
+`scripts/check-plugin-membership.sh` — gate binário que cruza `plugin:` do `modules.json` com os arrays do `build-plugins.sh`. Wired no **pre-commit** (`install-git-hooks.sh`, quando manifesto/build/membership staged) e no **idea-doctor** (seção 10). **Já provou valor:** pegou `memory-import`/`export` (v5) declarados `plugin:ideiaos-core` mas patch-installed → marcados `plugin:null` (empacotá-los causaria dupla-registração SessionStart/Stop). 69 módulos, 0 deriva. Cobre R7-07.
 
-### Fase 3 — Rollout delta-spec ⬜ BACKLOG
+### Fase 3 — Rollout delta-spec ✅ DONE (2026-06-16)
 
-Autorar specs vivas para +1 capability brownfield de alto valor (candidatos: nfideia `cofre-digital`/`billing`/`emissão`; ou ideiapartner/cfoai). Cobre R7-09.
+Segunda capability autorada: `nfideia/specs/cofre-digital/spec.md` (4 reqs das RN-050..053 — A1-only, tokens efêmeros, alertas de validade, auditoria). Provou repetibilidade num 2º domínio. Na branch `spec/multi-tenancy-pilot` (`ffc48c9c`). Cobre R7-09.
 
 ### Fase 4 — Decisões opt-in com prazo ⬜ BACKLOG
 
@@ -45,7 +45,7 @@ DeepSeek V4 Pro (prazo 2026-07-24, R7-10) · gsd-browser/agent-inbox quando publ
 | Fase | Status |
 |------|--------|
 | 1 — Piloto `/spec` nfideia | ✅ DONE |
-| 1b — Versionar (Lovable-safe) | ⬜ TODO |
-| 2 — Drift-guard | ⬜ TODO |
-| 3 — Rollout delta-spec | ⬜ BACKLOG |
-| 4 — Opt-in com prazo | ⬜ BACKLOG |
+| 1b — Versionar (Lovable-safe) | ✅ DONE |
+| 2 — Drift-guard | ✅ DONE |
+| 3 — Rollout delta-spec | ✅ DONE |
+| 4 — Opt-in com prazo | ⬜ BACKLOG (decisão do usuário) |

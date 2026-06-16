@@ -121,18 +121,19 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 
 **v2.0–v6 SHIPPED. v7 ABERTO** (Delta-Spec Brownfield + Robustez de Empacotamento) — ver `.planning/milestones/v7-ROADMAP.md`.
 
-**Fase 1 do v7 ✅ DONE (2026-06-16):** piloto `/spec` no nfideia validou a capability ponta-a-ponta e expôs+corrigiu bugs reais:
-- Spec viva `nfideia/specs/multi-tenancy/spec.md` (comportamento real, 6 reqs) + ciclo de delta completo (archive datado). Artefatos na branch **`spec/multi-tenancy-pilot`** do nfideia (6d972724) — **NÃO pushada** (nfideia é Lovable; main intacta).
-- 2 bugs do `spec-merge.sh` corrigidos: `mkdir -p _archive` (toda 1ª change falhava) + splice do ADICIONADO dentro de `## Requisitos`. Suite `tests/spec-merge.bats` **27/27**.
-- Gap de empacotamento fechado: `spec`/`forge-agent`/`memory-sync` estavam `plugin:ideiaos-core` no manifesto mas fora do `CORE_SKILLS` do `build-plugins.sh` → fix do /spec não chegava via marketplace. Empacotadas + `plugin-membership.md` (26 skills).
+**v7: 4/5 fases ✅ DONE (2026-06-16).** Resta só a Fase 4 (opt-in/prazo, decisão do usuário).
 
-**Próximas fases v7 (abertas):**
-1. **Fase 1b** — `git push origin spec/multi-tenancy-pilot` no nfideia (decisão do usuário; Lovable-safe pois é branch, não main).
-2. **Fase 2** — drift-guard: gate que detecta deriva `modules.json plugin:` × arrays do `build-plugins.sh` (previne recorrência do gap). R7-07.
-3. **Fase 3 (backlog)** — rollout delta-spec para +1 capability (cofre-digital/billing/emissão, ou outro produto).
-4. **Opt-in/prazo:** DeepSeek V4 Pro (legados aposentam **2026-07-24**) · gsd-browser/agent-inbox quando publicados.
+- **Fase 1** — piloto `/spec` no nfideia: spec viva `specs/multi-tenancy/spec.md` (6 reqs do comportamento real) + ciclo de delta completo. 2 bugs do `spec-merge.sh` corrigidos (`mkdir -p _archive`; splice do ADICIONADO dentro de `## Requisitos`) + suite **27/27**. Gap de empacotamento fechado (`spec`/`forge-agent`/`memory-sync` no `CORE_SKILLS`).
+- **Fase 1b** — artefatos do nfideia na branch **`spec/multi-tenancy-pilot`** e **pushada** (`origin/spec/multi-tenancy-pilot`); main intacta (Lovable-safe).
+- **Fase 2** — **drift-guard** `scripts/check-plugin-membership.sh`: cruza `plugin:` do manifesto × arrays do `build-plugins.sh`; wired no pre-commit + idea-doctor (seção 10). Pegou `memory-import`/`export` (v5) → marcados `plugin:null` (patch-installed). 69 módulos, 0 deriva.
+- **Fase 3** — rollout: 2ª capability `nfideia/specs/cofre-digital/spec.md` (RN-050..053) na mesma branch (`ffc48c9c`).
 
-> **Lição de segurança desta sessão:** nfideia É projeto Lovable (`lovable-tagger` + `componentTagger` no vite.config) — cuidar só dos projetos Lovable; IdeiaOS não é Lovable (commit livre).
+**Resta (Fase 4 — decisão do usuário):**
+1. **DeepSeek V4 Pro** — legados aposentam **2026-07-24** (habilitar nos produtos ou no Claude Code; ver memória `project-deepseek-v4-enablement-pending`).
+2. **gsd-browser / agent-inbox** — opt-in quando publicados (ADRs em `docs/decisions/`).
+3. **PRs no nfideia**: branch `spec/multi-tenancy-pilot` tem 2 specs (multi-tenancy + cofre-digital) prontas para revisar/merge quando quiser.
+
+> **Lição de segurança:** nfideia É Lovable (`lovable-tagger` + `componentTagger` no vite.config) — cuidar só dos projetos Lovable; IdeiaOS não é Lovable (commit livre). Memória: `feedback-lovable-projects-branch-commit`.
 
 ## Ultima sessao automatica (2026-06-16)
 
