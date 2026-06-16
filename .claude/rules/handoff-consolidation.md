@@ -27,6 +27,17 @@ Pipelines are grouped by:
 - Filename pattern `handoff-{date}-{pipeline-slug}-{wave}.yaml`, OR
 - `INDEX-{pipeline-slug}.md` file referencing them
 
+### Step 1b — Dedup por input_hash (R6-12)
+
+Antes de consolidar, verificar se o handoff já foi consolidado (idempotência):
+
+    # Em bash — ou verificar manualmente no RUN-LOG.md:
+    grep -q "$(grep 'input_hash:' "$HANDOFF_FILE" | head -1 | awk '{print $2}')" \
+      RUN-LOG.md 2>/dev/null && echo "SKIP: já consolidado" && exit 0
+
+Se o `input_hash` do handoff já aparece em RUN-LOG.md, SKIP — não re-consolidar.
+Handoffs sem campo `input_hash` (legados, anteriores à fase 29) são sempre processados.
+
 ### Step 2 — Create RUN-LOG.md (if not exists)
 
 Location options (in priority order):
