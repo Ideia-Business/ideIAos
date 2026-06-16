@@ -317,6 +317,12 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | `/mcp-to-cli` | manual | Converter MCP pesado em skill + CLI |
 | `/ideiaos-catalog` | always | Listar módulos instalados vs disponíveis |
 
+### Skills de Marketing (Fase 26 — source/skills/marketing-research/)
+
+| Skill | installStrategy | Descrição |
+|-------|-----------------|-----------|
+| `/marketing-research` | always | Investigar perfis públicos de referência via Chrome DevTools MCP e extrair padrões reais (hooks, estrutura, cadência, CTAs) |
+
 ### Manutenção do próprio ideIAos (rodados manualmente)
 
 | Script | O que faz |
