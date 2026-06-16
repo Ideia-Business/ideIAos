@@ -68,6 +68,18 @@ LOVABLE_SKILLS=(
   lovable-handoff
 )
 
+MARKETING_SKILLS=(
+  marketing
+  marketing-research
+)
+
+MARKETING_AGENTS=(
+  mkt-estrategista
+  mkt-copywriter
+  mkt-designer
+  mkt-revisor
+)
+
 # Todos os agents vão para ideiaos-core
 CORE_AGENTS=(
   build-error-resolver
@@ -110,7 +122,7 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --dry-run) DRY_RUN=true; shift ;;
     --plugin)  PLUGIN_FILTER="$2"; shift 2 ;;
-    --help|-h) echo "Usage: $0 [--dry-run] [--plugin core|design-suite|lovable|all]"; exit 0 ;;
+    --help|-h) echo "Usage: $0 [--dry-run] [--plugin core|design-suite|lovable|marketing|all]"; exit 0 ;;
     *) echo "Arg desconhecido: $1"; exit 1 ;;
   esac
 done
@@ -377,6 +389,57 @@ build_lovable() {
   echo "✓ ideiaos-lovable pronto"
 }
 
+# ── Builder ideiaos-marketing ───────────────────────────────────────────────
+build_marketing() {
+  echo "→ Building ideiaos-marketing..."
+  local PLUGIN_DIR="$PLUGINS_DIR/ideiaos-marketing"
+
+  run mkdir -p "$PLUGIN_DIR/.claude-plugin"
+  run mkdir -p "$PLUGIN_DIR/skills"
+  run mkdir -p "$PLUGIN_DIR/agents"
+  run mkdir -p "$PLUGIN_DIR/rules/marketing"
+
+  # Skills (cp -R para preservar subpastas)
+  for skill in "${MARKETING_SKILLS[@]}"; do
+    local src="$SOURCE_DIR/skills/${skill}"
+    validate_exists "$src"
+    run rm -rf "$PLUGIN_DIR/skills/${skill}"
+    run cp -R "$src" "$PLUGIN_DIR/skills/${skill}"
+    echo "  skill: ${skill}"
+  done
+
+  # Agents
+  for agent in "${MARKETING_AGENTS[@]}"; do
+    local src="$SOURCE_DIR/agents/${agent}.md"
+    validate_exists "$src"
+    run cp "$src" "$PLUGIN_DIR/agents/${agent}.md"
+    echo "  agent: ${agent}.md"
+  done
+
+  # Rules de marketing (22 best-practices — a base de conhecimento viaja com o plugin)
+  local RULES_SRC="$SOURCE_DIR/rules/marketing"
+  validate_exists "$RULES_SRC"
+  if $DRY_RUN; then
+    echo "[DRY] cp -R source/rules/marketing → plugins/ideiaos-marketing/rules/marketing"
+  else
+    run cp -R "$RULES_SRC/." "$PLUGIN_DIR/rules/marketing/"
+  fi
+  echo "  rules/marketing (22 best-practices)"
+
+  # plugin.json
+  if $DRY_RUN; then
+    echo "[DRY] gerar plugins/ideiaos-marketing/.claude-plugin/plugin.json"
+  else
+    generate_plugin_json \
+      "ideiaos-marketing" \
+      "Camada de Marketing IdeiaOS — orquestrador /marketing, 4 content agents, skill marketing-research (Sherlock via Chrome DevTools MCP), 22 best-practices absorvidas do OpenSquad MIT." \
+      "$PLUGIN_DIR/.claude-plugin/plugin.json"
+    echo "  plugin.json"
+  fi
+
+  echo "✓ ideiaos-marketing pronto"
+}
+
 # ── Main ─────────────────────────────────────────────────────────────────────
 echo ""
 echo "╔══════════════════════════════════════════════════════════╗"
@@ -397,14 +460,18 @@ case "$PLUGIN_FILTER" in
   lovable|ideiaos-lovable)
     build_lovable
     ;;
+  marketing|ideiaos-marketing)
+    build_marketing
+    ;;
   all)
     build_core
     build_design_suite
     build_lovable
+    build_marketing
     ;;
   *)
     echo "Plugin desconhecido: $PLUGIN_FILTER"
-    echo "Opções: core | design-suite | lovable | all"
+    echo "Opções: core | design-suite | lovable | marketing | all"
     exit 1
     ;;
 esac
