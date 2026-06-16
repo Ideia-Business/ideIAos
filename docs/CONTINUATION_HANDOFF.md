@@ -131,7 +131,7 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 **Resta (Fase 4 — backlog passivo, NÃO bloqueante — nada depende de ação do usuário):**
 1. **gsd-browser** — monitorar upstream (ainda não publicado no npm/crates); avaliar quando sair.
 2. **agent-inbox** — uso sob demanda (só se uma tarefa precisar testar auth-email num produto).
-3. **PRs no nfideia**: branch `spec/multi-tenancy-pilot` tem 2 specs (multi-tenancy + cofre-digital) prontas para revisar/merge quando quiser.
+3. **nfideia** (branch `spec/multi-tenancy-pilot`): 2 specs vivas + **`specs/PILOT-BACKLOG.md`** com as tasks de Storage tenant isolation prontas para rodar via GSD/@dev (o `.planning/` do nfideia é gitignored, por isso o backlog mora em `specs/`). Pronta para PR/merge.
 
 > **DeepSeek removido do plano (2026-06-16):** decisão do usuário — habilitado no nível dos **produtos**, fora do escopo IdeiaOS.
 
