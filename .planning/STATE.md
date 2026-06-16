@@ -43,7 +43,7 @@ Milestone v8 (Camada de Disciplina) SHIPPED — tag v8.0. `/doubt` e `/context-e
 
 ## Compact Snapshot
 
-**Auto-saved:** 2026-06-16 16:48 (PreCompact hook, trigger: manual)
+**Auto-saved:** 2026-06-16 19:50 (PreCompact hook, trigger: manual)
 
 - Snapshot automático antes do /compact.
 - Detalhes da sessão em ~/.claude/sessions/ (session-summary hook).
