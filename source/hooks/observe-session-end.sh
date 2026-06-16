@@ -51,6 +51,11 @@ REC="$(printf '%s\n' "$LINE" | sed -n '2p')"
 OBS_DIR="$HOME/.ideiaos/observations/$PROJ"
 mkdir -p "$OBS_DIR" 2>/dev/null || exit 0
 printf '%s\n' "$REC" >> "$OBS_DIR/observations.jsonl" 2>/dev/null || true
+# Gate R6-01: verify append actually produced a non-empty file (binary check only).
+# Inline gate — hooks are self-contained; no IDEIAOS_DIR dependency at install time.
+test -s "$OBS_DIR/observations.jsonl" 2>/dev/null || {
+  printf '[observe-session-end] WARNING: observations.jsonl missing or empty after append\n' >&2
+}
 
 # --- INSTINCT-ANALYZE AUTO-TRIGGER (R3-08 / R3-09, endurecido R4-01/R4-02) ---
 # Gate: só dispara se há observações mais recentes que a última análise.

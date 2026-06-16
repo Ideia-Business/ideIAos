@@ -84,6 +84,15 @@ build_claude() {
     run cp "$hook_file" "$CLAUDE_HOOKS_DIR/$fname"
     run chmod +x "$CLAUDE_HOOKS_DIR/$fname"
     echo "  hook: $fname → $CLAUDE_HOOKS_DIR/"
+    # Gate R6-01: verify the copied hook file landed and is non-empty.
+    if [ -z "${DRY_RUN:-}" ] || [ "$DRY_RUN" = "false" ]; then
+      # shellcheck source=/dev/null
+      [ -n "${IDEIAOS_DIR:-}" ] && [ -f "$IDEIAOS_DIR/source/lib/gates.sh" ] \
+        && . "$IDEIAOS_DIR/source/lib/gates.sh" 2>/dev/null || true
+      type gate_output >/dev/null 2>&1 || gate_output() { test -s "${1:-}" 2>/dev/null; }
+      gate_output "$CLAUDE_HOOKS_DIR/$fname" "build-claude/hook/$fname" \
+        || { echo "ERROR: hook copy failed or produced empty file: $fname" >&2; exit 1; }
+    fi
   done < <(find "$SOURCE_DIR/hooks" -name "*.sh" -not -name "test-*")
 
   # Agents: copy from source/agents/ to ~/.claude/agents/

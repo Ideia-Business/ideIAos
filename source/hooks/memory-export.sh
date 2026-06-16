@@ -154,6 +154,15 @@ REFUSED_LIST="$(mktemp 2>/dev/null)" || { rm -f "$TMP_LIST"; exit 0; }
 cleanup_tmp() { rm -f "$TMP_LIST" "$REFUSED_LIST" 2>/dev/null || true; }
 trap cleanup_tmp EXIT
 
+# Antifragile gate helper (R6-01): load from source or define inline fallback.
+# Never trusts Read tool output — binary test -s only.
+if [ -n "${IDEIAOS_DIR:-}" ] && [ -f "$IDEIAOS_DIR/source/lib/gates.sh" ]; then
+  # shellcheck source=/dev/null
+  . "$IDEIAOS_DIR/source/lib/gates.sh"
+else
+  gate_output() { test -s "${1:-}" 2>/dev/null; }
+fi
+
 CHANGED=0
 for f in "$MEMDIR"/*.md; do
   [ -e "$f" ] || continue
@@ -188,6 +197,12 @@ if [ -s "$REFUSED_LIST" ]; then
     [ -z "$r" ] && continue
     printf '🔒 [memory-export] fato RECUSADO (aparenta conter segredo): %s — não foi exportado para o branch %s. Remova a credencial do fato antes de sincronizar.\n' "$r" "$PLANNING_BRANCH"
   done < "$REFUSED_LIST"
+fi
+
+# Gate: verify TMP_LIST is a real file before plumbing commit (not a hallucination).
+# Fail-silent per hook contract: gate failure → treat as no changes, exit 0.
+if [ "$CHANGED" -gt 0 ] && ! gate_output "$TMP_LIST" "memory-export/TMP_LIST"; then
+  exit 0
 fi
 
 # Nenhum fato limpo mudou → exit silencioso (sem commit vazio).
