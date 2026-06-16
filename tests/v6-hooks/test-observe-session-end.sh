@@ -199,7 +199,7 @@ export HOME="$ORIG_HOME"
 OBS_DIR="$TH/.ideiaos/observations"
 if [ -d "$OBS_DIR" ]; then
   # Pegar nome do diretório criado sob observations/
-  SLUG_DIR="$(ls "$OBS_DIR" 2>/dev/null | head -1)"
+  SLUG_DIR="$(ls "$OBS_DIR" 2>/dev/null | /usr/bin/head -1)"
   if [ -n "$SLUG_DIR" ]; then
     # Verificar que slug é apenas [a-z0-9-]
     INVALID="$(echo "$SLUG_DIR" | grep -v '^[a-z0-9-]*$' || true)"
