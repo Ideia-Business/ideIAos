@@ -16,7 +16,7 @@ CURSOR_RULES_DIR="${CURSOR_RULES_DIR:-${PWD}/.cursor/rules}"
 usage() {
   echo "Usage: $0 [--target claude|cursor|all] [--project-dir PATH] [--dry-run] [--validate-parity]"
   echo "  --target: which harness to build for (default: all)"
-  echo "  --project-dir: project to install cursor rules into (default: cwd)"
+  echo "  --project-dir: project to install cursor (.cursor/rules) + claude common rules (.claude/rules) into (default: cwd)"
   echo "  --dry-run: show what would be done without doing it"
   echo "  --validate-parity: check semantic equivalence between claude and cursor targets"
 }
@@ -225,13 +225,32 @@ build_cursor() {
   echo "✓ Cursor target built"
 }
 
+# Claude Code auto-carrega .claude/rules/*.md como project instructions. Antes o
+# build-adapters só entregava rules ao Cursor (.mdc) — esta etapa dá PARIDADE ao Claude
+# (fecha R8-09). Deploy SÓ de source/rules/common/ (disciplina universal: operating-
+# discipline, token-economy, orchestration, antifragile-gates, context-packet-handoffs,
+# mcp-hygiene, delta-spec). Rules de stack/domínio (marketing, supabase) ficam Cursor-side
+# para não inflar o contexto always-on de TODO projeto.
+build_claude_project_rules() {
+  local claude_rules_dir="$PROJECT_DIR/.claude/rules"
+  echo "→ Deploying common rules to Claude (project): $claude_rules_dir"
+  run mkdir -p "$claude_rules_dir"
+  local name
+  while IFS= read -r rule_file; do
+    name="$(basename "$rule_file")"
+    run cp "$rule_file" "$claude_rules_dir/ideiaos-common-$name"
+    echo "  rule: common/$name → .claude/rules/ideiaos-common-$name"
+  done < <(find "$SOURCE_DIR/rules/common" -name "*.md" 2>/dev/null || true)
+  echo "✓ Claude project rules deployed"
+}
+
 validate_agent_contracts
 if $VALIDATE_PARITY; then validate_parity; fi
 
 case "$TARGET" in
   claude) build_claude ;;
-  cursor) build_cursor ;;
-  all)    build_claude; build_cursor ;;
+  cursor) build_cursor; build_claude_project_rules ;;
+  all)    build_claude; build_cursor; build_claude_project_rules ;;
   *) echo "Unknown target: $TARGET"; usage; exit 1 ;;
 esac
 
