@@ -11,13 +11,30 @@
 aiox-core=5.2.9
 
 # GSD (plugin Claude Code; ~/.claude/get-shit-done/VERSION)
-# ⚠ ARMADILHA DE VERSÃO: migrou para @opengsd/get-shit-done-redux e o
-#   versionamento RECOMEÇOU em 1.x — 1.1.0 (redux) é MAIS NOVO que 1.36.0
-#   (pré-redux). Valores 1.3x/1.4x aqui = legado ERRADO (pin já foi revertido
-#   3× assim em 2026-06).
-# NÃO edite esta linha na mão. Único escritor: scripts/update-upstream.sh --bump.
-#   O pre-commit bloqueia violações (scripts/check-versions-lock.sh) e o
-#   git-autosync ignora este arquivo.
+#
+# LINHAGEM ATIVA: @opengsd/get-shit-done-redux v1.x (org: opengsd; plugin
+#   Claude Code). O versionamento RECOMEÇOU em 1.x em 2025 com a linha redux.
+#   Instalado em ~/.claude/get-shit-done/. Pin canônico: 1.1.0.
+#
+# DISTINCAO redux vs Pi: gsd-pi e um produto DIFERENTE (linha 3.x, org
+#   diferente). Nunca confunda "GSD 3.x" com o redux — sao linhas incompativeis.
+#   Um pin 2.x ou 3.x neste arquivo indica deriva para gsd-pi (ERRADO aqui).
+#
+# DISTINCAO opengsd vs gsd-build: a org "opengsd" no npm/GitHub hospeda o
+#   redux (@opengsd/get-shit-done-redux). A org "gsd-build" e outro ecossistema,
+#   nao usado no IdeiaOS. Pacotes de gsd-build nao sao interoperaveis com o
+#   redux instalado aqui.
+#
+# POR QUE 1.1.0 > 1.36.0: o versionamento pre-redux (get-shit-done-cc, versoes
+#   1.36-1.42) RECOMEÇOU em 1.x no redux. Logo 1.1.0 (redux) e MAIS NOVO que
+#   1.36.0 (pre-redux). Esse fato causou o pin ser revertido 3x em 2026-06
+#   (commits c7fc184, 3724ee9 e um agente de IA "corrigindo" o drift na mao).
+#
+# UNICO ESCRITOR: scripts/update-upstream.sh --bump (grava o instalado aqui).
+#   NUNCA edite gsd= na mao. Pre-commit (check-versions-lock.sh) bloqueia
+#   legado (1.3x/1.4x) e Pi-drift (2.x/3.x). git-autosync ignora este arquivo.
+#
+# NÃO edite esta linha na mão.
 gsd=1.1.0
 
 # Suíte de Design (vendorizada; fonte nextlevelbuilder/ui-ux-pro-max-skill)

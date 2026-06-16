@@ -119,10 +119,16 @@ if [ -f "$LOCK" ]; then
     # Pré-redux (1.30–1.99) vs redux (recomeçou em 1.x): 1.1.0 > 1.36.0.
     # Mensagem direcional — o aviso genérico já induziu reverts do pin (2026-06).
     is_legacy_gsd() { case "$1" in 1.3[0-9]|1.3[0-9].*|1.4[0-9]|1.4[0-9].*|1.[5-9][0-9]|1.[5-9][0-9].*) return 0;; esac; return 1; }
+    # gsd-pi (2.x/3.x) é produto DIFERENTE do redux (@opengsd/get-shit-done-redux, 1.x).
+    is_gsd_pi() { case "$1" in 2.*|3.*|[4-9]*) return 0;; esac; return 1; }
     if [ "$GI" = "$GSD_PIN" ]; then
       pass "GSD $GI = pin"
     elif is_legacy_gsd "$GI"; then
-      warn "GSD INSTALADO é pré-redux ($GI) — atualize o plugin GSD nesta máquina; NÃO rode --bump aqui"
+      warn "GSD INSTALADO é pré-redux ($GI) — atualize o plugin GSD nesta máquina; NÃO rode --bump aqui (@opengsd/get-shit-done-redux, nao gsd-pi)"
+    elif is_gsd_pi "$GI"; then
+      warn "GSD INSTALADO parece ser gsd-PI ($GI) — produto diferente do redux."
+      warn "O IdeiaOS usa @opengsd/get-shit-done-redux (1.x, org opengsd)."
+      warn "Remova o gsd-pi e instale o redux pelo marketplace do Claude Code."
     elif is_legacy_gsd "$GSD_PIN"; then
       warn "GSD pin LEGADO pré-redux ($GSD_PIN); instalado $GI (redux) é MAIS NOVO — corrija: update-upstream.sh --bump + commit"
     else
@@ -188,13 +194,79 @@ if [ -d "$HOME/.claude/hooks" ]; then
   fi
 fi
 
-# 7c) Secrets em texto plano na memória de projeto
+# 7c) Secrets em texto plano na memória de projeto (padrões alta confiança)
+# Não alerta sobre nomes de env var ("ANTHROPIC_API_KEY") nem prosa ("service_role isolado").
 MEM_DIR="$HOME/.claude/projects"
 if [ -d "$MEM_DIR" ]; then
-  if rg -l 'sk-[a-zA-Z0-9]{40,}|ANTHROPIC_API_KEY|service_role.*[a-zA-Z0-9]{30,}' "$MEM_DIR" 2>/dev/null | grep -q .; then
-    fail "POSSÍVEL secret em memória de projeto — checar $MEM_DIR"
+  SECRET_HITS="$(
+    /usr/bin/python3 - "$MEM_DIR" <<'PYEOF'
+import re, sys
+from pathlib import Path
+
+mem = Path(sys.argv[1])
+
+def plausible_sk(val: str) -> bool:
+    if len(val) < 24 or "..." in val or "…" in val:
+        return False
+    low = val.lower()
+    junk = ("###", "***", "redact", "placeholder", "example", "your_", "<", "changeme", "\\n", "\\t")
+    return not any(j in val or j in low for j in junk)
+
+# Valores sk-* reais ou JWT em contexto service_role — não nomes de env var nem anon keys soltas.
+PATTERNS = [
+    (r"sk-ant-api[a-zA-Z0-9\-_]{20,}", "anthropic_sk", None),
+    (r"sk-proj-[a-zA-Z0-9\-_]{20,}", "openai_sk", None),
+    (r"sk-or-v1-[a-zA-Z0-9\-_]{20,}", "openrouter_sk", None),
+    (
+        r"(?:ANTHROPIC|OPENAI|OPENROUTER|SUPABASE_SERVICE_ROLE)(?:_API_KEY)?\s*[=:]\s*['\"]?(sk-[a-zA-Z0-9\-_]{20,})",
+        "env_sk",
+        1,
+    ),
+    (
+        r"""['\"]service_role['\"]\s*:\s*['\"](eyJ[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,})""",
+        "supabase_service_role",
+        1,
+    ),
+]
+compiled = [(re.compile(p), label, grp) for p, label, grp in PATTERNS]
+hits: dict[str, list[tuple[str, str]]] = {}
+
+for fp in mem.rglob("*"):
+    if not fp.is_file() or fp.suffix not in {".jsonl", ".md", ".json", ".txt"}:
+        continue
+    try:
+        text = fp.read_text(errors="replace")[:1_000_000]
+    except OSError:
+        continue
+    rel = fp.relative_to(mem)
+    slug = rel.parts[0] if rel.parts else "?"
+    for rx, label, grp in compiled:
+        m = rx.search(text)
+        if not m:
+            continue
+        val = m.group(grp) if grp else m.group(0)
+        if label in ("anthropic_sk", "openai_sk", "openrouter_sk", "env_sk") and not plausible_sk(val):
+            continue
+        hits.setdefault(slug, []).append((str(rel), label))
+        break
+
+if hits:
+    for slug, items in sorted(hits.items(), key=lambda x: -len(x[1])):
+        f, label = items[0]
+        print(f"HIT|{slug}|{f}|{label}|{len(items)}")
+    sys.exit(1)
+sys.exit(0)
+PYEOF
+  )"
+  secret_exit=$?
+  if [ "$secret_exit" -ne 0 ]; then
+    while IFS='|' read -r tag slug file label count; do
+      [ "$tag" = "HIT" ] || continue
+      fail "secret provável em memória — slug=$slug arquivo=$file ($label; $count arquivo(s) neste projeto)"
+    done <<< "$SECRET_HITS"
+    warn "Remediação: inspecione ~/.claude/projects/ e remova/redija sessões com valores reais (nunca commitar secrets)"
   else
-    pass "Memória de projeto sem secrets aparentes"
+    pass "Memória de projeto sem secrets aparentes (scan alta confiança)"
   fi
 fi
 
@@ -284,6 +356,41 @@ fi
 # c) patches 12/13 registrados (reusa o mesmo settings.json da Seção 4)
 chk "memory-import registrado (Patch 12)" "$HOME/.claude/settings.json" "memory-import.sh"
 chk "memory-export registrado (Patch 13)" "$HOME/.claude/settings.json" "memory-export.sh"
+
+# d) guard de git instalado (pre-commit/pre-merge barram memória no main) + e) varredura de vazamento no main
+if git -C "$(pwd)" rev-parse --git-dir >/dev/null 2>&1; then
+  GITDIR="$(git rev-parse --git-dir 2>/dev/null)"
+  if [ -f "$GITDIR/hooks/pre-commit" ] && grep -q "check-memory-not-on-main" "$GITDIR/hooks/pre-commit" 2>/dev/null; then
+    pass "guard git instalado (pre-commit barra memória no main)"
+  else
+    warn "guard git ausente — rode: bash scripts/install-git-hooks.sh (barreira anti-churn no main)"
+  fi
+  # e) varredura: memória vazada no main (Lovable lê main — não pode conter memória)
+  MAIN_REF=""
+  git rev-parse --verify --quiet main >/dev/null 2>&1 && MAIN_REF="main"
+  [ -z "$MAIN_REF" ] && git rev-parse --verify --quiet origin/main >/dev/null 2>&1 && MAIN_REF="origin/main"
+  if [ -n "$MAIN_REF" ]; then
+    LEAK=$(git ls-tree -r --name-only "$MAIN_REF" 2>/dev/null | grep -E '\.lovable_mem_tmp\.md$|^\.planning/memory/|/memory-bridge\.mdc$' | head -3 || true)
+    if [ -n "$LEAK" ]; then
+      fail "VAZAMENTO de memória em $MAIN_REF (Lovable lê main): ${LEAK//$'\n'/ } — remova: git rm --cached <arquivo> + .gitignore"
+    else
+      pass "main limpo: sem memória vazada em $MAIN_REF"
+    fi
+  fi
+fi
+
+# ── 10) Membership de plugins (anti-deriva v7) ────────────────────────────────
+step "10) Membership de plugins (manifesto × build-plugins.sh)"
+PMCHECK="$SETUP_DIR/scripts/check-plugin-membership.sh"
+if [ -f "$PMCHECK" ]; then
+  if PM_OUT=$(bash "$PMCHECK" 2>&1); then
+    pass "sem deriva — ${PM_OUT##*— }"
+  else
+    fail "deriva manifesto×build-plugins.sh: ${PM_OUT//$'\n'/ } — corrija o array + plugin-membership.md"
+  fi
+else
+  info "check-plugin-membership.sh ausente (pulando)"
+fi
 
 # ── Resumo ────────────────────────────────────────────────────────────────────
 echo -e "\n${CYAN}${BOLD}━━━ Resumo ━━━${NC}"

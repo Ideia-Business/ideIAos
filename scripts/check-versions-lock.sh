@@ -9,13 +9,18 @@
 #   semver fez `--bump` em máquina com instalação desatualizada — e um agente
 #   de IA "corrigindo" o drift na mão — reverterem o pin repetidamente
 #   (commits c7fc184 e 3724ee9). Barreira ativa > documentação passiva.
+#   LINHAGEM: @opengsd/get-shit-done-redux 1.x (org opengsd) — NAO e gsd-pi.
 #
 # VALIDAÇÕES:
-#   1. Anti-legado (sempre): `gsd=` não pode ser versão pré-redux (1.30–1.99).
-#   2. Anti-edição-manual (só --staged): se a linha `gsd=` mudou neste commit,
-#      o novo valor deve ser igual à versão instalada
-#      (~/.claude/get-shit-done/VERSION). Único escritor sancionado:
-#      `scripts/update-upstream.sh --bump`.
+#   1. Anti-legado pre-redux (sempre): gsd= nao pode ser versao pre-redux
+#      (1.30–1.99). Versoes 1.36–1.42 = get-shit-done-cc = linha morta.
+#   2. Anti-Pi-drift (sempre): gsd= nao pode ser versao gsd-pi (2.x/3.x).
+#      gsd-pi e um produto DIFERENTE da org diferente — incompativel com o
+#      redux que o IdeiaOS usa (@opengsd/get-shit-done-redux, linha 1.x).
+#   3. Anti-edicao-manual (so --staged): se a linha gsd= mudou neste commit,
+#      o novo valor deve ser igual a versao instalada
+#      (~/.claude/get-shit-done/VERSION). Unico escritor sancionado:
+#      scripts/update-upstream.sh --bump.
 #      Bypass consciente: IDEIAOS_LOCK_OVERRIDE=1 git commit ...
 #
 # NOTA DE OBSOLESCÊNCIA: remover o padrão anti-legado quando o redux se
@@ -45,6 +50,15 @@ is_legacy_gsd() {
   return 1
 }
 
+# gsd-pi (2.x / 3.x e superiores) e um produto DIFERENTE do redux.
+# @opengsd/get-shit-done-redux usa linha 1.x. Pin 2.x/3.x = Pi-drift = ERRADO aqui.
+is_gsd_pi() {
+  case "$1" in
+    2.*|3.*|[4-9]*) return 0 ;;
+  esac
+  return 1
+}
+
 if [ "$MODE" = "--staged" ]; then
   CONTENT="$(git -C "$REPO_DIR" show :versions.lock 2>/dev/null)" || exit 0
   OLD_CONTENT="$(git -C "$REPO_DIR" show HEAD:versions.lock 2>/dev/null || true)"
@@ -70,7 +84,20 @@ if is_legacy_gsd "$NEW_GSD"; then
   exit 1
 fi
 
-# ── 2) Anti-edição-manual: mudança no pin deve refletir a instalação ─────────
+# ── 2) Anti-Pi-drift: versão gsd-pi (2.x/3.x) é produto diferente ────────────
+if is_gsd_pi "$NEW_GSD"; then
+  echo -e "${RED}❌ versions.lock: gsd=$NEW_GSD parece ser gsd-pi (linha 2.x/3.x).${NC}"
+  echo ""
+  echo "   O IdeiaOS usa @opengsd/get-shit-done-redux (linha 1.x, org opengsd)."
+  echo "   gsd-pi é um produto DIFERENTE de org diferente — incompatível com o redux."
+  echo ""
+  echo "   Verifique ~/.claude/get-shit-done/VERSION e rode --bump somente em"
+  echo "   máquina com @opengsd/get-shit-done-redux instalado (linha 1.x)."
+  echo "   NUNCA coloque um pin 2.x/3.x aqui — isso é Pi-drift, não redux."
+  exit 1
+fi
+
+# ── 3) Anti-edição-manual: mudança no pin deve refletir a instalação ─────────
 if [ "$MODE" = "--staged" ] && [ -n "$OLD_CONTENT" ]; then
   OLD_GSD="$(get_gsd "$OLD_CONTENT")"
   if [ "$NEW_GSD" != "$OLD_GSD" ] && [ "${IDEIAOS_LOCK_OVERRIDE:-0}" != "1" ]; then

@@ -51,6 +51,11 @@ REC="$(printf '%s\n' "$LINE" | sed -n '2p')"
 OBS_DIR="$HOME/.ideiaos/observations/$PROJ"
 mkdir -p "$OBS_DIR" 2>/dev/null || exit 0
 printf '%s\n' "$REC" >> "$OBS_DIR/observations.jsonl" 2>/dev/null || true
+# Gate R6-01: verify append actually produced a non-empty file (binary check only).
+# Inline gate — hooks are self-contained; no IDEIAOS_DIR dependency at install time.
+test -s "$OBS_DIR/observations.jsonl" 2>/dev/null || {
+  printf '[observe-session-end] WARNING: observations.jsonl missing or empty after append\n' >&2
+}
 
 # --- INSTINCT-ANALYZE AUTO-TRIGGER (R3-08 / R3-09, endurecido R4-01/R4-02) ---
 # Gate: só dispara se há observações mais recentes que a última análise.
@@ -101,12 +106,11 @@ except Exception:
   # R4-02: Cooldown gate — se a sentinela tem <30min, não re-spawnar (rate limit)
   NOW_EPOCH=$(date +%s 2>/dev/null || echo 0)
   LAST_EPOCH=$(/usr/bin/python3 -c "
-import datetime, sys
+import datetime, time
 try:
     ts = open('$LAST_ANALYZED_FILE').read().strip()
     dt = datetime.datetime.fromisoformat(ts)
-    import time, calendar
-    print(int(calendar.timegm(dt.timetuple())))
+    print(int(time.mktime(dt.timetuple())))
 except Exception:
     print(0)
 " 2>/dev/null || echo 0)
@@ -120,11 +124,32 @@ import datetime
 open('$LAST_ANALYZED_FILE', 'w').write(datetime.datetime.now().isoformat(timespec='seconds'))
 " 2>/dev/null || true
 
+  # R6-02: Resiliência — gravar breadcrumb ANTES do spawn para permitir recovery
+  # numa sessão seguinte se a máquina morrer entre o spawn e o retorno do filho.
+  # ~/.ideiaos/instincts/ fica FORA do repo (mesma localização da sentinela existente).
+  STATE_FILE="$HOME/.ideiaos/instincts/.spawn-${PROJ}.state"
+  mkdir -p "$HOME/.ideiaos/instincts" 2>/dev/null || true
+
   # Spawn haiku background com timeout e anti-runaway env (R4-01)
   # IDEIAOS_INSTINCT_SPAWN=1 garante que os hooks NÃO acumulam obs nem re-spawnam
   nohup env IDEIAOS_INSTINCT_SPAWN=1 timeout 120 claude --model claude-haiku-4-5 -p "/instinct-analyze" \
     >> "$LOG_FILE" 2>&1 &
-  disown $! 2>/dev/null || true
+  CHILD_PID=$!
+
+  # Gravar breadcrumb imediatamente após capturar o PID (R6-02).
+  # Formato chave=valor (bash 3.2 + python3 para ISO — sem-jq).
+  /usr/bin/python3 -c "
+import datetime, os
+started = datetime.datetime.now().isoformat(timespec='seconds')
+content = 'pid=$CHILD_PID\nstarted_at=' + started + '\nproject=$PROJ\nstatus=running\nlog=$LOG_FILE\n'
+open('$STATE_FILE', 'w').write(content)
+" 2>/dev/null || true
+
+  # Aguardar filho e limpar breadcrumb no retorno (sucesso, falha OU timeout 120s).
+  # A subshell já roda em background do hook (via '( ... ) 2>/dev/null || true' abaixo),
+  # então este wait NÃO bloqueia a sessão principal do usuário.
+  wait "$CHILD_PID" 2>/dev/null || true
+  rm -f "$STATE_FILE" 2>/dev/null || true
 ) 2>/dev/null || true
 
 exit 0

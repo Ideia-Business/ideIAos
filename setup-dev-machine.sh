@@ -154,6 +154,23 @@ push_planning_ref() {
   git push --quiet origin planning 2>>"$LOG" && log "$NAME" "push planning OK ($PAHEAD)" \
     || log "$NAME" "push planning FALHOU"
 }
+# maybe_propagate_ideiaos — após pull com commits novos no IdeiaOS, propaga
+# setup global + projetos-alvo em ~/dev/ (scripts/propagate-if-changed.sh).
+maybe_propagate_ideiaos() {
+  local NAME="$1" OLD_HEAD="$2"
+  case "$NAME" in IdeiaOS|ideIAos) ;; *) return 0 ;; esac
+  [ -n "$OLD_HEAD" ] || return 0
+  local NEW_HEAD; NEW_HEAD="$(git rev-parse HEAD 2>/dev/null || true)"
+  [ -n "$NEW_HEAD" ] && [ "$OLD_HEAD" != "$NEW_HEAD" ] || return 0
+  local PROP; PROP="$(pwd)/scripts/propagate-if-changed.sh"
+  [ -f "$PROP" ] || { log "$NAME" "propagate-if-changed: script ausente"; return 0; }
+  if bash "$PROP" >>"$LOG" 2>&1; then
+    log "$NAME" "propagate-if-changed OK (${OLD_HEAD:0:8}→${NEW_HEAD:0:8})"
+  else
+    log "$NAME" "propagate-if-changed FALHOU"
+    notify "IdeiaOS propagate" "Falha ao propagar setup para ~/dev/*"
+  fi
+}
 sync_one() {
   local REPO="$1"; local NAME; NAME="$(basename "$REPO")"
   cd "$REPO" 2>/dev/null || { log "$NAME" "ERRO: repo não encontrado em $REPO"; exit 1; }
@@ -167,8 +184,15 @@ sync_one() {
       git fetch --quiet origin 2>>"$LOG" || { log "$NAME" "fetch falhou — pulado"; exit 0; }
       if git rev-parse "@{u}" >/dev/null 2>&1; then
         if [ "$(git rev-parse @)" != "$(git rev-parse '@{u}')" ]; then
-          git pull --rebase --quiet 2>>"$LOG" && log "$NAME" "pull OK em $BRANCH" \
-            || { git rebase --abort 2>/dev/null; log "$NAME" "CONFLITO pull $BRANCH"; notify "Git sync — conflito" "$NAME (main): conflito."; }
+          local PRE_PULL; PRE_PULL="$(git rev-parse HEAD 2>/dev/null || true)"
+          if git pull --rebase --quiet 2>>"$LOG"; then
+            log "$NAME" "pull OK em $BRANCH"
+            maybe_propagate_ideiaos "$NAME" "$PRE_PULL"
+          else
+            git rebase --abort 2>/dev/null
+            log "$NAME" "CONFLITO pull $BRANCH"
+            notify "Git sync — conflito" "$NAME (main): conflito."
+          fi
         fi
         local AHEAD; AHEAD="$(git rev-list --count '@{u}..@' 2>/dev/null || echo 0)"
         [ "$AHEAD" -gt 0 ] && { log "$NAME" "$AHEAD commit(s) no $BRANCH — push MANUAL"; notify "Git sync — main protegido" "$NAME: $AHEAD commit(s) aguardando push manual."; }
@@ -201,8 +225,16 @@ sync_one() {
   git fetch --quiet origin 2>>"$LOG" || { log "$NAME" "fetch falhou — push adiado"; exit 0; }
   if git rev-parse "@{u}" >/dev/null 2>&1; then
     if [ "$(git rev-parse @)" != "$(git rev-parse '@{u}')" ]; then
-      if git pull --rebase --autostash --quiet 2>>"$LOG"; then log "$NAME" "pull/rebase OK em $BRANCH";
-      else git rebase --abort 2>/dev/null; log "$NAME" "CONFLITO pull $BRANCH — push pulado"; notify "Git sync — conflito" "$NAME ($BRANCH): conflito."; exit 1; fi
+      local PRE_PULL; PRE_PULL="$(git rev-parse HEAD 2>/dev/null || true)"
+      if git pull --rebase --autostash --quiet 2>>"$LOG"; then
+        log "$NAME" "pull/rebase OK em $BRANCH"
+        maybe_propagate_ideiaos "$NAME" "$PRE_PULL"
+      else
+        git rebase --abort 2>/dev/null
+        log "$NAME" "CONFLITO pull $BRANCH — push pulado"
+        notify "Git sync — conflito" "$NAME ($BRANCH): conflito."
+        exit 1
+      fi
     fi
     local AHEAD; AHEAD="$(git rev-list --count '@{u}..@' 2>/dev/null || echo 0)"
     [ "$AHEAD" -gt 0 ] && { git push --quiet 2>>"$LOG" && log "$NAME" "push OK ($AHEAD) em $BRANCH" || { log "$NAME" "push FALHOU $BRANCH"; notify "Git sync — push falhou" "$NAME ($BRANCH)."; }; }

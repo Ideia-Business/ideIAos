@@ -69,6 +69,22 @@ if [ -f "$MCHECK" ] && ! bash "$MCHECK" --staged; then
   exit 1
 fi
 
+# ── Guarda de membership de plugins (anti-deriva v7, Fase 2) ─────────────────
+# Bloqueia commit que toque o manifesto ou os arrays de build se houver deriva
+# entre as atribuições plugin: do modules.json e os arrays de build-plugins.sh
+# (o bug que deixou spec/forge-agent/memory-sync de fora do empacotamento).
+if echo "$STAGED" | grep -qE '^(manifests/modules\.json|manifests/plugin-membership\.md|scripts/build-plugins\.sh)$'; then
+  PMCHECK="$REPO_DIR/scripts/check-plugin-membership.sh"
+  if [ -f "$PMCHECK" ] && ! bash "$PMCHECK" > /tmp/plugin-membership-check.log 2>&1; then
+    echo ""
+    echo "❌ Commit bloqueado: deriva de membership de plugins (manifesto×build-plugins.sh):"
+    cat /tmp/plugin-membership-check.log
+    echo ""
+    echo "Corrija o array em scripts/build-plugins.sh + manifests/plugin-membership.md (ou --no-verify)."
+    exit 1
+  fi
+fi
+
 # Algum em pasta de componente?
 TOUCHES_COMPONENTS=0
 if echo "$STAGED" | grep -qE '^(source|scripts|plugins|manifests)/'; then
@@ -144,7 +160,30 @@ MERGEHOOK
 
 chmod +x "$PREMERGE"
 
+# ── post-merge: propaga setup para ~/dev/* após git pull ─────────────────────
+POSTMERGE="$HOOKS_DIR/post-merge"
+PROPAGATE_MARKER="# ideiaos-propagate-hook"
+
+if [ -f "$POSTMERGE" ] && ! grep -qF "$PROPAGATE_MARKER" "$POSTMERGE" 2>/dev/null; then
+  echo "⚠️  $POSTMERGE já existe e NÃO é nosso. Backup em post-merge.bak"
+  cp "$POSTMERGE" "$POSTMERGE.bak"
+fi
+
+cat > "$POSTMERGE" <<'POSTMERGEHOOK'
+#!/bin/bash
+# ideiaos-propagate-hook — após git pull/merge, propaga setup se paths mudaram
+set -uo pipefail
+
+REPO_DIR="$(git rev-parse --show-toplevel)"
+PROP="$REPO_DIR/scripts/propagate-if-changed.sh"
+[ -f "$PROP" ] || exit 0
+bash "$PROP" || true
+POSTMERGEHOOK
+
+chmod +x "$POSTMERGE"
+
 echo "✅ Pre-merge-commit hook instalado em $PREMERGE"
+echo "✅ Post-merge hook instalado em $POSTMERGE (propagação automática pós-pull)"
 echo "✅ Pre-commit hook instalado em $PRECOMMIT"
 echo ""
 echo "A partir de agora, commits que tocarem em source/scripts/plugins/manifests"

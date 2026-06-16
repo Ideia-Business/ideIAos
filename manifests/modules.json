@@ -628,6 +628,16 @@
       "plugin": "ideiaos-core"
     },
     {
+      "id": "skill-forge-agent",
+      "kind": "skill",
+      "description": "Pesquisa padrões reais do domínio antes de gerar spec de agent/skill — cita fontes, lista anti-patterns, justifica model routing",
+      "source": "source/skills/forge-agent/SKILL.md",
+      "targets": ["claude"],
+      "deps": ["skill-deep-research"],
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
+    },
+    {
       "id": "skill-codebase-onboarding",
       "kind": "skill",
       "description": "Structured onboarding into an unfamiliar codebase",
@@ -907,6 +917,20 @@
       "plugin": "ideiaos-core"
     },
     {
+      "id": "script-propagate-if-changed",
+      "kind": "script",
+      "description": "Propagação automática pós-pull no IdeiaOS — diff em templates/skills/setup dispara global + apply-to-all; gatilhos: git-autosync, post-merge, sync-all",
+      "source": "scripts/propagate-if-changed.sh",
+      "targets": [
+        "cli"
+      ],
+      "deps": [
+        "script-apply-to-all-projects"
+      ],
+      "installStrategy": "manual",
+      "plugin": "ideiaos-core"
+    },
+    {
       "id": "hook-memory-import",
       "kind": "hook",
       "description": "SessionStart (v5) — imports shared facts from the planning branch store into native IDE memory (~/.claude/projects/<slug>/memory/) and regenerates the Cursor bridge (.cursor/rules/memory-bridge.mdc, gitignored); runs after git-sync-check; freshness guard by SHA; exit 0 offline-safe; never touches main",
@@ -916,7 +940,7 @@
       ],
       "deps": [],
       "installStrategy": "always",
-      "plugin": "ideiaos-core"
+      "plugin": null
     },
     {
       "id": "hook-memory-export",
@@ -928,7 +952,7 @@
       ],
       "deps": [],
       "installStrategy": "always",
-      "plugin": "ideiaos-core"
+      "plugin": null
     },
     {
       "id": "skill-memory-sync",
@@ -968,6 +992,189 @@
       ],
       "deps": [],
       "installStrategy": "always",
+      "plugin": null
+    },
+    {
+      "id": "skill-marketing",
+      "kind": "skill",
+      "description": "Orquestrador /marketing — pipeline discovery→design→build→review→publish para qualquer formato de conteúdo. Recruta mkt-agents e injeta best-practice por formato em runtime. Checkpoints de aprovação obrigatórios.",
+      "source": "source/skills/marketing/SKILL.md",
+      "targets": [
+        "claude"
+      ],
+      "deps": [
+        "agent-mkt-estrategista",
+        "agent-mkt-copywriter",
+        "agent-mkt-designer",
+        "agent-mkt-revisor",
+        "rule-marketing"
+      ],
+      "installStrategy": "manual",
+      "plugin": "ideiaos-marketing"
+    },
+    {
+      "id": "skill-marketing-research",
+      "kind": "skill",
+      "description": "Sherlock de marketing — investiga perfis públicos (Instagram, LinkedIn, YouTube, X/Twitter) via Chrome DevTools MCP. Produz raw-content.md + pattern-analysis.md por perfil para calibrar mkt-estrategista e mkt-copywriter com dados reais.",
+      "source": "source/skills/marketing-research/SKILL.md",
+      "targets": [
+        "claude"
+      ],
+      "deps": [],
+      "installStrategy": "manual",
+      "plugin": "ideiaos-marketing"
+    },
+    {
+      "id": "agent-mkt-estrategista",
+      "kind": "agent",
+      "description": "Estrategista de conteúdo — gera 5 ângulos distintos (família psicológica + big idea + briefing de produção). Roda em opus por ser decisão de alto impacto cognitivo.",
+      "source": "source/agents/mkt-estrategista.md",
+      "targets": [
+        "claude"
+      ],
+      "deps": [],
+      "installStrategy": "manual",
+      "model": "opus",
+      "plugin": "ideiaos-marketing"
+    },
+    {
+      "id": "agent-mkt-copywriter",
+      "kind": "agent",
+      "description": "Copywriter de conteúdo — produz 3 variações de hook→body→CTA por formato, com best-practice injetada em runtime pelo /marketing.",
+      "source": "source/agents/mkt-copywriter.md",
+      "targets": [
+        "claude"
+      ],
+      "deps": [],
+      "installStrategy": "manual",
+      "model": "sonnet",
+      "plugin": "ideiaos-marketing"
+    },
+    {
+      "id": "agent-mkt-designer",
+      "kind": "agent",
+      "description": "Designer de conteúdo — gera especificação visual reutilizando a Suíte de Design IdeiaOS (/banner-design, /slides, /ui-ux-pro-max) conforme o formato.",
+      "source": "source/agents/mkt-designer.md",
+      "targets": [
+        "claude"
+      ],
+      "deps": [],
+      "installStrategy": "manual",
+      "model": "sonnet",
+      "plugin": "ideiaos-marketing"
+    },
+    {
+      "id": "agent-mkt-revisor",
+      "kind": "agent",
+      "description": "Revisor de conteúdo — scoring + veredito APPROVE/REJECT contra critérios de qualidade (review.md). Loop máx 2 ciclos com feedback específico ao copywriter.",
+      "source": "source/agents/mkt-revisor.md",
+      "targets": [
+        "claude"
+      ],
+      "deps": [],
+      "installStrategy": "manual",
+      "model": "sonnet",
+      "plugin": "ideiaos-marketing"
+    },
+    {
+      "id": "rule-marketing",
+      "kind": "rule",
+      "description": "22 best-practices de conteúdo absorvidas do OpenSquad MIT (renatoasse/opensquad) — disciplinas (copywriting, strategist, review, image-design, researching, technical-writing, data-analysis, social-networks-publishing) e plataformas (instagram-feed/reels/stories, linkedin-post/article, twitter-post/thread, youtube-script/shorts, email-newsletter/sales, blog-post/seo, whatsapp-broadcast). Injetadas em runtime pelo /marketing por formato.",
+      "source": "source/rules/marketing/",
+      "targets": [
+        "claude"
+      ],
+      "deps": [],
+      "installStrategy": "manual",
+      "plugin": "ideiaos-marketing"
+    },
+    {
+      "id": "skill-spec",
+      "kind": "skill",
+      "description": "Skill /spec — delta-spec brownfield do IdeiaOS. Mantém contratos de comportamento vivos por capability (specs/<capability>/spec.md). Fluxo: propose → spec/delta → tasks → merge+archive. Conceito absorvido do OpenSpec MIT (Fission-AI/OpenSpec); implementação nativa em PT-BR, shell, sem dependência do CLI openspec. Complementa o GSD (R6-13).",
+      "source": "source/skills/spec/SKILL.md",
+      "targets": [
+        "claude"
+      ],
+      "deps": [
+        "rule-delta-spec"
+      ],
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
+    },
+    {
+      "id": "rule-delta-spec",
+      "kind": "rule",
+      "description": "Fronteira /spec x GSD: quando usar cada um e quando usar os dois juntos. Documenta estrutura specs/, regra dos 4 hashtags em cenários, SHALL/DEVE, e complementaridade com o GSD (R6-13). Conceito absorvido do OpenSpec MIT.",
+      "source": "source/rules/common/delta-spec.md",
+      "targets": [
+        "claude"
+      ],
+      "deps": [],
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
+    },
+    {
+      "id": "skill-doubt",
+      "kind": "skill",
+      "description": "Skill /doubt — Doubt-Driven Development. Submete toda decisão não-trivial a uma revisão adversarial de contexto-fresco (spawn de subagente) ANTES de ela valer. Postura em-voo, por decisão; complementa /code-review (pós-PR). Absorvido de agent-skills MIT (addyosmani). v8.",
+      "source": "source/skills/doubt/SKILL.md",
+      "targets": [
+        "claude"
+      ],
+      "deps": [
+        "rule-operating-discipline"
+      ],
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
+    },
+    {
+      "id": "skill-context-engineering",
+      "kind": "skill",
+      "description": "Skill /context-engineering — engenharia de contexto: informação certa, na hora certa, na estrutura certa (hierarquia de 5 níveis, brain dump, selective include, <2k linhas/tarefa). Disciplina que operacionaliza token-economy/orchestration/context-packet-handoffs. Absorvido de agent-skills MIT (addyosmani). v8.",
+      "source": "source/skills/context-engineering/SKILL.md",
+      "targets": [
+        "claude"
+      ],
+      "deps": [],
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
+    },
+    {
+      "id": "rule-operating-discipline",
+      "kind": "rule",
+      "description": "Condutas de base do agente (sempre-on): surface assumptions, manage confusion, push back, enforce simplicity, scope discipline, verify-don't-assume. Piso de toda skill/agente do IdeiaOS; cross-link com antifragile-gates. Absorvido de agent-skills MIT (addyosmani, using-agent-skills). v8.",
+      "source": "source/rules/common/operating-discipline.md",
+      "targets": [
+        "claude",
+        "cursor"
+      ],
+      "deps": [],
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
+    },
+    {
+      "id": "skill-observability",
+      "kind": "skill",
+      "description": "Skill /observability — observabilidade & instrumentação: log estruturado + correlation ID, RED/USE metrics, OpenTelemetry tracing, alertas em sintomas. OPT-IN (catálogo via /ideiaos-catalog). Absorvido de agent-skills MIT (addyosmani). v8.",
+      "source": "source/skills/observability/SKILL.md",
+      "targets": [
+        "claude"
+      ],
+      "deps": [],
+      "installStrategy": "manual",
+      "plugin": null
+    },
+    {
+      "id": "skill-deprecation-migration",
+      "kind": "skill",
+      "description": "Skill /deprecation-migration — deprecação & migração: remover sistemas antigos e migrar usuários com segurança (strangler/adapter/feature-flag, Churn Rule, código zumbi). OPT-IN (catálogo via /ideiaos-catalog). Absorvido de agent-skills MIT (addyosmani). v8.",
+      "source": "source/skills/deprecation-migration/SKILL.md",
+      "targets": [
+        "claude"
+      ],
+      "deps": [],
+      "installStrategy": "manual",
       "plugin": null
     }
   ]

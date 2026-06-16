@@ -20,6 +20,11 @@
       "name": "ideiaos-lovable",
       "source": "./plugins/ideiaos-lovable",
       "description": "Camada Lovable: skill /lovable-handoff + doutrina de deploy e templates de handoff."
+    },
+    {
+      "name": "ideiaos-marketing",
+      "source": "./plugins/ideiaos-marketing",
+      "description": "Camada de Marketing: orquestrador /marketing, 4 content agents (estrategista/copywriter/designer/revisor), skill marketing-research (Sherlock via Chrome DevTools MCP), 22 best-practices de conteudo."
     }
   ]
 }

@@ -52,7 +52,7 @@ o que copiar de `source/` para cada plugin em `plugins/`.
 
 > Excluídos do plugin (não são componentes de produto): `test-hooks.sh`, `test-typecheck-on-edit.sh`, `test-observe-hooks.sh`
 
-### Skills core (23)
+### Skills core (28)
 
 | Skill | Arquivo |
 |-------|---------|
@@ -61,13 +61,16 @@ o que copiar de `source/` para cada plugin em `plugins/`.
 | benchmark-optimization-loop | source/skills/benchmark-optimization-loop/ |
 | code-tour | source/skills/code-tour/ |
 | codebase-onboarding | source/skills/codebase-onboarding/ |
+| context-engineering | source/skills/context-engineering/ |
 | cost-tracking | source/skills/cost-tracking/ |
 | cursor-continuation | source/skills/cursor-continuation/ |
 | database-migrations | source/skills/database-migrations/ |
 | deep-research | source/skills/deep-research/ |
+| doubt | source/skills/doubt/ |
 | e2e-testing | source/skills/e2e-testing/ |
 | evolve | source/skills/evolve/ |
 | extract-learnings | source/skills/extract-learnings/ |
+| forge-agent | source/skills/forge-agent/ |
 | idea | source/skills/idea/ |
 | ideiaos-catalog | source/skills/ideiaos-catalog/ |
 | ideiaos-setup | source/skills/ideiaos-setup/ |
@@ -76,7 +79,9 @@ o que copiar de `source/` para cada plugin em `plugins/`.
 | learn | source/skills/learn/ |
 | llms-txt | source/skills/llms-txt/ |
 | mcp-to-cli | source/skills/mcp-to-cli/ |
+| memory-sync | source/skills/memory-sync/ |
 | recall-learnings | source/skills/recall-learnings/ |
+| spec | source/skills/spec/ |
 | tdd | source/skills/tdd/ |
 | two-instance-kickoff | source/skills/two-instance-kickoff/ |
 
@@ -117,15 +122,51 @@ o que copiar de `source/` para cada plugin em `plugins/`.
 
 ---
 
-## Fora dos plugins (plugin: null)
+## ideiaos-marketing
 
-Templates de projeto (`hybrid`, `ideiaos`, `learnings`, `aiox-ai-config`, `global-patches`) e rules (`common`, `supabase`, `ecc`) **não entram em plugin** — são deploy de `setup.sh` por projeto, não componentes de plugin Claude Code.
+**Quando instalar:** projetos que produzem conteúdo de marketing (posts, carrosseis, blog, newsletter, VSL, threads, copy). Requer Chrome DevTools MCP para marketing-research.
+
+### Skills (2)
+
+| Skill | Arquivo |
+|-------|---------|
+| marketing | source/skills/marketing/ |
+| marketing-research | source/skills/marketing-research/ |
+
+### Agents (4)
+
+| Agent | Arquivo | Model |
+|-------|---------|-------|
+| mkt-estrategista | source/agents/mkt-estrategista.md | opus |
+| mkt-copywriter | source/agents/mkt-copywriter.md | sonnet |
+| mkt-designer | source/agents/mkt-designer.md | sonnet |
+| mkt-revisor | source/agents/mkt-revisor.md | sonnet |
+
+### Rules (22 best-practices)
+
+| Componente | Fonte |
+|-----------|-------|
+| rules/marketing/ | source/rules/marketing/ (22 arquivos — ver README.md do diretório) |
+
+> As 22 best-practices são absorvidas do **OpenSquad MIT** (renatoasse/opensquad) e viajam com o plugin — o orquestrador /marketing as injeta em runtime por formato detectado na Discovery.
 
 ---
 
-## Setup-only (não-plugin): contexts + statusline
+## Fora dos plugins (plugin: null)
+
+Templates de projeto (`hybrid`, `ideiaos`, `learnings`, `aiox-ai-config`, `global-patches`, `skill`) e rules (`common`, `supabase`, `ecc`) **não compõem o payload de plugin** — são deploy de `setup.sh`/`build-adapters.sh` por projeto, não cópia do `build-plugins.sh`. Algumas rules carregam `plugin: ideiaos-core` no `modules.json` apenas como **tag de catálogo/dependência** (ex.: `delta-spec`, `operating-discipline`); essa tag **não** as empacota — o `build-plugins.sh` não tem etapa de cópia de rule e o gate `check-plugin-membership.sh` ignora `kind: rule` de propósito.
+
+**Skills opt-in v8 (catálogo):** `observability` e `deprecation-migration` são `plugin: null` + `installStrategy: manual` — surgem via `/ideiaos-catalog`, **não** empacotadas por default.
+
+> **R8-09 fechado (2026-06-16):** `build-adapters.sh build_claude_project_rules()` deploya `source/rules/common/*.md` → `<projeto>/.claude/rules/ideiaos-common-*.md` (paridade com o Cursor `.mdc`; Claude Code auto-carrega `.claude/rules/*.md`). Só `common/` (disciplina universal); stack/domínio ficam Cursor-side.
+
+---
+
+## Setup-only (não-plugin): contexts + statusline + hooks de memória (v5)
 
 Os 3 contexts de modo (`context-dev`, `context-review`, `context-research`) e o `statusline-ideiaos` são instalados pelo `setup.sh` (passos 5.22 e 5.23) e vivem em `~/.ideiaos/`. São `plugin: null` em `manifests/modules.json`.
+
+Os hooks de memória v5 (`memory-import.sh` em SessionStart, `memory-export.sh` em Stop) são `plugin: null` **deliberadamente** (decisão v7, Fase 2): são instalados via `install-global-patches.sh` (Patch 12/13), que os registra no `settings.json` com wiring específico. Empacotá-los também no plugin causaria **dupla-registração** (firam 2× por sessão → export duplicado na branch `planning`). Por isso ficam fora do `CORE_HOOKS` do `build-plugins.sh` — patch-installed, não plugin-packaged. O gate `check-plugin-membership.sh` respeita `plugin: null` e não os cobra.
 
 **Rationale:** Contexts e statusline não são skills/agents/hooks do Claude Code e não seguem o modelo de cópia do `build-plugins.sh` (que itera arrays `CORE_*` de `source/hooks/`, `source/skills/`, `source/agents/`). Um novo `kind` no `modules.json` é compatível com versões anteriores — `build-plugins.sh` ignora kinds que não reconhece. O `build-plugins.sh` permanece inalterado.
 
@@ -137,6 +178,8 @@ Os 3 contexts de modo (`context-dev`, `context-review`, `context-research`) e o 
 | context-review | source/contexts/review.md | ~/.ideiaos/contexts/review.md | null |
 | context-research | source/contexts/research.md | ~/.ideiaos/contexts/research.md | null |
 | statusline-ideiaos | source/statusline/ideiaos-statusline.sh | ~/.ideiaos/statusline/ideiaos-statusline.sh | null |
+| memory-import.sh | source/hooks/memory-import.sh | settings.json (Patch 12) | null |
+| memory-export.sh | source/hooks/memory-export.sh | settings.json (Patch 13) | null |
 
 **evals/:** A suíte de regressão (`evals/`) é um ativo de repo-level (≥20 casos reais + `evals/run-evals.sh`) e não é registrada em `modules.json` — não é um módulo instalável, é infraestrutura de qualidade do próprio IdeiaOS.
 

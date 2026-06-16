@@ -51,6 +51,26 @@ if [ "$FRESH" -eq 0 ]; then
   fi
 fi
 
+# Branch de FEATURE encalhado vs o branch default (main) — RODA ANTES do early-exit
+# abaixo de propósito: os checks vs upstream comparam o branch com o PRÓPRIO remote, então
+# um branch obsoleto "em dia com origin/<ele>" sairia silencioso (BEHIND=0) mesmo com o main
+# muito à frente. Foi o que causou o drift da sessão 63 — a máquina ficou parada num branch de
+# onda já mergeada. Aqui olhamos a distância explícita até o default. Só AVISA, nunca mexe.
+DEFAULT_REF="$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null || true)"
+[ -z "${DEFAULT_REF:-}" ] && { git rev-parse --verify --quiet origin/main >/dev/null 2>&1 && DEFAULT_REF="origin/main"; }
+if [ -n "${DEFAULT_REF:-}" ] && [ "$BRANCH" != "${DEFAULT_REF#origin/}" ]; then
+  MAIN_BEHIND="$(git rev-list --count "HEAD..$DEFAULT_REF" 2>/dev/null || echo 0)"
+  MAIN_AHEAD="$(git rev-list --count "$DEFAULT_REF..HEAD" 2>/dev/null || echo 0)"
+  case "$MAIN_BEHIND" in ''|*[!0-9]*) MAIN_BEHIND=0 ;; esac
+  case "$MAIN_AHEAD" in ''|*[!0-9]*) MAIN_AHEAD=0 ;; esac
+  # Limiar conservador p/ não ser ruidoso: muito atrás do default E pouco trabalho próprio
+  # = branch abandonado, não feature ativo (o 'planning' tem muitos commits próprios → não dispara).
+  if [ "$MAIN_BEHIND" -ge 30 ] && [ "$MAIN_AHEAD" -le 10 ]; then
+    printf '⚠️ [git-sync] você está no branch "%s" — %s commit(s) atrás de %s e só %s à frente. O trabalho provavelmente migrou para o %s e esta máquina ficou parada num branch antigo. Confirme antes de seguir: git checkout %s && git pull.\n' \
+      "$BRANCH" "$MAIN_BEHIND" "$DEFAULT_REF" "$MAIN_AHEAD" "${DEFAULT_REF#origin/}" "${DEFAULT_REF#origin/}"
+  fi
+fi
+
 # ahead / behind vs upstream.
 set -- $(git rev-list --left-right --count "HEAD...$UPSTREAM" 2>/dev/null)
 AHEAD="${1:-0}"; BEHIND="${2:-0}"

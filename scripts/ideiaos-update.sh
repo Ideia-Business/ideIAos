@@ -9,6 +9,7 @@
 #                                        → patches globais → idea-doctor)
 #   2. Guarda do git-autosync          (exclui versions.lock do add -A — evita
 #                                        revert do pin GSD por árvore stale)
+#   2c. Verificação propagate-if-changed no git-autosync (IdeiaOS → ~/dev/*)
 #   3. Registro de hooks IdeiaOS faltantes no ~/.claude/settings.json
 #      (fonte canônica: plugins/ideiaos-core/hooks/hooks.json)
 #   4. Funções claude-dev/review/research no profile do shell (idempotente)
@@ -47,14 +48,14 @@ done
 # Self-update: se o pull do sync-all trouxer versão nova DESTE script, a
 # execução atual continua com a versão antiga — aceitável (as etapas 2-5 são
 # estáveis); a próxima execução já usa a nova.
-step "1/5: sync-all.sh (pull → upstream → setup --global-only → patches → doctor)"
+step "1/6: sync-all.sh (pull → upstream → setup --global-only → patches → propagate → doctor)"
 bash "$SETUP_DIR/scripts/sync-all.sh" || warn "sync-all terminou com avisos (ver acima)"
 
 # ── 2. Guarda do git-autosync (propagação multi-máquina) ─────────────────────
 # Máquinas com git-autosync antigo fazem `git add -A` sem excluir versions.lock,
 # o que já reverteu o pin GSD 2× via árvore stale (2026-06). Patch in-place,
 # idempotente; a fonte canônica é o heredoc do setup-dev-machine.sh.
-step "2/5: guarda do git-autosync (versions.lock fora do add -A)"
+step "2/6: guarda do git-autosync (versions.lock fora do add -A)"
 AUTOSYNC="$HOME/.local/bin/git-autosync"
 if [ ! -f "$AUTOSYNC" ]; then
   skip "git-autosync não instalado nesta máquina (setup-dev-machine.sh instala)"
@@ -76,7 +77,7 @@ fi
 # aqui é limitado: se o autosync não tiver a forma nova (array de exclusões +
 # push_planning_ref), o caminho seguro é re-rodar setup-dev-machine.sh, que
 # regrava o heredoc canônico. Detecta e avisa de forma direcional.
-step "2b/5: memória fora do autosync + push do branch planning (v5)"
+step "2b/6: memória fora do autosync + push do branch planning (v5)"
 if [ ! -f "$AUTOSYNC" ]; then
   skip "git-autosync não instalado nesta máquina"
 elif grep -qF "push_planning_ref" "$AUTOSYNC" && grep -qF "(exclude).cursor/rules/memory-bridge.mdc" "$AUTOSYNC"; then
@@ -87,11 +88,22 @@ else
   warn "(regrava o git-autosync canônico — idempotente, não duplica nada)."
 fi
 
+# ── 2c. Propagação automática pós-pull no git-autosync (IdeiaOS → ~/dev/*) ───
+step "2c/6: git-autosync chama propagate-if-changed após pull no IdeiaOS"
+if [ ! -f "$AUTOSYNC" ]; then
+  skip "git-autosync não instalado nesta máquina"
+elif grep -qF "maybe_propagate_ideiaos" "$AUTOSYNC"; then
+  skip "git-autosync já propaga setup após pull no IdeiaOS"
+else
+  warn "git-autosync desta máquina não chama propagate-if-changed após pull."
+  warn "Re-rode: bash $SETUP_DIR/setup-dev-machine.sh (regrava o heredoc canônico)."
+fi
+
 # ── 3. Registro de hooks IdeiaOS faltantes no settings.json ──────────────────
 # O setup.sh instala os ARQUIVOS dos hooks mas (decisão T-01-10) só imprime o
 # snippet de registro. Este passo registra o que faltar, usando o hooks.json
 # do plugin ideiaos-core como fonte canônica (evento, matcher, timeout, async).
-step "3/5: registro de hooks no settings.json"
+step "3/6: registro de hooks no settings.json"
 SETTINGS="$HOME/.claude/settings.json"
 PLUGIN_HOOKS="$SETUP_DIR/plugins/ideiaos-core/hooks/hooks.json"
 if [ ! -f "$SETTINGS" ]; then
@@ -143,7 +155,7 @@ PYEOF
 fi
 
 # ── 4. Funções de shell (claude-dev/review/research) ─────────────────────────
-step "4/5: funções de contexto no shell"
+step "4/6: funções de contexto no shell"
 if [ "$NO_SHELL" -eq 1 ]; then
   skip "profile do shell não tocado (--no-shell)"
 else
@@ -167,7 +179,7 @@ else
 fi
 
 # ── 5. Statusline IdeiaOS no settings.json ───────────────────────────────────
-step "5/5: statusline IdeiaOS"
+step "5/6: statusline IdeiaOS"
 SETTINGS="$HOME/.claude/settings.json"
 SL_CMD="bash $HOME/.ideiaos/statusline/ideiaos-statusline.sh"
 if [ "$NO_STATUSLINE" -eq 1 ]; then

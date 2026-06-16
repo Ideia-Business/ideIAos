@@ -16,7 +16,7 @@ cd ideIAos
 # 2. Instale o ambiente global (uma vez na vida): skills + MCPs + hooks + Suíte de Design
 bash setup.sh --global-only
 
-# 3. Aplique o overlay (10 patches sobre GSD/AIOX/Claude) e confira a saúde
+# 3. Aplique o overlay (13 patches sobre GSD/AIOX/Claude) e confira a saúde
 bash scripts/sync-all.sh         # já roda o idea-doctor no final
 
 # 4. (Opcional) Atalho de terminal
@@ -179,7 +179,7 @@ Executa, em sequência:
 - clona os 5 repos em `~/dev/` (cfoai-grupori, IdeiaOS, lapidai, nfideia, ideiapartner) + `npm install`
 - instala o **autosync** (LaunchAgent, a cada 15 min, com **kill-switch timeout 120s**)
 - `setup.sh --global-only` → **skills** (idea, frontend-visual-loop, motion, web-quality, Suíte de Design) + **MCPs** (chrome-devtools, context7) + hooks + agentes Cursor
-- `sync-all.sh` → aplica os **10 patches** do overlay + roda `idea-doctor`
+- `sync-all.sh` → aplica os **13 patches** do overlay + roda `idea-doctor`
 
 > ⚠️ No passo do **AIOX-core** aparece um prompt interativo de idioma — responda (só roda interativo porque há terminal). Sem terminal, ele é pulado e você roda depois: `npx aiox-core@latest install`.
 
@@ -249,6 +249,7 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | **Hook Claude `session-summary.sh`** | `~/.claude/hooks/` | Stop — persiste resumo ECC em `~/.claude/sessions/` e atualiza CONTINUATION_HANDOFF.md |
 | **Hook Claude `observe-tool-use.sh`** | `~/.claude/hooks/` | PostToolUse Edit/Write/Bash — anexa observação (só metadados) em `~/.ideiaos/observations/` |
 | **Hook Claude `observe-session-end.sh`** | `~/.claude/hooks/` | Stop — marca session_end como gatilho do /instinct-analyze |
+| **Hook Claude `instinct-recover.sh`** | `~/.claude/hooks/` | SessionStart (v6) — detecta breadcrumbs órfãos do spawn de `/instinct-analyze` após crash; re-spawna exatamente uma vez (gate de pid + idade + cooldown 30min); fail-silent (exit 0 sempre) |
 | **Hook Claude `memory-import.sh`** | `~/.claude/hooks/` | SessionStart (v5) — importa os fatos `shared/` do branch `planning` para a memória nativa da IDE (`~/.claude/projects/<slug>/memory/`); roda após git-sync-check; regenera a ponte Cursor `.cursor/rules/memory-bridge.mdc` (gitignored); freshness guard por SHA; exit 0 offline-safe (nunca bloqueia SessionStart) |
 | **Hook Claude `memory-export.sh`** | `~/.claude/hooks/` | Stop (v5) — exporta a memória nativa alterada para o branch `planning` via git plumbing (`hash-object`→`commit-tree`→`update-ref`); NUNCA toca `main`, sem resíduo no working tree; secret-scan gate (recusa fatos com credencial); escrita real é skill-driven (`/memory-sync export`) |
 | **Skill Claude `/instinct-analyze`** | `~/.claude/skills/instinct-analyze/` | Agente haiku background — observações → instincts atômicos |
@@ -284,6 +285,18 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | `doc-updater` | haiku | Atualizar README e comentários WHY |
 | `performance-optimizer` | sonnet | Identificar gargalos de performance |
 
+### Agents de Marketing (Fase 26 — source/agents/mkt-*.md)
+
+4 agents da Camada de Marketing — recrutados e orquestrados pelo `/marketing` (Plano 26-03):
+
+| Agent | Modelo | Quando usar |
+|-------|--------|-------------|
+| `mkt-estrategista` | opus | Definir ângulos, big idea, posicionamento e calendário editorial |
+| `mkt-copywriter` | sonnet | Produzir copy por formato com protocolo hook-first (3 hooks → body → CTA) |
+| `mkt-designer` | sonnet | Criar peças visuais reusando a Suite de Design IdeiaOS (banner-design/slides/ui-ux-pro-max) |
+| `mkt-designer` | sonnet | Criar peças visuais reusando a Suite de Design IdeiaOS (banner-design/slides/ui-ux-pro-max) |
+| `mkt-revisor` | sonnet | Scoring + veto APROVADO/REJEITADO com feedback acionável |
+
 ### Skills ECC de workflow (Fase 04 — source/skills/)
 
 14 skills adicionadas na Fase 04 — acessíveis via `/idea` ou comando direto:
@@ -305,22 +318,48 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | `/mcp-to-cli` | manual | Converter MCP pesado em skill + CLI |
 | `/ideiaos-catalog` | always | Listar módulos instalados vs disponíveis |
 
+### Skills de Marketing (Fase 26 — source/skills/marketing-research/)
+
+| Skill | installStrategy | Descrição |
+|-------|-----------------|-----------|
+| `/marketing-research` | always | Investigar perfis públicos de referência via Chrome DevTools MCP e extrair padrões reais (hooks, estrutura, cadência, CTAs) |
+
+### Skills v6 — Resiliência, Spec e Forge (Fases 25/30)
+
+| Skill | installStrategy | Descrição |
+|-------|-----------------|-----------|
+| `/forge-agent` | always | Fundamenta a criação de agents e skills em pesquisa real do domínio antes de produzir spec — cita fontes verificáveis, lista anti-patterns derivados de pesquisa, justifica model routing com racional documentado. 4 fases: definir domínio → pesquisa (`/deep-research`, máx 3 ciclos) → model routing → spec grounded. |
+| `/spec` | always | Delta-spec brownfield — mantém contratos de comportamento vivos de produto por capability em `specs/<capability>/spec.md`. Fluxo: propose → spec/delta → tasks → merge+archive. Complementar ao GSD (spec = contrato; GSD = implementação). Adaptado do OpenSpec MIT. |
+
+### Skills v8 — Camada de Disciplina (absorvida de agent-skills MIT, addyosmani)
+
+| Skill | installStrategy | Descrição |
+|-------|-----------------|-----------|
+| `/doubt` | always | Doubt-Driven Development — revisor adversarial de contexto-fresco EM-VOO (spawn de subagente) antes de uma decisão não-trivial valer. Complementa `/code-review` (pós-PR). 5 passos: CLAIM→EXTRACT→DOUBT→RECONCILE→STOP. |
+| `/context-engineering` | always | Engenharia de contexto — informação certa, na hora certa (hierarquia de 5 níveis, brain dump, selective include, <2k linhas/tarefa). Operacionaliza token-economy/orchestration/handoffs. |
+| `/observability` | manual (opt-in) | Observabilidade & instrumentação — log estruturado + correlation ID, RED/USE metrics, OpenTelemetry, alertas em sintomas. |
+| `/deprecation-migration` | manual (opt-in) | Deprecação & migração — remover sistemas antigos e migrar usuários com segurança (strangler/adapter/feature-flag, código zumbi). |
+
+> Camada de disciplina comportamental: também adiciona a rule sempre-on `operating-discipline` (6 condutas de base) e a convenção de autoria anti-racionalização (`source/templates/skill/SKILL.md.tmpl`).
+
 ### Manutenção do próprio ideIAos (rodados manualmente)
 
 | Script | O que faz |
 |--------|-----------|
 | `scripts/install-alias.sh` | Adiciona alias `idea-setup` ao seu shell rc (zsh/bash) |
-| `scripts/install-git-hooks.sh` | Instala pre-commit hook que BLOQUEIA commits sem README sincronizado E protege o pin GSD do `versions.lock` |
+| `scripts/install-git-hooks.sh` | Instala pre-commit (README sync + versions.lock) + post-merge (propagação automática) + pre-merge-commit (guarda memória) |
 | `scripts/check-readme-sync.sh` | Audita se README menciona todos os componentes do repo |
 | **`scripts/check-versions-lock.sh`** | **Guarda do pin GSD** — bloqueia valor pré-redux (1.3x/1.4x) e edição manual do `gsd=` que não corresponda à versão instalada (único escritor: `update-upstream.sh --bump`; bypass: `IDEIAOS_LOCK_OVERRIDE=1`). Roda no pre-commit. |
 | **`scripts/check-memory-not-on-main.sh`** | **Guarda Lovable-safe da memória (v5)** — bloqueia qualquer caminho de memória (`.planning/memory/`, `.lovable_mem_tmp.md`, `.cursor/rules/memory-bridge.mdc`) staged no branch `main` e o merge `planning`→`main`; mensagem direcional (diz qual lado está errado); bypass consciente: `IDEIAOS_MEM_OVERRIDE=1`. Modos `--staged` (pre-commit) e `--merge` (pre-merge-commit). |
-| **`scripts/idea-doctor.sh`** | Diagnóstico read-only: skills, MCPs, 10 patches, versões vs `versions.lock`, drift, autosync, **Seção 7 Security Audit** (deny rules, hooks, secrets, quarentena), **Seção 8 Contexts** (~/.ideiaos/contexts/, funções claude-dev/review/research, statusline) |
-| **`scripts/install-global-patches.sh`** | Aplica overlay ideIAos (Caminho C) sobre GSD/AIOX/Claude — idempotente, 11 patches (incl. Patch 11: backlog-sync-check) |
+| **`scripts/check-plugin-membership.sh`** | **Guarda anti-deriva de plugins (v7)** — bloqueia commit que toque `manifests/modules.json`, `manifests/plugin-membership.md` ou `scripts/build-plugins.sh` se houver deriva entre as atribuições `plugin:` do manifesto e os arrays do `build-plugins.sh` (o bug que deixou `spec`/`forge-agent`/`memory-sync` fora do empacotamento). Roda no pre-commit e no `idea-doctor` (seção 10). |
+| **`scripts/idea-doctor.sh`** | Diagnóstico read-only: skills, MCPs, 13 patches, versões vs `versions.lock`, drift, autosync, **Seção 7 Security Audit** (deny rules, hooks, secrets, quarentena), **Seção 8 Contexts** (~/.ideiaos/contexts/, funções claude-dev/review/research, statusline), **Seção 9 Memória v5** (planning, store shared/, patches 12/13) |
+| **`scripts/install-global-patches.sh`** | Aplica overlay ideIAos (Caminho C) sobre GSD/AIOX/Claude — idempotente, 13 patches (incl. Patch 11: backlog-sync-check, Patches 12/13: memória v5) |
 | **`security/scan-absorbed.sh`** | **Pipeline de quarentena obrigatório** — scan unicode invisível/payloads/comandos + AgentShield antes de absorver conteúdo de terceiros em `source/`. Exit 1 = bloqueado. |
 | **`scripts/update-upstream.sh`** | Detecta updates do GSD plugin e AIOX-core vs `versions.lock`; `--bump` re-pina |
 | **`scripts/update-design-suite.sh`** | Atualização CONTROLADA da Suíte de Design (re-vendoriza do nextlevelbuilder, mostra diff, sob demanda) |
 | **`scripts/sync-all.sh`** | Orquestrador — `git pull` → `update-upstream` → `setup.sh --global-only` → overlay → `idea-doctor` |
 | **`scripts/apply-to-all-projects.sh`** | Propaga `setup.sh --project-only` a todos os repos `~/dev/*`. Dry-run por padrão; use `--apply` para executar. `--only proj1,proj2` para filtrar. |
+| **`scripts/propagate-if-changed.sh`** | Propagação **automática** — após pull no IdeiaOS, detecta diff em templates/skills/setup e roda global + `apply-to-all --apply`. Gatilhos: `git-autosync`, `post-merge` hook, `sync-all.sh`. Log: `~/.local/state/propagate-projects.log`. |
 | **`scripts/ideiaos-update.sh`** | **Atualização de máquina em 1 comando** — sync-all + guarda do git-autosync (versions.lock fora do add -A) + funções claude-dev/review/research no shell + statusline no settings.json (idempotente, com backup; edita config do usuário por consentimento explícito — diferente do setup.sh/T-01-10) |
 | **`scripts/build-adapters.sh`** | **Compila `source/` → harnesses** — copia hooks/agents para Claude (`~/.claude/`) e rules para Cursor (`.cursor/rules/*.mdc`). Suporte a `--target claude\|cursor\|all` e `--dry-run`. |
 | **`scripts/build-plugins.sh`** | **Gera `plugins/` a partir de `source/`** — gerador idempotente dos 3 sub-plugins do marketplace. Suporte a `--plugin core\|design-suite\|lovable\|all` e `--dry-run`. |
@@ -652,7 +691,7 @@ A versão também é refletida em `.aiox-ai-config.yaml` (`ideiaos.version: X.Y`
 
 O `setup.sh` cuida dos arquivos do **projeto**. Para os **arquivos globais** (skills Claude Code, workflow GSD, hook Fase A, settings.json, agente qa AIOX-core) o ideIAos aplica um **overlay** via patches idempotentes.
 
-### Os 11 patches do overlay ideIAos
+### Os 13 patches do overlay ideIAos
 
 | # | Onde | O que adiciona |
 |---|------|----------------|
@@ -667,17 +706,21 @@ O `setup.sh` cuida dos arquivos do **projeto**. Para os **arquivos globais** (sk
 | 9 | `~/.config/git/ignore` | Gitignore global: `settings.local.json` + `.DS_Store` (evita dirty tree no autosync) |
 | 10 | `~/.claude/settings.json` (permissions.deny) | **Deny rules baseline de segurança**: `Read(~/.ssh/**)`, `Read(~/.aws/**)`, `Read(**/.env*)`, `Write(~/.ssh/**)`, `Bash(curl * \| bash)`, `Bash(nc *)` |
 | 11 | `~/.claude/settings.json` (SessionStart hook) | `backlog-sync-check`: análogo de **runtime** do git-sync-check — injeta a contagem REAL de incidentes abertos em prod (ops-db-gateway, read-only) na abertura de sessão, confrontando "Pendências Cloud" do handoff com a verdade. Gated p/ repos com `scripts/ops-db-query.mjs` (ideiapartner); silencioso nos demais |
+| 12 | `~/.claude/settings.json` (SessionStart hook) | `memory-import` (v5): importa os fatos `shared/` do branch `planning` para a memória nativa da IDE; registrado **após** git-sync-check e backlog-sync-check (depende dos refs já buscados); read-only via `git show`/`git archive`, sem checkout; exit 0 offline-safe |
+| 13 | `~/.claude/settings.json` (Stop hook) | `memory-export` (v5): exporta a memória nativa alterada para o branch `planning` via git plumbing (`hash-object`→`commit-tree`→`update-ref`); NUNCA toca `main`, sem resíduo no working tree; secret-scan gate antes de cada export |
 
 ### Scripts de manutenção + lockfile
 
 | Comando | Quando usar |
 |---------|-------------|
-| `bash scripts/idea-doctor.sh` | **SEMPRE PRIMEIRO** — diagnóstico read-only: skills, MCPs, 10 patches, versões vs lock, drift, autosync, **Security Audit** (Seção 7). Não muda nada. |
+| `bash scripts/idea-doctor.sh` | **SEMPRE PRIMEIRO** — diagnóstico read-only: skills, MCPs, 13 patches, versões vs lock, drift, autosync, **Security Audit** (Seção 7), **Memória v5** (Seção 9). Não muda nada. |
 | `bash scripts/sync-all.sh` | **O DE SEMPRE** — atualiza tudo: `git pull` → `update-upstream` → `setup.sh --global-only` → overlay → `idea-doctor` |
-| `bash scripts/install-global-patches.sh` | só re-aplicar o overlay (11 patches, incl. deny rules + backlog-sync-check) — idempotente, roda 100x |
+| `bash scripts/install-global-patches.sh` | só re-aplicar o overlay (13 patches, incl. deny rules + backlog-sync-check + memória v5 import/export) — idempotente, roda 100x |
 | `bash scripts/update-upstream.sh` | checar updates de GSD/AIOX vs `versions.lock`. `--bump` re-pina o lock no instalado |
 | `bash scripts/update-design-suite.sh` | atualizar a Suíte de Design do upstream (controlado, mostra diff, **sob demanda**) |
 | `bash scripts/apply-to-all-projects.sh` | propagar `setup.sh --project-only` a todos os repos `~/dev/*` — dry-run por padrão; `--apply` executa; `--only proj1,proj2` filtra |
+| `bash scripts/propagate-if-changed.sh` | propagação automática pós-pull (global + projetos) — `--dry-run` preview; `--force` ignora filtro de paths; roda sozinho via autosync/post-merge/sync-all |
+| `bash scripts/install-git-hooks.sh` | instala pre-commit + post-merge (propagação) + pre-merge-commit (memória) |
 
 > **`versions.lock`** (raiz do repo) fixa as versões que toda máquina deve convergir (aiox-core CLI, gsd, ref da Suíte, specs de MCP). `idea-doctor` acusa drift; `update-upstream --bump` re-pina.
 
@@ -732,7 +775,7 @@ A simulação testada em 2026-05-30: apagar manualmente os 3 gatilhos do hook �
                             ↓ atualiza via npm / plugin manager
 ┌─────────────────────────────────────────────────────────────┐
 │              OVERLAY ideIAos (Caminho C)                    │
-│  install-global-patches.sh aplica 11 patches idempotentes   │
+│  install-global-patches.sh aplica 13 patches idempotentes   │
 │  Detecta marcadores únicos antes de aplicar                 │
 └─────────────────────────────────────────────────────────────┘
                             ↓ sobrescreve com nossa adição
@@ -762,27 +805,36 @@ ideIAos/
 │   └── ideiaos-lovable/                    ← skill /lovable-handoff + doutrina + templates
 ├── scripts/
 │   ├── install-alias.sh                    ← Instala alias idea-setup
-│   ├── install-git-hooks.sh                ← Instala pre-commit hook
+│   ├── install-git-hooks.sh                ← Pre-commit + post-merge (propagação) + pre-merge-commit
 │   ├── check-readme-sync.sh                ← Audita README sync (aponta para source/)
 │   ├── check-versions-lock.sh              ← Guarda do pin GSD no versions.lock (anti-revert pré-redux)
 │   ├── check-memory-not-on-main.sh          ← Guarda Lovable-safe (v5): memória nunca no main; bloqueia merge planning→main
+│   ├── check-plugin-membership.sh           ← Guarda anti-deriva (v7): manifesto plugin: × arrays do build-plugins.sh
 │   ├── idea-doctor.sh                      ← Diagnóstico saúde + drift (read-only)
-│   ├── install-global-patches.sh           ← Overlay ideIAos (Caminho C — 11 patches idempotentes)
+│   ├── install-global-patches.sh           ← Overlay ideIAos (Caminho C — 13 patches idempotentes)
 │   ├── update-upstream.sh                  ← Detecta updates GSD + AIOX vs versions.lock (--bump re-pina)
 │   ├── update-design-suite.sh              ← Atualização controlada da Suíte (re-vendoriza do upstream)
-│   ├── sync-all.sh                         ← Orquestrador (pull → upstream → setup --global-only → overlay → doctor)
+│   ├── apply-to-all-projects.sh            ← Propaga setup --project-only a ~/dev/*
+│   ├── propagate-if-changed.sh             ← Auto-propagação pós-pull (autosync + post-merge + sync-all)
+│   ├── sync-all.sh                         ← Orquestrador (pull → upstream → setup --global-only → overlay → propagate → doctor)
 │   ├── ideiaos-update.sh                   ← Atualização de máquina em 1 comando (sync-all + shell + statusline)
 │   ├── build-adapters.sh                   ← Compila source/ → harness targets (claude + cursor)
 │   └── build-plugins.sh                    ← Gera plugins/ a partir de source/ (marketplace)
 ├── source/                                 ← FONTE ÚNICA DE VERDADE (Fase 03+)
-│   ├── skills/                             ← 35 skills (24 core incl. /memory-sync + 10 design + 1 lovable)
-│   ├── agents/                             ← 15 agents ECC
-│   ├── hooks/                              ← 13 hooks de produto (incl. memory-import.sh + memory-export.sh) + 3 test-hooks
-│   ├── templates/                          ← templates de projeto (hybrid/ideiaos/lovable/learnings/memory/global-patches)
+│   ├── skills/                             ← 42 skills (core incl. /memory-sync + 10 design + 1 lovable + /forge-agent + /spec + v8 disciplina)
+│   │   ├── forge-agent/                    ← /forge-agent (v6 Fase 25) — pesquisa antes de criar agent/skill
+│   │   ├── spec/                           ← /spec (v6 Fase 30) — delta-spec brownfield; lib/ + templates/
+│   │   ├── doubt/                          ← /doubt (v8) — doubt-driven; revisor adversarial em-voo
+│   │   └── context-engineering/            ← /context-engineering (v8) — curadoria de contexto em camadas
+│   ├── agents/                             ← 19 agents (ECC + 4 mkt-*)
+│   ├── hooks/                              ← 14 hooks de produto (incl. instinct-recover.sh v6 + memory-import/export) + 3 test-hooks
+│   ├── lib/                                ← libs shell reutilizáveis (v6): gates.sh (antifragile I/O) + handoff-packet.sh (context-packet)
+│   ├── templates/                          ← templates de projeto (hybrid/ideiaos/lovable/learnings/memory/global-patches) + skill/SKILL.md.tmpl (v8 — convenção de autoria)
 │   ├── contexts/                           ← contexts de modo (dev.md / review.md / research.md)
 │   ├── statusline/                         ← ideiaos-statusline.sh
 │   └── rules/
-│       ├── common/                         ← token-economy, mcp-hygiene, orchestration
+│       ├── common/                         ← token-economy, mcp-hygiene, orchestration, antifragile-gates, context-packet-handoffs, delta-spec (v6), operating-discipline (v8)
+│       ├── marketing/                      ← 22 rules de marketing (copywriting, blog-seo, data-analysis, posts…) (v6 Fase 26)
 │       ├── supabase/                       ← rls-patterns
 │       ├── lovable/                        ← deployment-protocol
 │       └── ecc/                            ← rules ECC absorvidas via quarentena (MIT)
@@ -806,15 +858,96 @@ ideIAos/
 │   ├── CONTINUATION_HANDOFF.md
 │   └── security/
 │       └── memory-hygiene.md               ← Regras de higiene de memória (sem secrets, reset pós-quarentena)
+├── tests/                                  ← suítes de teste estruturais
+│   ├── v6-hooks/                           ← 5 suites CI (test-deia-trigger, test-observe-session-end, test-observe-tool-use, test-strategic-compact, test-build-adapters) — v6 Fase 27
+│   └── v5-memory/                          ← testes de memória v5
 ├── evals/                                  ← suíte de regressão (≥20 casos reais) + run-evals.sh
 │   ├── run-evals.sh                        ← runner: bash evals/run-evals.sh [--list]
 │   ├── cases/                              ← EVAL-*.md (≥20 casos com input/expected/actual)
 │   └── README.md                          ← documentação da suíte
+├── docs/
+│   ├── decisions/                          ← ADRs de tooling (v6 Fase 31): gsd-browser-pilot-evaluation.md + agent-inbox-optin.md + histórico v5
 ├── AGENTS.md                               ← Identidade do ideIAos
 ├── CLAUDE.md                               ← Instruções Claude para ideIAos
 ├── STATE.md                                ← Estado do ideIAos
 └── README.md                               ← Este arquivo
 ```
+
+---
+
+## 🆕 Novidades v6 — Resiliência + Marketing + GSD/OpenSpec
+
+### Resiliência e Antifragilidade (Fases 23, 24, 27, 29)
+
+**Antifragile Gates (`source/lib/gates.sh` + rule `antifragile-gates.md`)**
+Helpers shell que usam apenas `test -s PATH` (exit code binário) para verificar I/O — nunca o Read tool, que pode alucinar conteúdo. Use `gates.sh` em qualquer hook ou script que precise garantir que um arquivo foi realmente escrito.
+
+**Recuperação do loop de instincts (`instinct-recover.sh` — SessionStart)**
+Detecta breadcrumbs órfãos do spawn de `/instinct-analyze` (crash de sessão) e re-spawna exatamente uma vez, com gate de pid vivo + idade + cooldown de 30 min. Fail-silent: nunca bloqueia o SessionStart.
+
+**Context-Packet Handoffs (`source/lib/handoff-packet.sh` + rule `context-packet-handoffs.md`)**
+Padrão de handoff com token budget explícito, wrapper anti-injection e hash SHA-256 de idempotência. Use para emitir pacotes de contexto entre hooks, skills e sessões sem vazar informação sensível ou inflar o contexto inutilmente.
+
+**Test Hardening (`tests/v6-hooks/` — 5 suites, CI estrutural)**
+5 suites de teste cobrindo os hooks centrais (`deia-trigger`, `observe-session-end`, `observe-tool-use`, `strategic-compact`, `build-adapters`). Rodar com:
+```bash
+bash tests/v6-hooks/test-deia-trigger.sh
+bash tests/v6-hooks/test-observe-session-end.sh
+# ... ou todos via CI
+```
+
+---
+
+### Camada de Marketing (Fase 26)
+
+**Skills de marketing:**
+```
+/marketing           → orquestra campanha completa: estrategista → copywriter → designer → revisor
+/marketing-research  → pesquisa de referências públicas via Chrome DevTools MCP (hooks, cadência, CTAs)
+```
+
+**4 agents especializados** (`source/agents/mkt-*.md`):
+- `@mkt-estrategista` — ângulos, big idea, calendário editorial
+- `@mkt-copywriter` — copy hook-first (3 hooks → body → CTA)
+- `@mkt-designer` — peças visuais via Suíte de Design IdeiaOS
+- `@mkt-revisor` — scoring + veto APROVADO/REJEITADO
+
+**22 rules** em `source/rules/marketing/` (copywriting, data-analysis, blog SEO, posts).
+
+Para usar:
+```
+/marketing
+→ A skill pergunta o objetivo, delega sequencialmente para os 4 agents e entrega o material revisado.
+```
+
+---
+
+### GSD/OpenSpec — Spec e Forge (Fases 25, 28, 30, 31)
+
+**Forge Agent (`/forge-agent`) — pesquisa antes de criar**
+Fundamenta agents e skills em pesquisa real do domínio antes de produzir spec. Nunca cria agent sem ao menos 2 fontes verificáveis. Fluxo: definir domínio → `/deep-research` (máx 3 ciclos) → model routing com justificativa → spec grounded.
+```
+/forge-agent
+→ Pergunta: domínio-alvo? tipo (agent ou skill)? problema que resolve?
+→ Pesquisa → produz source/agents/<nome>.md ou source/skills/<nome>/SKILL.md com fontes.
+```
+
+**Delta-Spec Brownfield (`/spec`) — contratos de comportamento vivos**
+Mantém contratos de comportamento duráveis por capability em `specs/<capability>/spec.md`. Complementar ao GSD: `/spec` define o CONTRATO (o que o produto deve fazer); GSD executa a IMPLEMENTAÇÃO. Adaptado do OpenSpec MIT.
+```
+/spec
+→ Proposta → delta (ADICIONADO/MODIFICADO/REMOVIDO/RENOMEADO) → tasks.md → merge+archive.
+
+Deia, registra que o login deve suportar 2FA com TOTP
+→ Roteado para /spec → capability "auth" → proposta + delta.
+```
+Libs internas: `source/skills/spec/lib/spec-validate.sh` (gate) + `source/skills/spec/lib/spec-merge.sh` (merge determinístico + archive datado). Rule de fronteira: `source/rules/common/delta-spec.md`.
+
+**GSD Lineage Lock (Fase 28) — blindagem do pin redux**
+O `versions.lock` traz nota expandida que documenta a distinção `gsd-redux 1.1.0 ≠ gsd-pi 3.x`. O `check-versions-lock.sh` bloqueia pinos fora da linha redux antes de qualquer commit. Histórico: o pin foi revertido 3 vezes antes desta blindagem.
+
+**ADRs de tooling (Fase 31 — `docs/decisions/`)**
+2 ADRs com avaliação de adoção gradual: `gsd-browser-pilot-evaluation.md` (browser automation no GSD) e `agent-inbox-optin.md` (inbox opt-in por agent). Consulte antes de adicionar integração de browser ou fila de mensagens ao pipeline GSD.
 
 ---
 
@@ -921,7 +1054,7 @@ Se não existir, roda `@ideiaos-checker` no chat ou `idea-setup` no terminal.
 
 ### "Como sei se o setup está completo?"
 
-**Comando direto:** `bash scripts/idea-doctor.sh` — diagnóstico read-only que audita skills, MCPs, os 10 patches, versões vs `versions.lock`, drift, autosync e **Security Audit** (deny rules, hooks perigosos, secrets em memória, pipeline de quarentena). Mostra `OK / WARN / FAIL` por item com a remediação. Ver também: [`docs/security/memory-hygiene.md`](docs/security/memory-hygiene.md).
+**Comando direto:** `bash scripts/idea-doctor.sh` — diagnóstico read-only que audita skills, MCPs, os 13 patches, versões vs `versions.lock`, drift, autosync e **Security Audit** (deny rules, hooks perigosos, secrets em memória, pipeline de quarentena). Mostra `OK / WARN / FAIL` por item com a remediação. Ver também: [`docs/security/memory-hygiene.md`](docs/security/memory-hygiene.md).
 No Claude Code: `/ideiaos-setup` → mostra ✅/❌ por camada do ideIAos.
 No Cursor: `@ideiaos-checker` → idem.
 

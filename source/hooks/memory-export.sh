@@ -154,6 +154,15 @@ REFUSED_LIST="$(mktemp 2>/dev/null)" || { rm -f "$TMP_LIST"; exit 0; }
 cleanup_tmp() { rm -f "$TMP_LIST" "$REFUSED_LIST" 2>/dev/null || true; }
 trap cleanup_tmp EXIT
 
+# Antifragile gate helper (R6-01): load from source or define inline fallback.
+# Never trusts Read tool output — binary test -s only.
+if [ -n "${IDEIAOS_DIR:-}" ] && [ -f "$IDEIAOS_DIR/source/lib/gates.sh" ]; then
+  # shellcheck source=/dev/null
+  . "$IDEIAOS_DIR/source/lib/gates.sh"
+else
+  gate_output() { test -s "${1:-}" 2>/dev/null; }
+fi
+
 CHANGED=0
 for f in "$MEMDIR"/*.md; do
   [ -e "$f" ] || continue
@@ -190,6 +199,12 @@ if [ -s "$REFUSED_LIST" ]; then
   done < "$REFUSED_LIST"
 fi
 
+# Gate: verify TMP_LIST is a real file before plumbing commit (not a hallucination).
+# Fail-silent per hook contract: gate failure → treat as no changes, exit 0.
+if [ "$CHANGED" -gt 0 ] && ! gate_output "$TMP_LIST" "memory-export/TMP_LIST"; then
+  exit 0
+fi
+
 # Nenhum fato limpo mudou → exit silencioso (sem commit vazio).
 [ "$CHANGED" -eq 0 ] && exit 0
 
@@ -198,9 +213,9 @@ fi
 # write-tree → commit-tree → update-ref. NUNCA toca o working tree nem o índice
 # real do repo; opera só na camada de objetos/refs. Validado contra o nfideia.
 #
-# Além dos fatos shared/, gravamos um espelho em STAGING_PREFIX (dentro da MESMA
-# árvore do commit em planning), satisfazendo "staging só na árvore do planning,
-# nunca no working tree do branch corrente".
+# SÓ os fatos shared/facts/ (+ índice MEMORY.md) entram no commit. O buffer
+# local/staging/ é per-máquina, gitignored, e NUNCA é commitado — ele só existiria
+# como rascunho efêmero; não o adicionamos à árvore do planning.
 #
 # Em colisão de fast-forward (planning andou entre o read-tree e o update-ref),
 # refazemos UMA vez após um fetch+fast-forward do planning local.
@@ -216,13 +231,16 @@ do_plumbing_commit() {
     rm -f "$tmpidx"; return 1
   fi
 
-  # Inserir cada fato em shared/ e o espelho em staging/.
+  # Inserir cada fato APENAS em shared/facts/. O buffer local/staging é
+  # per-máquina e gitignored (.planning/.gitignore: memory/local/) — NUNCA entra
+  # no commit do planning. `update-index` ignora o .gitignore, então a barreira
+  # tem de ser AQUI: não adicionar staging à árvore (senão o buffer por-máquina
+  # vaza pro remoto compartilhado — viola Phase 19 SC #4). Ref: bug do dogfood
+  # 2026-06-14 (staging commitado no origin/planning).
   while IFS="$(printf '\t')" read -r fname blob; do
     [ -z "$fname" ] && continue
     GIT_INDEX_FILE="$tmpidx" git -C "$REPO" update-index --add \
       --cacheinfo "100644,$blob,$FACTS_PREFIX/$fname" 2>/dev/null || { rm -f "$tmpidx"; return 1; }
-    GIT_INDEX_FILE="$tmpidx" git -C "$REPO" update-index --add \
-      --cacheinfo "100644,$blob,$STAGING_PREFIX/$MEM_DATE-$fname" 2>/dev/null || { rm -f "$tmpidx"; return 1; }
   done < "$TMP_LIST"
 
   # Regenerar o índice MEMORY.md de shared/ de forma DETERMINÍSTICA a partir da

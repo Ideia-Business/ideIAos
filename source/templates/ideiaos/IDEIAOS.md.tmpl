@@ -52,7 +52,7 @@ Detalhes: `docs/ideiaos/DECISION-MATRIX.md` e `docs/ideiaos/GUIDE-AI.md`.
 
 ---
 
-## As 5 camadas do ideIAos
+## As 6 camadas do ideIAos
 
 Cada camada tem um propósito específico. Não competem — se complementam.
 
@@ -123,6 +123,22 @@ Retomar trabalho entre Cursor ↔ Claude Code sem perda de contexto.
 | `/ideiaos-setup` | Claude Code | Audita + completa setup |
 | `@ideiaos-checker` | Cursor | Idem (espelho) |
 
+### 6. Marketing — Produção de conteúdo acionável
+Camada dedicada a criação e revisão de conteúdo: posts, carrosseis, blog, newsletter, VSL, roteiros, campanhas, threads e copy. Orquestrada pelo `/marketing`.
+
+| Componente | Função | Comando |
+|-----------|--------|---------|
+| `/marketing` | Orquestrador — conduz pipeline discovery→design→build→review→publish | `/marketing` |
+| `mkt-estrategista` (opus) | Define ângulos, big idea e briefing de produção | Recrutado pelo `/marketing` |
+| `mkt-copywriter` (sonnet) | Produz 3 variações de hook→body→CTA por formato | Recrutado pelo `/marketing` |
+| `mkt-designer` (sonnet) | Gera especificação visual reutilizando a Suíte de Design IdeiaOS | Recrutado pelo `/marketing` |
+| `mkt-revisor` (sonnet) | Scoring + veredito APPROVE/REJECT contra critérios de qualidade | Recrutado pelo `/marketing` |
+| `/marketing-research` | Sherlock de marketing — investiga perfis públicos via Chrome DevTools MCP | Skill direta ou Discovery opcional |
+
+**Base de conhecimento:** `source/rules/marketing/` — 22 best-practices de conteúdo (disciplinas + plataformas), absorvidas do OpenSquad MIT. O orquestrador injeta a best-practice do formato em runtime.
+
+**Sinergia com a Suíte de Design:** após copy aprovada, o `mkt-designer` reutiliza `/banner-design`, `/slides` ou `/ui-ux-pro-max` para gerar as peças visuais.
+
 ---
 
 ## Fluxos típicos
@@ -181,6 +197,22 @@ Deia, preciso de story formal para feature X (stakeholder externo)
     → push origin main
     → handoff em docs/lovable/
     → resposta 8 blocos
+```
+
+### Produção de conteúdo
+```
+Deia, cria um carrossel sobre X
+  → Deia detecta sinal "carrossel" → camada Marketing
+  → /marketing entra em discovery
+    → classifica formato: carrossel Instagram
+    → carrega source/rules/marketing/instagram-feed.md
+    → (opcional) /marketing-research para calibrar com dados reais
+    → mkt-estrategista (opus): 5 ângulos → checkpoint de aprovação
+    → mkt-copywriter (sonnet): 3 variações copy → checkpoint de aprovação
+    → mkt-designer (sonnet): especificação visual via /slides
+    → mkt-revisor (sonnet): scoring + veredito APPROVE/REJECT
+  → Entrega em docs/marketing/{data}-{slug}/
+  → Publicação: manual/opcional
 ```
 
 ---
@@ -243,4 +275,4 @@ Idempotente — pula tudo que já está, atualiza só o que mudou.
 
 ---
 
-*Manifesto criado em __DATE__ · v1.1 (Caminho C: composição AIOX × GSD) · Mantido por ideIAos ([github.com/Ideia-Business/ideIAos](https://github.com/Ideia-Business/ideIAos))*
+*Manifesto criado em __DATE__ · v1.1 (Caminho C: composição AIOX × GSD) · v1.2 (Camada de Marketing — 6ª camada, orquestrador /marketing) · Mantido por ideIAos ([github.com/Ideia-Business/ideIAos](https://github.com/Ideia-Business/ideIAos))*

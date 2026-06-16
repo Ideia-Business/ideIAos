@@ -227,6 +227,18 @@ else
   fail "T4: app.txt foi alterado"
 fi
 
+# ─────────────────────────────────────────────────────────────────────────────
+# TEST 5 — REGRESSÃO (bug dogfood 2026-06-14): local/staging NUNCA é commitado
+# no planning. update-index ignora .gitignore, então a barreira é não adicionar
+# staging à árvore. Buffer per-máquina não pode vazar pro remoto (Phase 19 SC#4).
+# ─────────────────────────────────────────────────────────────────────────────
+if git -C "$SCRATCH" ls-tree -r --name-only planning 2>/dev/null | grep -q 'memory/local'; then
+  fail "T5: local/staging foi commitado no planning (regressão do bug dogfood)"
+  git -C "$SCRATCH" ls-tree -r --name-only planning | grep 'memory/local' | sed 's/^/      /'
+else
+  pass "T5: local/staging NÃO commitado no planning (buffer per-máquina isolado)"
+fi
+
 # ── Resumo ───────────────────────────────────────────────────────────────────
 echo ""
 if [ "$FAILS" -eq 0 ]; then

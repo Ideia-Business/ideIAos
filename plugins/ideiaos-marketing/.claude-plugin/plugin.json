@@ -1,0 +1,11 @@
+{
+  "name": "ideiaos-marketing",
+  "version": "3.0.0",
+  "description": "Camada de Marketing IdeiaOS — orquestrador /marketing, 4 content agents, skill marketing-research (Sherlock via Chrome DevTools MCP), 22 best-practices absorvidas do OpenSquad MIT.",
+  "author": {
+    "name": "Ideia Business",
+    "email": "gustavo@redeideia.com.br"
+  },
+  "homepage": "https://github.com/Ideia-Business/IdeiaOS",
+  "license": "MIT"
+}
