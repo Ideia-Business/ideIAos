@@ -284,6 +284,17 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | `doc-updater` | haiku | Atualizar README e comentários WHY |
 | `performance-optimizer` | sonnet | Identificar gargalos de performance |
 
+### Agents de Marketing (Fase 26 — source/agents/mkt-*.md)
+
+4 agents da Camada de Marketing — recrutados e orquestrados pelo `/marketing` (Plano 26-03):
+
+| Agent | Modelo | Quando usar |
+|-------|--------|-------------|
+| `mkt-estrategista` | opus | Definir ângulos, big idea, posicionamento e calendário editorial |
+| `mkt-copywriter` | sonnet | Produzir copy por formato com protocolo hook-first (3 hooks → body → CTA) |
+| `mkt-designer` | sonnet | Criar peças visuais reusando a Suite de Design IdeiaOS (banner-design/slides/ui-ux-pro-max) |
+| `mkt-revisor` | sonnet | Scoring + veto APROVADO/REJEITADO com feedback acionável |
+
 ### Skills ECC de workflow (Fase 04 — source/skills/)
 
 14 skills adicionadas na Fase 04 — acessíveis via `/idea` ou comando direto:
