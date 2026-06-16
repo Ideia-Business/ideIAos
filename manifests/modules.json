@@ -628,6 +628,16 @@
       "plugin": "ideiaos-core"
     },
     {
+      "id": "skill-forge-agent",
+      "kind": "skill",
+      "description": "Pesquisa padrões reais do domínio antes de gerar spec de agent/skill — cita fontes, lista anti-patterns, justifica model routing",
+      "source": "source/skills/forge-agent/SKILL.md",
+      "targets": ["claude"],
+      "deps": ["skill-deep-research"],
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
+    },
+    {
       "id": "skill-codebase-onboarding",
       "kind": "skill",
       "description": "Structured onboarding into an unfamiliar codebase",
