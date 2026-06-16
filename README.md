@@ -249,6 +249,7 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | **Hook Claude `session-summary.sh`** | `~/.claude/hooks/` | Stop — persiste resumo ECC em `~/.claude/sessions/` e atualiza CONTINUATION_HANDOFF.md |
 | **Hook Claude `observe-tool-use.sh`** | `~/.claude/hooks/` | PostToolUse Edit/Write/Bash — anexa observação (só metadados) em `~/.ideiaos/observations/` |
 | **Hook Claude `observe-session-end.sh`** | `~/.claude/hooks/` | Stop — marca session_end como gatilho do /instinct-analyze |
+| **Hook Claude `instinct-recover.sh`** | `~/.claude/hooks/` | SessionStart (v6) — detecta breadcrumbs órfãos do spawn de `/instinct-analyze` após crash; re-spawna exatamente uma vez (gate de pid + idade + cooldown 30min); fail-silent (exit 0 sempre) |
 | **Hook Claude `memory-import.sh`** | `~/.claude/hooks/` | SessionStart (v5) — importa os fatos `shared/` do branch `planning` para a memória nativa da IDE (`~/.claude/projects/<slug>/memory/`); roda após git-sync-check; regenera a ponte Cursor `.cursor/rules/memory-bridge.mdc` (gitignored); freshness guard por SHA; exit 0 offline-safe (nunca bloqueia SessionStart) |
 | **Hook Claude `memory-export.sh`** | `~/.claude/hooks/` | Stop (v5) — exporta a memória nativa alterada para o branch `planning` via git plumbing (`hash-object`→`commit-tree`→`update-ref`); NUNCA toca `main`, sem resíduo no working tree; secret-scan gate (recusa fatos com credencial); escrita real é skill-driven (`/memory-sync export`) |
 | **Skill Claude `/instinct-analyze`** | `~/.claude/skills/instinct-analyze/` | Agente haiku background — observações → instincts atômicos |
@@ -322,6 +323,13 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | Skill | installStrategy | Descrição |
 |-------|-----------------|-----------|
 | `/marketing-research` | always | Investigar perfis públicos de referência via Chrome DevTools MCP e extrair padrões reais (hooks, estrutura, cadência, CTAs) |
+
+### Skills v6 — Resiliência, Spec e Forge (Fases 25/30)
+
+| Skill | installStrategy | Descrição |
+|-------|-----------------|-----------|
+| `/forge-agent` | always | Fundamenta a criação de agents e skills em pesquisa real do domínio antes de produzir spec — cita fontes verificáveis, lista anti-patterns derivados de pesquisa, justifica model routing com racional documentado. 4 fases: definir domínio → pesquisa (`/deep-research`, máx 3 ciclos) → model routing → spec grounded. |
+| `/spec` | always | Delta-spec brownfield — mantém contratos de comportamento vivos de produto por capability em `specs/<capability>/spec.md`. Fluxo: propose → spec/delta → tasks → merge+archive. Complementar ao GSD (spec = contrato; GSD = implementação). Adaptado do OpenSpec MIT. |
 
 ### Manutenção do próprio ideIAos (rodados manualmente)
 
@@ -795,14 +803,18 @@ ideIAos/
 │   ├── build-adapters.sh                   ← Compila source/ → harness targets (claude + cursor)
 │   └── build-plugins.sh                    ← Gera plugins/ a partir de source/ (marketplace)
 ├── source/                                 ← FONTE ÚNICA DE VERDADE (Fase 03+)
-│   ├── skills/                             ← 35 skills (24 core incl. /memory-sync + 10 design + 1 lovable)
-│   ├── agents/                             ← 15 agents ECC
-│   ├── hooks/                              ← 13 hooks de produto (incl. memory-import.sh + memory-export.sh) + 3 test-hooks
+│   ├── skills/                             ← 38 skills (core incl. /memory-sync + 10 design + 1 lovable + /forge-agent + /spec)
+│   │   ├── forge-agent/                    ← /forge-agent (v6 Fase 25) — pesquisa antes de criar agent/skill
+│   │   └── spec/                           ← /spec (v6 Fase 30) — delta-spec brownfield; lib/ + templates/
+│   ├── agents/                             ← 19 agents (ECC + 4 mkt-*)
+│   ├── hooks/                              ← 14 hooks de produto (incl. instinct-recover.sh v6 + memory-import/export) + 3 test-hooks
+│   ├── lib/                                ← libs shell reutilizáveis (v6): gates.sh (antifragile I/O) + handoff-packet.sh (context-packet)
 │   ├── templates/                          ← templates de projeto (hybrid/ideiaos/lovable/learnings/memory/global-patches)
 │   ├── contexts/                           ← contexts de modo (dev.md / review.md / research.md)
 │   ├── statusline/                         ← ideiaos-statusline.sh
 │   └── rules/
-│       ├── common/                         ← token-economy, mcp-hygiene, orchestration
+│       ├── common/                         ← token-economy, mcp-hygiene, orchestration, antifragile-gates, context-packet-handoffs, delta-spec (v6)
+│       ├── marketing/                      ← 22 rules de marketing (copywriting, blog-seo, data-analysis, posts…) (v6 Fase 26)
 │       ├── supabase/                       ← rls-patterns
 │       ├── lovable/                        ← deployment-protocol
 │       └── ecc/                            ← rules ECC absorvidas via quarentena (MIT)
@@ -826,15 +838,96 @@ ideIAos/
 │   ├── CONTINUATION_HANDOFF.md
 │   └── security/
 │       └── memory-hygiene.md               ← Regras de higiene de memória (sem secrets, reset pós-quarentena)
+├── tests/                                  ← suítes de teste estruturais
+│   ├── v6-hooks/                           ← 5 suites CI (test-deia-trigger, test-observe-session-end, test-observe-tool-use, test-strategic-compact, test-build-adapters) — v6 Fase 27
+│   └── v5-memory/                          ← testes de memória v5
 ├── evals/                                  ← suíte de regressão (≥20 casos reais) + run-evals.sh
 │   ├── run-evals.sh                        ← runner: bash evals/run-evals.sh [--list]
 │   ├── cases/                              ← EVAL-*.md (≥20 casos com input/expected/actual)
 │   └── README.md                          ← documentação da suíte
+├── docs/
+│   ├── decisions/                          ← ADRs de tooling (v6 Fase 31): gsd-browser-pilot-evaluation.md + agent-inbox-optin.md + histórico v5
 ├── AGENTS.md                               ← Identidade do ideIAos
 ├── CLAUDE.md                               ← Instruções Claude para ideIAos
 ├── STATE.md                                ← Estado do ideIAos
 └── README.md                               ← Este arquivo
 ```
+
+---
+
+## 🆕 Novidades v6 — Resiliência + Marketing + GSD/OpenSpec
+
+### Resiliência e Antifragilidade (Fases 23, 24, 27, 29)
+
+**Antifragile Gates (`source/lib/gates.sh` + rule `antifragile-gates.md`)**
+Helpers shell que usam apenas `test -s PATH` (exit code binário) para verificar I/O — nunca o Read tool, que pode alucinar conteúdo. Use `gates.sh` em qualquer hook ou script que precise garantir que um arquivo foi realmente escrito.
+
+**Recuperação do loop de instincts (`instinct-recover.sh` — SessionStart)**
+Detecta breadcrumbs órfãos do spawn de `/instinct-analyze` (crash de sessão) e re-spawna exatamente uma vez, com gate de pid vivo + idade + cooldown de 30 min. Fail-silent: nunca bloqueia o SessionStart.
+
+**Context-Packet Handoffs (`source/lib/handoff-packet.sh` + rule `context-packet-handoffs.md`)**
+Padrão de handoff com token budget explícito, wrapper anti-injection e hash SHA-256 de idempotência. Use para emitir pacotes de contexto entre hooks, skills e sessões sem vazar informação sensível ou inflar o contexto inutilmente.
+
+**Test Hardening (`tests/v6-hooks/` — 5 suites, CI estrutural)**
+5 suites de teste cobrindo os hooks centrais (`deia-trigger`, `observe-session-end`, `observe-tool-use`, `strategic-compact`, `build-adapters`). Rodar com:
+```bash
+bash tests/v6-hooks/test-deia-trigger.sh
+bash tests/v6-hooks/test-observe-session-end.sh
+# ... ou todos via CI
+```
+
+---
+
+### Camada de Marketing (Fase 26)
+
+**Skills de marketing:**
+```
+/marketing           → orquestra campanha completa: estrategista → copywriter → designer → revisor
+/marketing-research  → pesquisa de referências públicas via Chrome DevTools MCP (hooks, cadência, CTAs)
+```
+
+**4 agents especializados** (`source/agents/mkt-*.md`):
+- `@mkt-estrategista` — ângulos, big idea, calendário editorial
+- `@mkt-copywriter` — copy hook-first (3 hooks → body → CTA)
+- `@mkt-designer` — peças visuais via Suíte de Design IdeiaOS
+- `@mkt-revisor` — scoring + veto APROVADO/REJEITADO
+
+**22 rules** em `source/rules/marketing/` (copywriting, data-analysis, blog SEO, posts).
+
+Para usar:
+```
+/marketing
+→ A skill pergunta o objetivo, delega sequencialmente para os 4 agents e entrega o material revisado.
+```
+
+---
+
+### GSD/OpenSpec — Spec e Forge (Fases 25, 28, 30, 31)
+
+**Forge Agent (`/forge-agent`) — pesquisa antes de criar**
+Fundamenta agents e skills em pesquisa real do domínio antes de produzir spec. Nunca cria agent sem ao menos 2 fontes verificáveis. Fluxo: definir domínio → `/deep-research` (máx 3 ciclos) → model routing com justificativa → spec grounded.
+```
+/forge-agent
+→ Pergunta: domínio-alvo? tipo (agent ou skill)? problema que resolve?
+→ Pesquisa → produz source/agents/<nome>.md ou source/skills/<nome>/SKILL.md com fontes.
+```
+
+**Delta-Spec Brownfield (`/spec`) — contratos de comportamento vivos**
+Mantém contratos de comportamento duráveis por capability em `specs/<capability>/spec.md`. Complementar ao GSD: `/spec` define o CONTRATO (o que o produto deve fazer); GSD executa a IMPLEMENTAÇÃO. Adaptado do OpenSpec MIT.
+```
+/spec
+→ Proposta → delta (ADICIONADO/MODIFICADO/REMOVIDO/RENOMEADO) → tasks.md → merge+archive.
+
+Deia, registra que o login deve suportar 2FA com TOTP
+→ Roteado para /spec → capability "auth" → proposta + delta.
+```
+Libs internas: `source/skills/spec/lib/spec-validate.sh` (gate) + `source/skills/spec/lib/spec-merge.sh` (merge determinístico + archive datado). Rule de fronteira: `source/rules/common/delta-spec.md`.
+
+**GSD Lineage Lock (Fase 28) — blindagem do pin redux**
+O `versions.lock` traz nota expandida que documenta a distinção `gsd-redux 1.1.0 ≠ gsd-pi 3.x`. O `check-versions-lock.sh` bloqueia pinos fora da linha redux antes de qualquer commit. Histórico: o pin foi revertido 3 vezes antes desta blindagem.
+
+**ADRs de tooling (Fase 31 — `docs/decisions/`)**
+2 ADRs com avaliação de adoção gradual: `gsd-browser-pilot-evaluation.md` (browser automation no GSD) e `agent-inbox-optin.md` (inbox opt-in por agent). Consulte antes de adicionar integração de browser ou fila de mensagens ao pipeline GSD.
 
 ---
 
