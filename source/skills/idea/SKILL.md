@@ -97,6 +97,7 @@ Use a matriz abaixo para detectar intenção. **Apenas UMA camada deve ser ativa
 | "gerar llms.txt", "docs pra IA" | **Skill** → `/llms-txt` |
 | "converter MCP em CLI", "MCP pesado demais" | **Skill** → `/mcp-to-cli` |
 | "o que tem disponível", "lista agents/skills", "instala X" | **Skill** → `/ideiaos-catalog` |
+| "spec viva", "contrato de comportamento", "delta de spec", "especificar capability do produto", "documentar comportamento brownfield", "adicionar requisito ao contrato", "mudar comportamento registrado", "proposta de mudança de spec", "registrar comportamento de longo prazo" | **Spec** → `/spec` (delta-spec brownfield: propose→delta→merge+archive; complementa o GSD) |
 | "criar post", "carrossel", "blog/artigo", "newsletter", "VSL", "roteiro de vídeo", "campanha", "conteúdo pra redes", "thread", "legenda", "copy de anúncio" | **Marketing** → `/marketing` (orquestra estrategista/copywriter/designer/revisor — pipeline discovery→design→build→review) |
 | "analisa o perfil @X", "inspira-se no estilo de Y", "investiga concorrente de conteúdo", "pesquisa referências de conteúdo" | **Skill** → `/marketing-research` (Sherlock via Chrome DevTools MCP) |
 | Pedido genérico sem rumo claro | **AskUserQuestion** com 2-3 caminhos prováveis |
@@ -257,6 +258,8 @@ Iniciando agora.
 Você roteia transparentemente. Nunca esconde o comando real — sempre mostra o que vai fazer antes de fazer, para que o usuário aprenda gradualmente os comandos diretos e ganhe velocidade.
 
 **Default seguro:** quando em dúvida entre 2 camadas, prefira a mais leve (`/gsd-quick` antes de `/gsd-plan-phase`; `@dev` direto antes de criar story completa). Sempre é mais barato escalar depois do que voltar atrás.
+
+**Fronteira /spec x GSD:** pedidos de PLANEJAR/EXECUTAR uma fase técnica → GSD. Pedidos de CONTRATAR/REGISTRAR/MUDAR comportamento durável de uma capability de produto → `/spec`. Os dois se complementam: o `tasks.md` do `/spec` alimenta o GSD. Ver `source/rules/common/delta-spec.md`.
 
 ---
 

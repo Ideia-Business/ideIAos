@@ -1073,6 +1073,32 @@
       "deps": [],
       "installStrategy": "manual",
       "plugin": "ideiaos-marketing"
+    },
+    {
+      "id": "skill-spec",
+      "kind": "skill",
+      "description": "Skill /spec — delta-spec brownfield do IdeiaOS. Mantém contratos de comportamento vivos por capability (specs/<capability>/spec.md). Fluxo: propose → spec/delta → tasks → merge+archive. Conceito absorvido do OpenSpec MIT (Fission-AI/OpenSpec); implementação nativa em PT-BR, shell, sem dependência do CLI openspec. Complementa o GSD (R6-13).",
+      "source": "source/skills/spec/SKILL.md",
+      "targets": [
+        "claude"
+      ],
+      "deps": [
+        "rule-delta-spec"
+      ],
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
+    },
+    {
+      "id": "rule-delta-spec",
+      "kind": "rule",
+      "description": "Fronteira /spec x GSD: quando usar cada um e quando usar os dois juntos. Documenta estrutura specs/, regra dos 4 hashtags em cenários, SHALL/DEVE, e complementaridade com o GSD (R6-13). Conceito absorvido do OpenSpec MIT.",
+      "source": "source/rules/common/delta-spec.md",
+      "targets": [
+        "claude"
+      ],
+      "deps": [],
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
     }
   ]
 }
