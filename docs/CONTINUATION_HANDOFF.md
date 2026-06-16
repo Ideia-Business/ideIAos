@@ -119,11 +119,15 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 
 ## Próximo passo
 
-Não há pendência de trabalho travando o repo (`work` = `origin/work`, tree limpo). Opções:
+**v2.0 / v3 / v4 / v5 / v6 todos SHIPPED.** Nenhuma pendência trava o repo (`work` = `origin/work`, tree limpo, `main` = v6 completo). Os itens abaixo são **decisões/opt-in do usuário**, não trabalho aberto:
 
-1. (Opcional) Mac mini: `cd ~/dev/IdeiaOS && git pull && bash scripts/ideiaos-update.sh` — esta máquina já está atualizada.
-2. Em clone novo / máquina nova, regenerar o engine por projeto: `npx aiox-core@latest install` (personas e `/idea` já são globais — funcionam sem isso).
-3. (Opcional) `/gsd-new-milestone "IdeiaOS v5"` para abrir o próximo ciclo — ainda **não há** milestone v5 em `.planning/` (só v2.0/v3/v4).
+1. **Outras máquinas** receberem o v6: `cd ~/dev/IdeiaOS && git pull && bash scripts/ideiaos-update.sh` — esta máquina já está atualizada.
+2. **Piloto `/spec`** (delta-spec brownfield, Fase 30) num produto real — candidato a nfideia. Opt-in.
+3. **gsd-browser** — reavaliar como substituto +barato do chrome-devtools MCP quando publicado no npm/crates (ADR `docs/decisions/gsd-browser-pilot-evaluation.md`).
+4. **agent-inbox** — sob demanda p/ testes de auth-email, nunca em prod (ADR `docs/decisions/agent-inbox-optin.md`).
+5. **Definir o v7**: `/gsd-new-milestone "IdeiaOS v7 — ..."` quando houver escopo.
+
+> Ao reabrir o Claude Code/Cursor, as novidades do v6 (`/marketing`, `/forge-agent`, `/spec`, hooks de memória) entram em vigor no start.
 
 ## Ultima sessao automatica (2026-06-16)
 
