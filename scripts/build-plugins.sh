@@ -38,6 +38,7 @@ CORE_SKILLS=(
   e2e-testing
   evolve
   extract-learnings
+  forge-agent
   idea
   ideiaos-catalog
   ideiaos-setup
@@ -46,7 +47,9 @@ CORE_SKILLS=(
   learn
   llms-txt
   mcp-to-cli
+  memory-sync
   recall-learnings
+  spec
   tdd
   two-instance-kickoff
 )
