@@ -2,7 +2,7 @@
 
 **Milestone:** v7
 **Aberto:** 2026-06-16
-**Status:** 🚧 IN PROGRESS
+**Status:** ✅ SHIPPED 2026-06-16 (auditoria PASSED, tag v7.0)
 
 ## Tese
 

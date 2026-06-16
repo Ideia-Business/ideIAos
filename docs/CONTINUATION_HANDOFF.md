@@ -121,7 +121,7 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 
 **v2.0–v6 SHIPPED. v7 ABERTO** (Delta-Spec Brownfield + Robustez de Empacotamento) — ver `.planning/milestones/v7-ROADMAP.md`.
 
-**v7: 4/5 fases ✅ DONE (2026-06-16).** Resta só a Fase 4 (opt-in/prazo, decisão do usuário).
+**v2.0–v7 todos SHIPPED.** v7 fechado em 2026-06-16 (4 fases entregáveis, auditoria PASSED, tag `v7.0`). Nada bloqueia o repo. Detalhes em `.planning/v7-MILESTONE-AUDIT.md`.
 
 - **Fase 1** — piloto `/spec` no nfideia: spec viva `specs/multi-tenancy/spec.md` (6 reqs do comportamento real) + ciclo de delta completo. 2 bugs do `spec-merge.sh` corrigidos (`mkdir -p _archive`; splice do ADICIONADO dentro de `## Requisitos`) + suite **27/27**. Gap de empacotamento fechado (`spec`/`forge-agent`/`memory-sync` no `CORE_SKILLS`).
 - **Fase 1b** — artefatos do nfideia na branch **`spec/multi-tenancy-pilot`** e **pushada** (`origin/spec/multi-tenancy-pilot`); main intacta (Lovable-safe).
