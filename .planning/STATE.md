@@ -1,15 +1,15 @@
 ---
 gsd_state_version: 1.0
-milestone: v6
-milestone_name: Resiliência + Marketing + GSD/OpenSpec
-status: shipped
+milestone: v7
+milestone_name: Delta-Spec Brownfield + Robustez de Empacotamento
+status: in_progress
 last_updated: "2026-06-16"
 progress:
-  total_phases: 9
-  completed_phases: 9
-  total_plans: 11
-  completed_plans: 11
-  percent: 100
+  total_phases: 5
+  completed_phases: 1
+  total_plans: 1
+  completed_plans: 1
+  percent: 20
 ---
 
 # State — IdeiaOS
@@ -23,7 +23,7 @@ progress:
 | v2.0/v3/v4 (plano maior ECC) | ✅ SHIPPED |
 | v5 (memória cross-IDE) | ✅ SHIPPED |
 | **v6 (Resiliência + Marketing + GSD/OpenSpec)** | ✅ **SHIPPED 2026-06-16** — 9 fases, auditoria 15/15, tag v6.0 |
-| Próximo milestone (v7) | ⬜ A definir |
+| **v7 (Delta-Spec Brownfield + Robustez de Empacotamento)** | 🚧 **IN PROGRESS** — Fase 1 (piloto `/spec` no nfideia) ✅ DONE: spec viva de multi-tenancy + 2 bugs do engine corrigidos (27/27) + gap de empacotamento fechado. Ver `milestones/v7-ROADMAP.md` |
 
 ## Decisões Tecnicas Canonicas
 
