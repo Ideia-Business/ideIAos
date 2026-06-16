@@ -48,3 +48,33 @@ Gap da análise (IdeiaOS só 3 suites; AIOX cobertura em erosão; OpenSquad engi
 | R6-03, R6-04 | 25 grounded-build-parity |
 | R6-05..R6-09 | 26 marketing-layer |
 | R6-10 | 27 test-hardening |
+
+---
+
+## Tema D — Indicações da análise GSD × OpenSpec (Fases 28-31) [adicionado 2026-06-16]
+
+Origem: vault `Decisions/Comparativo GSD vs OpenSpec.md`. Documentadas aqui para a próxima sessão fechar junto com 23/24/25/27.
+
+### R6-11 (P1) — Blindar linhagem/pin do GSD
+Travar `@opengsd/get-shit-done-redux@1.1.0` exato + documentar definitivamente a linhagem (redux ≠ gsd-pi; org open-gsd ≠ gsd-build) em `versions.lock` (nota), STATE e handoff. Fecha a causa-raiz do pin revertido 3×. **Critério:** nota de linhagem no versions.lock + doctor avisa se o pin sair de 1.1.0 da linha redux; nenhuma confusão redux/Pi possível.
+
+### R6-12 (P2) — Padrão context-packet nos handoffs
+Adotar os 3 conceitos do context-packet (token budget + anti-injection wrapper + idempotência por hash) no nosso sistema de handoffs (`.aiox/handoffs/`, `handoff-consolidation.md`) — SEM depender do pacote (está quieto). **Critério:** handoffs ganham budget de tokens + wrapper anti-injection + hash de idempotência; documentado em rule.
+
+### R6-13 (P2) — Camada delta-spec brownfield (conceito OpenSpec)
+Nova capability opcional do IdeiaOS: corpus de specs vivas com deltas (ADDED/MODIFIED/REMOVED/RENAMED requirements → merge em source-of-truth → archive datado), para os produtos brownfield (nfideia, ideiapartner, cfoai). COMPLEMENTA o GSD (não substitui). **Critério:** skill/estrutura `specs/<capability>/spec.md` + fluxo de delta + archive; piloto num produto. (Fase maior — pode ficar como spike se o tempo apertar.)
+
+### R6-14 (P3) — Avaliar gsd-browser (opt-in)
+Piloto do gsd-browser como substituto +barato/determinístico do chrome-devtools MCP numa skill visual (frontend-visual-loop/web-quality). **Critério:** avaliação documentada (ADR) com decisão adotar/adiar; nenhuma troca forçada.
+
+### R6-15 (P3) — agent-inbox sob demanda
+Documentar o agent-inbox como MCP opt-in para testes de auth/email nos produtos (nunca em prod, higiene de MCP). **Critério:** doc de uso opt-in; não instalado by default.
+
+## Coverage Tema D
+
+| Req | Fase |
+|-----|------|
+| R6-11 | 28 gsd-lineage-lock |
+| R6-12 | 29 context-packet-handoffs |
+| R6-13 | 30 openspec-delta-spec |
+| R6-14, R6-15 | 31 tooling-eval-optin |
