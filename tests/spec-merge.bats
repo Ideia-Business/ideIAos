@@ -605,6 +605,118 @@ EOF
 }
 
 # ============================================================
+# TESTE 11: spec-merge cria _archive/ ausente (produto novo)
+# Regressao do piloto nfideia: primeira change de um produto fresco
+# falhava no archive porque _archive/ ainda nao existia.
+# ============================================================
+run_test_11() {
+  printf '\n[Teste 11] spec-merge cria _archive/ ausente (produto novo) — regressao piloto nfideia\n'
+  local TMP
+  TMP=$(mktemp -d /tmp/spec-test-XXXXXX)
+  # NB: NAO pre-criar _archive/ — simula a primeira change de um produto novo
+  mkdir -p "$TMP/specs/multi-tenancy" "$TMP/specs/_changes/add-x/delta"
+
+  cat > "$TMP/specs/multi-tenancy/spec.md" << 'EOF'
+# Spec: multi-tenancy
+
+## Requisitos
+
+### Requisito: Base
+
+Requisito base.
+
+#### Cenário: Base
+
+- **QUANDO** base
+- **ENTÃO** ok
+EOF
+
+  cat > "$TMP/specs/_changes/add-x/delta/multi-tenancy.md" << 'EOF'
+## ADICIONADO Requisitos
+
+### Requisito: Novo Isolamento
+
+O sistema DEVE isolar X.
+
+#### Cenário: Isola
+
+- **QUANDO** acesso cruzado
+- **ENTÃO** negado
+EOF
+
+  bash "$MERGE" "$TMP" "add-x" --yes > /dev/null 2>&1
+  local EXIT_CODE=$?
+  assert_exit "spec-merge sai 0 mesmo sem _archive/ pre-existente" "0" "$EXIT_CODE"
+  assert_dir_exists "archive criado (mkdir -p _archive)" \
+    "$TMP/specs/_archive/$(date +%F)-add-x"
+  assert_dir_not_exists "_changes consumido apos archive" \
+    "$TMP/specs/_changes/add-x"
+  assert_file_contains "spec.md contem requisito adicionado" \
+    "$TMP/specs/multi-tenancy/spec.md" "Novo Isolamento"
+  rm -rf "$TMP"
+}
+
+# ============================================================
+# TESTE 12: ADICIONADO e inserido DENTRO de ## Requisitos
+# (antes de ## Notas), nao anexado no EOF do arquivo.
+# ============================================================
+run_test_12() {
+  printf '\n[Teste 12] spec-merge insere ADICIONADO dentro de ## Requisitos (antes de ## Notas)\n'
+  local TMP
+  TMP=$(mktemp -d /tmp/spec-test-XXXXXX)
+  mkdir -p "$TMP/specs/cap" "$TMP/specs/_changes/add-y/delta" "$TMP/specs/_archive"
+
+  cat > "$TMP/specs/cap/spec.md" << 'EOF'
+# Spec: cap
+
+## Requisitos
+
+### Requisito: Existente
+
+Requisito existente.
+
+#### Cenário: Ex
+
+- **QUANDO** x
+- **ENTÃO** y
+
+## Notas
+
+Notas finais aqui.
+EOF
+
+  cat > "$TMP/specs/_changes/add-y/delta/cap.md" << 'EOF'
+## ADICIONADO Requisitos
+
+### Requisito: Recem Adicionado
+
+O sistema DEVE fazer Z.
+
+#### Cenário: Z
+
+- **QUANDO** z
+- **ENTÃO** w
+EOF
+
+  bash "$MERGE" "$TMP" "add-y" --yes > /dev/null 2>&1
+  local EXIT_CODE=$?
+  assert_exit "spec-merge sai 0 para ADICIONADO com secao final" "0" "$EXIT_CODE"
+
+  local ADDED_LINE NOTAS_LINE
+  ADDED_LINE=$(grep -n "Recem Adicionado" "$TMP/specs/cap/spec.md" | head -1 | cut -d: -f1)
+  NOTAS_LINE=$(grep -n "^## Notas" "$TMP/specs/cap/spec.md" | head -1 | cut -d: -f1)
+  if [ -n "$ADDED_LINE" ] && [ -n "$NOTAS_LINE" ] && [ "$ADDED_LINE" -lt "$NOTAS_LINE" ]; then
+    PASS_COUNT=$((PASS_COUNT + 1))
+    printf '  ok: ADICIONADO antes de ## Notas (linha %s < %s)\n' "$ADDED_LINE" "$NOTAS_LINE"
+  else
+    FAIL_COUNT=$((FAIL_COUNT + 1))
+    FAIL_MSGS+=("FAIL: ADICIONADO nao ficou antes de ## Notas (added=$ADDED_LINE notas=$NOTAS_LINE)")
+    printf '  FAIL: ADICIONADO nao ficou antes de ## Notas (added=%s notas=%s)\n' "$ADDED_LINE" "$NOTAS_LINE"
+  fi
+  rm -rf "$TMP"
+}
+
+# ============================================================
 # Executar todos os testes
 # ============================================================
 printf '\n=== spec-merge test suite ===\n'
@@ -634,6 +746,8 @@ run_test_7
 run_test_8
 run_test_9
 run_test_10
+run_test_11
+run_test_12
 
 printf '\n=== Resultado ===\n'
 printf 'Passaram: %d\n' "$PASS_COUNT"

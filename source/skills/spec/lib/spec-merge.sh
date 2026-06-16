@@ -104,6 +104,11 @@ for DELTA_FILE in "$DELTA_DIR"/*.md; do
       "$CAPABILITY" "$(date +%F)" > "$TMPSPEC"
   fi
 
+  # Acumular requisitos ADICIONADOS aqui; sao espliçados na secao ## Requisitos
+  # no fim do processamento ADDED (em vez de anexados no EOF do arquivo).
+  ADDED_ACCUM=$(mktemp /tmp/spec-added-XXXXXX.md)
+  : > "$ADDED_ACCUM"
+
   # Processar ADDED
   IN_SECTION=0
   IN_REQ=0
@@ -126,7 +131,7 @@ for DELTA_FILE in "$DELTA_DIR"/*.md; do
             if [ "$DRY_RUN" -eq 1 ]; then
               echo "[DRY-RUN] ADICIONADO: $CAPABILITY / $CURRENT_REQ"
             else
-              printf '\n%s' "$CURRENT_REQ_BLOCK" >> "$TMPSPEC"
+              printf '\n%s' "$CURRENT_REQ_BLOCK" >> "$ADDED_ACCUM"
             fi
             TOTAL_ADDED=$((TOTAL_ADDED + 1))
           fi
@@ -142,7 +147,7 @@ for DELTA_FILE in "$DELTA_DIR"/*.md; do
             if [ "$DRY_RUN" -eq 1 ]; then
               echo "[DRY-RUN] ADICIONADO: $CAPABILITY / $CURRENT_REQ"
             else
-              printf '\n%s' "$CURRENT_REQ_BLOCK" >> "$TMPSPEC"
+              printf '\n%s' "$CURRENT_REQ_BLOCK" >> "$ADDED_ACCUM"
             fi
             TOTAL_ADDED=$((TOTAL_ADDED + 1))
           fi
@@ -163,11 +168,32 @@ for DELTA_FILE in "$DELTA_DIR"/*.md; do
       if [ "$DRY_RUN" -eq 1 ]; then
         echo "[DRY-RUN] ADICIONADO: $CAPABILITY / $CURRENT_REQ"
       else
-        printf '\n%s' "$CURRENT_REQ_BLOCK" >> "$TMPSPEC"
+        printf '\n%s' "$CURRENT_REQ_BLOCK" >> "$ADDED_ACCUM"
       fi
       TOTAL_ADDED=$((TOTAL_ADDED + 1))
     fi
   fi
+
+  # Inserir requisitos ADICIONADOS ao fim da secao ## Requisitos (antes de
+  # secoes finais como ## Notas / ## Historial), em vez de no EOF do arquivo.
+  if [ -s "$ADDED_ACCUM" ]; then
+    SPLICED=$(mktemp /tmp/spec-splice-XXXXXX.md)
+    awk -v addf="$ADDED_ACCUM" '
+      function emit_added(   l) {
+        if (inserted) return
+        while ((getline l < addf) > 0) print l
+        close(addf); inserted=1
+      }
+      BEGIN { in_req=0; inserted=0 }
+      /^## Requisitos[[:space:]]*$/ { in_req=1; print; next }
+      /^## / { if (in_req && !inserted) emit_added(); in_req=0; print; next }
+      { print }
+      END { if (!inserted) emit_added() }
+    ' "$TMPSPEC" > "$SPLICED"
+    cp "$SPLICED" "$TMPSPEC"
+    rm -f "$SPLICED"
+  fi
+  rm -f "$ADDED_ACCUM"
 
   # Processar MODIFIED — substituir bloco completo do requisito na spec
   IN_SECTION=0
@@ -476,6 +502,7 @@ if [ -d "$ARCHIVE_DIR" ]; then
   exit 1
 fi
 
+mkdir -p "$PRODUTO_ROOT/specs/_archive"
 mv "$CHANGE_DIR" "$ARCHIVE_DIR"
 
 echo ""
