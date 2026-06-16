@@ -2,6 +2,38 @@
 
 **Projeto:** `IdeiaOS` · **Branch:** `work` (= main) · **Atualizado:** 2026-06-16
 
+---
+
+## 🎯 PRÓXIMA SESSÃO — FECHAR A ATUALIZAÇÃO DO IDEIAOS (milestone v6)
+
+Tudo planejado. A próxima sessão executa as 8 fases pendentes e fecha o v6.
+
+**Status v6 "Resiliência + Marketing + GSD/OpenSpec":**
+- ✅ Fase 26 (Camada de Marketing) — EXECUTADA e acionável (`/marketing` via Deia)
+- 📋 8 fases PLANEJADAS (PLAN.md prontos), prontas para `/gsd-execute-phase`:
+
+| Fase | Tema | O que entrega |
+|------|------|---------------|
+| 23 antifragile-gates | técnico | bash gates anti-alucinação (`test -s`) |
+| 24 agent-resilience | técnico | retomada de spawn do instinct loop |
+| 25 grounded-build-parity | técnico | `/forge-agent` + `--validate-parity` |
+| 27 test-hardening | técnico | ≥5 suites de teste no CI |
+| 28 gsd-lineage-lock | GSD×OpenSpec | travar pin redux 1.1.0 + linhagem |
+| 29 context-packet-handoffs | GSD×OpenSpec | token budget + anti-injection + hash nos handoffs |
+| 30 openspec-delta-spec | GSD×OpenSpec | camada delta-spec brownfield (2 planos; pode virar spike) |
+| 31 tooling-eval-optin | GSD×OpenSpec | ADR gsd-browser + doc opt-in agent-inbox |
+
+**Ordem recomendada:** 23 → 24 → 25 → 27 (técnicas, independentes) → 28 → 29 (29 reusa o gate da 23) → 30 → 31.
+
+**⚠️ AO FINAL DE TUDO (obrigatório — memória `feedback-readme-update-no-final`):**
+1. **Atualizar o README.md** no GitHub com TODOS os novos recursos + instruções gerais de uso (não só a lista de componentes — a narrativa de como acionar cada coisa nova).
+2. Fechar o milestone v6 (auditoria + arquivar + tag v6.0).
+3. Atualizar STATE + handoff + vault Changelog.
+
+**Análises de referência (vault):** `Decisions/Comparativo AIOX-CORE vs OpenSquad vs IdeiaOS.md` · `Decisions/Comparativo GSD vs OpenSpec.md`. Repos clonados para consulta em `/tmp/_cmp_*` (efêmero — re-clonar se preciso).
+
+---
+
 ## Sessão 2026-06-16 — pesquisa: habilitar DeepSeek V4 Pro na AIOX (decisão adiada)
 
 Sessão **consultiva** (ultracode/workflow de research). **Nenhuma mudança no repo IdeiaOS.** Usuário tem chave DeepSeek e perguntou como habilitar V4 Pro na aiox-core; pediu para **adiar a decisão**. Contexto completo em memória (`project-deepseek-v4-enablement-pending`).
