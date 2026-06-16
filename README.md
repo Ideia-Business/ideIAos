@@ -331,6 +331,17 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | `/forge-agent` | always | Fundamenta a criação de agents e skills em pesquisa real do domínio antes de produzir spec — cita fontes verificáveis, lista anti-patterns derivados de pesquisa, justifica model routing com racional documentado. 4 fases: definir domínio → pesquisa (`/deep-research`, máx 3 ciclos) → model routing → spec grounded. |
 | `/spec` | always | Delta-spec brownfield — mantém contratos de comportamento vivos de produto por capability em `specs/<capability>/spec.md`. Fluxo: propose → spec/delta → tasks → merge+archive. Complementar ao GSD (spec = contrato; GSD = implementação). Adaptado do OpenSpec MIT. |
 
+### Skills v8 — Camada de Disciplina (absorvida de agent-skills MIT, addyosmani)
+
+| Skill | installStrategy | Descrição |
+|-------|-----------------|-----------|
+| `/doubt` | always | Doubt-Driven Development — revisor adversarial de contexto-fresco EM-VOO (spawn de subagente) antes de uma decisão não-trivial valer. Complementa `/code-review` (pós-PR). 5 passos: CLAIM→EXTRACT→DOUBT→RECONCILE→STOP. |
+| `/context-engineering` | always | Engenharia de contexto — informação certa, na hora certa (hierarquia de 5 níveis, brain dump, selective include, <2k linhas/tarefa). Operacionaliza token-economy/orchestration/handoffs. |
+| `/observability` | manual (opt-in) | Observabilidade & instrumentação — log estruturado + correlation ID, RED/USE metrics, OpenTelemetry, alertas em sintomas. |
+| `/deprecation-migration` | manual (opt-in) | Deprecação & migração — remover sistemas antigos e migrar usuários com segurança (strangler/adapter/feature-flag, código zumbi). |
+
+> Camada de disciplina comportamental: também adiciona a rule sempre-on `operating-discipline` (6 condutas de base) e a convenção de autoria anti-racionalização (`source/templates/skill/SKILL.md.tmpl`).
+
 ### Manutenção do próprio ideIAos (rodados manualmente)
 
 | Script | O que faz |
@@ -805,17 +816,19 @@ ideIAos/
 │   ├── build-adapters.sh                   ← Compila source/ → harness targets (claude + cursor)
 │   └── build-plugins.sh                    ← Gera plugins/ a partir de source/ (marketplace)
 ├── source/                                 ← FONTE ÚNICA DE VERDADE (Fase 03+)
-│   ├── skills/                             ← 38 skills (core incl. /memory-sync + 10 design + 1 lovable + /forge-agent + /spec)
+│   ├── skills/                             ← 42 skills (core incl. /memory-sync + 10 design + 1 lovable + /forge-agent + /spec + v8 disciplina)
 │   │   ├── forge-agent/                    ← /forge-agent (v6 Fase 25) — pesquisa antes de criar agent/skill
-│   │   └── spec/                           ← /spec (v6 Fase 30) — delta-spec brownfield; lib/ + templates/
+│   │   ├── spec/                           ← /spec (v6 Fase 30) — delta-spec brownfield; lib/ + templates/
+│   │   ├── doubt/                          ← /doubt (v8) — doubt-driven; revisor adversarial em-voo
+│   │   └── context-engineering/            ← /context-engineering (v8) — curadoria de contexto em camadas
 │   ├── agents/                             ← 19 agents (ECC + 4 mkt-*)
 │   ├── hooks/                              ← 14 hooks de produto (incl. instinct-recover.sh v6 + memory-import/export) + 3 test-hooks
 │   ├── lib/                                ← libs shell reutilizáveis (v6): gates.sh (antifragile I/O) + handoff-packet.sh (context-packet)
-│   ├── templates/                          ← templates de projeto (hybrid/ideiaos/lovable/learnings/memory/global-patches)
+│   ├── templates/                          ← templates de projeto (hybrid/ideiaos/lovable/learnings/memory/global-patches) + skill/SKILL.md.tmpl (v8 — convenção de autoria)
 │   ├── contexts/                           ← contexts de modo (dev.md / review.md / research.md)
 │   ├── statusline/                         ← ideiaos-statusline.sh
 │   └── rules/
-│       ├── common/                         ← token-economy, mcp-hygiene, orchestration, antifragile-gates, context-packet-handoffs, delta-spec (v6)
+│       ├── common/                         ← token-economy, mcp-hygiene, orchestration, antifragile-gates, context-packet-handoffs, delta-spec (v6), operating-discipline (v8)
 │       ├── marketing/                      ← 22 rules de marketing (copywriting, blog-seo, data-analysis, posts…) (v6 Fase 26)
 │       ├── supabase/                       ← rls-patterns
 │       ├── lovable/                        ← deployment-protocol

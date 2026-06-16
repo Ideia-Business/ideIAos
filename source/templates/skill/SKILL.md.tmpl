@@ -1,0 +1,87 @@
+---
+name: {{SKILL_NAME}}
+description: "{{O_QUE_A_SKILL_FAZ}}. Ative quando o usuário disser: '{{GATILHO_1}}', '{{GATILHO_2}}', '{{GATILHO_3}}', ou digitar /{{SKILL_NAME}}. {{DISTINCAO_DE_OUTRAS_SKILLS}}. PT-BR."
+---
+
+{{! SOURCE_OU_ORIGINAL: se o conteúdo foi absorvido de um projeto externo, mantenha a linha abaixo e preencha-a (atribuição obrigatória para MIT). Se a skill é 100% original do IdeiaOS, APAGUE a linha inteira. }}
+# SOURCE: {{PROJETO_FONTE}} MIT {{AUTOR_FONTE}} | adapted: IdeiaOS v{{VERSAO}}
+
+# Skill: /{{SKILL_NAME}} — {{TITULO_LEGIVEL}}
+
+**Idioma:** Português brasileiro.
+
+> {{TAGLINE_OPCIONAL_UMA_OU_DUAS_LINHAS_RESUMINDO_A_DISCIPLINA}}
+
+## Como invocar
+
+| Gatilho | Exemplo |
+|---------|---------|
+| Comando slash | `/{{SKILL_NAME}}` |
+| Pela Deia | `Deia, {{EXEMPLO_PEDIDO_LINGUAGEM_NATURAL}}` |
+| Linguagem natural | `{{EXEMPLO_FRASE_QUE_DISPARA_SEM_NOMEAR_A_SKILL}}` |
+
+---
+
+## O que é — e o que NÃO é
+
+### O que é
+
+{{DESCRICAO_DO_QUE_A_SKILL_E_2_A_4_LINHAS}}
+
+### O que NÃO é
+
+| Confusão comum | Camada correta |
+|---------------|----------------|
+| {{COISA_QUE_PARECE_SER_ESTA_SKILL_1}} | {{OUTRA_SKILL_OU_AGENTE_OU_FERRAMENTA_1}} |
+| {{COISA_QUE_PARECE_SER_ESTA_SKILL_2}} | {{OUTRA_SKILL_OU_AGENTE_OU_FERRAMENTA_2}} |
+
+{{NOTA_DE_COMPLEMENTARIDADE_OPCIONAL_COMO_ESTA_SKILL_SE_RELACIONA_COM_AS_ACIMA}}
+
+---
+
+## Quando usar
+
+- {{CRITERIO_DE_USO_1}}
+- {{CRITERIO_DE_USO_2}}
+- {{CRITERIO_DE_USO_3}}
+
+## Quando NÃO usar
+
+- {{CRITERIO_DE_NAO_USO_1}}
+- {{CRITERIO_DE_NAO_USO_2}}
+- {{CRITERIO_DE_NAO_USO_3}}
+
+---
+
+## Processo
+
+1. {{PASSO_1_O_QUE_FAZER_E_COMO_SABER_QUE_TERMINOU}}
+2. {{PASSO_2}}
+3. {{PASSO_3}}
+4. {{PASSO_4_OPCIONAL}}
+
+---
+
+## Tabela anti-racionalização
+
+> Guardrail anti-atalho: cada linha materializa uma desculpa que o agente daria para pular um passo, e a refuta antes que vire decisão. Protege contra "confiante e errado". Mapeie as racionalizações REAIS desta skill — não copie as de outra.
+
+| Racionalização | Realidade |
+|---|---|
+| "{{DESCULPA_PARA_PULAR_UM_PASSO_1}}" | {{POR_QUE_A_DESCULPA_E_FALSA_E_O_PASSO_IMPORTA_1}} |
+| "{{DESCULPA_PARA_PULAR_UM_PASSO_2}}" | {{POR_QUE_A_DESCULPA_E_FALSA_E_O_PASSO_IMPORTA_2}} |
+| "{{DESCULPA_PARA_PULAR_UM_PASSO_3}}" | {{POR_QUE_A_DESCULPA_E_FALSA_E_O_PASSO_IMPORTA_3}} |
+
+## Red flags
+
+- {{SINAL_OBSERVAVEL_DE_QUE_ALGO_DEU_ERRADO_1}}
+- {{SINAL_OBSERVAVEL_DE_QUE_ALGO_DEU_ERRADO_2}}
+- {{SINAL_CHECAVEL_PREFIRA_ALGO_MEDIVEL_3}}
+
+## Verificação
+
+- [ ] {{EVIDENCIA_BINARIA_DE_QUE_A_SKILL_FOI_APLICADA_1}}
+- [ ] {{EVIDENCIA_BINARIA_DE_QUE_A_SKILL_FOI_APLICADA_2}}
+- [ ] {{EVIDENCIA_BINARIA_DE_QUE_A_SKILL_FOI_APLICADA_3}}
+
+{{! Empacotamento (apenas se for skill core): adicione o nome a CORE_SKILLS em scripts/build-plugins.sh, e registre em manifests/modules.json + manifests/plugin-membership.md. O drift-guard scripts/check-plugin-membership.sh valida as três fontes. }}

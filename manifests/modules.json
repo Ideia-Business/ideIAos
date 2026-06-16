@@ -1099,6 +1099,69 @@
       "deps": [],
       "installStrategy": "always",
       "plugin": "ideiaos-core"
+    },
+    {
+      "id": "skill-doubt",
+      "kind": "skill",
+      "description": "Skill /doubt — Doubt-Driven Development. Submete toda decisão não-trivial a uma revisão adversarial de contexto-fresco (spawn de subagente) ANTES de ela valer. Postura em-voo, por decisão; complementa /code-review (pós-PR). Absorvido de agent-skills MIT (addyosmani). v8.",
+      "source": "source/skills/doubt/SKILL.md",
+      "targets": [
+        "claude"
+      ],
+      "deps": [
+        "rule-operating-discipline"
+      ],
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
+    },
+    {
+      "id": "skill-context-engineering",
+      "kind": "skill",
+      "description": "Skill /context-engineering — engenharia de contexto: informação certa, na hora certa, na estrutura certa (hierarquia de 5 níveis, brain dump, selective include, <2k linhas/tarefa). Disciplina que operacionaliza token-economy/orchestration/context-packet-handoffs. Absorvido de agent-skills MIT (addyosmani). v8.",
+      "source": "source/skills/context-engineering/SKILL.md",
+      "targets": [
+        "claude"
+      ],
+      "deps": [],
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
+    },
+    {
+      "id": "rule-operating-discipline",
+      "kind": "rule",
+      "description": "Condutas de base do agente (sempre-on): surface assumptions, manage confusion, push back, enforce simplicity, scope discipline, verify-don't-assume. Piso de toda skill/agente do IdeiaOS; cross-link com antifragile-gates. Absorvido de agent-skills MIT (addyosmani, using-agent-skills). v8.",
+      "source": "source/rules/common/operating-discipline.md",
+      "targets": [
+        "claude",
+        "cursor"
+      ],
+      "deps": [],
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
+    },
+    {
+      "id": "skill-observability",
+      "kind": "skill",
+      "description": "Skill /observability — observabilidade & instrumentação: log estruturado + correlation ID, RED/USE metrics, OpenTelemetry tracing, alertas em sintomas. OPT-IN (catálogo via /ideiaos-catalog). Absorvido de agent-skills MIT (addyosmani). v8.",
+      "source": "source/skills/observability/SKILL.md",
+      "targets": [
+        "claude"
+      ],
+      "deps": [],
+      "installStrategy": "manual",
+      "plugin": null
+    },
+    {
+      "id": "skill-deprecation-migration",
+      "kind": "skill",
+      "description": "Skill /deprecation-migration — deprecação & migração: remover sistemas antigos e migrar usuários com segurança (strangler/adapter/feature-flag, Churn Rule, código zumbi). OPT-IN (catálogo via /ideiaos-catalog). Absorvido de agent-skills MIT (addyosmani). v8.",
+      "source": "source/skills/deprecation-migration/SKILL.md",
+      "targets": [
+        "claude"
+      ],
+      "deps": [],
+      "installStrategy": "manual",
+      "plugin": null
     }
   ]
 }

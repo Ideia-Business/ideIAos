@@ -31,10 +31,12 @@ CORE_SKILLS=(
   benchmark-optimization-loop
   code-tour
   codebase-onboarding
+  context-engineering
   cost-tracking
   cursor-continuation
   database-migrations
   deep-research
+  doubt
   e2e-testing
   evolve
   extract-learnings

@@ -52,7 +52,7 @@ o que copiar de `source/` para cada plugin em `plugins/`.
 
 > Excluídos do plugin (não são componentes de produto): `test-hooks.sh`, `test-typecheck-on-edit.sh`, `test-observe-hooks.sh`
 
-### Skills core (26)
+### Skills core (28)
 
 | Skill | Arquivo |
 |-------|---------|
@@ -61,10 +61,12 @@ o que copiar de `source/` para cada plugin em `plugins/`.
 | benchmark-optimization-loop | source/skills/benchmark-optimization-loop/ |
 | code-tour | source/skills/code-tour/ |
 | codebase-onboarding | source/skills/codebase-onboarding/ |
+| context-engineering | source/skills/context-engineering/ |
 | cost-tracking | source/skills/cost-tracking/ |
 | cursor-continuation | source/skills/cursor-continuation/ |
 | database-migrations | source/skills/database-migrations/ |
 | deep-research | source/skills/deep-research/ |
+| doubt | source/skills/doubt/ |
 | e2e-testing | source/skills/e2e-testing/ |
 | evolve | source/skills/evolve/ |
 | extract-learnings | source/skills/extract-learnings/ |
@@ -152,7 +154,11 @@ o que copiar de `source/` para cada plugin em `plugins/`.
 
 ## Fora dos plugins (plugin: null)
 
-Templates de projeto (`hybrid`, `ideiaos`, `learnings`, `aiox-ai-config`, `global-patches`) e rules (`common`, `supabase`, `ecc`) **não entram em plugin** — são deploy de `setup.sh` por projeto, não componentes de plugin Claude Code.
+Templates de projeto (`hybrid`, `ideiaos`, `learnings`, `aiox-ai-config`, `global-patches`, `skill`) e rules (`common`, `supabase`, `ecc`) **não compõem o payload de plugin** — são deploy de `setup.sh`/`build-adapters.sh` por projeto, não cópia do `build-plugins.sh`. Algumas rules carregam `plugin: ideiaos-core` no `modules.json` apenas como **tag de catálogo/dependência** (ex.: `delta-spec`, `operating-discipline`); essa tag **não** as empacota — o `build-plugins.sh` não tem etapa de cópia de rule e o gate `check-plugin-membership.sh` ignora `kind: rule` de propósito.
+
+**Skills opt-in v8 (catálogo):** `observability` e `deprecation-migration` são `plugin: null` + `installStrategy: manual` — surgem via `/ideiaos-catalog`, **não** empacotadas por default.
+
+> **Carry-forward (herdado de v7):** rules em `source/rules/common/` com `plugin: ideiaos-core` (`delta-spec`, `operating-discipline`) ainda não têm etapa de deploy para projetos-alvo **Claude Code** (só `.cursor/rules/` via `build-adapters.sh`; e `.claude/rules/` no próprio repo IdeiaOS). Fechar numa próxima iteração: adicionar cópia de `source/rules/common/*.md` ao `setup.sh` por projeto.
 
 ---
 

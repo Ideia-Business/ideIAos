@@ -100,6 +100,8 @@ Use a matriz abaixo para detectar intenção. **Apenas UMA camada deve ser ativa
 | "spec viva", "contrato de comportamento", "delta de spec", "especificar capability do produto", "documentar comportamento brownfield", "adicionar requisito ao contrato", "mudar comportamento registrado", "proposta de mudança de spec", "registrar comportamento de longo prazo" | **Spec** → `/spec` (delta-spec brownfield: propose→delta→merge+archive; complementa o GSD) |
 | "criar post", "carrossel", "blog/artigo", "newsletter", "VSL", "roteiro de vídeo", "campanha", "conteúdo pra redes", "thread", "legenda", "copy de anúncio" | **Marketing** → `/marketing` (orquestra estrategista/copywriter/designer/revisor — pipeline discovery→design→build→review) |
 | "analisa o perfil @X", "inspira-se no estilo de Y", "investiga concorrente de conteúdo", "pesquisa referências de conteúdo" | **Skill** → `/marketing-research` (Sherlock via Chrome DevTools MCP) |
+| "duvide dessa decisão", "revisão adversarial", "questione a premissa", "tem certeza disso?", "valida o raciocínio antes de commitar", "isso é seguro/escala mesmo?", "segunda opinião" | **Skill** → `/doubt` (doubt-driven: revisor adversarial de contexto-fresco EM-VOO, antes de a decisão valer; complementa `/code-review`) |
+| "estrutura o contexto", "engenharia de contexto", "agente alucinando/ignorando convenção", "qualidade caiu na conversa longa", "brain dump", "começar sessão nova direito" | **Skill** → `/context-engineering` (curadoria de contexto em camadas; operacionaliza token-economy/orchestration/handoffs) |
 | Pedido genérico sem rumo claro | **AskUserQuestion** com 2-3 caminhos prováveis |
 
 ### Passo 2 — Verificar pré-condições do projeto
