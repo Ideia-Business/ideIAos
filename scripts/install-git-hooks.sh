@@ -69,6 +69,22 @@ if [ -f "$MCHECK" ] && ! bash "$MCHECK" --staged; then
   exit 1
 fi
 
+# ── Guarda de membership de plugins (anti-deriva v7, Fase 2) ─────────────────
+# Bloqueia commit que toque o manifesto ou os arrays de build se houver deriva
+# entre as atribuições plugin: do modules.json e os arrays de build-plugins.sh
+# (o bug que deixou spec/forge-agent/memory-sync de fora do empacotamento).
+if echo "$STAGED" | grep -qE '^(manifests/modules\.json|manifests/plugin-membership\.md|scripts/build-plugins\.sh)$'; then
+  PMCHECK="$REPO_DIR/scripts/check-plugin-membership.sh"
+  if [ -f "$PMCHECK" ] && ! bash "$PMCHECK" > /tmp/plugin-membership-check.log 2>&1; then
+    echo ""
+    echo "❌ Commit bloqueado: deriva de membership de plugins (manifesto×build-plugins.sh):"
+    cat /tmp/plugin-membership-check.log
+    echo ""
+    echo "Corrija o array em scripts/build-plugins.sh + manifests/plugin-membership.md (ou --no-verify)."
+    exit 1
+  fi
+fi
+
 # Algum em pasta de componente?
 TOUCHES_COMPONENTS=0
 if echo "$STAGED" | grep -qE '^(source|scripts|plugins|manifests)/'; then

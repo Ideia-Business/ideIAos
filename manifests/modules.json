@@ -926,7 +926,7 @@
       ],
       "deps": [],
       "installStrategy": "always",
-      "plugin": "ideiaos-core"
+      "plugin": null
     },
     {
       "id": "hook-memory-export",
@@ -938,7 +938,7 @@
       ],
       "deps": [],
       "installStrategy": "always",
-      "plugin": "ideiaos-core"
+      "plugin": null
     },
     {
       "id": "skill-memory-sync",

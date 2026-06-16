@@ -313,6 +313,19 @@ if git -C "$(pwd)" rev-parse --git-dir >/dev/null 2>&1; then
   fi
 fi
 
+# ── 10) Membership de plugins (anti-deriva v7) ────────────────────────────────
+step "10) Membership de plugins (manifesto × build-plugins.sh)"
+PMCHECK="$SETUP_DIR/scripts/check-plugin-membership.sh"
+if [ -f "$PMCHECK" ]; then
+  if PM_OUT=$(bash "$PMCHECK" 2>&1); then
+    pass "sem deriva — ${PM_OUT##*— }"
+  else
+    fail "deriva manifesto×build-plugins.sh: ${PM_OUT//$'\n'/ } — corrija o array + plugin-membership.md"
+  fi
+else
+  info "check-plugin-membership.sh ausente (pulando)"
+fi
+
 # ── Resumo ────────────────────────────────────────────────────────────────────
 echo -e "\n${CYAN}${BOLD}━━━ Resumo ━━━${NC}"
 echo -e "  ${GREEN}OK:${NC} $PASS   ${YELLOW}WARN:${NC} $WARN   ${RED}FAIL:${NC} $FAIL"

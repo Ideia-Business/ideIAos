@@ -156,9 +156,11 @@ Templates de projeto (`hybrid`, `ideiaos`, `learnings`, `aiox-ai-config`, `globa
 
 ---
 
-## Setup-only (não-plugin): contexts + statusline
+## Setup-only (não-plugin): contexts + statusline + hooks de memória (v5)
 
 Os 3 contexts de modo (`context-dev`, `context-review`, `context-research`) e o `statusline-ideiaos` são instalados pelo `setup.sh` (passos 5.22 e 5.23) e vivem em `~/.ideiaos/`. São `plugin: null` em `manifests/modules.json`.
+
+Os hooks de memória v5 (`memory-import.sh` em SessionStart, `memory-export.sh` em Stop) são `plugin: null` **deliberadamente** (decisão v7, Fase 2): são instalados via `install-global-patches.sh` (Patch 12/13), que os registra no `settings.json` com wiring específico. Empacotá-los também no plugin causaria **dupla-registração** (firam 2× por sessão → export duplicado na branch `planning`). Por isso ficam fora do `CORE_HOOKS` do `build-plugins.sh` — patch-installed, não plugin-packaged. O gate `check-plugin-membership.sh` respeita `plugin: null` e não os cobra.
 
 **Rationale:** Contexts e statusline não são skills/agents/hooks do Claude Code e não seguem o modelo de cópia do `build-plugins.sh` (que itera arrays `CORE_*` de `source/hooks/`, `source/skills/`, `source/agents/`). Um novo `kind` no `modules.json` é compatível com versões anteriores — `build-plugins.sh` ignora kinds que não reconhece. O `build-plugins.sh` permanece inalterado.
 
@@ -170,6 +172,8 @@ Os 3 contexts de modo (`context-dev`, `context-review`, `context-research`) e o 
 | context-review | source/contexts/review.md | ~/.ideiaos/contexts/review.md | null |
 | context-research | source/contexts/research.md | ~/.ideiaos/contexts/research.md | null |
 | statusline-ideiaos | source/statusline/ideiaos-statusline.sh | ~/.ideiaos/statusline/ideiaos-statusline.sh | null |
+| memory-import.sh | source/hooks/memory-import.sh | settings.json (Patch 12) | null |
+| memory-export.sh | source/hooks/memory-export.sh | settings.json (Patch 13) | null |
 
 **evals/:** A suíte de regressão (`evals/`) é um ativo de repo-level (≥20 casos reais + `evals/run-evals.sh`) e não é registrada em `modules.json` — não é um módulo instalável, é infraestrutura de qualidade do próprio IdeiaOS.
 

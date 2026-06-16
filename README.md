@@ -340,6 +340,7 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | `scripts/check-readme-sync.sh` | Audita se README menciona todos os componentes do repo |
 | **`scripts/check-versions-lock.sh`** | **Guarda do pin GSD** — bloqueia valor pré-redux (1.3x/1.4x) e edição manual do `gsd=` que não corresponda à versão instalada (único escritor: `update-upstream.sh --bump`; bypass: `IDEIAOS_LOCK_OVERRIDE=1`). Roda no pre-commit. |
 | **`scripts/check-memory-not-on-main.sh`** | **Guarda Lovable-safe da memória (v5)** — bloqueia qualquer caminho de memória (`.planning/memory/`, `.lovable_mem_tmp.md`, `.cursor/rules/memory-bridge.mdc`) staged no branch `main` e o merge `planning`→`main`; mensagem direcional (diz qual lado está errado); bypass consciente: `IDEIAOS_MEM_OVERRIDE=1`. Modos `--staged` (pre-commit) e `--merge` (pre-merge-commit). |
+| **`scripts/check-plugin-membership.sh`** | **Guarda anti-deriva de plugins (v7)** — bloqueia commit que toque `manifests/modules.json`, `manifests/plugin-membership.md` ou `scripts/build-plugins.sh` se houver deriva entre as atribuições `plugin:` do manifesto e os arrays do `build-plugins.sh` (o bug que deixou `spec`/`forge-agent`/`memory-sync` fora do empacotamento). Roda no pre-commit e no `idea-doctor` (seção 10). |
 | **`scripts/idea-doctor.sh`** | Diagnóstico read-only: skills, MCPs, 13 patches, versões vs `versions.lock`, drift, autosync, **Seção 7 Security Audit** (deny rules, hooks, secrets, quarentena), **Seção 8 Contexts** (~/.ideiaos/contexts/, funções claude-dev/review/research, statusline), **Seção 9 Memória v5** (planning, store shared/, patches 12/13) |
 | **`scripts/install-global-patches.sh`** | Aplica overlay ideIAos (Caminho C) sobre GSD/AIOX/Claude — idempotente, 13 patches (incl. Patch 11: backlog-sync-check, Patches 12/13: memória v5) |
 | **`security/scan-absorbed.sh`** | **Pipeline de quarentena obrigatório** — scan unicode invisível/payloads/comandos + AgentShield antes de absorver conteúdo de terceiros em `source/`. Exit 1 = bloqueado. |
@@ -794,6 +795,7 @@ ideIAos/
 │   ├── check-readme-sync.sh                ← Audita README sync (aponta para source/)
 │   ├── check-versions-lock.sh              ← Guarda do pin GSD no versions.lock (anti-revert pré-redux)
 │   ├── check-memory-not-on-main.sh          ← Guarda Lovable-safe (v5): memória nunca no main; bloqueia merge planning→main
+│   ├── check-plugin-membership.sh           ← Guarda anti-deriva (v7): manifesto plugin: × arrays do build-plugins.sh
 │   ├── idea-doctor.sh                      ← Diagnóstico saúde + drift (read-only)
 │   ├── install-global-patches.sh           ← Overlay ideIAos (Caminho C — 13 patches idempotentes)
 │   ├── update-upstream.sh                  ← Detecta updates GSD + AIOX vs versions.lock (--bump re-pina)
