@@ -969,6 +969,100 @@
       "deps": [],
       "installStrategy": "always",
       "plugin": null
+    },
+    {
+      "id": "skill-marketing",
+      "kind": "skill",
+      "description": "Orquestrador /marketing — pipeline discovery→design→build→review→publish para qualquer formato de conteúdo. Recruta mkt-agents e injeta best-practice por formato em runtime. Checkpoints de aprovação obrigatórios.",
+      "source": "source/skills/marketing/SKILL.md",
+      "targets": [
+        "claude"
+      ],
+      "deps": [
+        "agent-mkt-estrategista",
+        "agent-mkt-copywriter",
+        "agent-mkt-designer",
+        "agent-mkt-revisor",
+        "rule-marketing"
+      ],
+      "installStrategy": "manual",
+      "plugin": "ideiaos-marketing"
+    },
+    {
+      "id": "skill-marketing-research",
+      "kind": "skill",
+      "description": "Sherlock de marketing — investiga perfis públicos (Instagram, LinkedIn, YouTube, X/Twitter) via Chrome DevTools MCP. Produz raw-content.md + pattern-analysis.md por perfil para calibrar mkt-estrategista e mkt-copywriter com dados reais.",
+      "source": "source/skills/marketing-research/SKILL.md",
+      "targets": [
+        "claude"
+      ],
+      "deps": [],
+      "installStrategy": "manual",
+      "plugin": "ideiaos-marketing"
+    },
+    {
+      "id": "agent-mkt-estrategista",
+      "kind": "agent",
+      "description": "Estrategista de conteúdo — gera 5 ângulos distintos (família psicológica + big idea + briefing de produção). Roda em opus por ser decisão de alto impacto cognitivo.",
+      "source": "source/agents/mkt-estrategista.md",
+      "targets": [
+        "claude"
+      ],
+      "deps": [],
+      "installStrategy": "manual",
+      "model": "opus",
+      "plugin": "ideiaos-marketing"
+    },
+    {
+      "id": "agent-mkt-copywriter",
+      "kind": "agent",
+      "description": "Copywriter de conteúdo — produz 3 variações de hook→body→CTA por formato, com best-practice injetada em runtime pelo /marketing.",
+      "source": "source/agents/mkt-copywriter.md",
+      "targets": [
+        "claude"
+      ],
+      "deps": [],
+      "installStrategy": "manual",
+      "model": "sonnet",
+      "plugin": "ideiaos-marketing"
+    },
+    {
+      "id": "agent-mkt-designer",
+      "kind": "agent",
+      "description": "Designer de conteúdo — gera especificação visual reutilizando a Suíte de Design IdeiaOS (/banner-design, /slides, /ui-ux-pro-max) conforme o formato.",
+      "source": "source/agents/mkt-designer.md",
+      "targets": [
+        "claude"
+      ],
+      "deps": [],
+      "installStrategy": "manual",
+      "model": "sonnet",
+      "plugin": "ideiaos-marketing"
+    },
+    {
+      "id": "agent-mkt-revisor",
+      "kind": "agent",
+      "description": "Revisor de conteúdo — scoring + veredito APPROVE/REJECT contra critérios de qualidade (review.md). Loop máx 2 ciclos com feedback específico ao copywriter.",
+      "source": "source/agents/mkt-revisor.md",
+      "targets": [
+        "claude"
+      ],
+      "deps": [],
+      "installStrategy": "manual",
+      "model": "sonnet",
+      "plugin": "ideiaos-marketing"
+    },
+    {
+      "id": "rule-marketing",
+      "kind": "rule",
+      "description": "22 best-practices de conteúdo absorvidas do OpenSquad MIT (renatoasse/opensquad) — disciplinas (copywriting, strategist, review, image-design, researching, technical-writing, data-analysis, social-networks-publishing) e plataformas (instagram-feed/reels/stories, linkedin-post/article, twitter-post/thread, youtube-script/shorts, email-newsletter/sales, blog-post/seo, whatsapp-broadcast). Injetadas em runtime pelo /marketing por formato.",
+      "source": "source/rules/marketing/",
+      "targets": [
+        "claude"
+      ],
+      "deps": [],
+      "installStrategy": "manual",
+      "plugin": "ideiaos-marketing"
     }
   ]
 }

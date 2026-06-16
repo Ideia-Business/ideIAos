@@ -117,6 +117,36 @@ o que copiar de `source/` para cada plugin em `plugins/`.
 
 ---
 
+## ideiaos-marketing
+
+**Quando instalar:** projetos que produzem conteúdo de marketing (posts, carrosseis, blog, newsletter, VSL, threads, copy). Requer Chrome DevTools MCP para marketing-research.
+
+### Skills (2)
+
+| Skill | Arquivo |
+|-------|---------|
+| marketing | source/skills/marketing/ |
+| marketing-research | source/skills/marketing-research/ |
+
+### Agents (4)
+
+| Agent | Arquivo | Model |
+|-------|---------|-------|
+| mkt-estrategista | source/agents/mkt-estrategista.md | opus |
+| mkt-copywriter | source/agents/mkt-copywriter.md | sonnet |
+| mkt-designer | source/agents/mkt-designer.md | sonnet |
+| mkt-revisor | source/agents/mkt-revisor.md | sonnet |
+
+### Rules (22 best-practices)
+
+| Componente | Fonte |
+|-----------|-------|
+| rules/marketing/ | source/rules/marketing/ (22 arquivos — ver README.md do diretório) |
+
+> As 22 best-practices são absorvidas do **OpenSquad MIT** (renatoasse/opensquad) e viajam com o plugin — o orquestrador /marketing as injeta em runtime por formato detectado na Discovery.
+
+---
+
 ## Fora dos plugins (plugin: null)
 
 Templates de projeto (`hybrid`, `ideiaos`, `learnings`, `aiox-ai-config`, `global-patches`) e rules (`common`, `supabase`, `ecc`) **não entram em plugin** — são deploy de `setup.sh` por projeto, não componentes de plugin Claude Code.
