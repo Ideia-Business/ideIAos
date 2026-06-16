@@ -48,7 +48,7 @@ Próximo: Deploy v6 nas máquinas via `ideiaos-update.sh`; executar fases restan
 
 ## Compact Snapshot
 
-**Auto-saved:** 2026-06-16 02:16 (PreCompact hook, trigger: auto)
+**Auto-saved:** 2026-06-16 03:14 (PreCompact hook, trigger: manual)
 
 - Snapshot automático antes do /compact.
 - Detalhes da sessão em ~/.claude/sessions/ (session-summary hook).
