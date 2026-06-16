@@ -117,11 +117,17 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 - **Ideiapartner**: feature no `main` (release_notes + reads RLS, UserChangelog, badge no header); `feature/novidades` não existe mais. Branch original `d124e409` entrou via merge/squash (hash não preservado).
 - **Pendente (decisão do usuário):** aplicar migration em prod + Lovable Publish onde aplicável — não verificável por git.
 
+## Sessão 2026-06-16 (Cursor) — encerramento sem escopo
+
+Sessão **administrativa** — usuário pediu encerramento; **nenhuma mudança de código ou decisão nova**. Estado operacional inalterado: v2.0–v8 SHIPPED, repo limpo (`work` = `origin/work`). Handoff e `STATE.md` sincronizados neste fechamento.
+
 ## Próximo passo
 
 **v2.0–v8 todos SHIPPED.** v8 (Camada de Disciplina) fechado em 2026-06-16 — 4 waves, auditoria PASSED, tag `v8.0`. Absorção de `addyosmani/agent-skills` (MIT): `/doubt` (doubt-driven) + rule sempre-on `operating-discipline` (6 condutas) + `/context-engineering` + convenção de autoria anti-racionalização + opt-in `/observability`/`/deprecation-migration`. **Dogfood:** doubt-driven rodado sobre o próprio diff achou e corrigiu citação fabricada no `/doubt`. Detalhes em `.planning/v8-MILESTONE-AUDIT.md`.
 
-**R8-09 FECHADO (2026-06-16):** `build-adapters.sh build_claude_project_rules()` deploya `source/rules/common/*.md` → `<projeto>/.claude/rules/ideiaos-common-*.md` (paridade Claude×Cursor; Claude auto-carrega `.claude/rules/`). Verificado em sandbox `/tmp` + dogfoodado no repo (manual `operating-discipline.md` → gerado). **Sem pendências do v8.** Próximo: novas demandas.
+**R8-09 FECHADO (2026-06-16):** `build-adapters.sh build_claude_project_rules()` deploya `source/rules/common/*.md` → `<projeto>/.claude/rules/ideiaos-common-*.md` (paridade Claude×Cursor; Claude auto-carrega `.claude/rules/`). Verificado em sandbox `/tmp` + dogfoodado no repo (manual `operating-discipline.md` → gerado). **Sem pendências do v8.**
+
+**Executável quando houver demanda:** (1) backlog passivo v7 — `nfideia:spec/multi-tenancy-pilot` (2 specs + `PILOT-BACKLOG.md`); (2) monitorar `gsd-browser` upstream; (3) DeepSeek V4 Pro nos **produtos** (decisão adiada — ver sessão consultiva acima); (4) deploy `ideiaos-update.sh` em máquinas pendentes (Mac mini confirmar).
 
 ---
 _Histórico v7 abaixo:_
@@ -145,4 +151,4 @@ _Histórico v7 abaixo:_
 ## Ultima sessao automatica (2026-06-16)
 
 - Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-16-ideiaos-2c827553-7be6-4e39-8be2-5d62bdff.tmp`
-- Próximo passo: (definir antes de retomar)
+- Próximo passo: novas demandas — backlog v7 (`nfideia:spec/multi-tenancy-pilot`) · gsd-browser · DeepSeek nos produtos (adiado) · `ideiaos-update.sh` no Mac mini
