@@ -293,6 +293,7 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | `mkt-estrategista` | opus | Definir ângulos, big idea, posicionamento e calendário editorial |
 | `mkt-copywriter` | sonnet | Produzir copy por formato com protocolo hook-first (3 hooks → body → CTA) |
 | `mkt-designer` | sonnet | Criar peças visuais reusando a Suite de Design IdeiaOS (banner-design/slides/ui-ux-pro-max) |
+| `mkt-designer` | sonnet | Criar peças visuais reusando a Suite de Design IdeiaOS (banner-design/slides/ui-ux-pro-max) |
 | `mkt-revisor` | sonnet | Scoring + veto APROVADO/REJEITADO com feedback acionável |
 
 ### Skills ECC de workflow (Fase 04 — source/skills/)
