@@ -194,13 +194,79 @@ if [ -d "$HOME/.claude/hooks" ]; then
   fi
 fi
 
-# 7c) Secrets em texto plano na memória de projeto
+# 7c) Secrets em texto plano na memória de projeto (padrões alta confiança)
+# Não alerta sobre nomes de env var ("ANTHROPIC_API_KEY") nem prosa ("service_role isolado").
 MEM_DIR="$HOME/.claude/projects"
 if [ -d "$MEM_DIR" ]; then
-  if rg -l 'sk-[a-zA-Z0-9]{40,}|ANTHROPIC_API_KEY|service_role.*[a-zA-Z0-9]{30,}' "$MEM_DIR" 2>/dev/null | grep -q .; then
-    fail "POSSÍVEL secret em memória de projeto — checar $MEM_DIR"
+  SECRET_HITS="$(
+    /usr/bin/python3 - "$MEM_DIR" <<'PYEOF'
+import re, sys
+from pathlib import Path
+
+mem = Path(sys.argv[1])
+
+def plausible_sk(val: str) -> bool:
+    if len(val) < 24 or "..." in val or "…" in val:
+        return False
+    low = val.lower()
+    junk = ("###", "***", "redact", "placeholder", "example", "your_", "<", "changeme", "\\n", "\\t")
+    return not any(j in val or j in low for j in junk)
+
+# Valores sk-* reais ou JWT em contexto service_role — não nomes de env var nem anon keys soltas.
+PATTERNS = [
+    (r"sk-ant-api[a-zA-Z0-9\-_]{20,}", "anthropic_sk", None),
+    (r"sk-proj-[a-zA-Z0-9\-_]{20,}", "openai_sk", None),
+    (r"sk-or-v1-[a-zA-Z0-9\-_]{20,}", "openrouter_sk", None),
+    (
+        r"(?:ANTHROPIC|OPENAI|OPENROUTER|SUPABASE_SERVICE_ROLE)(?:_API_KEY)?\s*[=:]\s*['\"]?(sk-[a-zA-Z0-9\-_]{20,})",
+        "env_sk",
+        1,
+    ),
+    (
+        r"""['\"]service_role['\"]\s*:\s*['\"](eyJ[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,})""",
+        "supabase_service_role",
+        1,
+    ),
+]
+compiled = [(re.compile(p), label, grp) for p, label, grp in PATTERNS]
+hits: dict[str, list[tuple[str, str]]] = {}
+
+for fp in mem.rglob("*"):
+    if not fp.is_file() or fp.suffix not in {".jsonl", ".md", ".json", ".txt"}:
+        continue
+    try:
+        text = fp.read_text(errors="replace")[:1_000_000]
+    except OSError:
+        continue
+    rel = fp.relative_to(mem)
+    slug = rel.parts[0] if rel.parts else "?"
+    for rx, label, grp in compiled:
+        m = rx.search(text)
+        if not m:
+            continue
+        val = m.group(grp) if grp else m.group(0)
+        if label in ("anthropic_sk", "openai_sk", "openrouter_sk", "env_sk") and not plausible_sk(val):
+            continue
+        hits.setdefault(slug, []).append((str(rel), label))
+        break
+
+if hits:
+    for slug, items in sorted(hits.items(), key=lambda x: -len(x[1])):
+        f, label = items[0]
+        print(f"HIT|{slug}|{f}|{label}|{len(items)}")
+    sys.exit(1)
+sys.exit(0)
+PYEOF
+  )"
+  secret_exit=$?
+  if [ "$secret_exit" -ne 0 ]; then
+    while IFS='|' read -r tag slug file label count; do
+      [ "$tag" = "HIT" ] || continue
+      fail "secret provável em memória — slug=$slug arquivo=$file ($label; $count arquivo(s) neste projeto)"
+    done <<< "$SECRET_HITS"
+    warn "Remediação: inspecione ~/.claude/projects/ e remova/redija sessões com valores reais (nunca commitar secrets)"
   else
-    pass "Memória de projeto sem secrets aparentes"
+    pass "Memória de projeto sem secrets aparentes (scan alta confiança)"
   fi
 fi
 
