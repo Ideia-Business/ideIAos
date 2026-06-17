@@ -1,0 +1,198 @@
+# Quarantine Catalog — mattpocock/skills
+# Material de terceiros ESTAGIADO (não absorvido). Segue o mesmo padrão de quarentena do v8.
+# A análise comparativa detalhada (veredito final) é feita por outro agente em:
+#   docs/research/2026-06-16-mattpocock-skills-analise.md
+# Os campos `verdict` abaixo são PLACEHOLDERS preliminares — não decisões finais.
+
+origin:
+  repo: "https://github.com/mattpocock/skills"
+  author: "Matt Pocock"
+  license: "MIT"            # LICENSE preservada em ./LICENSE (Copyright (c) 2026 Matt Pocock)
+  commit: "694fa30311e02c2639942308513555e61ee84a6f"
+  commit_date: "2026-06-10T15:01:44Z"
+  captured_at: "2026-06-16"
+  capture_method: "raw.githubusercontent.com (curl, bytes idênticos ao tree API)"
+  note: >
+    Apenas os SKILL.md das skills priorizadas foram estagiados. Arquivos de apoio
+    de cada skill (ex.: ADR-FORMAT.md, CONTEXT-FORMAT.md, scripts/, *.md auxiliares,
+    e as skills das pastas deprecated/in-progress/personal/misc não priorizadas)
+    NÃO foram capturados nesta etapa — ver `not_captured` ao final.
+
+# === Skills priorizadas (engenharia) ===
+catalog:
+  - id: grill-with-docs
+    name: "Grill With Docs"
+    source_path: "skills/engineering/grill-with-docs/SKILL.md"
+    file: skills/grill-with-docs.md
+    status: fetched
+    description: "Sessão de 'grilling' que estressa um plano contra o domínio/glossário (CONTEXT.md) e registra ADRs inline conforme decisões se cristalizam."
+    verdict: pending   # PRIORIDADE MÁXIMA segundo o pedido; sobrepõe-se a /doubt e /grill-me
+
+  - id: grill-me
+    name: "Grill Me"
+    source_path: "skills/productivity/grill-me/SKILL.md"
+    file: skills/grill-me.md
+    status: fetched
+    description: "Entrevista o usuário implacavelmente sobre um plano/design até atingir entendimento compartilhado, resolvendo cada ramo da árvore de decisão."
+    verdict: pending   # overlaps-existing? ressoa com /doubt e gsd-discuss-phase
+
+  - id: diagnose
+    name: "Diagnose"
+    source_path: "skills/engineering/diagnose/SKILL.md"
+    file: skills/diagnose.md
+    status: fetched
+    description: "Loop disciplinado de diagnóstico para bugs difíceis e regressões: reproduzir → minimizar → hipótese → instrumentar → corrigir → teste de regressão."
+    verdict: pending   # overlaps-existing? compara com gsd-debug e silent-failure-hunter
+
+  - id: to-prd
+    name: "To PRD"
+    source_path: "skills/engineering/to-prd/SKILL.md"
+    file: skills/to-prd.md
+    status: fetched
+    description: "Converte o contexto da conversa atual em um PRD publicado no issue tracker do projeto (sem entrevistar — sintetiza o já sabido)."
+    verdict: pending   # overlaps-existing? sobrepõe AIOX @pm / gsd specs
+
+  - id: to-issues
+    name: "To Issues"
+    source_path: "skills/engineering/to-issues/SKILL.md"
+    file: skills/to-issues.md
+    status: fetched
+    description: "Quebra um plano/spec/PRD em issues independentes via fatias verticais (tracer bullets) no issue tracker."
+    verdict: pending   # overlaps-existing? compara com gsd-plan-phase / @sm story breakdown
+
+  - id: improve-codebase-architecture
+    name: "Improve Codebase Architecture"
+    source_path: "skills/engineering/improve-codebase-architecture/SKILL.md"
+    file: skills/improve-codebase-architecture.md
+    status: fetched
+    description: "Identifica 'deepening opportunities' (refactors que tornam módulos rasos em profundos) guiado por CONTEXT.md e docs/adr/, focando testabilidade e navegabilidade por IA."
+    verdict: pending   # candidate? compara com code-simplifier / refactor-cleaner
+
+  - id: zoom-out
+    name: "Zoom Out"
+    source_path: "skills/engineering/zoom-out/SKILL.md"
+    file: skills/zoom-out.md
+    status: fetched
+    description: "Comando curto para a IA subir um nível de abstração e mapear módulos/callers relevantes usando o vocabulário do glossário do projeto."
+    verdict: candidate   # micro-skill barata; sobrepõe-se parcialmente a code-explorer
+
+  - id: prototype
+    name: "Prototype"
+    source_path: "skills/engineering/prototype/SKILL.md"
+    file: skills/prototype.md
+    status: fetched
+    description: "Constrói protótipo descartável para validar um design antes de comprometer — roteia entre app de terminal (lógica/estado) ou variações de UID toggláveis."
+    verdict: pending   # overlaps-existing? compara com gsd-sketch / gsd-spike
+
+  - id: tdd
+    name: "TDD (red-green-refactor)"
+    source_path: "skills/engineering/tdd/SKILL.md"
+    file: skills/tdd.md
+    status: fetched
+    description: "TDD com loop red-green-refactor e ênfase em testes de integração através de APIs públicas."
+    verdict: overlaps-existing   # IdeiaOS já tem skill tdd própria
+
+  - id: triage
+    name: "Triage"
+    source_path: "skills/engineering/triage/SKILL.md"
+    file: skills/triage.md
+    status: fetched
+    description: "Move issues por uma pequena máquina de estados de 'triage roles' no issue tracker; prepara issues para agente AFK."
+    verdict: pending   # depende de issue tracker externo (gh/glab)
+
+  - id: setup-matt-pocock-skills
+    name: "Setup Matt Pocock Skills"
+    source_path: "skills/engineering/setup-matt-pocock-skills/SKILL.md"
+    file: skills/setup-matt-pocock-skills.md
+    status: fetched
+    description: "Scaffolda bloco '## Agent skills' em AGENTS.md/CLAUDE.md e docs/agents/ para informar as skills sobre issue tracker, labels de triage e layout de docs do repo."
+    verdict: ignore   # bootstrap específico do ecossistema do autor; não aplicável ao IdeiaOS
+
+  - id: caveman
+    name: "Caveman"
+    source_path: "skills/productivity/caveman/SKILL.md"
+    file: skills/caveman.md
+    status: fetched
+    description: "Modo de comunicação ultra-comprimido (~75% menos tokens) preservando substância técnica; pareia com a disciplina de token-economy."
+    verdict: candidate   # micro-skill barata e independente de framework
+
+  - id: handoff
+    name: "Handoff"
+    source_path: "skills/productivity/handoff/SKILL.md"
+    file: skills/handoff.md
+    status: fetched
+    description: "Compacta a conversa atual em documento de handoff (no tmp do SO) para outro agente continuar; redige redação de secrets e seção 'suggested skills'."
+    verdict: overlaps-existing   # IdeiaOS já tem CONTINUATION_HANDOFF + cursor/claude-continuation
+
+  - id: write-a-skill
+    name: "Write a Skill"
+    source_path: "skills/productivity/write-a-skill/SKILL.md"
+    file: skills/write-a-skill.md
+    status: fetched
+    description: "Cria novas agent skills com estrutura adequada, progressive disclosure e recursos empacotados."
+    verdict: overlaps-existing   # IdeiaOS já tem skill-creator / create-skill
+
+# === Arquivos de contexto/atribuição do repo (raiz) ===
+repo_files:
+  - id: LICENSE
+    source_path: "LICENSE"
+    file: LICENSE
+    status: fetched
+    description: "Licença MIT original (Copyright (c) 2026 Matt Pocock) — obrigatória para atribuição na futura absorção."
+
+  - id: README
+    source_path: "README.md"
+    file: UPSTREAM-README.md   # renomeado para não colidir com o README.md desta quarentena
+    status: fetched
+    description: "README do repo. Contém posicionamento anti-framework explícito vs GSD/BMAD/Spec-Kit (relevante para a tensão de design do IdeiaOS)."
+
+  - id: CONTEXT
+    source_path: "CONTEXT.md"
+    file: CONTEXT.md
+    status: fetched
+    description: "Glossário de domínio do repo (Issue tracker, Issue, Triage role) no formato que as skills esperam."
+
+  - id: CLAUDE
+    source_path: "CLAUDE.md"
+    file: CLAUDE.md
+    status: fetched
+    description: "Instruções de projeto para Claude Code no repo do autor."
+
+# === Dependências/sinais a revisar antes de absorver ===
+flags:
+  - "diagnose: sugere scripts curl/HTTP e browser headless (Playwright/Puppeteer) — dependência de ferramenta externa."
+  - "triage/to-issues/to-prd/setup-matt-pocock-skills: assumem issue tracker externo (gh CLI / glab CLI)."
+  - "handoff: grava no diretório temporário do SO e cita redação de API keys (sem payload ativo)."
+  - "README: posiciona-se explicitamente CONTRA GSD/BMAD/Spec-Kit ('take away your control') — tensão de design vs camada GSD/AIOX do IdeiaOS."
+
+# === Não capturado nesta etapa (registrado em vez de inventar) ===
+not_captured:
+  status: not_fetched
+  reason: "Fora do escopo das skills priorizadas no pedido; capturar na etapa de absorção se necessário."
+  items:
+    - "skills/engineering/grill-with-docs/{ADR-FORMAT.md,CONTEXT-FORMAT.md}"
+    - "skills/engineering/diagnose/scripts/hitl-loop.template.sh"
+    - "skills/engineering/improve-codebase-architecture/{DEEPENING,HTML-REPORT,INTERFACE-DESIGN,LANGUAGE}.md"
+    - "skills/engineering/prototype/{LOGIC.md,UI.md}"
+    - "skills/engineering/tdd/{deep-modules,interface-design,mocking,refactoring,tests}.md"
+    - "skills/engineering/triage/{AGENT-BRIEF.md,OUT-OF-SCOPE.md}"
+    - "skills/engineering/setup-matt-pocock-skills/{domain,issue-tracker-*,triage-labels}.md"
+    - "skills/productivity/teach/* (skill 'teach' não priorizada)"
+    - "skills/{deprecated,in-progress,personal,misc}/* (buckets não priorizados)"
+    - "root: .claude-plugin/plugin.json, docs/adr/0001-*.md, scripts/*.sh"
+
+# === Resultado do scan de segurança (security/scan-absorbed.sh) ===
+# Preenchido após o PASSO 4 — ver também README.md desta pasta.
+security_scan:
+  script: "security/scan-absorbed.sh"
+  command: "bash security/scan-absorbed.sh security/quarantine/mattpocock-skills"
+  target: "security/quarantine/mattpocock-skills"
+  ran_at: "2026-06-16"
+  result: "APROVADO COM RESSALVA"   # exit 0
+  counts: { PASS: 2, WARN: 2, FAIL: 0 }
+  checks:
+    - "✓ sem unicode invisível"
+    - "✓ sem payloads HTML/JS/base64"
+    - "⚠ comandos suspeitos (curl/ssh/wget) — docs legítimas (diagnose, setup-matt-pocock-skills, handoff); INSPEÇÃO MANUAL antes de promover"
+    - "⚠ AgentShield indisponível/offline — scan parcial"
+  conclusion: "Sem FAIL (nenhum payload ativo). Liberado para a etapa de análise/absorção com revisão manual dos WARNs."
