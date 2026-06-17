@@ -1,7 +1,29 @@
 # MEMORY.md — IdeiaOS
 
 - [.gitkeep](facts/.gitkeep)
+- [Sempre responder em português (BR) neste projeto, sobrepondo o default em inglês](facts/feedback_idioma_ptbr.md) — feedback-idioma-ptbr
+- [Em projetos Lovable, commits de IA vão para branch (nunca main automática); cuidar só dos Lovable — IdeiaOS pode ir direto na main](facts/feedback_lovable_projects_branch_commit.md) — feedback-lovable-projects-branch-commit
+- [Ao final de TODA implantação no IdeiaOS, atualizar o README do GitHub com todos os novos recursos e instruções](facts/feedback_readme_update_no_final.md) — feedback-readme-update-no-final
+- [Protocolo de fechamento de sessão inclui atualização do vault Obsidian — Changelog e extract-learnings](facts/feedback_session_closing_vault.md) — feedback_session_closing_vault
 - [Aviso de diagnóstico ambíguo (\"X ≠ Y — corrija se intencional\") induz agente de IA a \"corrigir\" na direção errada — mensagens devem ser direcionais](facts/learning_ambiguous-drift-warning-induces-agent-revert.md) — learning-ambiguous-drift-warning-induces-agent-revert
+- [git-autosync do IdeiaOS PROTEGE main (só pull, nunca auto-push) mas AUTO-PUSHA qualquer branch não-main — então 'local-only' num repo sob autosync exige estar em main, não numa branch](facts/learning_autosync-pushes-feature-branches.md) — autosync-pushes-feature-branches
+- [Quando uma fonte declarativa (manifesto) e uma lista imperativa (array de build) precisam concordar, só um gate que as CRUZA pega a deriva — check de existência não basta](facts/learning_declarative-manifest-vs-imperative-list-drift.md) — declarative-manifest-vs-imperative-list-drift
+- [Rode a própria ferramenta de revisão/disciplina sobre o milestone que a entrega — ela pega defeitos em si mesma. Doubt-driven adversarial achou uma citação FABRICADA dentro da skill /doubt](facts/learning_dogfood-review-tool-catches-own-defect.md) — dogfood-review-tool-catches-own-defect
+- [Fixtures de teste que pré-criam o ambiente (mkdir do alvo) escondem bugs de bootstrap/first-run; valide num alvo real e fresco](facts/learning_fixture-precreation-masks-bootstrap-bugs.md) — fixture-precreation-masks-bootstrap-bugs
 - [Para ignorar um arquivo gerado em QUALQUER branch (não só o atual), use .git/info/exclude — .gitignore é per-branch e vaza](facts/learning_git-info-exclude-branch-agnostic-ignore.md) — git-info-exclude-branch-agnostic-ignore
 - [Valide guards de pre-commit em sandbox /tmp limpo — testar no repo vivo com stash+checkout dá falso resultado se o checkout falhar silenciosamente](facts/learning_verify-guards-in-sandbox-not-live-repo.md) — verify-guards-in-sandbox-not-live-repo
 - [Migração de pacote com reset de versionamento inverte semver (1.1.0 redux > 1.36.0 pré-redux) — guardas de pin devem ser package-aware](facts/learning_version-reset-migration-semver-trap.md) — learning-version-reset-migration-semver-trap
+- [Estrutura Changelog/ no vault Obsidian + protocolo de fechamento atualizado para incluir registro de entregas](facts/project_changelog_vault.md) — project_changelog_vault
+- [Todos os CLAUDE.md dos projetos atualizados com seção \"Segundo Cérebro\" referenciando o vault Obsidian](facts/project_claude_md_vault_awareness.md) — project_claude_md_vault_awareness
+- [DeepSeek V4 Pro: decisão TOMADA (2026-06-16) — habilitar nos PRODUTOS (cfoai/nfideia etc.), não no Claude Code; removido do plano IdeiaOS (escopo de produto)](facts/project_deepseek_v4_enablement_pending.md) — project-deepseek-v4-enablement-pending
+- [No handoff do IdeiaOS o próximo passo real vai na seção \"## Próximo passo\", não na \"## Ultima sessao automatica\" (regenerada pelo hook)](facts/project_handoff_proximo_passo_secao.md) — project_handoff_proximo_passo_secao
+- [Baseline instincts from v3 continuous learning (1511 observations, 6 instincts)](facts/project_instinct_analysis_june2026.md) — Instinct analysis June 2026
+- [First instinct-analyze run on IdeiaOS: identified shell & code-editing patterns from 1512 observations across 99 sessions](facts/project_instinct_loop_v1.md) — Instinct analysis loop v1 — shell & editing patterns
+- [Instincts destilados de 1506 observações sobre padrões de trabalho em IdeiaOS](facts/project_instincts_v2.md) — IdeiaOS instincts v2 (June 2026)
+- [Milestone v2.0 (absorção ECC) concluído em 2026-06-12 — 8/8 fases, 29/29 planos; próximo é v3 a partir de docs/v3/](facts/project_milestone_v2_completo.md) — project-milestone-v2-completo
+- [Milestone v3 shipped em 2026-06-12 (mesmo dia do v2.0) — loop de instincts provado ao vivo; próximo é v4 a definir](facts/project_milestone_v3_completo.md) — project-milestone-v3-completo
+- [v8 (Camada de Disciplina) SHIPPED 2026-06-16 — absorveu de addyosmani/agent-skills (MIT) só o delta de disciplina; agent-skills NÃO substitui GSD/AIOX](facts/project_milestone_v8_completo.md) — project-milestone-v8-completo
+- [Obsidian Second Brain — vault completamente populado em 2026-06-08 com todos os projetos, referências, gotchas e changelogs](facts/project_obsidian_vault_completo.md) — project_obsidian_vault_completo
+- [Plano maior ECC 100% concluído em 2026-06-12 (v2.0+v3+v4, tags); máquinas liberadas para update; pendências = decisões do usuário](facts/project_plano_maior_concluido.md) — project-plano-maior-concluido
+- [PENDENTE: propagate-if-changed.sh não auto-propaga mudanças de source/rules/ aos projetos; e setup.sh --project-only não deploya as .claude/rules do R8-09](facts/project_propagate-rules-gap.md) — propagate-rules-gap
+- [Diagnóstico de falhas de CI em massa na org Ideia-Business — billing vs bug real](facts/reference_github_actions_billing_diag.md) — reference-github-actions-billing-diag
