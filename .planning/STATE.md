@@ -31,7 +31,7 @@ progress:
 
 **Goal:** Absorver de `mattpocock/skills` (MIT) o delta de alinhamento humano↔agente ANTES de planejar (grilling colaborativo `/grelha`), seu subproduto durável de linguagem ubíqua (`CONTEXT.md` glossário-only), ADRs ultraleves inline e o ritual recorrente de deepening arquitetural (Ousterhout) — tudo PT-BR, sob orquestração da Deia, sem comprar a postura anti-framework do upstream e sem duplicar GSD/AIOX.
 
-**Fases (grafo: A → B → {C ∥ D} → E → F):**
+**Fases (grafo: A → B → {C ∥ D} → E → F → [G opcional]):**
 
 | Fase | Objetivo | Cobre | Status |
 |------|----------|-------|--------|
@@ -41,6 +41,7 @@ progress:
 | D — Gate de alinhamento na Deia | grilling na hora certa, escapável | R9-04 | ✅ DONE |
 | E — Ritual de deepening (`/aprofundar`) | saúde de design contínua | R9-05 | ✅ DONE |
 | F — Empacotamento + postura + auditoria | propagação + governança + ship | R9-06, R9-07 | ✅ DONE |
+| G — Could-haves (opcional, pós-v9.0) | deltas finos `to-prd` (@pm) + nota de seam (`/gsd-debug`) via Patches 14/15 | could-have | ✅ DONE |
 
 **Planejamento detalhado:** `.planning/milestones/v9-{REQUIREMENTS,ROADMAP,IMPLEMENTATION-PLAN}.md` + `.planning/milestones/v9-phases/*/`.
 
@@ -53,7 +54,7 @@ progress:
 
 ## Próximo passo
 
-Milestone v9 (Camada de Alinhamento) **SHIPPED** — tag v9.0. Os 7 requisitos (R9-01..R9-07) entregues; gates binários verdes (membership 0 deriva, README N/N, build-plugins/adapters exit 0, idea-doctor 0 FAIL); dogfood `/doubt` = SHIP; auditoria `.planning/v9-MILESTONE-AUDIT.md` PASSED. Próximo: novas demandas (ou Fase G could-haves opcional — `to-prd` delta no @pm + nota no `/gsd-debug`).
+Milestone v9 (Camada de Alinhamento) **SHIPPED** — tag v9.0. Os 7 requisitos (R9-01..R9-07) entregues; gates binários verdes (membership 0 deriva, README N/N, build-plugins/adapters exit 0, idea-doctor 0 FAIL); dogfood `/doubt` = SHIP; auditoria `.planning/v9-MILESTONE-AUDIT.md` PASSED. **Fase G (could-haves) também entregue** (pós-v9.0): deltas `to-prd` (@pm) + nota de seam (`/gsd-debug`) como Patches 14/15 do overlay — ver `v9-phases/G-could-haves/G-01-SUMMARY.md`. Próximo: novas demandas.
 
 **Fechamento operacional (2026-06-17):** tag `v9.0` empurrada para `origin`; LOW do dogfood resolvido (README esclarece que `scan-absorbed.sh` mira a quarentena, não `source/`); branch `planning` sincronizado com os docs de milestone v9 via git plumbing (memory store preservado).
 

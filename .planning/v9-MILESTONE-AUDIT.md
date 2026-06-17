@@ -44,3 +44,7 @@
 ## Veredito
 
 **PASSED.** Os 7 requisitos entregues, todos os gates binários verdes (bats pulado por ausência de ambiente, não-bloqueante), dogfood adversarial = SHIP. A Fase E (SHOULD) foi incluída no v9.0 sem incidente — **sem fatiamento v9.1**. Pronto para tag `v9.0`.
+
+## Addendum — Fase G (could-haves) entregue pós-v9.0 (2026-06-17)
+
+Os dois deltas finos da `v9-IMPLEMENTATION-PLAN.md §G` foram absorvidos via overlay idempotente: **Patch 14** (`to-prd` → core_principle "síntese > entrevista" + quiz seams/módulos no @pm/Morgan) e **Patch 15** (`diagnose` → nota de seam no `/gsd-debug`). Aplicados na cópia instalada (`.aiox-core` do repo mantido pristine, mesmo padrão dos Patches 1/5). Contagem do overlay "13→15 patches" sincronizada em `install-global-patches.sh`/`README.md`/`idea-doctor.sh`. Gates: `bash -n` OK, run exit 0 (2 aplicados/0 falhas), idea-doctor Patch 14✓/15✓ (0 FAIL), readme-sync 114/114. Detalhe em `v9-phases/G-could-haves/G-01-SUMMARY.md`. `caveman`/`to-issues`/`triage` permanecem WON'T.
