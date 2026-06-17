@@ -1,21 +1,34 @@
 # Estado do projeto — ideIAos
 
-**Atualizado:** 2026-06-16 · **Branch:** `work` → `main` · **Versão ideIAos:** v8 shipped (2026-06-16); v2.0–v8 todos SHIPPED
+**Atualizado:** 2026-06-16 · **Branch:** `work` → `main` · **Versão ideIAos:** v8 shipped; v9 PLANEJADO (pronto para executar)
 
 ## Snapshot
 
 | Área | Status |
 |------|--------|
 | **Milestones v2.0–v8** | ✅ Todos shipped (tags v2.0 … v8.0) |
+| **v9 Camada de Alinhamento** | 📋 Planejado (research + ADR + REQUIREMENTS + ROADMAP + PLANs A–F) — pronto para `/gsd-new-milestone` |
 | **v8 Camada de Disciplina** | ✅ `/doubt`, `operating-discipline`, `/context-engineering`, R8-09 (rules Claude×Cursor) |
 | **v7 Resiliência + Spec** | ✅ Piloto `/spec` nfideia, drift-guard, branch `spec/multi-tenancy-pilot` |
 | **v6 Marketing + GSD** | ✅ `/marketing`, antifragile gates, `/spec` delta-spec brownfield |
 | **v5 Memória entre IDEs** | ✅ import/export hooks, branch `planning`, 3 suites verdes |
-| **Branches** | ✅ `main` = `work` · `planning` — todos alinhados e pushed (`git log -1`) |
+| **Branches** | ✅ `main` = `work` · `planning` — alinhados e pushed (ver `git log`; hashes voláteis não fixados aqui) |
 | **idea-doctor** | ⚠️ 61 OK · 1 WARN · 2 FAIL — secrets em memória Claude de **outros projetos** (Jarvis, iCloud Projects); IdeiaOS repo OK |
 | **README sync** | ✅ 112/112 |
 | **Deploy máquinas** | ✅ MacBook-Air-2 · ⚠️ Mac mini confirmar (`ideiaos-update.sh`) |
 | Próximo passo | Ver `docs/CONTINUATION_HANDOFF.md` § Próximo passo |
+
+## Sessão 2026-06-16 (Cursor) — pesquisa+plano milestone v9
+
+Sessão de **pesquisa + planejamento** do milestone **v9 — "Camada de Alinhamento"** (absorção seletiva de `mattpocock/skills`, MIT). **Nenhuma skill/código implementado** — só planejamento; tudo já commitado/pushado.
+
+1. **Análise comparativa** — `docs/research/2026-06-16-mattpocock-skills-analise.md` (8 seções): mattpocock/skills × IdeiaOS, 3 GAPs reais (glossário de linguagem ubíqua durável; grilling colaborativo pré-plano desacoplado de fase GSD; ritual de "deepening" arquitetural), veredito por skill, encaixe do `/grill-with-docs`, orquestração da Deia, exemplo real no nfideia.
+2. **Quarentena** — `security/quarantine/mattpocock-skills/` (18 arquivos, LICENSE MIT preservada, `scan-absorbed.sh` PASS/exit 0).
+3. **ADR** — `docs/decisions/v9-mattpocock-skills-absorcao.md` (Aceito): absorver a TÉCNICA, não a ideologia anti-framework; `/grelha` roda SOB a Deia (gate opcional). Espelhado no Obsidian `Decisions/`.
+4. **Plano GSD** — `.planning/milestones/v9-REQUIREMENTS.md` (R9-01..R9-07) + `v9-ROADMAP.md` (Fases A–F) + `v9-IMPLEMENTATION-PLAN.md` (grafo de dependências, esforço, gates, DoD, Fase G could-haves) + `v9-phases/{A..F}-*/*-01-PLAN.md` (PLAN por fase, formato GSD).
+5. **Recomendação** — skill `/grelha` (alias `/grill`) = grilling pré-plano + glossário `CONTEXT.md` + ADR inline; rule nova `ubiquitous-language`; gate opcional Passo 1.5 na Deia (`source/skills/idea/SKILL.md`); SHOULD: `/improve-architecture` (deepening). Padrão de absorção = igual v8.
+
+**Estado git ao fim:** `main` == `work`; `planning` pushado; working tree limpo (ver `git log`).
 
 ## Sessão 2026-06-16 (Cursor) — fechamento final
 

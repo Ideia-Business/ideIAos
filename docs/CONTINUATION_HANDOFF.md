@@ -13,6 +13,24 @@ Proibido editar gsd= no versions.lock manualmente.
 
 ---
 
+## Sessão 2026-06-16 (Cursor) — pesquisa + plano milestone v9 (Camada de Alinhamento)
+
+Sessão de **pesquisa + planejamento**. **Nenhuma skill/código implementado** — só o pacote de planejamento do milestone **v9 — "Camada de Alinhamento"** (absorção seletiva de `mattpocock/skills`, MIT). Tudo já commitado/pushado nesta sessão.
+
+**Pacote v9 entregue (artefatos para retomada rápida):**
+- `docs/research/2026-06-16-mattpocock-skills-analise.md` — análise comparativa (8 seções): 3 GAPs reais (glossário de linguagem ubíqua durável; grilling colaborativo pré-plano desacoplado de fase GSD; ritual de "deepening" arquitetural), veredito por skill, encaixe do `/grill-with-docs`, orquestração da Deia, exemplo no nfideia.
+- `security/quarantine/mattpocock-skills/` — material-fonte estagiado (18 arquivos, LICENSE MIT, `scan-absorbed.sh` PASS/exit 0).
+- `docs/decisions/v9-mattpocock-skills-absorcao.md` — ADR (Aceito): absorver a TÉCNICA, não a ideologia anti-framework; `/grelha` roda SOB a Deia (gate opcional). Espelhado no Obsidian `Decisions/`.
+- `.planning/milestones/v9-REQUIREMENTS.md` (R9-01..R9-07) · `.planning/milestones/v9-ROADMAP.md` (Fases A–F) · `.planning/milestones/v9-IMPLEMENTATION-PLAN.md` (grafo de dependências, esforço, gates, DoD, Fase G could-haves) · `.planning/milestones/v9-phases/{A..F}-*/*-01-PLAN.md` (PLAN por fase, formato GSD).
+
+**Recomendação (resumo):** skill `/grelha` (alias `/grill`) = grilling pré-plano + glossário `CONTEXT.md` (glossário-only) + ADR inline; rule nova `ubiquitous-language`; gate opcional Passo 1.5 na Deia (`source/skills/idea/SKILL.md`); SHOULD: `/improve-architecture` (deepening). Padrão de absorção = igual v8 (addyosmani/agent-skills).
+
+**Estado git ao fim:** `main` == `work`; `planning` pushado; working tree limpo (ver `git log`; hashes voláteis não fixados aqui).
+
+> **Lição desta sessão:** não fixar hashes voláteis de `work`/`main` em STATE/handoff — hash volátil induz commits em cascata. Referir `git log`.
+
+---
+
 ## ✅ v6 SHIPPED (2026-06-16) — atualização do IdeiaOS fechada
 
 Milestone v6 "Resiliência + Marketing + GSD/OpenSpec" COMPLETO: 9 fases (23-31), 15 reqs, auditoria 15/15, tag v6.0. work=main pushed.
@@ -135,7 +153,30 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 
 ## Próximo passo
 
-**v2.0–v8 todos SHIPPED.** v8 (Camada de Disciplina) fechado em 2026-06-16 — 4 waves, auditoria PASSED, tag `v8.0`. Absorção de `addyosmani/agent-skills` (MIT): `/doubt` (doubt-driven) + rule sempre-on `operating-discipline` (6 condutas) + `/context-engineering` + convenção de autoria anti-racionalização + opt-in `/observability`/`/deprecation-migration`. **Dogfood:** doubt-driven rodado sobre o próprio diff achou e corrigiu citação fabricada no `/doubt`. Detalhes em `.planning/v8-MILESTONE-AUDIT.md`.
+**▶ PRIMEIRO PASSO EXECUTÁVEL (milestone v9 — planejado e pronto):**
+
+```
+/gsd-new-milestone "IdeiaOS v9 — Camada de Alinhamento"
+```
+
+Depois começar pela **Fase B**:
+
+```
+/gsd-plan-phase B-grelha-glossario
+```
+
+A **Fase A (quarentena) já está pré-feita** — antes de autorar `/grelha`: **revalidar a Fase A** (re-rodar `scan-absorbed.sh` em `security/quarantine/mattpocock-skills/`, esperar PASS/exit 0) e **resetar a sessão** (higiene pós-quarentena, ver `docs/security/memory-hygiene.md`) para só então iniciar a autoria.
+
+**Artefatos v9 para contexto (ler antes de planejar a fase):**
+- `docs/research/2026-06-16-mattpocock-skills-analise.md` (análise + 3 GAPs)
+- `docs/decisions/v9-mattpocock-skills-absorcao.md` (ADR — postura de absorção)
+- `.planning/milestones/v9-REQUIREMENTS.md` · `v9-ROADMAP.md` · `v9-IMPLEMENTATION-PLAN.md`
+- `.planning/milestones/v9-phases/{A..F}-*/*-01-PLAN.md`
+- `security/quarantine/mattpocock-skills/` (material-fonte)
+
+---
+
+_v2.0–v8 todos SHIPPED._ v8 (Camada de Disciplina) fechado em 2026-06-16 — 4 waves, auditoria PASSED, tag `v8.0`. Absorção de `addyosmani/agent-skills` (MIT): `/doubt` (doubt-driven) + rule sempre-on `operating-discipline` (6 condutas) + `/context-engineering` + convenção de autoria anti-racionalização + opt-in `/observability`/`/deprecation-migration`. **Dogfood:** doubt-driven rodado sobre o próprio diff achou e corrigiu citação fabricada no `/doubt`. Detalhes em `.planning/v8-MILESTONE-AUDIT.md`.
 
 **R8-09 FECHADO (2026-06-16):** `build-adapters.sh build_claude_project_rules()` deploya `source/rules/common/*.md` → `<projeto>/.claude/rules/ideiaos-common-*.md` (paridade Claude×Cursor; Claude auto-carrega `.claude/rules/`). Verificado em sandbox `/tmp` + dogfoodado no repo (manual `operating-discipline.md` → gerado). **Sem pendências do v8.**
 
@@ -162,5 +203,5 @@ _Histórico v7 abaixo:_
 
 ## Ultima sessao automatica (2026-06-16)
 
-- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-16-ideiaos-2c827553-7be6-4e39-8be2-5d62bdff.tmp`
-- Próximo passo: (definir antes de retomar)
+- Sessão: pesquisa + plano do milestone **v9 — Camada de Alinhamento** (só planejamento; tudo commitado/pushado).
+- Próximo passo: abrir o milestone v9 → `/gsd-new-milestone "IdeiaOS v9 — Camada de Alinhamento"` e seguir pela **Fase B** (`/gsd-plan-phase B-grelha-glossario`); revalidar Fase A (quarentena) + reset pós-quarentena antes de autorar `/grelha`. Ver **§ Próximo passo** acima.
