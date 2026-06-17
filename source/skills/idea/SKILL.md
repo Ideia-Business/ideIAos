@@ -103,7 +103,35 @@ Use a matriz abaixo para detectar intenção. **Apenas UMA camada deve ser ativa
 | "duvide dessa decisão", "revisão adversarial", "questione a premissa", "tem certeza disso?", "valida o raciocínio antes de commitar", "isso é seguro/escala mesmo?", "segunda opinião" | **Skill** → `/doubt` (doubt-driven: revisor adversarial de contexto-fresco EM-VOO, antes de a decisão valer; complementa `/code-review`) |
 | "estrutura o contexto", "engenharia de contexto", "agente alucinando/ignorando convenção", "qualidade caiu na conversa longa", "brain dump", "começar sessão nova direito" | **Skill** → `/context-engineering` (curadoria de contexto em camadas; operacionaliza token-economy/orchestration/handoffs) |
 | "me entrevista antes", "grelha esse plano", "alinha comigo antes de codar", "monta o glossário", "linguagem ubíqua" | **Alinhamento** → `/grelha` (grilling pré-plano + glossário; complementa gsd-discuss-phase) |
+| "qual o vocabulário do domínio", "padroniza os termos", "como chamamos isso no projeto", "glossário ubíquo do produto" | **Alinhamento** → `/grelha --docs` (foco em CONTEXT.md) |
 | Pedido genérico sem rumo claro | **AskUserQuestion** com 2-3 caminhos prováveis |
+
+### Passo 1.5 — Gate de alinhamento (opcional, antes de rotear)
+
+Antes de delegar à camada de execução, avalie se vale **grelhar antes** (alinhar +
+afiar o vocabulário). Dispare a OFERTA de `/grelha` quando ≥1 for verdadeiro:
+
+- **Pedido vago** — "melhorar", "deixar melhor", "resolver o problema do X", sem critério claro.
+- **Termo de domínio sobrecarregado/ausente** — o pedido usa um conceito que conflita com o
+  `CONTEXT.md` (glossário) ou que não tem termo canônico ainda.
+- **Blast-radius alto** — multi-tenancy, migration/DDL, RLS/policy, mudança de API pública,
+  fluxo de pagamento, auth/authz.
+- **Feature nova grande** — não é fix mecânico; tem árvore de decisão com dependências.
+
+Se nenhum for verdadeiro (fix pequeno, rename, ajuste óbvio, pedido já claríssimo) → **pule**
+direto para o Passo 2. NUNCA grelhe trabalho mecânico.
+
+A oferta é **transparente e escapável**:
+
+```
+🎯 Antes de planejar, recomendo uma sessão rápida de /grelha:
+Razão: <qual sinal disparou — ex. "toca RLS multi-tenant (blast-radius alto)">
+Quer alinhar primeiro? [Sim, grelhar] · [Manda ver — pula direto pro <comando>]
+```
+
+Se o usuário disser "manda ver" / pedir velocidade explícita → roteia direto (Passo 2).
+Se aceitar → invoca `/grelha --docs`; ao concluir (CONTEXT.md/ADR atualizados), retoma o
+roteamento original do Passo 2 já com o vocabulário alinhado.
 
 ### Passo 2 — Verificar pré-condições do projeto
 
@@ -252,6 +280,28 @@ Iniciando agora.
   → Entrega: docs/marketing/2026-06-16-carrossel-produtividade/
 ```
 
+### Exemplo 6 — pedido vago de alto risco (gate de alinhamento)
+```
+Usuário: /idea preciso mexer no acesso multi-tenant pra resolver o problema dos clientes
+
+Você: 🎯 Antes de planejar, recomendo uma sessão rápida de /grelha:
+Razão: toca multi-tenancy + RLS (blast-radius alto) e "resolver o problema" está vago.
+Quer alinhar primeiro? [Sim, grelhar] · [Manda ver — pula direto pro /gsd-plan-phase]
+
+Usuário: sim, grelhar
+
+[Invocar /grelha --docs → entrevista, alinha escopo e atualiza CONTEXT.md/ADR]
+
+Você (ao concluir): 🎯 IdeiaOS — Roteamento
+
+Pedido: "mexer no acesso multi-tenant" (escopo afiado no /grelha)
+Camada: GSD (execução goal-backward)
+Comando: /gsd-plan-phase
+Razão: feature de alto risco, agora com vocabulário e escopo alinhados.
+
+[Invocar /gsd-plan-phase com o contexto do glossário]
+```
+
 ---
 
 ## Filosofia
@@ -263,6 +313,8 @@ Você roteia transparentemente. Nunca esconde o comando real — sempre mostra o
 **Default seguro:** quando em dúvida entre 2 camadas, prefira a mais leve (`/gsd-quick` antes de `/gsd-plan-phase`; `@dev` direto antes de criar story completa). Sempre é mais barato escalar depois do que voltar atrás.
 
 **Fronteira /spec x GSD:** pedidos de PLANEJAR/EXECUTAR uma fase técnica → GSD. Pedidos de CONTRATAR/REGISTRAR/MUDAR comportamento durável de uma capability de produto → `/spec`. Os dois se complementam: o `tasks.md` do `/spec` alimenta o GSD. Ver `source/rules/common/delta-spec.md`.
+
+**Fronteira /grelha × gsd-discuss-phase × /doubt:** `/grelha` alinha COM o humano ANTES de existir plano (à la carte, serve até para não-código) e produz glossário durável. `gsd-discuss-phase` faz o mesmo DENTRO de uma fase GSD já aberta (decisões da fase). `/doubt` audita CONTRA decisões já tomadas. Em dúvida: `/grelha` primeiro, GSD depois, `/doubt` nas decisões críticas.
 
 ---
 
