@@ -55,6 +55,8 @@ progress:
 
 Milestone v9 (Camada de Alinhamento) **SHIPPED** — tag v9.0. Os 7 requisitos (R9-01..R9-07) entregues; gates binários verdes (membership 0 deriva, README N/N, build-plugins/adapters exit 0, idea-doctor 0 FAIL); dogfood `/doubt` = SHIP; auditoria `.planning/v9-MILESTONE-AUDIT.md` PASSED. Próximo: novas demandas (ou Fase G could-haves opcional — `to-prd` delta no @pm + nota no `/gsd-debug`).
 
+**Fechamento operacional (2026-06-17):** tag `v9.0` empurrada para `origin`; LOW do dogfood resolvido (README esclarece que `scan-absorbed.sh` mira a quarentena, não `source/`); branch `planning` sincronizado com os docs de milestone v9 via git plumbing (memory store preservado).
+
 ## Pendências (opt-in, decisão do usuário)
 - Piloto /spec (delta-spec) num produto brownfield (nfideia) — branch `spec/multi-tenancy-pilot` pronta para PR/merge. ⚠️ nfideia é Lovable.
 - gsd-browser: reavaliar quando publicar npm/crates (ADR docs/decisions/).
@@ -62,7 +64,7 @@ Milestone v9 (Camada de Alinhamento) **SHIPPED** — tag v9.0. Os 7 requisitos (
 
 ## Compact Snapshot
 
-**Auto-saved:** 2026-06-16 22:27 (PreCompact hook, trigger: manual)
+**Auto-saved:** 2026-06-17 16:45 (PreCompact hook, trigger: manual)
 
 - Snapshot automático antes do /compact.
 - Detalhes da sessão em ~/.claude/sessions/ (session-summary hook).
