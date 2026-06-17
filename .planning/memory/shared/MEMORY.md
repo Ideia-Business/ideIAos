@@ -23,6 +23,7 @@
 - [Milestone v2.0 (absorção ECC) concluído em 2026-06-12 — 8/8 fases, 29/29 planos; próximo é v3 a partir de docs/v3/](facts/project_milestone_v2_completo.md) — project-milestone-v2-completo
 - [Milestone v3 shipped em 2026-06-12 (mesmo dia do v2.0) — loop de instincts provado ao vivo; próximo é v4 a definir](facts/project_milestone_v3_completo.md) — project-milestone-v3-completo
 - [v8 (Camada de Disciplina) SHIPPED 2026-06-16 — absorveu de addyosmani/agent-skills (MIT) só o delta de disciplina; agent-skills NÃO substitui GSD/AIOX](facts/project_milestone_v8_completo.md) — project-milestone-v8-completo
+- [v9 (Camada de Alinhamento) SHIPPED 2026-06-17 — absorveu de mattpocock/skills (MIT) o delta de alinhamento humano↔agente: /grelha, glossário CONTEXT.md, ADR inline, gate na Deia, /aprofundar](facts/project_milestone_v9_completo.md) — project-milestone-v9-completo
 - [Obsidian Second Brain — vault completamente populado em 2026-06-08 com todos os projetos, referências, gotchas e changelogs](facts/project_obsidian_vault_completo.md) — project_obsidian_vault_completo
 - [Plano maior ECC 100% concluído em 2026-06-12 (v2.0+v3+v4, tags); máquinas liberadas para update; pendências = decisões do usuário](facts/project_plano_maior_concluido.md) — project-plano-maior-concluido
 - [PENDENTE: propagate-if-changed.sh não auto-propaga mudanças de source/rules/ aos projetos; e setup.sh --project-only não deploya as .claude/rules do R8-09](facts/project_propagate-rules-gap.md) — propagate-rules-gap
