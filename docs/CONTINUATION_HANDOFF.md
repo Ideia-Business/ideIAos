@@ -117,9 +117,16 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 - **Ideiapartner**: feature no `main` (release_notes + reads RLS, UserChangelog, badge no header); `feature/novidades` não existe mais. Branch original `d124e409` entrou via merge/squash (hash não preservado).
 - **Pendente (decisão do usuário):** aplicar migration em prod + Lovable Publish onde aplicável — não verificável por git.
 
-## Sessão 2026-06-16 (Cursor) — encerramento sem escopo
+## Sessão 2026-06-16 (Cursor) — encerramento + alinhamento de branches
 
-Sessão **administrativa** — usuário pediu encerramento; **nenhuma mudança de código ou decisão nova**. Estado operacional inalterado: v2.0–v8 SHIPPED, repo limpo (`work` = `origin/work`). Handoff e `STATE.md` sincronizados neste fechamento.
+**Parte 1 — fechamento admin:** commit `a834544` (`STATE.md` + handoff) pushed em `origin/work`. Sem código novo.
+
+**Parte 2 — alinhamento (pedido do usuário):**
+- `main` fast-forward ← `work` — **23 commits** (v6/v7/v8, marketing, `/doubt`, etc.) → `origin/main` @ `a834544`
+- `planning` merge ← `work` → `origin/planning` @ `5c23b48` (artefatos GSD v6–v8 + memória v5 preservada)
+- **`main` = `work`** no mesmo hash; working tree limpa
+
+**Verificação pós-sync:** README 112/112 ✅ · idea-doctor 61 OK / 2 FAIL — secrets em memória Claude de **Jarvis** e **iCloud Projects** (não IdeiaOS); remediação manual em `~/.claude/projects/`.
 
 ## Próximo passo
 
@@ -127,7 +134,7 @@ Sessão **administrativa** — usuário pediu encerramento; **nenhuma mudança d
 
 **R8-09 FECHADO (2026-06-16):** `build-adapters.sh build_claude_project_rules()` deploya `source/rules/common/*.md` → `<projeto>/.claude/rules/ideiaos-common-*.md` (paridade Claude×Cursor; Claude auto-carrega `.claude/rules/`). Verificado em sandbox `/tmp` + dogfoodado no repo (manual `operating-discipline.md` → gerado). **Sem pendências do v8.**
 
-**Executável quando houver demanda:** (1) backlog passivo v7 — `nfideia:spec/multi-tenancy-pilot` (2 specs + `PILOT-BACKLOG.md`); (2) monitorar `gsd-browser` upstream; (3) DeepSeek V4 Pro nos **produtos** (decisão adiada — ver sessão consultiva acima); (4) deploy `ideiaos-update.sh` em máquinas pendentes (Mac mini confirmar).
+**Executável quando houver demanda:** (1) higiene memória Claude — limpar secrets em sessões Jarvis/iCloud Projects (`idea-doctor` FAIL); (2) backlog passivo v7 — `nfideia:spec/multi-tenancy-pilot` (2 specs + `PILOT-BACKLOG.md`); (3) monitorar `gsd-browser` upstream; (4) DeepSeek V4 Pro nos **produtos** (decisão adiada); (5) `ideiaos-update.sh` no Mac mini.
 
 ---
 _Histórico v7 abaixo:_
@@ -151,4 +158,4 @@ _Histórico v7 abaixo:_
 ## Ultima sessao automatica (2026-06-16)
 
 - Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-16-ideiaos-2c827553-7be6-4e39-8be2-5d62bdff.tmp`
-- Próximo passo: novas demandas — backlog v7 (`nfideia:spec/multi-tenancy-pilot`) · gsd-browser · DeepSeek nos produtos (adiado) · `ideiaos-update.sh` no Mac mini
+- Próximo passo: (definir antes de retomar)

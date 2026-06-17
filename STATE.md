@@ -11,18 +11,21 @@
 | **v7 Resiliência + Spec** | ✅ Piloto `/spec` nfideia, drift-guard, branch `spec/multi-tenancy-pilot` |
 | **v6 Marketing + GSD** | ✅ `/marketing`, antifragile gates, `/spec` delta-spec brownfield |
 | **v5 Memória entre IDEs** | ✅ import/export hooks, branch `planning`, 3 suites verdes |
-| **idea-doctor** | ✅ Ambiente saudável (último fix: secret scan false positives — `3e977b8`) |
-| **README sync** | ✅ 105/105 (v6) |
+| **Branches** | ✅ `main` = `work` = `d4d5887` · `planning` sync pendente neste passo |
+| **idea-doctor** | ⚠️ 61 OK · 1 WARN · 2 FAIL — secrets em memória Claude de **outros projetos** (Jarvis, iCloud Projects); IdeiaOS repo OK |
+| **README sync** | ✅ 112/112 |
 | **Deploy máquinas** | ✅ MacBook-Air-2 · ⚠️ Mac mini confirmar (`ideiaos-update.sh`) |
 | Próximo passo | Ver `docs/CONTINUATION_HANDOFF.md` § Próximo passo |
 
-## Sessão 2026-06-16 (Cursor) — encerramento
+## Sessão 2026-06-16 (Cursor) — fechamento
 
-- Pedido de fechamento de sessão; **sem alterações de código**.
-- `STATE.md` + `docs/CONTINUATION_HANDOFF.md` atualizados neste fechamento.
+1. **Encerramento admin** — `STATE.md` + handoff sincronizados; commit `a834544` pushed em `work`.
+2. **Alinhamento de branches** — `main` fast-forward ← `work` (23 commits, pushed); `planning` merge ← `work` (pushed `5c23b48`). Repo limpo, working tree clean.
+3. **Verificação** — README 112/112 ✅; idea-doctor 2 FAIL por secrets em `~/.claude/projects/` (Jarvis + iCloud Projects) — remediação manual, fora do repo.
 
 ## Pendências não-bloqueantes
 
+- **Higiene de memória Claude:** inspecionar/remover secrets em sessões Jarvis e iCloud Projects (`idea-doctor` seção 7).
 - **nfideia** (`spec/multi-tenancy-pilot`): 2 specs vivas + `PILOT-BACKLOG.md` — PR/merge quando conveniente.
 - **gsd-browser:** monitorar upstream (ainda não publicado).
 - **DeepSeek V4 Pro:** decisão adiada — habilitar nos produtos (fora do escopo IdeiaOS); ver handoff sessão consultiva 2026-06-16.
