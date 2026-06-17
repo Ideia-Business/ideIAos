@@ -28,6 +28,14 @@ Não foi necessário fatiar versão: ambos são deltas em cima do v9.0 (sem muda
 | `idea-doctor.sh` | ✅ Patch 14 ✓ / Patch 15 ✓ — 63 OK / 1 WARN / **0 FAIL** |
 | `check-readme-sync.sh` | ✅ exit 0 — 114/114 mencionados |
 
+## Hardening pós-Fase G — validação YAML antifrágil
+
+Surgiu de uma ressalva honesta: validei o bloco YAML do `pm.md` (Patch 14) só por "scalar balanceado" porque PyYAML não estava instalado. Era um falso gap — o ambiente tinha **js-yaml** (em `.aiox-core/node_modules`, o parser que o AIOX usa em runtime) **e** ruby/psych. Fechado com um validador reutilizável:
+
+- **`scripts/validate-agent-yaml.sh`** — cascade js-yaml (autoritativo) → ruby/psych → python3+yaml → skip gracioso. Control-tested nos dois sentidos (12 agentes instalados PASS / bloco quebrado FAIL com erro preciso).
+- **Consumido por 2 lugares (DRY):** `idea-doctor.sh` (gate read-only sobre todos os agentes — novo check "YAML dos agentes AIOX válido") e `patch_pm_to_prd` (backup → inserção → valida → **rollback** se quebrar). Provado com re-apply em sandbox: estado final idêntico ao backup, sem `.bak` órfão.
+- Aprendizado registrado em memória: [[learning-missing-tool-not-cant-verify]] — "ferramenta X ausente" ≠ "não dá pra verificar"; use o parser do próprio framework.
+
 ## Nota de escopo
 
 O plano estimou XS ("1 parágrafo"). Na prática virou **MEDIUM**: o lar fiel à convenção (overlay sobre `.aiox-core` pristine + skill global) carrega a manutenção da contagem "13→15 patches" em 3 arquivos. Decisão consciente — overlay é o padrão estabelecido (Patches 1/5), não edição direta (violaria o pristine) nem rule (não alcança a persona do agente AIOX / o skill GSD).
