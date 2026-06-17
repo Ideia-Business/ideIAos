@@ -1,20 +1,20 @@
 ---
 gsd_state_version: 1.0
-milestone: v8
-milestone_name: Camada de Disciplina (Discipline Layer)
-status: shipped
-last_updated: "2026-06-16"
+milestone: v9
+milestone_name: Camada de Alinhamento (Alignment Layer)
+status: in_progress
+last_updated: "2026-06-17"
 progress:
-  total_phases: 4
-  completed_phases: 4
-  total_plans: 4
-  completed_plans: 4
-  percent: 100
+  total_phases: 6
+  completed_phases: 0
+  total_plans: 6
+  completed_plans: 0
+  percent: 0
 ---
 
 # State — IdeiaOS
 
-**Atualizado:** 2026-06-16
+**Atualizado:** 2026-06-17
 
 ## Snapshot
 
@@ -22,9 +22,27 @@ progress:
 |------|--------|
 | v2.0/v3/v4 (plano maior ECC) | ✅ SHIPPED |
 | v5 (memória cross-IDE) | ✅ SHIPPED |
-| **v6 (Resiliência + Marketing + GSD/OpenSpec)** | ✅ **SHIPPED 2026-06-16** — 9 fases, auditoria 15/15, tag v6.0 |
-| **v7 (Delta-Spec Brownfield + Robustez de Empacotamento)** | ✅ **SHIPPED 2026-06-16** — 4 fases, auditoria PASSED, tag v7.0: piloto `/spec` (specs vivas multi-tenancy + cofre-digital) + 4 bugs/gaps corrigidos + **drift-guard**. Fase 4 = backlog passivo (upstream). |
-| **v8 (Camada de Disciplina)** | ✅ **SHIPPED 2026-06-16** — 4 waves, auditoria PASSED, tag v8.0: absorção de `addyosmani/agent-skills` (MIT) — `/doubt` (doubt-driven) + rule `operating-discipline` (6 condutas) + `/context-engineering` + convenção anti-racionalização + opt-in `/observability`+`/deprecation-migration`. **Dogfood:** doubt-driven achou e corrigiu citação fabricada no próprio `/doubt`. |
+| v6 (Resiliência + Marketing + GSD/OpenSpec) | ✅ SHIPPED 2026-06-16 — 9 fases, tag v6.0 |
+| v7 (Delta-Spec Brownfield + Robustez de Empacotamento) | ✅ SHIPPED 2026-06-16 — 4 fases, tag v7.0 |
+| **v8 (Camada de Disciplina)** | ✅ **SHIPPED 2026-06-16** — tag v8.0: `/doubt` + rule `operating-discipline` + `/context-engineering` + opt-in `/observability`/`/deprecation-migration`. |
+| **v9 (Camada de Alinhamento)** | 🔄 **EM EXECUÇÃO (aberto 2026-06-17)** — absorção de `mattpocock/skills` (MIT): `/grelha` + glossário `CONTEXT.md` + ADR inline + gate de alinhamento na Deia + ritual `/aprofundar`. 6 fases A–F. |
+
+## Milestone atual — v9: Camada de Alinhamento
+
+**Goal:** Absorver de `mattpocock/skills` (MIT) o delta de alinhamento humano↔agente ANTES de planejar (grilling colaborativo `/grelha`), seu subproduto durável de linguagem ubíqua (`CONTEXT.md` glossário-only), ADRs ultraleves inline e o ritual recorrente de deepening arquitetural (Ousterhout) — tudo PT-BR, sob orquestração da Deia, sem comprar a postura anti-framework do upstream e sem duplicar GSD/AIOX.
+
+**Fases (grafo: A → B → {C ∥ D} → E → F):**
+
+| Fase | Objetivo | Cobre | Status |
+|------|----------|-------|--------|
+| A — Quarentena & absorção | resources auditados + atribuídos + vereditos congelados | (habilita R9-01/02/03/05) | 🔄 em execução |
+| B — `/grelha` + `CONTEXT.md` + rule ubiquitous-language | grilling + glossário ubíquo (caminho crítico) | R9-01, R9-02 | ⬜ TODO |
+| C — ADR inline | decisões irreversíveis rastreáveis | R9-03 | ⬜ TODO |
+| D — Gate de alinhamento na Deia | grilling na hora certa, escapável | R9-04 | ⬜ TODO |
+| E — Ritual de deepening (`/aprofundar`) | saúde de design contínua | R9-05 | ⬜ TODO |
+| F — Empacotamento + postura + auditoria | propagação + governança + ship | R9-06, R9-07 | ⬜ TODO |
+
+**Planejamento detalhado:** `.planning/milestones/v9-{REQUIREMENTS,ROADMAP,IMPLEMENTATION-PLAN}.md` + `.planning/milestones/v9-phases/*/`.
 
 ## Decisões Tecnicas Canonicas
 
@@ -35,11 +53,12 @@ progress:
 
 ## Próximo passo
 
-Milestone v8 (Camada de Disciplina) SHIPPED — tag v8.0. `/doubt` e `/context-engineering` no marketplace; `/observability` e `/deprecation-migration` no catálogo opt-in. **R8-09 FECHADO (2026-06-16):** `build-adapters.sh` deploya `source/rules/common/*` → `.claude/rules/ideiaos-common-*.md` (paridade Claude×Cursor). **Sem pendências do v8.** Próximo: novas demandas.
+Milestone v9 (Camada de Alinhamento) **EM EXECUÇÃO** — estado canônico promovido de v8→v9 (corrigida a deriva em que STATE.md ainda apontava v8 shipped). Execução autônoma multi-agente em curso: Fase A (revalidar quarentena) → B (`/grelha`, caminho crítico) → C ∥ D → E → F (ship + tag v9.0).
 
 ## Pendências (opt-in, decisão do usuário)
-- Piloto /spec (delta-spec) num produto brownfield (nfideia) — spike documentado na fase 30.
+- Piloto /spec (delta-spec) num produto brownfield (nfideia) — branch `spec/multi-tenancy-pilot` pronta para PR/merge. ⚠️ nfideia é Lovable.
 - gsd-browser: reavaliar quando publicar npm/crates (ADR docs/decisions/).
+- DeepSeek V4 Pro: habilitar nos PRODUTOS (cfoai/nfideia etc.), fora do escopo IdeiaOS.
 
 ## Compact Snapshot
 
