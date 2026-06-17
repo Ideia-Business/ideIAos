@@ -168,8 +168,11 @@ Execução autônoma multi-agente (6 fases A–F, builders + painéis de revisã
 - ✅ branch `planning` sincronizado com os docs de milestone v9 via git plumbing (memory store `.planning/memory/` preservado intacto).
 - ✅ LOW do dogfood resolvido — README esclarece que `scan-absorbed.sh` mira a quarentena, não `source/`.
 - ✅ **Fase G (could-haves) entregue** — deltas `to-prd` (@pm) + nota de seam (`/gsd-debug`) viraram **Patches 14/15** do overlay (`install-global-patches.sh`); aplicados na cópia instalada (repo `.aiox-core` pristine); contagem "15 patches" sincronizada em script/README/doctor; idea-doctor Patch 14✓/15✓ (0 FAIL). Ver `v9-phases/G-could-haves/G-01-SUMMARY.md`.
+- ✅ **Hardening de verificação** — `scripts/validate-agent-yaml.sh` (parser autoritativo js-yaml→ruby→python) wired no `idea-doctor` (gate) + Patch 14 (auto-validação + rollback). Fechou o gap "PyYAML ausente ≠ não dá pra verificar".
+- ✅ **`main` reconciliada** com `work` por fast-forward (commit `20b4033`) — `main`=`work`=`origin`, divergência 0/0 (IdeiaOS vai direto na main, sem PR).
+- ✅ **Aprendizado extraído + encerramento** — `docs/learnings/2026-06-17-git-plumbing-partial-branch-overlay-sync.md` (global → memória + vault); 3 memórias novas (git-plumbing, parser-autoritativo, aiox-core-pristine); Changelog do vault Obsidian atualizado para v9.
 
-Nada bloqueia o repo. Próximo: novas demandas.
+Nada bloqueia o repo. `main`=`work`=`origin`=`20b4033` (+ commits desta sessão de fechamento). Próximo: novas demandas.
 
 ---
 
