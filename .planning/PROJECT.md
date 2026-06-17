@@ -44,7 +44,13 @@ Base da transformação: absorção curada do framework **ECC** (everything-clau
 - AgentShield: https://github.com/affaan-m/agentshield
 
 
-## Current Milestone: v5 — Memória compartilhada entre IDEs
+## Current Milestone: v9 — Camada de Alinhamento (Alignment Layer)
+
+**Goal:** Absorver de `mattpocock/skills` (MIT) o delta de alinhamento humano↔agente ANTES de planejar — grilling colaborativo (`/grelha`), glossário de linguagem ubíqua durável (`CONTEXT.md`), ADRs inline e ritual de deepening arquitetural — sob orquestração da Deia, sem comprar a postura anti-framework do upstream. Estado operacional e progresso de fases: `.planning/STATE.md`; planejamento detalhado: `.planning/milestones/v9-*`.
+
+> **Histórico de milestones (v4→v8, todos shipped):** ver `.planning/STATE.md` (Snapshot) e `.planning/milestones/`. As seções abaixo preservam o contexto do v5 (memória cross-IDE) como referência histórica.
+
+## Current Milestone (histórico): v5 — Memória compartilhada entre IDEs
 
 **Goal:** Sincronizar a memória durável dos agentes (instincts/learnings/decisões) entre Claude Code, Cursor e outras IDEs — por projeto e por membro — usando o branch `planning` como transporte, sem nunca poluir o `main` sincronizado com a Lovable.
 
