@@ -338,6 +338,7 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | `/doubt` | always | Doubt-Driven Development — revisor adversarial de contexto-fresco EM-VOO (spawn de subagente) antes de uma decisão não-trivial valer. Complementa `/code-review` (pós-PR). 5 passos: CLAIM→EXTRACT→DOUBT→RECONCILE→STOP. |
 | `/context-engineering` | always | Engenharia de contexto — informação certa, na hora certa (hierarquia de 5 níveis, brain dump, selective include, <2k linhas/tarefa). Operacionaliza token-economy/orchestration/handoffs. |
 | `/grelha` | always | Grilling colaborativo PRÉ-plano (alias `/grill`) — me entrevista 1 pergunta por vez com resposta recomendada, lê o código quando dá; modos `--docs` (afia contra o glossário `CONTEXT.md`) e `--rapido` (não-código). Simétrico ao `/doubt` (adversarial). Produz alinhamento + glossário de linguagem ubíqua (v9). |
+| `/improve-architecture` | always | Ritual recorrente de deepening (alias `/aprofundar`) — busca módulos rasos→profundos (Ousterhout) via deletion test, falado no vocabulário do `CONTEXT.md` + glossário de arquitetura; relatório HTML em tmp; grilling loop reusando ADR inline. Complementa `refactor-cleaner`/`code-simplifier` (limpeza pontual) com saúde de design contínua (v9). |
 | `/observability` | manual (opt-in) | Observabilidade & instrumentação — log estruturado + correlation ID, RED/USE metrics, OpenTelemetry, alertas em sintomas. |
 | `/deprecation-migration` | manual (opt-in) | Deprecação & migração — remover sistemas antigos e migrar usuários com segurança (strangler/adapter/feature-flag, código zumbi). |
 
@@ -822,12 +823,13 @@ ideIAos/
 │   ├── build-adapters.sh                   ← Compila source/ → harness targets (claude + cursor)
 │   └── build-plugins.sh                    ← Gera plugins/ a partir de source/ (marketplace)
 ├── source/                                 ← FONTE ÚNICA DE VERDADE (Fase 03+)
-│   ├── skills/                             ← 43 skills (core incl. /memory-sync + 10 design + 1 lovable + /forge-agent + /spec + v8 disciplina + v9 alinhamento)
+│   ├── skills/                             ← 44 skills (core incl. /memory-sync + 10 design + 1 lovable + /forge-agent + /spec + v8 disciplina + v9 alinhamento /grelha + /improve-architecture)
 │   │   ├── forge-agent/                    ← /forge-agent (v6 Fase 25) — pesquisa antes de criar agent/skill
 │   │   ├── spec/                           ← /spec (v6 Fase 30) — delta-spec brownfield; lib/ + templates/
 │   │   ├── doubt/                          ← /doubt (v8) — doubt-driven; revisor adversarial em-voo
 │   │   ├── context-engineering/            ← /context-engineering (v8) — curadoria de contexto em camadas
-│   │   └── grelha/                         ← /grelha (v9) — grilling colaborativo pré-plano + glossário CONTEXT.md
+│   │   ├── grelha/                         ← /grelha (v9) — grilling colaborativo pré-plano + glossário CONTEXT.md
+│   │   └── improve-architecture/           ← /improve-architecture (v9) — ritual de deepening (alias /aprofundar)
 │   ├── agents/                             ← 19 agents (ECC + 4 mkt-*)
 │   ├── hooks/                              ← 14 hooks de produto (incl. instinct-recover.sh v6 + memory-import/export) + 3 test-hooks
 │   ├── lib/                                ← libs shell reutilizáveis (v6): gates.sh (antifragile I/O) + handoff-packet.sh (context-packet)
