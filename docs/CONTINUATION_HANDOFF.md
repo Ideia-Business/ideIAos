@@ -163,4 +163,4 @@ _Histórico v7 abaixo:_
 ## Ultima sessao automatica (2026-06-16)
 
 - Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-16-ideiaos-2c827553-7be6-4e39-8be2-5d62bdff.tmp`
-- Próximo passo: higiene memória Claude (doctor FAIL) · backlog v7 nfideia · gsd-browser · DeepSeek nos produtos (adiado) · novas demandas v9+
+- Próximo passo: (definir antes de retomar)
