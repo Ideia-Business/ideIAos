@@ -126,6 +126,11 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 - `planning` merge ← `work` → `origin/planning` @ `5c23b48` (artefatos GSD v6–v8 + memória v5 preservada)
 - **`main` = `work`** no mesmo hash; working tree limpa
 
+**Parte 3 — commit/push final (pedido do usuário):**
+- Commits docs: `fd56c8d`, `0ffd912`, `647c242` — pushed em `origin/work`, `origin/main`, `origin/planning`
+- Estado final: **`main` = `work` = `647c242`** · **`planning` = `a89e34b`** · working tree limpa
+- `propagate-if-changed` disparou ao merge em `main` → setup em 6 projetos `~/dev/*` (Jarvis, cfoai, ideiapartner, lapidai, nfideia, IdeiaOS)
+
 **Verificação pós-sync:** README 112/112 ✅ · idea-doctor 61 OK / 2 FAIL — secrets em memória Claude de **Jarvis** e **iCloud Projects** (não IdeiaOS); remediação manual em `~/.claude/projects/`.
 
 ## Próximo passo
@@ -158,4 +163,4 @@ _Histórico v7 abaixo:_
 ## Ultima sessao automatica (2026-06-16)
 
 - Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-16-ideiaos-2c827553-7be6-4e39-8be2-5d62bdff.tmp`
-- Próximo passo: (definir antes de retomar)
+- Próximo passo: higiene memória Claude (doctor FAIL) · backlog v7 nfideia · gsd-browser · DeepSeek nos produtos (adiado) · novas demandas v9+
