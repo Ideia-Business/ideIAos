@@ -71,10 +71,15 @@ GLOBAL_PATHS=(
 )
 
 # Paths cujo diff dispara apply-to-all-projects --apply
+# source/rules/ + build-adapters.sh: R8-09 deploya source/rules/common/ →
+# .cursor/rules/ideiaos-*.mdc + .claude/rules/ideiaos-common-*.md nos projetos.
+# Sem estes paths, mudança só-de-rule (ou só-de-build-adapters) não propagava.
 PROJECT_PATHS=(
   'source/templates/'
+  'source/rules/'
   'setup.sh'
   'scripts/apply-to-all-projects.sh'
+  'scripts/build-adapters.sh'
   'scripts/propagate-if-changed.sh'
 )
 

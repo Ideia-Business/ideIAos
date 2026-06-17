@@ -247,10 +247,14 @@ build_claude_project_rules() {
 validate_agent_contracts
 if $VALIDATE_PARITY; then validate_parity; fi
 
+# Ordem: build_claude_project_rules ANTES de build_cursor. As .claude/rules são o
+# alvo load-bearing (R8-09: Claude auto-carrega .claude/rules/ como project
+# instructions sempre-on); deployá-las primeiro garante que, num deploy parcial
+# (falha de permissão/disco), o alvo crítico tenha precedência sobre o Cursor.
 case "$TARGET" in
   claude) build_claude ;;
-  cursor) build_cursor; build_claude_project_rules ;;
-  all)    build_claude; build_cursor; build_claude_project_rules ;;
+  cursor) build_claude_project_rules; build_cursor ;;
+  all)    build_claude; build_claude_project_rules; build_cursor ;;
   *) echo "Unknown target: $TARGET"; usage; exit 1 ;;
 esac
 

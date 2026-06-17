@@ -1592,6 +1592,21 @@ MEMMD
   ensure_file_from_template "$SETUP_DIR/source/templates/hybrid/planning-branch.mdc.tmpl" "$PROJECT_DIR/.cursor/rules/planning-branch.mdc" "$PROJECT_NAME"
   ensure_file_from_template "$SETUP_DIR/source/templates/hybrid/CONTRIBUTING.md.tmpl" "$PROJECT_DIR/CONTRIBUTING.md" "$PROJECT_NAME"
 
+  # Common rules (R8-09): source/rules/common/ → .cursor/rules/ideiaos-*.mdc +
+  # .claude/rules/ideiaos-common-*.md (paridade Claude×Cursor). build-adapters é a
+  # ferramenta canônica de deploy de rule; chamá-la AQUI garante que a via de
+  # propagação (apply-to-all-projects → setup.sh --project-only) entregue as common
+  # rules — antes ela era pulada (gap R8-09 vs propagate). Fail-soft: nunca aborta o setup.
+  if [ -f "$SETUP_DIR/scripts/build-adapters.sh" ]; then
+    if bash "$SETUP_DIR/scripts/build-adapters.sh" --target cursor --project-dir "$PROJECT_DIR" >/dev/null; then
+      ok "Common rules (R8-09) deployadas: .cursor/rules/ideiaos-* + .claude/rules/ideiaos-common-*"
+    else
+      warn "build-adapters falhou ao deployar common rules (setup segue normalmente)"
+    fi
+  else
+    warn "scripts/build-adapters.sh ausente — common rules (R8-09) não deployadas"
+  fi
+
   # Camada Lovable (detector + flags --lovable / --no-lovable)
   setup_lovable_project "$PROJECT_DIR" "$PROJECT_NAME"
 
