@@ -117,10 +117,16 @@ Só **oferecer** registrar um ADR quando os **três** critérios forem verdadeir
 2. **Surpreendente sem contexto** — um leitor futuro perguntaria "por que fizeram assim?";
 3. **Resultado de um trade-off real** — havia alternativas genuínas e uma foi escolhida por motivos específicos.
 
-Faltando qualquer um dos três → **pular** o ADR. Os ADRs vivem em `docs/decisions/` (reuso do
-diretório existente, não criar `docs/adr/`). O formato canônico do ADR inline (`ADR-FORMAT.md`)
-é detalhado na **Fase C** — aqui `/grelha` já **prevê o hook**, mas o gate dos 3 critérios já
-vale desde agora.
+Faltando qualquer um dos três → **pular** silenciosamente o ADR (não oferecer). Os ADRs vivem em
+`docs/decisions/` (reuso do diretório existente). O formato canônico do ADR inline está em
+**`ADR-FORMAT.md`** (mesma pasta desta skill): gate dos 3 critérios, formato mínimo (título +
+1-3 frases), seções opcionais e numeração `NNNN-slug.md` com criação preguiçosa.
+
+Comportamento no passo "efeitos colaterais inline" do modo `--docs`: quando os **3 critérios** de
+`ADR-FORMAT.md` passam, `/grelha` **oferece** (não impõe) registrar a decisão e, ao aceitar,
+escreve em `docs/decisions/NNNN-slug.md` no formato mínimo. Quando **qualquer** critério falha,
+`/grelha` **pula** o ADR sem ruído. O espelhamento ao Obsidian não é feito aqui — fica a cargo do
+`/extract-learnings` (Passo 4c), sem pipeline novo.
 
 ---
 
@@ -147,6 +153,8 @@ decisões dela → `gsd-discuss-phase`. Já decidi e quero refutar antes de vale
   Sequência natural: `/grelha` (alinha) → decisão → `/doubt` (refuta) → executa.
 - **`/spec`** — **consome** o vocabulário canônico do glossário: requisitos e cenários da spec
   DEVEM usar os termos do `CONTEXT.md`. O glossário é pré-requisito de um bom `/spec`, não o substitui.
+- **`/extract-learnings`** — ADRs que `/grelha` grava em `docs/decisions/` são espelhados ao vault
+  Obsidian (`Decisions/`) pelo **Passo 4c** do `/extract-learnings` — sem pipeline novo no `/grelha`.
 - **`gsd-discuss-phase`** — sucessor natural quando o trabalho entra numa fase GSD; o `/grelha`
   alinha antes de a fase existir.
 - **`/context-engineering`** — o grelha **alimenta** o que vai para o contexto (glossário, ADRs,
