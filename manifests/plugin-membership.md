@@ -52,7 +52,7 @@ o que copiar de `source/` para cada plugin em `plugins/`.
 
 > Excluídos do plugin (não são componentes de produto): `test-hooks.sh`, `test-typecheck-on-edit.sh`, `test-observe-hooks.sh`
 
-### Skills core (28)
+### Skills core (30)
 
 | Skill | Arquivo |
 |-------|---------|
@@ -71,7 +71,9 @@ o que copiar de `source/` para cada plugin em `plugins/`.
 | evolve | source/skills/evolve/ |
 | extract-learnings | source/skills/extract-learnings/ |
 | forge-agent | source/skills/forge-agent/ |
+| grelha | source/skills/grelha/ |
 | idea | source/skills/idea/ |
+| improve-architecture | source/skills/improve-architecture/ |
 | ideiaos-catalog | source/skills/ideiaos-catalog/ |
 | ideiaos-setup | source/skills/ideiaos-setup/ |
 | instinct-analyze | source/skills/instinct-analyze/ |

@@ -1176,6 +1176,47 @@
       "deps": [],
       "installStrategy": "manual",
       "plugin": null
+    },
+    {
+      "id": "skill-grelha",
+      "kind": "skill",
+      "description": "Skill /grelha (alias /grill) — grilling colaborativo PRÉ-plano: entrevista o humano 1 pergunta por vez com resposta recomendada, lê o código quando dá, e monta o glossário de linguagem ubíqua (CONTEXT.md). Simétrico ao /doubt (adversarial); à la carte, pré-plano, código e não-código. Absorvido de mattpocock/skills MIT. v9.",
+      "source": "source/skills/grelha/SKILL.md",
+      "targets": [
+        "claude"
+      ],
+      "deps": [
+        "rule-ubiquitous-language"
+      ],
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
+    },
+    {
+      "id": "skill-improve-architecture",
+      "kind": "skill",
+      "description": "Skill /improve-architecture (alias /aprofundar) — ritual recorrente de deepening: acha módulos rasos→profundos (Ousterhout) via deletion test, falado no vocabulário do CONTEXT.md, com relatório HTML em tmp e grilling loop reusando ADR inline. Complementa refactor-cleaner/code-simplifier com saúde de design contínua. Absorvido de mattpocock/skills MIT. v9.",
+      "source": "source/skills/improve-architecture/SKILL.md",
+      "targets": [
+        "claude"
+      ],
+      "deps": [
+        "skill-grelha"
+      ],
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
+    },
+    {
+      "id": "rule-ubiquitous-language",
+      "kind": "rule",
+      "description": "Linguagem ubíqua do IdeiaOS (Evans/DDD): o que é o glossário CONTEXT.md e como ele se distingue dos outros dois artefatos com nome parecido (os três CONTEXT). Como /spec e o GSD consomem o glossário. Complementa a skill /grelha (mantém o glossário inline). Absorvido de mattpocock/skills MIT (R9-02). v9.",
+      "source": "source/rules/common/ubiquitous-language.md",
+      "targets": [
+        "claude",
+        "cursor"
+      ],
+      "deps": [],
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
     }
   ]
 }

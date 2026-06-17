@@ -417,6 +417,13 @@ O `/idea` roteia automaticamente para a camada certa e mostra qual comando está
 
 ---
 
+### 🧭 Alinhar antes de executar (camada v9)
+
+- **`/grelha`** (alias `/grill`) — use **antes de planejar** uma feature ambígua ou arriscada: a IA te entrevista 1 pergunta por vez (com resposta recomendada), lê o código quando dá, e monta o **glossário de linguagem ubíqua** (`CONTEXT.md`). A Deia oferece o `/grelha` no **Passo 1.5** quando detecta um pedido que merece alinhamento antes do plano.
+- **`/improve-architecture`** (alias `/aprofundar`) — **ritual recorrente de saúde de design**: rode a cada poucos dias ou ao fim de um ciclo de feature para achar módulos rasos→profundos (deletion test), com relatório HTML e grilling loop.
+
+---
+
 ### 🤖 No Claude Code
 
 #### Projeto novo (primeira vez):

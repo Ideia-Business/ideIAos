@@ -41,7 +41,9 @@ CORE_SKILLS=(
   evolve
   extract-learnings
   forge-agent
+  grelha
   idea
+  improve-architecture
   ideiaos-catalog
   ideiaos-setup
   instinct-analyze
