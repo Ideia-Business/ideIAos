@@ -1035,6 +1035,7 @@ patch_pm_to_prd() {
     return 0
   fi
 
+  cp "$target" "$target.ideiaos-bak" 2>/dev/null || true
   python3 - "$target" <<'PY'
 import sys
 path = sys.argv[1]
@@ -1062,6 +1063,16 @@ if s != orig:
     sys.exit(0)
 sys.exit(1)
 PY
+
+  # Antifrágil: a inserção manteve o bloco YAML parseável? Se não, reverte.
+  if [ -f "$SETUP_DIR/scripts/validate-agent-yaml.sh" ] \
+     && ! bash "$SETUP_DIR/scripts/validate-agent-yaml.sh" "$target" >/dev/null 2>&1; then
+    err "Patch 14: inserção quebrou o YAML do pm.md — revertido (marcadores upstream mudaram?)"
+    [ -f "$target.ideiaos-bak" ] && mv -f "$target.ideiaos-bak" "$target"
+    FAILED=$((FAILED+1))
+    return 0
+  fi
+  rm -f "$target.ideiaos-bak"
 
   if grep -qF -- "Síntese sobre entrevista (delta to-prd)" "$target"; then
     ok "Patch 14: delta to-prd aplicado em AIOX-core agents/pm.md"

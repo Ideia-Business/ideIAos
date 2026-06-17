@@ -351,6 +351,7 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | `scripts/install-alias.sh` | Adiciona alias `idea-setup` ao seu shell rc (zsh/bash) |
 | `scripts/install-git-hooks.sh` | Instala pre-commit (README sync + versions.lock) + post-merge (propagação automática) + pre-merge-commit (guarda memória) |
 | `scripts/check-readme-sync.sh` | Audita se README menciona todos os componentes do repo |
+| `scripts/validate-agent-yaml.sh` | Valida o bloco YAML embutido dos agentes AIOX com o parser **autoritativo** (js-yaml do aiox-core → ruby/psych → python3+yaml; skip gracioso se nenhum). Consumido pelo `idea-doctor` (gate read-only) e pelo Patch 14 do overlay (auto-validação + rollback após inserção) |
 | **`scripts/check-versions-lock.sh`** | **Guarda do pin GSD** — bloqueia valor pré-redux (1.3x/1.4x) e edição manual do `gsd=` que não corresponda à versão instalada (único escritor: `update-upstream.sh --bump`; bypass: `IDEIAOS_LOCK_OVERRIDE=1`). Roda no pre-commit. |
 | **`scripts/check-memory-not-on-main.sh`** | **Guarda Lovable-safe da memória (v5)** — bloqueia qualquer caminho de memória (`.planning/memory/`, `.lovable_mem_tmp.md`, `.cursor/rules/memory-bridge.mdc`) staged no branch `main` e o merge `planning`→`main`; mensagem direcional (diz qual lado está errado); bypass consciente: `IDEIAOS_MEM_OVERRIDE=1`. Modos `--staged` (pre-commit) e `--merge` (pre-merge-commit). |
 | **`scripts/check-plugin-membership.sh`** | **Guarda anti-deriva de plugins (v7)** — bloqueia commit que toque `manifests/modules.json`, `manifests/plugin-membership.md` ou `scripts/build-plugins.sh` se houver deriva entre as atribuições `plugin:` do manifesto e os arrays do `build-plugins.sh` (o bug que deixou `spec`/`forge-agent`/`memory-sync` fora do empacotamento). Roda no pre-commit e no `idea-doctor` (seção 10). |
@@ -818,6 +819,7 @@ ideIAos/
 │   ├── install-alias.sh                    ← Instala alias idea-setup
 │   ├── install-git-hooks.sh                ← Pre-commit + post-merge (propagação) + pre-merge-commit
 │   ├── check-readme-sync.sh                ← Audita README sync (aponta para source/)
+│   ├── validate-agent-yaml.sh             ← Valida YAML dos agentes AIOX (parser autoritativo js-yaml→ruby→python)
 │   ├── check-versions-lock.sh              ← Guarda do pin GSD no versions.lock (anti-revert pré-redux)
 │   ├── check-memory-not-on-main.sh          ← Guarda Lovable-safe (v5): memória nunca no main; bloqueia merge planning→main
 │   ├── check-plugin-membership.sh           ← Guarda anti-deriva (v7): manifesto plugin: × arrays do build-plugins.sh

@@ -91,6 +91,12 @@ if AIOX="$(find_aiox_core)"; then
   chk "Patch 5 (AIOX qa.md --verification)" "$AIOX/development/agents/qa.md"     "--verification <path>"
   chk "Patch 6 (AIOX qa-gate Composition)"  "$AIOX/development/tasks/qa-gate.md" "Optional Input — IdeiaOS Composition"
   chk "Patch 14 (AIOX pm.md to-prd)"        "$AIOX/development/agents/pm.md"     "Síntese sobre entrevista (delta to-prd)"
+  # YAML dos agentes AIOX parseável? (parser AUTORITATIVO js-yaml → ruby → python; skip gracioso se nenhum)
+  if bash "$SETUP_DIR/scripts/validate-agent-yaml.sh" "$AIOX/development/agents" >/dev/null 2>&1; then
+    pass "YAML dos agentes AIOX válido (parser do runtime)"
+  else
+    fail "YAML inválido em agente AIOX — rode: bash scripts/validate-agent-yaml.sh $AIOX/development/agents"
+  fi
 else
   info "Patches 5/6 (AIOX): AIOX-core não localizado — instale via npm + install-global-patches"
 fi
