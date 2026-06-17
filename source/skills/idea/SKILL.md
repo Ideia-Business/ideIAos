@@ -102,6 +102,7 @@ Use a matriz abaixo para detectar intenção. **Apenas UMA camada deve ser ativa
 | "analisa o perfil @X", "inspira-se no estilo de Y", "investiga concorrente de conteúdo", "pesquisa referências de conteúdo" | **Skill** → `/marketing-research` (Sherlock via Chrome DevTools MCP) |
 | "duvide dessa decisão", "revisão adversarial", "questione a premissa", "tem certeza disso?", "valida o raciocínio antes de commitar", "isso é seguro/escala mesmo?", "segunda opinião" | **Skill** → `/doubt` (doubt-driven: revisor adversarial de contexto-fresco EM-VOO, antes de a decisão valer; complementa `/code-review`) |
 | "estrutura o contexto", "engenharia de contexto", "agente alucinando/ignorando convenção", "qualidade caiu na conversa longa", "brain dump", "começar sessão nova direito" | **Skill** → `/context-engineering` (curadoria de contexto em camadas; operacionaliza token-economy/orchestration/handoffs) |
+| "me entrevista antes", "grelha esse plano", "alinha comigo antes de codar", "monta o glossário", "linguagem ubíqua" | **Alinhamento** → `/grelha` (grilling pré-plano + glossário; complementa gsd-discuss-phase) |
 | Pedido genérico sem rumo claro | **AskUserQuestion** com 2-3 caminhos prováveis |
 
 ### Passo 2 — Verificar pré-condições do projeto
