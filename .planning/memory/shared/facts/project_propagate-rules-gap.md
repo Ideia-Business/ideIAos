@@ -17,4 +17,11 @@ Gap descoberto em 2026-06-16 ao auditar a auto-propagação do v8.
 
 **Por quê importa:** é exatamente o padrão [[declarative-manifest-vs-imperative-list-drift]] — capability declarada (R8-09 deploya .claude rules) sem o gatilho/caminho que a entrega na propagação. O deploy manual desta sessão (`build-adapters --target cursor --project-dir` em cada repo) é workaround; a propagação automática ainda não cobre rules.
 
-**Status:** não corrigido (decisão de não hackear às pressas). Fix deve reconciliar propagate-if-changed.sh + setup.sh/build-adapters numa fase própria.
+**Status:** ✅ CORRIGIDO (2026-06-16, commit 66598c1, landed em `work`). Fix de 2 partes +
+blindagem: (1) `propagate-if-changed.sh` ganhou `source/rules/` + `scripts/build-adapters.sh`
+em `PROJECT_PATHS`; (2) `setup.sh` (config de projeto, roda em `--project-only`) chama
+`build-adapters.sh --target cursor --project-dir` fail-soft → entrega `.cursor/rules/ideiaos-*`
++ `.claude/rules/ideiaos-common-*`; (3) `build-adapters.sh` reordenado p/ `build_claude_project_rules`
+antes de `build_cursor` (alvo load-bearing primeiro em deploy parcial). Verificado: bash -n +
+sandbox (rule-only propaga, docs-only não) + end-to-end setup --project-only + revisão
+adversarial 3-lentes (clean, só LOW). Cadeia completa fechada.
