@@ -6,7 +6,7 @@
 #   1. Skills globais (orquestração + dev-loop + Suíte de Design) e GSD
 #   2. Drift: cópia global vs fonte do repo (source/skills/) — pede setup --global-only
 #   3. MCPs (chrome-devtools, context7)
-#   4. Os 13 patches do overlay (markers de idempotência)
+#   4. Os 15 patches do overlay (markers de idempotência)
 #   5. Versões instaladas vs versions.lock (aiox-core, gsd) + pin da Suíte
 #   6. Autosync (LaunchAgent) ativo
 #   7. Security Audit (deny rules, hooks perigosos, secrets em memória, quarentena)
@@ -75,8 +75,8 @@ else
   warn "Claude Code CLI não encontrado — não checou MCPs"
 fi
 
-# ── 4) Overlay (13 patches) ───────────────────────────────────────────────────
-step "4) Overlay — 13 patches"
+# ── 4) Overlay (15 patches) ───────────────────────────────────────────────────
+step "4) Overlay — 15 patches"
 chk() { # nome, arquivo, marcador
   if [ ! -f "$2" ]; then warn "$1: alvo ausente ($2)"; return; fi
   if grep -qF -- "$3" "$2" 2>/dev/null; then pass "$1"; else warn "$1 NÃO aplicado — rode: bash scripts/install-global-patches.sh"; fi
@@ -90,6 +90,7 @@ chk "Patch 4 (settings.json matcher)"    "$HOME/.claude/settings.json"          
 if AIOX="$(find_aiox_core)"; then
   chk "Patch 5 (AIOX qa.md --verification)" "$AIOX/development/agents/qa.md"     "--verification <path>"
   chk "Patch 6 (AIOX qa-gate Composition)"  "$AIOX/development/tasks/qa-gate.md" "Optional Input — IdeiaOS Composition"
+  chk "Patch 14 (AIOX pm.md to-prd)"        "$AIOX/development/agents/pm.md"     "Síntese sobre entrevista (delta to-prd)"
 else
   info "Patches 5/6 (AIOX): AIOX-core não localizado — instale via npm + install-global-patches"
 fi
@@ -108,6 +109,8 @@ chk "Patch 12 (memory-import no SessionStart)" "$HOME/.claude/settings.json"    
 # Patch 13 (hook memory-export) — presença do script + registro no Stop (memória v5)
 if [ -f "$HOME/.claude/hooks/memory-export.sh" ]; then pass "Patch 13 (hook memory-export presente)"; else warn "Patch 13 ausente — install-global-patches.sh"; fi
 chk "Patch 13 (memory-export no Stop)" "$HOME/.claude/settings.json"                       "memory-export.sh"
+# Patch 15 (gsd-debug seam note) — delta diagnose (v9 Fase G)
+chk "Patch 15 (gsd-debug seam note)" "$GSKILLS/gsd-debug/SKILL.md"                          "Achado de seam (delta IdeiaOS"
 
 # ── 5) Versões vs lock ────────────────────────────────────────────────────────
 step "5) Versões vs versions.lock"

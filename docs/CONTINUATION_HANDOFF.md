@@ -162,12 +162,14 @@ Execução autônoma multi-agente (6 fases A–F, builders + painéis de revisã
 - `/improve-architecture` (`/aprofundar`) — ritual de deepening Ousterhout (R9-05)
 - empacotamento + propagação + ADR de postura (R9-06/07); auditoria `.planning/v9-MILESTONE-AUDIT.md` **PASSED**; dogfood `/doubt` sobre o diff = **SHIP** (zero fabricação). Inclui fix de precisão do scanner (`scan-absorbed.sh` Check-2 fence-aware, com control test).
 
-**Pendências do ship (ação humana/@devops):**
-- `work` ficou **ahead 8** de `origin/work` → o autosync (restaurado ao fim da sessão) empurra os commits no próximo tick (≤15min).
-- **tag `v9.0` é LOCAL** — autosync não empurra tags; requer `git push origin v9.0` (@devops).
-- Sincronizar `.planning/*` no branch `planning` (cross-IDE), se a máquina não fizer automático.
-- LOW (dogfood, pré-existente, não-bloqueante): clarificar no README que `scan-absorbed.sh` mira a quarentena, não `source/`.
-- Opcional: Fase G could-haves (`to-prd` delta no @pm + nota no `/gsd-debug`).
+**Fechamento operacional — TODAS as pendências do ship resolvidas (2026-06-17):**
+- ✅ `work` = `origin/work` (commit `122da91` + agora o commit da Fase G).
+- ✅ **tag `v9.0` empurrada** para `origin` (`9b51679`).
+- ✅ branch `planning` sincronizado com os docs de milestone v9 via git plumbing (memory store `.planning/memory/` preservado intacto).
+- ✅ LOW do dogfood resolvido — README esclarece que `scan-absorbed.sh` mira a quarentena, não `source/`.
+- ✅ **Fase G (could-haves) entregue** — deltas `to-prd` (@pm) + nota de seam (`/gsd-debug`) viraram **Patches 14/15** do overlay (`install-global-patches.sh`); aplicados na cópia instalada (repo `.aiox-core` pristine); contagem "15 patches" sincronizada em script/README/doctor; idea-doctor Patch 14✓/15✓ (0 FAIL). Ver `v9-phases/G-could-haves/G-01-SUMMARY.md`.
+
+Nada bloqueia o repo. Próximo: novas demandas.
 
 ---
 

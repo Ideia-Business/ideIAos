@@ -19,6 +19,8 @@
 #   9. ~/.config/git/ignore                               — gitignore global (settings.local.json, .DS_Store)
 #   12. ~/.claude/hooks/memory-import.sh + settings.json  — SessionStart import memória shared (planning → nativa)
 #   13. ~/.claude/hooks/memory-export.sh + settings.json  — Stop export memória nativa → planning (git plumbing)
+#   14. .aiox-core/.../agents/pm.md                       — delta to-prd (síntese > entrevista + quiz seams/módulos)  [v9 Fase G]
+#   15. ~/.claude/skills/gsd-debug/SKILL.md               — nota de seam (diagnose → handoff arquitetura)            [v9 Fase G]
 #
 # Uso:
 #   bash scripts/install-global-patches.sh
@@ -1008,44 +1010,170 @@ PY
   esac
 }
 
-step "Patch 1/13: --story em gsd-plan-phase SKILL.md"
+# ── PATCH 14: AIOX-core agents/pm.md — delta to-prd (síntese > entrevista) ───
+# IdeiaOS v9 Fase G: absorve o delta fino do `to-prd` (mattpocock/skills, MIT) —
+# "sintetiza, não entrevista" + quiz de seams/módulos — como um core_principle
+# do @pm/Morgan. Aplica na cópia INSTALADA do AIOX-core (repo fica pristine).
+patch_pm_to_prd() {
+  local aiox_root
+  aiox_root="$(find_aiox_core)" || {
+    warn "Patch 14: AIOX-core não localizado — pular"
+    SKIPPED=$((SKIPPED+1))
+    return 0
+  }
+  local target="$aiox_root/development/agents/pm.md"
+
+  if [ ! -f "$target" ]; then
+    warn "Patch 14: $target ausente"
+    SKIPPED=$((SKIPPED+1))
+    return 0
+  fi
+
+  if grep -qF -- "Síntese sobre entrevista (delta to-prd)" "$target"; then
+    skip "Patch 14: delta to-prd já presente em AIOX-core agents/pm.md"
+    SKIPPED=$((SKIPPED+1))
+    return 0
+  fi
+
+  python3 - "$target" <<'PY'
+import sys
+path = sys.argv[1]
+with open(path, 'r', encoding='utf-8') as f:
+    s = f.read()
+orig = s
+
+marker = "    - Quality-First Planning - embed CodeRabbit quality validation in epic creation, predict specialized agent assignments and quality gates upfront"
+principle = (
+    "\n    - 'Síntese sobre entrevista (delta to-prd): quando já há contexto "
+    "(uma conversa, um /grelha, um entendimento prévio), SINTETIZAR o PRD do "
+    "que já se sabe em vez de re-entrevistar do zero; só perguntar o que de "
+    "fato falta. Antes de fechar, rodar um quiz curto de seams/módulos (lente "
+    "/aprofundar) e registrar os módulos profundos e as costuras testáveis como "
+    "restrições de design no PRD.'"
+)
+if marker in s and "Síntese sobre entrevista (delta to-prd)" not in s:
+    idx = s.index(marker)
+    nl = s.index("\n", idx)
+    s = s[:nl] + principle + s[nl:]
+
+if s != orig:
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write(s)
+    sys.exit(0)
+sys.exit(1)
+PY
+
+  if grep -qF -- "Síntese sobre entrevista (delta to-prd)" "$target"; then
+    ok "Patch 14: delta to-prd aplicado em AIOX-core agents/pm.md"
+    APPLIED=$((APPLIED+1))
+  else
+    err "Patch 14: falha ao aplicar (marcadores upstream mudaram?)"
+    FAILED=$((FAILED+1))
+  fi
+}
+
+# ── PATCH 15: gsd-debug SKILL.md — achado de seam (delta diagnose) ───────────
+# IdeiaOS v9 Fase G: absorve o achado do `diagnose` (mattpocock/skills, MIT) —
+# "sem seam de teste correto, isso É o achado → handoff p/ arquitetura" — como
+# uma nota no /gsd-debug. NÃO substitui o /gsd-debug; complementa-o.
+patch_gsd_debug_note() {
+  local target="$HOME/.claude/skills/gsd-debug/SKILL.md"
+
+  if [ ! -f "$target" ]; then
+    warn "Patch 15 (gsd-debug SKILL.md): arquivo ausente — GSD plugin instalado?"
+    SKIPPED=$((SKIPPED+1))
+    return 0
+  fi
+
+  if grep -qF -- "Achado de seam (delta IdeiaOS" "$target"; then
+    skip "Patch 15: nota de seam já presente em gsd-debug/SKILL.md"
+    SKIPPED=$((SKIPPED+1))
+    return 0
+  fi
+
+  python3 - "$target" <<'PY'
+import sys
+path = sys.argv[1]
+with open(path, 'r', encoding='utf-8') as f:
+    s = f.read()
+orig = s
+
+marker = "</objective>"
+note = (
+    "\n\n<ideiaos_seam_note>\n"
+    "**Achado de seam (delta IdeiaOS, do `diagnose` de mattpocock/skills, MIT):** "
+    "se você não consegue escrever um teste limpo que isole o bug — não há um "
+    "*seam* (costura testável) no ponto certo — isso **não é um obstáculo, é O "
+    "achado**. A ausência de seam correto sinaliza problema de arquitetura, não "
+    "só um bug local. Em vez de forçar um fix que contorna a falta de costura, "
+    "registre o achado e faça **handoff para arquitetura** (`/aprofundar` ou "
+    "@architect). Corrigir sem o seam certo só esconde a dívida.\n"
+    "</ideiaos_seam_note>"
+)
+if marker in s and "Achado de seam (delta IdeiaOS" not in s:
+    idx = s.index(marker) + len(marker)
+    s = s[:idx] + note + s[idx:]
+
+if s != orig:
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write(s)
+    sys.exit(0)
+sys.exit(1)
+PY
+
+  if grep -qF -- "Achado de seam (delta IdeiaOS" "$target"; then
+    ok "Patch 15: nota de seam aplicada em gsd-debug/SKILL.md"
+    APPLIED=$((APPLIED+1))
+  else
+    err "Patch 15: falha ao aplicar (marcadores upstream mudaram?)"
+    FAILED=$((FAILED+1))
+  fi
+}
+
+step "Patch 1/15: --story em gsd-plan-phase SKILL.md"
 patch_gsd_skill
 
-step "Patch 2/13: STORY_MODE em workflows/plan-phase.md"
+step "Patch 2/15: STORY_MODE em workflows/plan-phase.md"
 patch_gsd_workflow
 
-step "Patch 3/13: 3 gatilhos em extract-learnings-reminder.sh"
+step "Patch 3/15: 3 gatilhos em extract-learnings-reminder.sh"
 patch_extract_hook
 
-step "Patch 4/13: matcher expandido em settings.json"
+step "Patch 4/15: matcher expandido em settings.json"
 patch_settings_json
 
-step "Patch 5/13: --verification em AIOX-core agents/qa.md"
+step "Patch 5/15: --verification em AIOX-core agents/qa.md"
 patch_aiox_qa_agent
 
-step "Patch 6/13: IdeiaOS Composition em AIOX-core tasks/qa-gate.md"
+step "Patch 6/15: IdeiaOS Composition em AIOX-core tasks/qa-gate.md"
 patch_aiox_qa_task
 
-step "Patch 7/13: OKLCH (--brand-hue) em design-system SKILL.md"
+step "Patch 7/15: OKLCH (--brand-hue) em design-system SKILL.md"
 patch_design_system_oklch
 
-step "Patch 8/13: SessionStart git-sync-check (auto fast-forward cross-máquina)"
+step "Patch 8/15: SessionStart git-sync-check (auto fast-forward cross-máquina)"
 patch_git_sync
 
-step "Patch 9/13: gitignore global (settings.local.json + .DS_Store)"
+step "Patch 9/15: gitignore global (settings.local.json + .DS_Store)"
 patch_global_gitignore
 
-step "Patch 10/13: deny rules baseline em settings.json"
+step "Patch 10/15: deny rules baseline em settings.json"
 patch_deny_rules
 
-step "Patch 11/13: SessionStart backlog-sync-check (backlog real do prod — ideiapartner)"
+step "Patch 11/15: SessionStart backlog-sync-check (backlog real do prod — ideiapartner)"
 patch_backlog_sync
 
-step "Patch 12/13: SessionStart memory-import (memória shared planning → nativa)"
+step "Patch 12/15: SessionStart memory-import (memória shared planning → nativa)"
 patch_memory_import
 
-step "Patch 13/13: Stop memory-export (memória nativa → planning, git plumbing)"
+step "Patch 13/15: Stop memory-export (memória nativa → planning, git plumbing)"
 patch_memory_export
+
+step "Patch 14/15: delta to-prd em AIOX-core agents/pm.md"
+patch_pm_to_prd
+
+step "Patch 15/15: nota de seam (diagnose) em gsd-debug SKILL.md"
+patch_gsd_debug_note
 
 # ── Resumo ───────────────────────────────────────────────────────────────────
 echo -e "\n${CYAN}${BOLD}━━━ Resumo ━━━${NC}"
