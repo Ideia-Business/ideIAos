@@ -153,26 +153,21 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 
 ## Próximo passo
 
-**▶ PRIMEIRO PASSO EXECUTÁVEL (milestone v9 — planejado e pronto):**
+**✅ MILESTONE v9 (Camada de Alinhamento) SHIPPED — 2026-06-17, tag `v9.0`.**
 
-```
-/gsd-new-milestone "IdeiaOS v9 — Camada de Alinhamento"
-```
+Execução autônoma multi-agente (6 fases A–F, builders + painéis de revisão 3-lentes por fase). Entregue:
+- `/grelha` (alias `/grill`) — grilling colaborativo pré-plano + glossário `CONTEXT.md` (R9-01/02)
+- rule `ubiquitous-language` (distinção dos 3 CONTEXT) + ADR inline `ADR-FORMAT` (R9-02/03)
+- Passo 1.5 (gate de alinhamento opcional/escapável) na Deia (R9-04)
+- `/improve-architecture` (`/aprofundar`) — ritual de deepening Ousterhout (R9-05)
+- empacotamento + propagação + ADR de postura (R9-06/07); auditoria `.planning/v9-MILESTONE-AUDIT.md` **PASSED**; dogfood `/doubt` sobre o diff = **SHIP** (zero fabricação). Inclui fix de precisão do scanner (`scan-absorbed.sh` Check-2 fence-aware, com control test).
 
-Depois começar pela **Fase B**:
-
-```
-/gsd-plan-phase B-grelha-glossario
-```
-
-A **Fase A (quarentena) já está pré-feita** — antes de autorar `/grelha`: **revalidar a Fase A** (re-rodar `scan-absorbed.sh` em `security/quarantine/mattpocock-skills/`, esperar PASS/exit 0) e **resetar a sessão** (higiene pós-quarentena, ver `docs/security/memory-hygiene.md`) para só então iniciar a autoria.
-
-**Artefatos v9 para contexto (ler antes de planejar a fase):**
-- `docs/research/2026-06-16-mattpocock-skills-analise.md` (análise + 3 GAPs)
-- `docs/decisions/v9-mattpocock-skills-absorcao.md` (ADR — postura de absorção)
-- `.planning/milestones/v9-REQUIREMENTS.md` · `v9-ROADMAP.md` · `v9-IMPLEMENTATION-PLAN.md`
-- `.planning/milestones/v9-phases/{A..F}-*/*-01-PLAN.md`
-- `security/quarantine/mattpocock-skills/` (material-fonte)
+**Pendências do ship (ação humana/@devops):**
+- `work` ficou **ahead 8** de `origin/work` → o autosync (restaurado ao fim da sessão) empurra os commits no próximo tick (≤15min).
+- **tag `v9.0` é LOCAL** — autosync não empurra tags; requer `git push origin v9.0` (@devops).
+- Sincronizar `.planning/*` no branch `planning` (cross-IDE), se a máquina não fizer automático.
+- LOW (dogfood, pré-existente, não-bloqueante): clarificar no README que `scan-absorbed.sh` mira a quarentena, não `source/`.
+- Opcional: Fase G could-haves (`to-prd` delta no @pm + nota no `/gsd-debug`).
 
 ---
 
