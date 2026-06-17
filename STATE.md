@@ -11,7 +11,7 @@
 | **v7 Resiliência + Spec** | ✅ Piloto `/spec` nfideia, drift-guard, branch `spec/multi-tenancy-pilot` |
 | **v6 Marketing + GSD** | ✅ `/marketing`, antifragile gates, `/spec` delta-spec brownfield |
 | **v5 Memória entre IDEs** | ✅ import/export hooks, branch `planning`, 3 suites verdes |
-| **Branches** | ✅ `main` = `work` @ `ff70847` · `planning` @ `52858b8` (pushed) |
+| **Branches** | ✅ `main` = `work` (alinhados, pushed) · `planning` @ `52858b8` (pushed) |
 | **idea-doctor** | ⚠️ 61 OK · 1 WARN · 2 FAIL — secrets em memória Claude de **outros projetos** (Jarvis, iCloud Projects); IdeiaOS repo OK |
 | **README sync** | ✅ 112/112 |
 | **Deploy máquinas** | ✅ MacBook-Air-2 · ⚠️ Mac mini confirmar (`ideiaos-update.sh`) |
