@@ -13,10 +13,13 @@ origin:
   captured_at: "2026-06-16"
   capture_method: "raw.githubusercontent.com (curl, bytes idênticos ao tree API)"
   note: >
-    Apenas os SKILL.md das skills priorizadas foram estagiados. Arquivos de apoio
-    de cada skill (ex.: ADR-FORMAT.md, CONTEXT-FORMAT.md, scripts/, *.md auxiliares,
-    e as skills das pastas deprecated/in-progress/personal/misc não priorizadas)
-    NÃO foram capturados nesta etapa — ver `not_captured` ao final.
+    Os SKILL.md das skills priorizadas foram estagiados na captura inicial (2026-06-16).
+    Na Fase A do milestone v9 (2026-06-17) foram adicionados 4 resources de apoio das
+    skills marcadas para absorver/adaptar — CONTEXT-FORMAT.md e ADR-FORMAT.md (grill-with-docs),
+    LANGUAGE.md e HTML-REPORT.md (improve-codebase-architecture) — capturados verbatim do
+    MESMO commit 694fa30 via path upstream `skills/engineering/<skill>/<RESOURCE>.md`, e salvos
+    sob subdiretórios `skills/<skill>/` para preservar o caminho relativo que os SKILL.md citam.
+    Os demais arquivos de apoio e buckets não priorizados seguem NÃO capturados — ver `not_captured`.
 
 # === Skills priorizadas (engenharia) ===
 catalog:
@@ -26,7 +29,7 @@ catalog:
     file: skills/grill-with-docs.md
     status: fetched
     description: "Sessão de 'grilling' que estressa um plano contra o domínio/glossário (CONTEXT.md) e registra ADRs inline conforme decisões se cristalizam."
-    verdict: pending   # PRIORIDADE MÁXIMA segundo o pedido; sobrepõe-se a /doubt e /grill-me
+    verdict: absorber   # FINAL — relatório §3/§8 MUST#1: núcleo da Fase B (/grelha). GAP real (grilling pré-plano + glossário ubíquo).
 
   - id: grill-me
     name: "Grill Me"
@@ -34,7 +37,7 @@ catalog:
     file: skills/grill-me.md
     status: fetched
     description: "Entrevista o usuário implacavelmente sobre um plano/design até atingir entendimento compartilhado, resolvendo cada ramo da árvore de decisão."
-    verdict: pending   # overlaps-existing? ressoa com /doubt e gsd-discuss-phase
+    verdict: absorber   # FINAL — relatório §3/§4.3: vira o modo base do /grelha (alias --rapido, sem docs; serve até para não-código).
 
   - id: diagnose
     name: "Diagnose"
@@ -42,7 +45,7 @@ catalog:
     file: skills/diagnose.md
     status: fetched
     description: "Loop disciplinado de diagnóstico para bugs difíceis e regressões: reproduzir → minimizar → hipótese → instrumentar → corrigir → teste de regressão."
-    verdict: pending   # overlaps-existing? compara com gsd-debug e silent-failure-hunter
+    verdict: overlaps-existing   # FINAL — relatório §3: /gsd-debug é mais robusto (state-machine + estado persistente). Absorver só 1 nota ("sem seam correto = o achado") — Fase F/G (COULD).
 
   - id: to-prd
     name: "To PRD"
@@ -50,7 +53,7 @@ catalog:
     file: skills/to-prd.md
     status: fetched
     description: "Converte o contexto da conversa atual em um PRD publicado no issue tracker do projeto (sem entrevistar — sintetiza o já sabido)."
-    verdict: pending   # overlaps-existing? sobrepõe AIOX @pm / gsd specs
+    verdict: adaptar   # FINAL — relatório §3/§8 SHOULD#5: temos PRD via @pm/Morgan. Absorver só o delta fino ("sintetiza, não entrevista" + quiz de seams/módulos) — Fase F/G.
 
   - id: to-issues
     name: "To Issues"
@@ -58,7 +61,7 @@ catalog:
     file: skills/to-issues.md
     status: fetched
     description: "Quebra um plano/spec/PRD em issues independentes via fatias verticais (tracer bullets) no issue tracker."
-    verdict: pending   # overlaps-existing? compara com gsd-plan-phase / @sm story breakdown
+    verdict: ignore   # FINAL — relatório §3/§8 WON'T: acopla a GitHub Issues; IdeiaOS planeja por fases/stories (gsd-plan-phase / @sm). Fora do modelo de execução.
 
   - id: improve-codebase-architecture
     name: "Improve Codebase Architecture"
@@ -66,7 +69,7 @@ catalog:
     file: skills/improve-codebase-architecture.md
     status: fetched
     description: "Identifica 'deepening opportunities' (refactors que tornam módulos rasos em profundos) guiado por CONTEXT.md e docs/adr/, focando testabilidade e navegabilidade por IA."
-    verdict: pending   # candidate? compara com code-simplifier / refactor-cleaner
+    verdict: adaptar   # FINAL — relatório §3/§8 SHOULD#4: ADOTAR como ritual de "deepening" (Ousterhout) — Fase E (R9-05). Gap de saúde de design contínua.
 
   - id: zoom-out
     name: "Zoom Out"
@@ -74,7 +77,7 @@ catalog:
     file: skills/zoom-out.md
     status: fetched
     description: "Comando curto para a IA subir um nível de abstração e mapear módulos/callers relevantes usando o vocabulário do glossário do projeto."
-    verdict: candidate   # micro-skill barata; sobrepõe-se parcialmente a code-explorer
+    verdict: ignore   # FINAL — relatório §3/§8 WON'T: cobertura igual/superior já existe (code-explorer + /codebase-onboarding + /code-tour). Rebaixado de candidate.
 
   - id: prototype
     name: "Prototype"
@@ -82,7 +85,7 @@ catalog:
     file: skills/prototype.md
     status: fetched
     description: "Constrói protótipo descartável para validar um design antes de comprometer — roteia entre app de terminal (lógica/estado) ou variações de UID toggláveis."
-    verdict: pending   # overlaps-existing? compara com gsd-sketch / gsd-spike
+    verdict: overlaps-existing   # FINAL — relatório §3/§8 WON'T: GSD já tem protótipo descartável (gsd-sketch) e spike experiencial (gsd-spike).
 
   - id: tdd
     name: "TDD (red-green-refactor)"
@@ -90,7 +93,7 @@ catalog:
     file: skills/tdd.md
     status: fetched
     description: "TDD com loop red-green-refactor e ênfase em testes de integração através de APIs públicas."
-    verdict: overlaps-existing   # IdeiaOS já tem skill tdd própria
+    verdict: overlaps-existing   # FINAL — relatório §3/§8 WON'T: IdeiaOS já tem /tdd própria (RED→GREEN→REFACTOR, fatia vertical), praticamente idêntica.
 
   - id: triage
     name: "Triage"
@@ -98,7 +101,7 @@ catalog:
     file: skills/triage.md
     status: fetched
     description: "Move issues por uma pequena máquina de estados de 'triage roles' no issue tracker; prepara issues para agente AFK."
-    verdict: pending   # depende de issue tracker externo (gh/glab)
+    verdict: ignore   # FINAL — relatório §3/§8 WON'T: workflow de manutenção de repo OSS via GitHub Issues; não é dor do IdeiaOS (modelo fases/stories).
 
   - id: setup-matt-pocock-skills
     name: "Setup Matt Pocock Skills"
@@ -106,7 +109,7 @@ catalog:
     file: skills/setup-matt-pocock-skills.md
     status: fetched
     description: "Scaffolda bloco '## Agent skills' em AGENTS.md/CLAUDE.md e docs/agents/ para informar as skills sobre issue tracker, labels de triage e layout de docs do repo."
-    verdict: ignore   # bootstrap específico do ecossistema do autor; não aplicável ao IdeiaOS
+    verdict: ignore   # FINAL — relatório §3/§8 WON'T: /ideiaos-setup + @ideiaos-checker já cobrem (idempotente, multi-harness). Bootstrap do ecossistema do autor.
 
   - id: caveman
     name: "Caveman"
@@ -114,7 +117,7 @@ catalog:
     file: skills/caveman.md
     status: fetched
     description: "Modo de comunicação ultra-comprimido (~75% menos tokens) preservando substância técnica; pareia com a disciplina de token-economy."
-    verdict: candidate   # micro-skill barata e independente de framework
+    verdict: ignore   # FINAL — relatório §3/§8 WON'T/COULD baixo: alto risco de perder clareza/PT-BR; baixo valor governado. Rebaixado de candidate.
 
   - id: handoff
     name: "Handoff"
@@ -122,7 +125,7 @@ catalog:
     file: skills/handoff.md
     status: fetched
     description: "Compacta a conversa atual em documento de handoff (no tmp do SO) para outro agente continuar; redige redação de secrets e seção 'suggested skills'."
-    verdict: overlaps-existing   # IdeiaOS já tem CONTINUATION_HANDOFF + cursor/claude-continuation
+    verdict: overlaps-existing   # FINAL — relatório §3/§8 WON'T: handoff cross-IDE/cross-session já é camada inteira (context-packet-handoffs + /cursor-continuation + CONTINUATION_HANDOFF).
 
   - id: write-a-skill
     name: "Write a Skill"
@@ -130,7 +133,7 @@ catalog:
     file: skills/write-a-skill.md
     status: fetched
     description: "Cria novas agent skills com estrutura adequada, progressive disclosure e recursos empacotados."
-    verdict: overlaps-existing   # IdeiaOS já tem skill-creator / create-skill
+    verdict: overlaps-existing   # FINAL — relatório §3/§8 WON'T: skill-creator + /forge-agent (este fundamenta em pesquisa com fontes; mais rigoroso).
 
 # === Arquivos de contexto/atribuição do repo (raiz) ===
 repo_files:
@@ -165,14 +168,37 @@ flags:
   - "handoff: grava no diretório temporário do SO e cita redação de API keys (sem payload ativo)."
   - "README: posiciona-se explicitamente CONTRA GSD/BMAD/Spec-Kit ('take away your control') — tensão de design vs camada GSD/AIOX do IdeiaOS."
 
+# === Resources de apoio CAPTURADOS na Fase A v9 (verbatim, commit 694fa30) ===
+# Habilitam a absorção offline-safe das Fases B (CONTEXT-FORMAT), C (ADR-FORMAT) e E (LANGUAGE/HTML-REPORT).
+captured_resources:
+  status: fetched
+  captured_at: "2026-06-17"
+  upstream_path_pattern: "skills/engineering/<skill>/<RESOURCE>.md"
+  items:
+    - id: grill-with-docs/CONTEXT-FORMAT
+      source_path: "skills/engineering/grill-with-docs/CONTEXT-FORMAT.md"
+      file: skills/grill-with-docs/CONTEXT-FORMAT.md
+      enables: "Fase B / R9-02 — formato do glossário CONTEXT.md"
+    - id: grill-with-docs/ADR-FORMAT
+      source_path: "skills/engineering/grill-with-docs/ADR-FORMAT.md"
+      file: skills/grill-with-docs/ADR-FORMAT.md
+      enables: "Fase C / R9-03 — gate dos 3 critérios + formato ADR mínimo"
+    - id: improve-codebase-architecture/LANGUAGE
+      source_path: "skills/engineering/improve-codebase-architecture/LANGUAGE.md"
+      file: skills/improve-codebase-architecture/LANGUAGE.md
+      enables: "Fase E / R9-05 — glossário Module/Interface/Depth/Seam + deletion test"
+    - id: improve-codebase-architecture/HTML-REPORT
+      source_path: "skills/engineering/improve-codebase-architecture/HTML-REPORT.md"
+      file: skills/improve-codebase-architecture/HTML-REPORT.md
+      enables: "Fase E / R9-05 — scaffold do relatório HTML (Tailwind+Mermaid)"
+
 # === Não capturado nesta etapa (registrado em vez de inventar) ===
 not_captured:
   status: not_fetched
-  reason: "Fora do escopo das skills priorizadas no pedido; capturar na etapa de absorção se necessário."
+  reason: "Fora do escopo da absorção priorizada; capturar na etapa de absorção se necessário."
   items:
-    - "skills/engineering/grill-with-docs/{ADR-FORMAT.md,CONTEXT-FORMAT.md}"
     - "skills/engineering/diagnose/scripts/hitl-loop.template.sh"
-    - "skills/engineering/improve-codebase-architecture/{DEEPENING,HTML-REPORT,INTERFACE-DESIGN,LANGUAGE}.md"
+    - "skills/engineering/improve-codebase-architecture/{DEEPENING,INTERFACE-DESIGN}.md"
     - "skills/engineering/prototype/{LOGIC.md,UI.md}"
     - "skills/engineering/tdd/{deep-modules,interface-design,mocking,refactoring,tests}.md"
     - "skills/engineering/triage/{AGENT-BRIEF.md,OUT-OF-SCOPE.md}"
@@ -187,12 +213,25 @@ security_scan:
   script: "security/scan-absorbed.sh"
   command: "bash security/scan-absorbed.sh security/quarantine/mattpocock-skills"
   target: "security/quarantine/mattpocock-skills"
-  ran_at: "2026-06-16"
-  result: "APROVADO COM RESSALVA"   # exit 0
+  ran_at: "2026-06-17"
+  result: "PASS com ressalva (2 WARN benignos) — exit 0 após tornar o Check-2 fence-aware"   # exit 0
   counts: { PASS: 2, WARN: 2, FAIL: 0 }
   checks:
     - "✓ sem unicode invisível"
-    - "✓ sem payloads HTML/JS/base64"
-    - "⚠ comandos suspeitos (curl/ssh/wget) — docs legítimas (diagnose, setup-matt-pocock-skills, handoff); INSPEÇÃO MANUAL antes de promover"
-    - "⚠ AgentShield indisponível/offline — scan parcial"
-  conclusion: "Sem FAIL (nenhum payload ativo). Liberado para a etapa de análise/absorção com revisão manual dos WARNs."
+    - "✓ Check-2 (payload HTML/JS): PASS. As 2 ocorrências de tag de script em HTML-REPORT.md:13-14 estão DENTRO de um fenced code block (scaffold html documental de como a skill gera o relatório). O Check-2 agora é fence-aware: ignora matches dentro de fence e mantém FAIL para matches FORA de fence (provado por control test). Não é payload ativo."
+    - "⚠ WARN Check-3 (curl/ssh/wget): matches em README.md/_catalog.yaml (que MENCIONAM os comandos ao descrever WARNs) + diagnose.md/setup-matt-pocock-skills.md/handoff.md (docs legítimas, nenhuma será absorvida). Os 4 resources novos NÃO adicionam matches de curl/ssh. Benigno."
+    - "⚠ WARN Check-4: AgentShield indisponível/offline — scan parcial. Benigno."
+  manual_review:
+    html_report_note: >
+      INSPECIONADO. As 2 linhas em HTML-REPORT.md:13-14 são o scaffold de exemplo (tags de script de CDN)
+      dentro de um fenced code block — instrução documental de como a skill deve gerar o relatório de
+      arquitetura. Conteúdo capturado verbatim do commit 694fa30; sem payload ativo, sem unicode
+      invisível, sem base-64. RESOLVIDO: o Check-2 do scan-absorbed.sh foi tornado fence-aware
+      (ignora matches dentro de fenced code blocks; mantém FAIL fora de fence).
+    curl_ssh_warn: "INSPECIONADO. Benigno — ver Check-3 acima. Nenhum comando executável embutido."
+    agentshield_warn: "INSPECIONADO. Benigno — scanner externo offline no ambiente; demais checks locais cobrem unicode/payload/comandos."
+  conclusion: >
+    Nenhum payload ATIVO/malicioso (unicode invisível: limpo; base-64: limpo; comandos: docs apenas).
+    RESOLVIDO (2026-06-17): adotada a opção (a) — Check-2 do scan-absorbed.sh tornado fence-aware
+    (ignora matches dentro de fenced code blocks; mantém FAIL fora de fence, provado por control test).
+    Scan agora exit 0 (PASS 2 / WARN 2 / FAIL 0). Quarentena liberada para absorção a source/.
