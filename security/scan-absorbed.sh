@@ -45,16 +45,26 @@ if [ $? -eq 0 ]; then
 else echo "  ✓ sem unicode invisível"; PASS=$((PASS+1)); fi
 
 # Check 2 — Payloads HTML/JS inline. FAIL automático.
+# Fence-aware: conteúdo dentro de fenced code blocks (```/~~~) é DOCUMENTAÇÃO
+# (exemplos de HTML/scaffold), nunca executado a partir de um .md — não é payload
+# ativo. Matches FORA de fence continuam FAIL. Reduz falso-positivo sem cegar o guard.
 python3 - "$TARGET" <<'PY' > /tmp/_scan_c2.txt 2>&1
 import sys, pathlib, re
 target = pathlib.Path(sys.argv[1])
 files = list(target.rglob('*')) if target.is_dir() else [target]
 PATTERNS = re.compile(r'<!--|<script|data:text/html|base64,', re.IGNORECASE)
+FENCE = re.compile(r'^\s*(```|~~~)')
 found = []
 for f in files:
     if not f.is_file(): continue
     try:
+        in_fence = False
         for lineno, line in enumerate(f.read_text(errors='replace').splitlines(), 1):
+            if FENCE.match(line):
+                in_fence = not in_fence
+                continue
+            if in_fence:
+                continue
             if PATTERNS.search(line): found.append(f"{f}:{lineno}")
     except Exception: pass
 sys.exit(0 if found else 1)
