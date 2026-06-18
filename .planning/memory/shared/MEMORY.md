@@ -23,6 +23,7 @@
 - [Baseline instincts from v3 continuous learning (1511 observations, 6 instincts)](facts/project_instinct_analysis_june2026.md) — Instinct analysis June 2026
 - [First instinct-analyze run on IdeiaOS: identified shell & code-editing patterns from 1512 observations across 99 sessions](facts/project_instinct_loop_v1.md) — Instinct analysis loop v1 — shell & editing patterns
 - [Instincts destilados de 1506 observações sobre padrões de trabalho em IdeiaOS](facts/project_instincts_v2.md) — IdeiaOS instincts v2 (June 2026)
+- [Lovable lançou um MCP server (OAuth, full-account, ~47 tools, DB-prod, agente Cloud); existe um plano v10-candidato 'read-first' vetado em docs/research/2026-06-17-lovable-mcp-integration-plan.md; decisão atual = só discutir/afiar (nada implementado)](facts/project_lovable_mcp_v10_candidate.md) — project-lovable-mcp-v10-candidate
 - [Milestone v2.0 (absorção ECC) concluído em 2026-06-12 — 8/8 fases, 29/29 planos; próximo é v3 a partir de docs/v3/](facts/project_milestone_v2_completo.md) — project-milestone-v2-completo
 - [Milestone v3 shipped em 2026-06-12 (mesmo dia do v2.0) — loop de instincts provado ao vivo; próximo é v4 a definir](facts/project_milestone_v3_completo.md) — project-milestone-v3-completo
 - [v8 (Camada de Disciplina) SHIPPED 2026-06-16 — absorveu de addyosmani/agent-skills (MIT) só o delta de disciplina; agent-skills NÃO substitui GSD/AIOX](facts/project_milestone_v8_completo.md) — project-milestone-v8-completo
