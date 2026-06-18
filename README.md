@@ -224,6 +224,7 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | **Skill Claude `/ideiaos-setup`** | `~/.claude/skills/ideiaos-setup/` | Audita + completa setup do projeto |
 | **Skill Claude `/cursor-continuation`** | `~/.claude/skills/cursor-continuation/` | Retoma no Claude Code o trabalho do Cursor |
 | **Skill Claude `/lovable-handoff`** | `~/.claude/skills/lovable-handoff/` | Playbook de implantação Lovable |
+| **Skill Claude `/lovable-mcp`** | `~/.claude/skills/lovable-mcp/` | Verificação read-only via MCP Lovable (deploy-drift + hotfix) |
 | **Skill Claude `/recall-learnings`** | `~/.claude/skills/recall-learnings/` | Lê aprendizados antes de propor plano |
 | **Skill Claude `/extract-learnings`** | `~/.claude/skills/extract-learnings/` | Registra aprendizado pós-trabalho |
 | **Skill Claude `/frontend-visual-loop`** | `~/.claude/skills/frontend-visual-loop/` | Loop visual render→screenshot→crítica→fix (Chrome DevTools MCP) |
