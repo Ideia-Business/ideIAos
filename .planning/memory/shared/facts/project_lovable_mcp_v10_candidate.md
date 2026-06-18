@@ -42,4 +42,11 @@ o `commit_sha` é do mirror GitHub ou do repo Lovable interno? `deploy_project` 
 true` confirmado nos 3 workspaces). **Próximo concreto:** construir a Fase A; pré-condições do usuário no
 painel = desligar `mcp_enabled` nos 2 workspaces não-dev + passar o `folder_id` da pasta.
 
+**Modelo de acesso (refinado via /grelha 2026-06-18, FOLD no v10 R10-02/03):** 2 tiers — `todos` (pasta
+"Grupo Ideia") + `pessoal:<dono>` (`created_by`); **operacional** (escopo/foco do IdeiaOS, NÃO privacidade
+dura — privacidade real = `visibility: draft` manual fora do modelo); resolução derivada `in_scope = (na
+pasta) OU (created_by==get_me.id)` + `lovable-scope.yaml` só p/ exceções; identidade = conta Lovable
+(gustavolpaiva@gmail.com ≠ git redeideia); **SEM** sistema de tokens (Lovable é OAuth-only); painel-UI
+deferido (v11). cfoai = pessoal:gustavo (fora da pasta). Folder "Grupo Ideia" id `fold_01kvdc18tgf86ts7s0tdx6hges`.
+
 Relaciona-se a [[project-aiox-core-pristine-overlay]] (overlay/pristine) e [[feedback-lovable-projects-branch-commit]].
