@@ -2,10 +2,7 @@
   "language": "english",
   "permissions": {
     "deny": [
-      "mcp__6f530143-e779-405d-bf42-190cae4e231b__send_message",
       "mcp__6f530143-e779-405d-bf42-190cae4e231b__create_project",
-      "mcp__6f530143-e779-405d-bf42-190cae4e231b__deploy_project",
-      "mcp__6f530143-e779-405d-bf42-190cae4e231b__remix_project",
       "mcp__6f530143-e779-405d-bf42-190cae4e231b__query_database",
       "mcp__6f530143-e779-405d-bf42-190cae4e231b__enable_database",
       "mcp__6f530143-e779-405d-bf42-190cae4e231b__set_project_knowledge",
@@ -15,12 +12,17 @@
       "mcp__6f530143-e779-405d-bf42-190cae4e231b__delete_workspace_skill",
       "mcp__6f530143-e779-405d-bf42-190cae4e231b__enable_project_skill",
       "mcp__6f530143-e779-405d-bf42-190cae4e231b__disable_project_skill",
-      "mcp__6f530143-e779-405d-bf42-190cae4e231b__set_project_visibility",
       "mcp__6f530143-e779-405d-bf42-190cae4e231b__set_folder_visibility",
-      "mcp__6f530143-e779-405d-bf42-190cae4e231b__move_projects_to_folder",
       "mcp__6f530143-e779-405d-bf42-190cae4e231b__add_connector",
       "mcp__6f530143-e779-405d-bf42-190cae4e231b__remove_connector",
       "mcp__6f530143-e779-405d-bf42-190cae4e231b__get_file_upload_url"
+    ],
+    "ask": [
+      "mcp__6f530143-e779-405d-bf42-190cae4e231b__remix_project",
+      "mcp__6f530143-e779-405d-bf42-190cae4e231b__send_message",
+      "mcp__6f530143-e779-405d-bf42-190cae4e231b__deploy_project",
+      "mcp__6f530143-e779-405d-bf42-190cae4e231b__set_project_visibility",
+      "mcp__6f530143-e779-405d-bf42-190cae4e231b__move_projects_to_folder"
     ]
   },
   "disabledMcpServers": [

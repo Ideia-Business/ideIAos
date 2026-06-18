@@ -1,17 +1,40 @@
 {
-  "state": "closed",
+  "state": "open",
   "connector": "6f530143-e779-405d-bf42-190cae4e231b",
-  "promoted": [],
+  "promoted": [
+    "mcp__6f530143-e779-405d-bf42-190cae4e231b__remix_project",
+    "mcp__6f530143-e779-405d-bf42-190cae4e231b__send_message",
+    "mcp__6f530143-e779-405d-bf42-190cae4e231b__deploy_project",
+    "mcp__6f530143-e779-405d-bf42-190cae4e231b__set_project_visibility",
+    "mcp__6f530143-e779-405d-bf42-190cae4e231b__move_projects_to_folder"
+  ],
   "fork_project_id": null,
   "fork_preview_url": null,
-  "note": "Preflight gravado. Janela AINDA FECHADA. Abrir com: python3 lovable-window.py open (apos Gate 3 + restart).",
+  "note": "Janela ABERTA: 5 tools em ask. Provavelmente exige restart da sessao p/ valer.",
   "preflight": {
     "captured_at": "2026-06-18",
     "workspaces_reachable": [
-      {"id": "2NHPnABxF0jdSX3qVLCw", "name": "Grupo Ideia - Espaco dos Projetos", "plan": "biz_5", "credits_used": 0, "credits_limit": 100, "gitsync_github": true, "role": "owner"},
-      {"id": "pyHOQY0YDL838zK8GbR3", "name": "Dev's Lovable", "plan": "pro_1", "credits_used": 0, "credits_limit": 100, "gitsync_github": true, "role": "admin", "GATE3_mcp_enabled": "AINDA ON — precisa OFF antes de abrir janela"}
+      {
+        "id": "2NHPnABxF0jdSX3qVLCw",
+        "name": "Grupo Ideia - Espaco dos Projetos",
+        "plan": "biz_5",
+        "credits_used": 0,
+        "credits_limit": 100,
+        "gitsync_github": true,
+        "role": "owner"
+      },
+      {
+        "id": "pyHOQY0YDL838zK8GbR3",
+        "name": "Dev's Lovable",
+        "plan": "pro_1",
+        "credits_used": 0,
+        "credits_limit": 100,
+        "gitsync_github": true,
+        "role": "admin",
+        "GATE3_mcp_enabled": "AINDA ON \u2014 precisa OFF antes de abrir janela"
+      }
     ],
-    "workspace_1622_contained": "A0gwgrenO8S5IrZtE4ig sumiu do alcance do token (get_me) — toggle catastrofico FEITO",
+    "workspace_1622_contained": "A0gwgrenO8S5IrZtE4ig sumiu do alcance do token (get_me) \u2014 toggle catastrofico FEITO",
     "credit_ceiling": "abortar se nao houver folga; teto pratico: <= 8 mensagens cobradas no experimento (saldo 100, sobra enorme)",
     "prod_ids_guard": {
       "comment": "send_message/deploy_project SOMENTE no fork. Assert target != cada um destes antes de cada mutacao.",
@@ -24,8 +47,9 @@
     "remix_candidate": {
       "id": "0e911cfd-3cfd-46aa-8fab-cc2d1b242291",
       "name": "CFOIA - Grupo RI",
-      "why": "menor atividade entre os de producao (175 edits) e tem backend Cloud + (provavel) gitsync — necessario p/ medir A1/A2/A3. Task 1b confirma isolamento de DB/repo do fork ANTES de qualquer escrita; se compartilhar prod, abortar deploy."
+      "why": "menor atividade entre os de producao (175 edits) e tem backend Cloud + (provavel) gitsync \u2014 necessario p/ medir A1/A2/A3. Task 1b confirma isolamento de DB/repo do fork ANTES de qualquer escrita; se compartilhar prod, abortar deploy."
     },
     "topology_drift": "PLAN assumiu 3 workspaces (com 'Grupo Ideia - Dev' sandbox limpo). Realidade: 2 workspaces, ambas com projetos reais; nao ha sandbox vazio. Fork de cfoai cai na workspace de producao -> guard anti-prod-id e Task 1b sao a protecao."
-  }
+  },
+  "opened_at": "2026-06-18T19:28:34Z"
 }
