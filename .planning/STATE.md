@@ -36,7 +36,7 @@ progress:
 
 | Fase | Objetivo | Cobre | Status |
 |------|----------|-------|--------|
-| A — v1 read-only (skill `/lovable-mcp`: verify-deploy + detect-hotfix) | mata incidentes nº1 (deploy-drift) e nº3 (hotfix inline); 0 crédito, 0 escrita | R10-01..05 | ⬜ TODO |
+| A — v1 read-only (skill `/lovable-mcp`: verify-deploy + detect-hotfix) | mata incidentes nº1 (deploy-drift) e nº3 (hotfix inline); 0 crédito, 0 escrita | R10-01..05 | ✅ SHIPPED 2026-06-18 |
 | B — Sandbox (gate de toda escrita) | mede suposições do mirror GitHub↔Cloud via `remix_project` | R10-06 | ⬜ TODO |
 | C — v2: schema-check + teste manual dos dois cérebros | schema-first seguro (SQL fixo) + mede efeito do `set_knowledge` | R10-07 | ⬜ TODO |
 | D — v3: write-path + compilador de governança | drive-cloud-agent/publish (gated) + compilador source→Knowledge | R10-08 | ⬜ TODO |
@@ -57,14 +57,18 @@ progress:
 
 ## Próximo passo
 
-**Milestone v10 (Integração Lovable MCP) FORMALIZADO — 2026-06-17** (lapidado via `/grelha`, 4 forks fechados; ADR + REQUIREMENTS + ROADMAP criados; **NÃO executado**). Próximo concreto: **construir a Fase A (v1 read-only)** — skill `/lovable-mcp` (`verify-deploy` + `detect-hotfix`) + harness-deny + folder-scope + empacotamento (trabalho de framework IdeiaOS, vai direto na main; **não depende da Fase B**). Pré-condições do usuário no painel Lovable: desligar `mcp_enabled` nos 2 workspaces não-dev + passar o `folder_id` da pasta "Grupo Ideia". Fases B/C/D (escrita) ficam gated no experimento de sandbox (Fase B).
+**Milestone v10 — Fase A (v1 read-only) SHIPPED 2026-06-18.** Skill `/lovable-mcp` (`verify-deploy` + `detect-hotfix`), helper `source/lib/lovable-mcp.sh` (gateado por `gates.sh`, testado em sandbox), resolver de escopo identity-aware, harness-deny de 19 tools mutantes (+ `query_database` deny puro) no `.claude/settings.json`, rule `source/rules/lovable/mcp-protocol.md`, empacotamento completo (build-plugins/modules.json/plugin-membership/README) e cross-link no `/lovable-handoff`. Gates verdes; verificação adversarial de 4 lentes PASSED após fixes (parser awk, exit-codes, shallow-clone, contagem README). R10-01..05 = DONE.
+
+**Próximo (2 trilhas, ambas gated/opt-in):**
+1. **Rollout operacional da Fase A** (não-framework, decisão do usuário): aplicar o snippet de deny ao `.claude/settings.json` de cada produto Lovable; no painel Lovable, desligar `mcp_enabled` nos 2 workspaces não-dev ("Grupo IDeia - Projects" + "Dev's Lovable"). Snippet canônico em `source/rules/lovable/mcp-protocol.md`. Só então rodar `/lovable-mcp verify-deploy` contra um produto real.
+2. **Fase B (sandbox)** — quando houver apetite por write-path: experimento `remix_project` que mede namespace/timing do mirror GitHub↔Cloud (gate de TODA escrita). Fases C/D dependem de B.
 
 _v9 (Camada de Alinhamento) SHIPPED 2026-06-17, tag v9.0 — 7 requisitos, auditoria PASSED, dogfood `/doubt` = SHIP._
 
 **Fechamento operacional (2026-06-17):** tag `v9.0` empurrada para `origin`; LOW do dogfood resolvido (README esclarece que `scan-absorbed.sh` mira a quarentena, não `source/`); branch `planning` sincronizado com os docs de milestone v9 via git plumbing (memory store preservado); **`main` reconciliada** com `work` por fast-forward (IdeiaOS vai direto na main); **validador YAML antifrágil** (`scripts/validate-agent-yaml.sh`, parser autoritativo js-yaml) wired no `idea-doctor` + Patch 14 (rollback). Aprendizado extraído (`docs/learnings/2026-06-17-git-plumbing-partial-branch-overlay-sync.md` → memória global + vault Obsidian) + Changelog do vault atualizado para v9. **Nada pendente no repo** — `main`=`work`=`origin`.
 
 ## Pendências (opt-in, decisão do usuário)
-- **Integração Lovable MCP (v10) — FORMALIZADO, não executado:** `.planning/milestones/v10-{REQUIREMENTS,ROADMAP}.md` + ADR `docs/decisions/v10-lovable-mcp-readfirst-containment.md` + dossiê `docs/research/2026-06-17-lovable-mcp-integration-plan.md`. 4 forks fechados via `/grelha`. **Próximo: construir a Fase A (v1 read-only).** Pré-condições suas no painel Lovable: desligar `mcp_enabled` nos 2 workspaces não-dev + `folder_id` da pasta "Grupo Ideia".
+- **Integração Lovable MCP (v10) — Fase A SHIPPED 2026-06-18; B/C/D pendentes:** `.planning/milestones/v10-{REQUIREMENTS,ROADMAP}.md` + ADR `docs/decisions/v10-lovable-mcp-readfirst-containment.md` + dossiê `docs/research/2026-06-17-lovable-mcp-integration-plan.md`. **Rollout operacional pendente (seu, no painel/produtos):** aplicar deny do `mcp-protocol.md` ao `.claude/settings.json` de cada produto Lovable + desligar `mcp_enabled` nos 2 workspaces não-dev. **Fase B (sandbox)** = gate de toda escrita, quando houver apetite.
 - Piloto /spec (delta-spec) num produto brownfield (nfideia) — branch `spec/multi-tenancy-pilot` pronta para PR/merge. ⚠️ nfideia é Lovable.
 - gsd-browser: reavaliar quando publicar npm/crates (ADR docs/decisions/).
 - DeepSeek V4 Pro: habilitar nos PRODUTOS (cfoai/nfideia etc.), fora do escopo IdeiaOS.

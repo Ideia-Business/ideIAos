@@ -1,7 +1,7 @@
 # Roadmap — v10: Camada de Integração Lovable MCP
 
 **Milestone:** v10
-**Aberto:** 2026-06-17 · **Status:** 📋 PLANEJADO (lapidado via `/grelha`; não executado)
+**Aberto:** 2026-06-17 · **Status:** 🔵 EM ANDAMENTO — Fase A SHIPPED 2026-06-18 (1/4); B/C/D pendentes/gated
 **Numeração de fases:** lettered (Fase A–D), espelhando v8/v9.
 **Grafo de dependências:** `A (independente, buildável já)` ; `B → C → D` (B é o gate de toda escrita).
 
@@ -13,7 +13,7 @@ Somar ao plano-GitHub maduro (`/lovable-handoff`) uma **camada de verificação 
 
 ## Fases
 
-### Fase A — v1 read-only (a "cabana" que entrega 80%) · independente, buildável já
+### Fase A — v1 read-only (a "cabana" que entrega 80%) · ✅ SHIPPED 2026-06-18
 
 **Objetivo (goal-backward):** rodar `/lovable-mcp verify-deploy` e `detect-hotfix` num produto e detectar drift/hotfix de verdade, sem tocar prod, sem crédito, sem depender de nenhuma suposição.
 **Entregar:**
