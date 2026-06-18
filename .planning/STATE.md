@@ -1,15 +1,15 @@
 ---
 gsd_state_version: 1.0
-milestone: v9
-milestone_name: Camada de Alinhamento (Alignment Layer)
-status: shipped
+milestone: v10
+milestone_name: Camada de Integração Lovable MCP
+status: planning
 last_updated: "2026-06-17"
 progress:
-  total_phases: 6
-  completed_phases: 6
-  total_plans: 6
-  completed_plans: 6
-  percent: 100
+  total_phases: 4
+  completed_phases: 0
+  total_plans: 4
+  completed_plans: 0
+  percent: 0
 ---
 
 # State — IdeiaOS
@@ -26,24 +26,27 @@ progress:
 | v7 (Delta-Spec Brownfield + Robustez de Empacotamento) | ✅ SHIPPED 2026-06-16 — 4 fases, tag v7.0 |
 | **v8 (Camada de Disciplina)** | ✅ **SHIPPED 2026-06-16** — tag v8.0: `/doubt` + rule `operating-discipline` + `/context-engineering` + opt-in `/observability`/`/deprecation-migration`. |
 | **v9 (Camada de Alinhamento)** | ✅ **SHIPPED 2026-06-17** — tag v9.0: absorção de `mattpocock/skills` (MIT) — `/grelha` (grilling pré-plano) + glossário `CONTEXT.md` + rule `ubiquitous-language` + ADR inline + Passo 1.5 na Deia + `/improve-architecture` (deepening). 6 fases, auditoria PASSED, dogfood `/doubt` = SHIP. |
+| **v10 (Camada de Integração Lovable MCP)** | 📋 **PLANEJADO 2026-06-17** — lapidado via `/grelha` (4 forks fechados): v1 read-only aditiva (skill `/lovable-mcp`: `verify-deploy` + `detect-hotfix`), contenção em 2 níveis (folder-scope + harness-deny + toggle de workspace), write-path gated em sandbox. ADR + REQUIREMENTS + ROADMAP criados; **não executado**. |
 
-## Milestone atual — v9: Camada de Alinhamento
+## Milestone atual — v10: Camada de Integração Lovable MCP
 
-**Goal:** Absorver de `mattpocock/skills` (MIT) o delta de alinhamento humano↔agente ANTES de planejar (grilling colaborativo `/grelha`), seu subproduto durável de linguagem ubíqua (`CONTEXT.md` glossário-only), ADRs ultraleves inline e o ritual recorrente de deepening arquitetural (Ousterhout) — tudo PT-BR, sob orquestração da Deia, sem comprar a postura anti-framework do upstream e sem duplicar GSD/AIOX.
+**Goal:** Somar ao plano-GitHub maduro (`/lovable-handoff`) uma camada de **verificação programática** via o MCP server da Lovable, de forma **ADITIVA e read-first**, com **contenção real** (harness-deny + toggle de workspace + folder-scope dinâmico) e `@devops` para mutações. Lapidado via `/grelha` (4 forks fechados). Postura em `docs/decisions/v10-lovable-mcp-readfirst-containment.md`.
 
-**Fases (grafo: A → B → {C ∥ D} → E → F → [G opcional]):**
+**Fases (grafo: A independente, buildável já; B → C → D, onde B é o gate de toda escrita):**
 
 | Fase | Objetivo | Cobre | Status |
 |------|----------|-------|--------|
-| A — Quarentena & absorção | resources auditados + atribuídos + vereditos congelados | (habilita R9-01/02/03/05) | ✅ DONE |
-| B — `/grelha` + `CONTEXT.md` + rule ubiquitous-language | grilling + glossário ubíquo (caminho crítico) | R9-01, R9-02 | ✅ DONE |
-| C — ADR inline | decisões irreversíveis rastreáveis | R9-03 | ✅ DONE |
-| D — Gate de alinhamento na Deia | grilling na hora certa, escapável | R9-04 | ✅ DONE |
-| E — Ritual de deepening (`/aprofundar`) | saúde de design contínua | R9-05 | ✅ DONE |
-| F — Empacotamento + postura + auditoria | propagação + governança + ship | R9-06, R9-07 | ✅ DONE |
-| G — Could-haves (opcional, pós-v9.0) | deltas finos `to-prd` (@pm) + nota de seam (`/gsd-debug`) via Patches 14/15 | could-have | ✅ DONE |
+| A — v1 read-only (skill `/lovable-mcp`: verify-deploy + detect-hotfix) | mata incidentes nº1 (deploy-drift) e nº3 (hotfix inline); 0 crédito, 0 escrita | R10-01..05 | ⬜ TODO |
+| B — Sandbox (gate de toda escrita) | mede suposições do mirror GitHub↔Cloud via `remix_project` | R10-06 | ⬜ TODO |
+| C — v2: schema-check + teste manual dos dois cérebros | schema-first seguro (SQL fixo) + mede efeito do `set_knowledge` | R10-07 | ⬜ TODO |
+| D — v3: write-path + compilador de governança | drive-cloud-agent/publish (gated) + compilador source→Knowledge | R10-08 | ⬜ TODO |
 
-**Planejamento detalhado:** `.planning/milestones/v9-{REQUIREMENTS,ROADMAP,IMPLEMENTATION-PLAN}.md` + `.planning/milestones/v9-phases/*/`.
+**Escopo dinâmico:** pasta "Grupo Ideia" (workspace "Grupo Ideia - Dev" `2NHP…`). **Pré-condições do usuário (painel Lovable, ~1 min):** desligar `mcp_enabled` nos 2 workspaces não-dev + passar o `folder_id` da pasta.
+
+**Planejamento detalhado:** `.planning/milestones/v10-{REQUIREMENTS,ROADMAP}.md` + dossiê `docs/research/2026-06-17-lovable-mcp-integration-plan.md` (+ `…-synthesis.json` verbatim).
+
+### v9 (Camada de Alinhamento) — ✅ SHIPPED 2026-06-17 (tag v9.0)
+6 fases A–F + G could-haves; auditoria PASSED; dogfood `/doubt` = SHIP. Planejamento em `.planning/milestones/v9-*`.
 
 ## Decisões Tecnicas Canonicas
 
@@ -54,12 +57,14 @@ progress:
 
 ## Próximo passo
 
-Milestone v9 (Camada de Alinhamento) **SHIPPED** — tag v9.0. Os 7 requisitos (R9-01..R9-07) entregues; gates binários verdes (membership 0 deriva, README N/N, build-plugins/adapters exit 0, idea-doctor 0 FAIL); dogfood `/doubt` = SHIP; auditoria `.planning/v9-MILESTONE-AUDIT.md` PASSED. **Fase G (could-haves) também entregue** (pós-v9.0): deltas `to-prd` (@pm) + nota de seam (`/gsd-debug`) como Patches 14/15 do overlay — ver `v9-phases/G-could-haves/G-01-SUMMARY.md`. **Próximo: avaliar/afinar a integração Lovable MCP** (dossiê `docs/research/2026-06-17-lovable-mcp-integration-plan.md` — candidato a milestone v10, EM DISCUSSÃO; nada implementado).
+**Milestone v10 (Integração Lovable MCP) FORMALIZADO — 2026-06-17** (lapidado via `/grelha`, 4 forks fechados; ADR + REQUIREMENTS + ROADMAP criados; **NÃO executado**). Próximo concreto: **construir a Fase A (v1 read-only)** — skill `/lovable-mcp` (`verify-deploy` + `detect-hotfix`) + harness-deny + folder-scope + empacotamento (trabalho de framework IdeiaOS, vai direto na main; **não depende da Fase B**). Pré-condições do usuário no painel Lovable: desligar `mcp_enabled` nos 2 workspaces não-dev + passar o `folder_id` da pasta "Grupo Ideia". Fases B/C/D (escrita) ficam gated no experimento de sandbox (Fase B).
+
+_v9 (Camada de Alinhamento) SHIPPED 2026-06-17, tag v9.0 — 7 requisitos, auditoria PASSED, dogfood `/doubt` = SHIP._
 
 **Fechamento operacional (2026-06-17):** tag `v9.0` empurrada para `origin`; LOW do dogfood resolvido (README esclarece que `scan-absorbed.sh` mira a quarentena, não `source/`); branch `planning` sincronizado com os docs de milestone v9 via git plumbing (memory store preservado); **`main` reconciliada** com `work` por fast-forward (IdeiaOS vai direto na main); **validador YAML antifrágil** (`scripts/validate-agent-yaml.sh`, parser autoritativo js-yaml) wired no `idea-doctor` + Patch 14 (rollback). Aprendizado extraído (`docs/learnings/2026-06-17-git-plumbing-partial-branch-overlay-sync.md` → memória global + vault Obsidian) + Changelog do vault atualizado para v9. **Nada pendente no repo** — `main`=`work`=`origin`.
 
 ## Pendências (opt-in, decisão do usuário)
-- **Integração Lovable MCP (candidato v10) — EM DISCUSSÃO:** dossiê `docs/research/2026-06-17-lovable-mcp-integration-plan.md` (+ `…-synthesis.json` verbatim). Plano read-first vetado (9 agentes, workflow `wf_a9c61aa5-2bf`); 4 forks abertos (A contenção blast-radius / B v1 fina / C skill nova vs handoff / D dois cérebros). Decisão atual = discutir/afiar. Retomar: reagir aos forks, `/grelha`, ou investigar Fork A read-only (`get_workspace` nos 3 workspaces).
+- **Integração Lovable MCP (v10) — FORMALIZADO, não executado:** `.planning/milestones/v10-{REQUIREMENTS,ROADMAP}.md` + ADR `docs/decisions/v10-lovable-mcp-readfirst-containment.md` + dossiê `docs/research/2026-06-17-lovable-mcp-integration-plan.md`. 4 forks fechados via `/grelha`. **Próximo: construir a Fase A (v1 read-only).** Pré-condições suas no painel Lovable: desligar `mcp_enabled` nos 2 workspaces não-dev + `folder_id` da pasta "Grupo Ideia".
 - Piloto /spec (delta-spec) num produto brownfield (nfideia) — branch `spec/multi-tenancy-pilot` pronta para PR/merge. ⚠️ nfideia é Lovable.
 - gsd-browser: reavaliar quando publicar npm/crates (ADR docs/decisions/).
 - DeepSeek V4 Pro: habilitar nos PRODUTOS (cfoai/nfideia etc.), fora do escopo IdeiaOS.

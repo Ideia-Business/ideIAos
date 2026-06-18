@@ -1,9 +1,9 @@
 ---
 title: Integração IdeiaOS ↔ Lovable MCP — dossiê de planejamento
-status: em-discussão (não-implementado)
+status: formalizado-v10 (não-executado)
 created: 2026-06-17
-milestone_candidate: v10 — Camada de Integração Lovable MCP
-decision_so_far: usuário escolheu "só discutir/afiar o plano" (nada implementado)
+milestone: v10 — Camada de Integração Lovable MCP
+decision_so_far: 4 forks fechados via /grelha; formalizado em .planning/milestones/v10-{REQUIREMENTS,ROADMAP}.md + ADR docs/decisions/v10-lovable-mcp-readfirst-containment.md (não executado)
 companion: 2026-06-17-lovable-mcp-synthesis.json  # síntese estruturada verbatim
 workflow_run_id: wf_a9c61aa5-2bf  # 9 agentes (4 lentes → 4 céticos → síntese), 681k tokens
 tags: [lovable, mcp, integração, segurança, governança, milestone-candidato]
@@ -19,6 +19,51 @@ tags: [lovable, mcp, integração, segurança, governança, milestone-candidato]
 > A síntese estruturada (verdict, pilares, modelos, rollout) está **verbatim** no companheiro
 > `2026-06-17-lovable-mcp-synthesis.json`. Este `.md` é a versão legível + os fatos fundamentados +
 > os forks abertos + os próximos passos.
+
+---
+
+## Grilling — resoluções (sessão 2026-06-17/18, via /grelha)
+
+Lapidação em andamento. Workspace dev **renomeado para "Grupo Ideia - Dev"** (id `2NHPnABxF0jdSX3qVLCw`).
+
+- **Fork A — contenção → FECHADO: dois níveis.** (1) **Operacional:** a skill resolve o escopo pela **pasta
+  "Grupo Ideia"** dentro do workspace "Grupo Ideia - Dev" (via `list_projects(workspace_id, folder_id)`) e
+  **recusa tudo fora dela** — substitui o "4 IDs hardcoded" do Pilar 5 por um **allowlist DINÂMICO** (curar a
+  pasta = curar o escopo). (2) **Duro:** desligar `mcp_enabled` (toggle por-workspace — confirmado que existe)
+  nos 2 workspaces sem nada in-scope ("Grupo IDeia - Projects" 1.622 + "Dev's Lovable") no painel Lovable.
+  **Caveat honesto:** pasta NÃO é fronteira de segurança na Lovable (token é full-account) → folder-scope é
+  camada OPERACIONAL (skill-enforced); a fronteira DURA é o toggle de workspace. Pré-condição da v1.
+  _Pendência de execução:_ pegar o `folder_id` da pasta (do URL no painel) + confirmar a semântica do toggle
+  `mcp_enabled` (30s no painel).
+- **Fork B — verbos da v1 → FECHADO: v1 SEM schema-check.** v1 = só `verify-deploy` + `detect-hotfix` (100%
+  git-read). `query_database` fica em **deny PURO** no harness (sem promoção a `ask`) → v1 provadamente
+  incapaz de tocar o DB de prod. `schema-check` (SQL fixo `information_schema`, `query_database` ask-gated) →
+  **v2**.
+- **Fork C — onde mora → FECHADO: skill nova `/lovable-mcp`.** `source/skills/lovable-mcp/SKILL.md` com os 2
+  verbos + cross-link de 1 linha no `/lovable-handoff` (passo "checar deploy" → `/lovable-mcp verify-deploy`).
+  **Achado que eliminou a opção CLI:** Lovable é OAuth-only (sem API key) → bash não chama o MCP; tem que ser
+  skill rodando no client. A regra `mcp-to-cli` não se aplica.
+- **Fork D — dois cérebros → FECHADO: sim, faseado e medido.** O v10 mira os dois cérebros como **fase
+  posterior** (pós-v1, é escrita, gated por `@devops`): primeiro um **TESTE MANUAL** de `set_project_knowledge`
+  em 1 produto (cfoai), com backup (`get_*_knowledge` salvo antes), medindo se o agente Cloud passa a
+  recusar tocar arquivo protegido. **Compilador automático** (source→Knowledge) só se o teste provar valor.
+  v1 segue read-only.
+- **Assumições críticas** (mirror GitHub↔Cloud timing/namespace; `deploy_project` lê de main ou interno) —
+  ainda travam todo write-path; validáveis só no experimento de sandbox (Fase 0). `gitsync_github: true`
+  confirmado nos 3 workspaces (sync GitHub ativo).
+
+### Escopo v10 fechado (pós-grilling) — escada de fases
+
+- **v1 (read-only, sem suposições):** skill `/lovable-mcp` com `verify-deploy` + `detect-hotfix`; escopo =
+  pasta "Grupo Ideia"; MCP off-by-default; harness-deny das ~15 tools mutantes (`query_database` em deny
+  PURO); `@devops` p/ qualquer promoção. Pré-condição: desligar `mcp_enabled` nos 2 workspaces não-dev +
+  pegar `folder_id`. **Buildável já — não depende da Fase 0.**
+- **Fase 0 (sandbox, gate de toda escrita):** `remix_project` de 1 produto → medir mirror timing/namespace +
+  `deploy_project` source. Custo = alguns créditos. Destrava (ou mata) tudo abaixo.
+- **v2 (escrita read-mais-segura):** `schema-check` (SQL fixo, `query_database` ask-gated) + **teste manual
+  dos dois cérebros** (`set_project_knowledge` em cfoai, com backup). Só após Fase 0.
+- **v3 (write-path + automação):** `drive-cloud-agent`/`publish` (gated, quiesce + bracketing SHA) +
+  compilador source→Knowledge — só se o teste manual da v2 provar valor.
 
 ---
 
@@ -275,13 +320,15 @@ não-verificada. Aditivo, respeita overlay/pristine, `@devops`, mcp-hygiene (off
 
 ## 4. Decisão até agora & próximo passo
 
-- **Decisão:** usuário escolheu **"só discutir/afiar o plano"** — nada implementado nesta sessão.
-- **Próximo passo ao retomar (qualquer um):**
-  1. Reagir aos 4 forks (A–D) acima e descer a árvore de decisão.
-  2. Rodar **`/grelha`** (skill IdeiaOS de grilling pré-plano) sobre este dossiê para afinar.
-  3. Investigação read-only do **Fork A** agora (chamar `get_workspace` nos 3 workspaces — leitura pura,
-     0 crédito) para ver se dá p/ escopar o token.
-  4. Se aprovado: formalizar como **milestone v10** (`.planning/milestones/v10-*`) e planejar com GSD.
+- **Decisão (2026-06-17):** os **4 forks foram fechados** via `/grelha` e o plano foi **FORMALIZADO como
+  milestone v10** — `.planning/milestones/v10-{REQUIREMENTS,ROADMAP}.md` + ADR
+  `docs/decisions/v10-lovable-mcp-readfirst-containment.md`. Ainda **não executado** (nenhum código de skill).
+- **Próximo passo concreto:** construir a **Fase A (v1 read-only)** — skill `/lovable-mcp`
+  (`verify-deploy` + `detect-hotfix`) + harness-deny + folder-scope + empacotamento. Trabalho de framework
+  IdeiaOS (direto na main); **não depende da Fase B (sandbox)**.
+  - **Pré-condições suas (painel Lovable, ~1 min):** desligar `mcp_enabled` nos 2 workspaces não-dev
+    ("Grupo IDeia - Projects" + "Dev's Lovable") + passar o `folder_id` da pasta "Grupo Ideia".
+  - Fases B/C/D (escrita) ficam gated no experimento de sandbox (Fase B).
 - **Importante (anti-cascata / two-writers):** os produtos são Lovable e muito ativos. Qualquer
   experimento de **escrita** deve começar num **fork via `remix_project`** (Fase 0), nunca direto em prod.
 
