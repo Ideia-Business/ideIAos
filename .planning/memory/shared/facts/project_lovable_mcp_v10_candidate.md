@@ -1,6 +1,6 @@
 ---
 name: project-lovable-mcp-v10-candidate
-description: "Integração Lovable MCP (milestone v10): Fase A (v1 read-only) SHIPPED 2026-06-18 — skill /lovable-mcp (verify-deploy + detect-hotfix) + helper source/lib/lovable-mcp.sh + harness-deny de 19 tools mutantes + rule mcp-protocol.md; gates verdes + verificação adversarial 4 lentes PASSED. Pendente: rollout operacional (deny nos produtos + toggle workspace) + Fase B (sandbox, gate de escrita). read-first, aditiva, contenção 2 níveis; 4 forks fechados via /grelha"
+description: "Integração Lovable MCP (milestone v10): Fase A (v1 read-only) SHIPPED 2026-06-18 — skill /lovable-mcp (verify-deploy + detect-hotfix) + helper source/lib/lovable-mcp.sh + harness-deny de 19 tools mutantes + rule mcp-protocol.md; gates verdes + verificação adversarial 4 lentes PASSED. ROLLOUT lado-agente FEITO 2026-06-18 (deny+disabledMcpServers nos 4 produtos: nfideia/ideiapartner/cfoai/lapidai, validado binário deny=19). Pendente SÓ ação do usuário: desligar mcp_enabled nos 2 workspaces não-dev no painel + Fase B (sandbox, gate de escrita). read-first, aditiva, contenção 2 níveis; 4 forks fechados via /grelha"
 metadata:
   node_type: memory
   type: project
@@ -21,8 +21,18 @@ testado em sandbox git); harness-deny de **19 tools mutantes** + `query_database
 no `.claude/settings.json`; rule `source/rules/lovable/mcp-protocol.md`; empacotamento completo + cross-link no
 `/lovable-handoff`. **Verificação adversarial (workflow `wf_e0d15139-74a`, 4 lentes): deny-completeness CLEAN,
 read-only-integrity CLEAN; helper/packaging com achados — TODOS corrigidos** (parser awk dash-coluna-0 + `#`
-entre aspas; exit-codes; shallow-clone com aviso stderr; contagem README=46). **Pendente:** rollout operacional
-(aplicar deny nos produtos + desligar `mcp_enabled` nos 2 workspaces não-dev) + **Fase B** (sandbox `remix_project`
+entre aspas; exit-codes; shallow-clone com aviso stderr; contagem README=46).
+
+**ROLLOUT operacional — lado-AGENTE FEITO (2026-06-18):** harness-deny das 19 tools + `query_database` deny PURO +
+`disabledMcpServers` aplicado e validado por checagem binária (`deny=19`, `disabled=True`) no `.claude/settings.json`
+dos **4 produtos Lovable**: nfideia, ideiapartner, cfoai-grupori, lapidai (ideia-chat fora — sem `.lovable/`).
+Persistência por design: ideiapartner=gitignored (local-only); lapidai(branch work)=autosync pusha; nfideia+cfoai=
+tracked-on-main deixados uncommitted (autosync protege main dirty; NÃO commitei em main Lovable). Fonte-de-verdade p/
+reaplicar = snippet em `source/rules/lovable/mcp-protocol.md`. **Pendente = SÓ ação do usuário:** no painel, desligar
+`mcp_enabled` em **Grupo IDeia - Projects** (`A0gwgrenO8S5IrZtE4ig`, 1.622 proj) e **Dev's Lovable**
+(`pyHOQY0YDL838zK8GbR3`, 3 proj); manter ON em **Grupo Ideia - Dev** (`2NHPnABxF0jdSX3qVLCw`, 18 proj); depois rodar
+`/lovable-mcp verify-deploy` num produto real. _(ids confirmados ao vivo; conta Lovable `UYy17VvrHjhaxSUrjA7Fa5tivyD3`,
+gustavolpaiva@gmail.com.)_ Trilha separada opt-in: **Fase B** (sandbox `remix_project`
 = gate de TODA escrita). Lapidado via `/grelha` (4 forks). Artefatos de planejamento:
 `.planning/milestones/v10-{REQUIREMENTS,ROADMAP}.md`, ADR `docs/decisions/v10-lovable-mcp-readfirst-containment.md`,
 dossiê `docs/research/2026-06-17-lovable-mcp-integration-plan.md` (+ `…-synthesis.json`; workflow `wf_a9c61aa5-2bf`).
