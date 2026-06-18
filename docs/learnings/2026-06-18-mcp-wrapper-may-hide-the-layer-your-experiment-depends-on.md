@@ -40,6 +40,7 @@ Antes de planejar um experimento que **manipula** uma camada subjacente via wrap
 - "A integração tem o feature flag ligado" (ex.: `gitsync_github: true` no workspace) **não** significa que a API exponha o handle — o flag pode ser configurado só na UI do produto.
 - Conseguir **ler** o estado acoplado (SHAs batem) seduz a achar que dá pra **escrever**/divergir — são capacidades diferentes.
 - Tentar "mais uma fonte/projeto" quando o muro é **estrutural** (a superfície inteira não tem o handle) só queima recurso — o limite não é o projeto-alvo, é a API.
+- **Instrumento ≠ interface** (refinamento da auditoria de fechamento `wf_4fec3ed7-fc0`, 2026-06-18): distinga "impossível pela **interface inteira** (o MCP)" de "impossível pelo **instrumento escolhido** (o fork sem gitsync)". O segundo é quase sempre o verdadeiro; o primeiro é uma **superafirmação** que fecha caminhos válidos. Ex.: A2 não era "inmensurável via MCP" — era inmensurável **no fork**; É mensurável via MCP num **produto real com gitsync**. Ao declarar uma impossibilidade, prefira a versão mais estreita que a evidência sustenta.
 
 ## Cross-references
 
