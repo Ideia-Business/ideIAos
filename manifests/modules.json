@@ -197,6 +197,18 @@
       "plugin": "ideiaos-lovable"
     },
     {
+      "id": "skill-lovable-mcp",
+      "kind": "skill",
+      "description": "Lovable MCP read-only verification layer (v10, Fase A): verify-deploy (deploy-drift vs origin/main) + detect-hotfix (Cloud edits not in Git). Additive to /lovable-handoff, 0 credits, 0 writes; mutating tools harness-denied, @devops only.",
+      "source": "source/skills/lovable-mcp/SKILL.md",
+      "targets": [
+        "claude"
+      ],
+      "deps": [],
+      "installStrategy": "stack:lovable",
+      "plugin": "ideiaos-lovable"
+    },
+    {
       "id": "skill-ideiaos-setup",
       "kind": "skill",
       "description": "Single entry point to run IdeiaOS setup — idempotent, audits before applying",

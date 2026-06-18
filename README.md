@@ -139,7 +139,7 @@ claude plugin install ideiaos-lovable@ideiaos
 |--------|--------|----------|-----------------|
 | `ideiaos-core` | 3.0.0 | 15 agents + 13 hooks + 24 skills (idea, tdd, evolve, instincts, memory-sync…) | Sempre — núcleo do sistema |
 | `ideiaos-design-suite` | 3.0.0 | 10 skills de design (ui-ux-pro-max, design-system, brand…) | Quem faz UI/design |
-| `ideiaos-lovable` | 3.0.0 | Skill `/lovable-handoff` + doutrina de deploy + templates | Projetos Lovable |
+| `ideiaos-lovable` | 3.0.0 | Skills `/lovable-handoff` + `/lovable-mcp` (verificação read-only via MCP) + doutrina de deploy + templates | Projetos Lovable |
 
 > **Plugin e setup.sh são complementares** — não excludentes. O plugin entrega skills/agents/hooks versionados com atualização nativa (`claude plugin update`). O `setup.sh` entrega o ambiente de máquina completo: working-dirs, autosync (LaunchAgent), vault Obsidian, git hooks e config de projeto. Para uma máquina nova do zero, use o setup.sh (ou o bootstrap `setup-dev-machine.sh`) — ele faz tudo em sequência.
 
@@ -814,7 +814,7 @@ ideIAos/
 ├── plugins/                                ← GERADO por scripts/build-plugins.sh — não editar à mão (edite source/)
 │   ├── ideiaos-core/                       ← 15 agents + 13 hooks + 24 skills de workflow
 │   ├── ideiaos-design-suite/               ← 10 skills de design (ui-ux-pro-max, design-system, brand…)
-│   └── ideiaos-lovable/                    ← skill /lovable-handoff + doutrina + templates
+│   └── ideiaos-lovable/                    ← skills /lovable-handoff + /lovable-mcp + doutrina + templates
 ├── scripts/
 │   ├── install-alias.sh                    ← Instala alias idea-setup
 │   ├── install-git-hooks.sh                ← Pre-commit + post-merge (propagação) + pre-merge-commit
@@ -834,7 +834,7 @@ ideIAos/
 │   ├── build-adapters.sh                   ← Compila source/ → harness targets (claude + cursor)
 │   └── build-plugins.sh                    ← Gera plugins/ a partir de source/ (marketplace)
 ├── source/                                 ← FONTE ÚNICA DE VERDADE (Fase 03+)
-│   ├── skills/                             ← 44 skills (core incl. /memory-sync + 10 design + 1 lovable + /forge-agent + /spec + v8 disciplina + v9 alinhamento /grelha + /improve-architecture)
+│   ├── skills/                             ← 46 skills (core incl. /memory-sync + 10 design + 2 lovable (/lovable-handoff + /lovable-mcp) + /forge-agent + /spec + v8 disciplina + v9 alinhamento /grelha + /improve-architecture)
 │   │   ├── forge-agent/                    ← /forge-agent (v6 Fase 25) — pesquisa antes de criar agent/skill
 │   │   ├── spec/                           ← /spec (v6 Fase 30) — delta-spec brownfield; lib/ + templates/
 │   │   ├── doubt/                          ← /doubt (v8) — doubt-driven; revisor adversarial em-voo

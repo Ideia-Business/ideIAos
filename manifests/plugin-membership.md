@@ -112,15 +112,19 @@ o que copiar de `source/` para cada plugin em `plugins/`.
 
 ## ideiaos-lovable
 
-**Quando instalar:** projetos Lovable (skill /lovable-handoff + doutrina de deploy + templates).
+**Quando instalar:** projetos Lovable (skills /lovable-handoff + /lovable-mcp + doutrina de deploy + templates).
 
 ### Componentes
 
 | Componente | Fonte | Destino no plugin |
 |-----------|-------|-------------------|
 | skill lovable-handoff | source/skills/lovable-handoff/ | skills/lovable-handoff/ |
+| skill lovable-mcp | source/skills/lovable-mcp/ | skills/lovable-mcp/ |
 | deployment-protocol.md | source/rules/lovable/deployment-protocol.md | skills/lovable-handoff/references/deployment-protocol.md |
+| mcp-protocol.md | source/rules/lovable/mcp-protocol.md | skills/lovable-mcp/references/mcp-protocol.md |
 | templates lovable | source/templates/lovable/*.tmpl | templates/lovable/ |
+
+> Helper read-only da skill: `source/lib/lovable-mcp.sh` (sourced via `$IDEIAOS_DIR`, fallback inline; gateado por `gates.sh`). Libs não são empacotadas no plugin — seguem o padrão de `gates.sh`/`handoff-packet.sh`.
 
 ---
 

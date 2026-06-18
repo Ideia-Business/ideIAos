@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v10
 milestone_name: Camada de Integração Lovable MCP
-status: planning
-last_updated: "2026-06-17"
+status: in-progress
+last_updated: "2026-06-18"
 progress:
   total_phases: 4
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 4
-  completed_plans: 0
-  percent: 0
+  completed_plans: 1
+  percent: 25
 ---
 
 # State — IdeiaOS
@@ -26,7 +26,7 @@ progress:
 | v7 (Delta-Spec Brownfield + Robustez de Empacotamento) | ✅ SHIPPED 2026-06-16 — 4 fases, tag v7.0 |
 | **v8 (Camada de Disciplina)** | ✅ **SHIPPED 2026-06-16** — tag v8.0: `/doubt` + rule `operating-discipline` + `/context-engineering` + opt-in `/observability`/`/deprecation-migration`. |
 | **v9 (Camada de Alinhamento)** | ✅ **SHIPPED 2026-06-17** — tag v9.0: absorção de `mattpocock/skills` (MIT) — `/grelha` (grilling pré-plano) + glossário `CONTEXT.md` + rule `ubiquitous-language` + ADR inline + Passo 1.5 na Deia + `/improve-architecture` (deepening). 6 fases, auditoria PASSED, dogfood `/doubt` = SHIP. |
-| **v10 (Camada de Integração Lovable MCP)** | 📋 **PLANEJADO 2026-06-17** — lapidado via `/grelha` (4 forks fechados): v1 read-only aditiva (skill `/lovable-mcp`: `verify-deploy` + `detect-hotfix`), contenção em 2 níveis (folder-scope + harness-deny + toggle de workspace), write-path gated em sandbox. ADR + REQUIREMENTS + ROADMAP criados; **não executado**. |
+| **v10 (Camada de Integração Lovable MCP)** | 🔵 **EM ANDAMENTO — Fase A SHIPPED 2026-06-18** (25%, 1/4 fases). v1 read-only entregue: skill `/lovable-mcp` (`verify-deploy` + `detect-hotfix`) + helper `source/lib/lovable-mcp.sh` (gateado, testado) + harness-deny de 19 tools mutantes + rule `mcp-protocol.md` + empacotamento; gates verdes; verificação adversarial (4 lentes) PASSED após fixes. Fases B/C/D (escrita) gated. Lapidado via `/grelha` (4 forks + modelo de acesso). |
 
 ## Milestone atual — v10: Camada de Integração Lovable MCP
 

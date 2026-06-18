@@ -1,7 +1,7 @@
 {
   "name": "ideiaos-lovable",
   "version": "3.0.0",
-  "description": "Camada Lovable IdeiaOS — skill /lovable-handoff + doutrina de deploy e templates de handoff.",
+  "description": "Camada Lovable IdeiaOS — skills /lovable-handoff + /lovable-mcp (verificação read-only via MCP), doutrina de deploy e templates de handoff.",
   "author": {
     "name": "Ideia Business",
     "email": "gustavo@redeideia.com.br"

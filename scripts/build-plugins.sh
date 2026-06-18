@@ -73,6 +73,7 @@ DESIGN_SKILLS=(
 
 LOVABLE_SKILLS=(
   lovable-handoff
+  lovable-mcp
 )
 
 MARKETING_SKILLS=(
@@ -369,6 +370,13 @@ build_lovable() {
   run cp "$DEPLOY_PROTO" "$PLUGIN_DIR/skills/lovable-handoff/references/deployment-protocol.md"
   echo "  reference: deployment-protocol.md"
 
+  # mcp-protocol.md como referência dentro da skill /lovable-mcp (v10)
+  local MCP_PROTO="$SOURCE_DIR/rules/lovable/mcp-protocol.md"
+  validate_exists "$MCP_PROTO"
+  run mkdir -p "$PLUGIN_DIR/skills/lovable-mcp/references"
+  run cp "$MCP_PROTO" "$PLUGIN_DIR/skills/lovable-mcp/references/mcp-protocol.md"
+  echo "  reference: mcp-protocol.md"
+
   # Templates lovable
   local LOVABLE_TMPL_DIR="$SOURCE_DIR/templates/lovable"
   validate_exists "$LOVABLE_TMPL_DIR"
@@ -388,7 +396,7 @@ build_lovable() {
   else
     generate_plugin_json \
       "ideiaos-lovable" \
-      "Camada Lovable IdeiaOS — skill /lovable-handoff + doutrina de deploy e templates de handoff." \
+      "Camada Lovable IdeiaOS — skills /lovable-handoff + /lovable-mcp (verificação read-only via MCP), doutrina de deploy e templates de handoff." \
       "$PLUGIN_DIR/.claude-plugin/plugin.json"
     echo "  plugin.json"
   fi

@@ -96,6 +96,10 @@ Atualizar `.lovable/SYNC_TRIGGER.json` (`main_head`) + push `main` quando o proj
 
 **Proibido** instruir "Lovable → Update" enquanto `state != MERGED`.
 
+> **Verificação programática (read-only, aditiva):** `/lovable-mcp verify-deploy` confirma se o que
+> está no ar bate com `origin/main` (deploy-drift); `/lovable-mcp detect-hotfix` acha correção feita
+> no chat da Lovable que não veio pro Git. Não substitui este playbook — só dá olhos sobre a Cloud.
+
 Memória: `learning_lovable_agent_entrega_merge_main_obrigatorio.md`
 
 ### Passo 4 — Handoff Lovable (condicional)
