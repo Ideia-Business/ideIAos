@@ -1,6 +1,6 @@
 ---
 name: project-lovable-mcp-v10-candidate
-description: "Integração Lovable MCP FORMALIZADA como milestone v10 (.planning/milestones/v10-*; ADR docs/decisions/v10-lovable-mcp-readfirst-containment.md), 4 forks fechados via /grelha; read-first, aditiva, contenção 2 níveis; NÃO executada — próximo = construir Fase A (v1 read-only: skill /lovable-mcp)"
+description: "Integração Lovable MCP (milestone v10): Fase A (v1 read-only) SHIPPED 2026-06-18 — skill /lovable-mcp (verify-deploy + detect-hotfix) + helper source/lib/lovable-mcp.sh + harness-deny de 19 tools mutantes + rule mcp-protocol.md; gates verdes + verificação adversarial 4 lentes PASSED. Pendente: rollout operacional (deny nos produtos + toggle workspace) + Fase B (sandbox, gate de escrita). read-first, aditiva, contenção 2 níveis; 4 forks fechados via /grelha"
 metadata:
   node_type: memory
   type: project
@@ -12,11 +12,20 @@ A Lovable lançou um **MCP server** (`https://mcp.lovable.dev`, **OAuth-only**, 
 rodar SQL no **DB de produção** (`query_database`), publicar (`deploy_project`), gerir Knowledge/Skills do
 agente Cloud. Já conectado no Claude Desktop, Cursor e nesta sessão (server id `6f530143-…`).
 
-**Status: FORMALIZADO como milestone v10 (2026-06-17), NÃO executado.** Lapidado via `/grelha` (4 forks
-fechados). Artefatos: `.planning/milestones/v10-{REQUIREMENTS,ROADMAP}.md`, ADR
-`docs/decisions/v10-lovable-mcp-readfirst-containment.md`, dossiê completo
-`docs/research/2026-06-17-lovable-mcp-integration-plan.md` (+ `…-synthesis.json` verbatim; workflow
-`wf_a9c61aa5-2bf`).
+**Status: Fase A (v1 read-only) SHIPPED 2026-06-18** (commit `409066a`; R10-01..05 = DONE, 25% do v10).
+Entregue: skill `source/skills/lovable-mcp/SKILL.md` (`verify-deploy` cruza commit da Cloud × `origin/main`;
+`detect-hotfix` cruza `list_edits` × git local — só reporta, candidato ≠ certeza por causa do namespace
+não-medido da Fase B); helper `source/lib/lovable-mcp.sh` (gateado por `gates.sh`, verdicts binários
+IN_SYNC/CLOUD_BEHIND/CLOUD_AHEAD/SHA_ABSENT/NO_REPO + resolver de escopo + parser YAML de `lovable-scope.yaml`;
+testado em sandbox git); harness-deny de **19 tools mutantes** + `query_database` deny PURO + `disabledMcpServers`
+no `.claude/settings.json`; rule `source/rules/lovable/mcp-protocol.md`; empacotamento completo + cross-link no
+`/lovable-handoff`. **Verificação adversarial (workflow `wf_e0d15139-74a`, 4 lentes): deny-completeness CLEAN,
+read-only-integrity CLEAN; helper/packaging com achados — TODOS corrigidos** (parser awk dash-coluna-0 + `#`
+entre aspas; exit-codes; shallow-clone com aviso stderr; contagem README=46). **Pendente:** rollout operacional
+(aplicar deny nos produtos + desligar `mcp_enabled` nos 2 workspaces não-dev) + **Fase B** (sandbox `remix_project`
+= gate de TODA escrita). Lapidado via `/grelha` (4 forks). Artefatos de planejamento:
+`.planning/milestones/v10-{REQUIREMENTS,ROADMAP}.md`, ADR `docs/decisions/v10-lovable-mcp-readfirst-containment.md`,
+dossiê `docs/research/2026-06-17-lovable-mcp-integration-plan.md` (+ `…-synthesis.json`; workflow `wf_a9c61aa5-2bf`).
 
 **Decisões dos 4 forks (o que mudou vs a síntese original):**
 - **A — contenção em DOIS níveis:** operacional = escopo é a **pasta "Grupo Ideia"** no workspace
