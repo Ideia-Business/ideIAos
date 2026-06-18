@@ -168,7 +168,25 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 
 🟡 **Metade read-only da Fase B EXECUTADA (2026-06-18, zero crédito):** medido em nfideia real (`list_edits` × `git log origin/main` local) — **A1-namespace = ACOPLADO** (commit_sha da Cloud É o SHA do GitHub) + **A3 = PASS** (detect-hotfix no namespace certo); mirror **bidirecional** confirmado (commit `ai_update` `76e9cee5` do agente Cloud presente em `origin/main`). Ver `B-01-SUMMARY.md` + dossiê §2.5b. Isso retira 2 dos 3 riscos de desacoplamento e estreita o experimento de escrita.
 
-⏳ **Metade de ESCRITA da Fase B NÃO foi rodada** (resta A1-lag + A2 `deploy_project` lê de main vs interno) — é `autonomous:false`. Para executar exige: (1) **go humano explícito** ("pode rodar a Fase B"); (2) **deny-lift @devops** — o `.claude/settings.json` do IdeiaOS hoje **nega as 19 tools mutantes** (`deny=19`, contenção funcionando até no repo orquestrador), então @devops promove SÓ `remix_project`/`send_message`/`deploy_project` de `deny`→`ask` numa janela e **reaplica `deny` ao fim** (Task 6, verificação binária =19). Custo = créditos de build; **não há `delete_project`** no MCP → cleanup = `set_project_visibility` + pasta-lixo + deleção manual do usuário no painel. **Ordem limpa:** fazer os 2 toggles de painel acima ANTES do 1º write ("conter antes de escrever").
+🟠 **Metade de ESCRITA da Fase B — go humano DADO (2026-06-18); preflight FEITO + janela ABERTA; aguardando 2 ações do usuário + restart.** Resta medir A1-lag + A2 (`deploy_project` lê de main vs interno).
+
+**Já feito nesta sessão (reversível, read-only + prep local):**
+- Preflight read-only: saldo **100/0** nas 2 workspaces (teto folgado); 4+1 IDs de prod resolvidos p/ o guard anti-confusão (em `B-01-WINDOW-STATE.json`).
+- **Descoberta (drift):** o token alcança **só 2 workspaces** agora — `2NHPnABxF0jdSX3qVLCw` ("Grupo Ideia - Espaço dos Projetos", 18 proj, **onde vivem os 4 de prod**) e `pyHOQY0YDL838zK8GbR3` ("Dev's Lovable", 3 proj reais). A workspace de **1.622 proj sumiu do alcance** (toggle catastrófico ✅ FEITO). Não há sandbox vazio: o fork de cfoai cai junto da prod → guard anti-prod-id + Task 1b são a proteção.
+- Ferramenta idempotente `lovable-window.py` (`open|close|status`) criada (recovery passo 4) + `B-01-WINDOW-STATE.json` persistido.
+- **Janela ABERTA** via `lovable-window.py open`: `settings.json` agora `deny=14 / ask=5` (as 5 tools: remix/send_message/deploy/set_project_visibility/move_projects_to_folder). **Inerte nesta sessão** (memória tem deny=19 vivo) — por isso o restart.
+
+**⏳ 2 AÇÕES DO USUÁRIO antes de retomar:**
+   1. **Gate 3 (🔴 bloqueante):** no painel Lovable, desligar `mcp_enabled` em **"Dev's Lovable"** (`pyHOQY0YDL838zK8GbR3`). (A de 1.622 já está feita.)
+   2. **Restart** da sessão Claude Code (p/ o harness reler o `settings.json` com a janela viva).
+
+**RETOMAR (sessão nova) — ordem exata:**
+   a. **Re-verificar Gate 3** via `get_me` — "Dev's Lovable" SUMIU do alcance? Se **não** → abortar, `python3 lovable-window.py close`, cobrar o toggle. Se **sim** → seguir.
+   b. Rodar Tasks 1-6 do `B-01-PLAN.md`: `remix_project(0e911cfd…)` → gravar `F.project_id` em WINDOW-STATE IMEDIATAMENTE → Task 1b (isolamento DB/repo read-only, ANTES de escrever) → A1 (send_message + lag, deadline 10min) → A2 (git-push divergente `GIT-ONLY-PROBE` + deploy + preview cache-bust) → A3 → contenção do fork.
+   c. **Fechar a janela:** `python3 lovable-window.py close` (assert endurecido deny=19/ask=0/allow=0/disabled). Invariante: nenhuma sessão termina com janela aberta (happy path OU `<recovery>`).
+   d. Veredito por tabela-verdade no `B-01-SUMMARY.md` + §2.5 do dossiê; registrar fork pendente de deleção manual (id + preview_url).
+
+**Custo:** créditos de build (saldo 100, teto prático ≤8 msgs). **Sem `delete_project`** no MCP → cleanup = `set_project_visibility(private)` + pasta-lixo + deleção manual do usuário no painel.
 
 _Contexto da formalização (2026-06-17): plano vetado por 9 agentes (workflow `wf_a9c61aa5-2bf`), 4 forks + modelo de acesso fechados via `/grelha`; dossiê `docs/research/2026-06-17-lovable-mcp-integration-plan.md` (+ `…-synthesis.json`), ADR `docs/decisions/v10-lovable-mcp-readfirst-containment.md`._
 
