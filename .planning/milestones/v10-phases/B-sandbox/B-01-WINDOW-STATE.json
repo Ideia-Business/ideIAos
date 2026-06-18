@@ -1,0 +1,60 @@
+{
+  "state": "closed",
+  "connector": "6f530143-e779-405d-bf42-190cae4e231b",
+  "promoted": [
+    "mcp__6f530143-e779-405d-bf42-190cae4e231b__remix_project",
+    "mcp__6f530143-e779-405d-bf42-190cae4e231b__send_message",
+    "mcp__6f530143-e779-405d-bf42-190cae4e231b__deploy_project",
+    "mcp__6f530143-e779-405d-bf42-190cae4e231b__set_project_visibility",
+    "mcp__6f530143-e779-405d-bf42-190cae4e231b__move_projects_to_folder"
+  ],
+  "fork_project_id": "1d0652c4-5477-49cc-bafd-70761a7f9fd6",
+  "fork_preview_url": "https://id-preview--1d0652c4-5477-49cc-bafd-70761a7f9fd6.lovable.app",
+  "fork_editor_url": "https://lovable.dev/projects/1d0652c4-5477-49cc-bafd-70761a7f9fd6",
+  "fork_source": "3a14ce3b (Mornings Day POA, sem DB)",
+  "fork_sha_0": "cac6c856d05dd566ff9b340609e4e4a59092b00e",
+  "DELECAO_MANUAL": "FEITA 2026-06-18 — fork SANDBOX-FASEB-DELETAR-2 (1d0652c4) deletado pelo usuario; confirmado por get_project=404 + list_projects=0. Tentativa falha do cfoai nao criou projeto. ZERO residuo na conta Lovable.",
+  "note": "Janela FECHADA: deny reaplicado. Experimento encerrado, fork deletado.",
+  "preflight": {
+    "captured_at": "2026-06-18",
+    "workspaces_reachable": [
+      {
+        "id": "2NHPnABxF0jdSX3qVLCw",
+        "name": "Grupo Ideia - Espaco dos Projetos",
+        "plan": "biz_5",
+        "credits_used": 0,
+        "credits_limit": 100,
+        "gitsync_github": true,
+        "role": "owner"
+      },
+      {
+        "id": "pyHOQY0YDL838zK8GbR3",
+        "name": "Dev's Lovable",
+        "plan": "pro_1",
+        "credits_used": 0,
+        "credits_limit": 100,
+        "gitsync_github": true,
+        "role": "admin",
+        "GATE3_mcp_enabled": "AINDA ON \u2014 precisa OFF antes de abrir janela"
+      }
+    ],
+    "workspace_1622_contained": "A0gwgrenO8S5IrZtE4ig sumiu do alcance do token (get_me) \u2014 toggle catastrofico FEITO",
+    "credit_ceiling": "abortar se nao houver folga; teto pratico: <= 8 mensagens cobradas no experimento (saldo 100, sobra enorme)",
+    "prod_ids_guard": {
+      "comment": "send_message/deploy_project SOMENTE no fork. Assert target != cada um destes antes de cada mutacao.",
+      "nfideia": "bf83d98a-398b-4fba-937a-fe7fedd5ee74",
+      "ideiapartner": "afce7743-be51-4fd2-af2b-1e05730732d4",
+      "cfoai": "0e911cfd-3cfd-46aa-8fab-cc2d1b242291",
+      "painel_colaborador": "748a31c2-8b0d-48d6-aa92-5a33561cc421",
+      "lapidai": "44f5d5d2-b04d-4396-b57d-cd09392f0837"
+    },
+    "remix_candidate": {
+      "id": "0e911cfd-3cfd-46aa-8fab-cc2d1b242291",
+      "name": "CFOIA - Grupo RI",
+      "why": "menor atividade entre os de producao (175 edits) e tem backend Cloud + (provavel) gitsync \u2014 necessario p/ medir A1/A2/A3. Task 1b confirma isolamento de DB/repo do fork ANTES de qualquer escrita; se compartilhar prod, abortar deploy."
+    },
+    "topology_drift": "PLAN assumiu 3 workspaces (com 'Grupo Ideia - Dev' sandbox limpo). Realidade: 2 workspaces, ambas com projetos reais; nao ha sandbox vazio. Fork de cfoai cai na workspace de producao -> guard anti-prod-id e Task 1b sao a protecao."
+  },
+  "opened_at": "2026-06-18T19:28:34Z",
+  "closed_at": "2026-06-18T19:59:28Z"
+}
