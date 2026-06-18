@@ -1,13 +1,14 @@
 # Estado do projeto — ideIAos
 
-**Atualizado:** 2026-06-16 · **Branch:** `work` → `main` · **Versão ideIAos:** v8 shipped; v9 PLANEJADO (pronto para executar)
+**Atualizado:** 2026-06-18 · **Branch:** `work` → `main` · **Versão ideIAos:** v9 shipped (tag `v9.0`); v10 Lovable MCP — Fase A (v1 read-only) SHIPPED, rollout operacional ⏳ (2 ações de painel pendentes do usuário)
 
 ## Snapshot
 
 | Área | Status |
 |------|--------|
-| **Milestones v2.0–v8** | ✅ Todos shipped (tags v2.0 … v8.0) |
-| **v9 Camada de Alinhamento** | 📋 Planejado (research + ADR + REQUIREMENTS + ROADMAP + PLANs A–F) — pronto para `/gsd-new-milestone` |
+| **Milestones v2.0–v9** | ✅ Todos shipped (tags v2.0 … v9.0) |
+| **v10 Lovable MCP — Fase A** | ✅ v1 read-only SHIPPED (2026-06-18): `/lovable-mcp` + helper + harness-deny 19 tools + rule. Rollout: deny aplicado nos 4 produtos; ⏳ 2 toggles de painel pendentes (usuário) |
+| **v9 Camada de Alinhamento** | ✅ SHIPPED (tag `v9.0`) — `/grelha`, glossário `CONTEXT.md`, `ubiquitous-language`, Passo 1.5, `/aprofundar` |
 | **v8 Camada de Disciplina** | ✅ `/doubt`, `operating-discipline`, `/context-engineering`, R8-09 (rules Claude×Cursor) |
 | **v7 Resiliência + Spec** | ✅ Piloto `/spec` nfideia, drift-guard, branch `spec/multi-tenancy-pilot` |
 | **v6 Marketing + GSD** | ✅ `/marketing`, antifragile gates, `/spec` delta-spec brownfield |
@@ -40,6 +41,7 @@ Sessão de **pesquisa + planejamento** do milestone **v9 — "Camada de Alinhame
 
 ## Pendências não-bloqueantes
 
+- ⏳ **AÇÃO DO USUÁRIO — rollout Lovable MCP Fase A (cobrar no início da próxima sessão; usuário pediu lembrete "quando só faltar as minhas ações"):** no painel Lovable, desligar `mcp_enabled` em **Grupo IDeia - Projects** (`A0gwgrenO8S5IrZtE4ig`) e **Dev's Lovable** (`pyHOQY0YDL838zK8GbR3`); manter ON em **Grupo Ideia - Dev** (`2NHPnABxF0jdSX3qVLCw`). Depois: rodar `/lovable-mcp verify-deploy` num produto real. _Lado-agente (harness-deny nos 4 produtos) já feito 2026-06-18 — ver `docs/CONTINUATION_HANDOFF.md` § Próximo passo._
 - **Higiene de memória Claude:** inspecionar/remover secrets em sessões Jarvis e iCloud Projects (`idea-doctor` seção 7).
 - **nfideia** (`spec/multi-tenancy-pilot`): 2 specs vivas + `PILOT-BACKLOG.md` — PR/merge quando conveniente.
 - **gsd-browser:** monitorar upstream (ainda não publicado).
