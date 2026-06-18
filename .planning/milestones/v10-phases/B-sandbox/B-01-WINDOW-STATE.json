@@ -1,0 +1,31 @@
+{
+  "state": "closed",
+  "connector": "6f530143-e779-405d-bf42-190cae4e231b",
+  "promoted": [],
+  "fork_project_id": null,
+  "fork_preview_url": null,
+  "note": "Preflight gravado. Janela AINDA FECHADA. Abrir com: python3 lovable-window.py open (apos Gate 3 + restart).",
+  "preflight": {
+    "captured_at": "2026-06-18",
+    "workspaces_reachable": [
+      {"id": "2NHPnABxF0jdSX3qVLCw", "name": "Grupo Ideia - Espaco dos Projetos", "plan": "biz_5", "credits_used": 0, "credits_limit": 100, "gitsync_github": true, "role": "owner"},
+      {"id": "pyHOQY0YDL838zK8GbR3", "name": "Dev's Lovable", "plan": "pro_1", "credits_used": 0, "credits_limit": 100, "gitsync_github": true, "role": "admin", "GATE3_mcp_enabled": "AINDA ON — precisa OFF antes de abrir janela"}
+    ],
+    "workspace_1622_contained": "A0gwgrenO8S5IrZtE4ig sumiu do alcance do token (get_me) — toggle catastrofico FEITO",
+    "credit_ceiling": "abortar se nao houver folga; teto pratico: <= 8 mensagens cobradas no experimento (saldo 100, sobra enorme)",
+    "prod_ids_guard": {
+      "comment": "send_message/deploy_project SOMENTE no fork. Assert target != cada um destes antes de cada mutacao.",
+      "nfideia": "bf83d98a-398b-4fba-937a-fe7fedd5ee74",
+      "ideiapartner": "afce7743-be51-4fd2-af2b-1e05730732d4",
+      "cfoai": "0e911cfd-3cfd-46aa-8fab-cc2d1b242291",
+      "painel_colaborador": "748a31c2-8b0d-48d6-aa92-5a33561cc421",
+      "lapidai": "44f5d5d2-b04d-4396-b57d-cd09392f0837"
+    },
+    "remix_candidate": {
+      "id": "0e911cfd-3cfd-46aa-8fab-cc2d1b242291",
+      "name": "CFOIA - Grupo RI",
+      "why": "menor atividade entre os de producao (175 edits) e tem backend Cloud + (provavel) gitsync — necessario p/ medir A1/A2/A3. Task 1b confirma isolamento de DB/repo do fork ANTES de qualquer escrita; se compartilhar prod, abortar deploy."
+    },
+    "topology_drift": "PLAN assumiu 3 workspaces (com 'Grupo Ideia - Dev' sandbox limpo). Realidade: 2 workspaces, ambas com projetos reais; nao ha sandbox vazio. Fork de cfoai cai na workspace de producao -> guard anti-prod-id e Task 1b sao a protecao."
+  }
+}
