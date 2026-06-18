@@ -17,7 +17,7 @@
 | ID | Requisito | Fase | Prioridade | Status |
 |----|-----------|------|-----------|--------|
 | R10-01 | Skill `/lovable-mcp` (v1) com 2 verbos **read-only**: `verify-deploy` (deploy-drift via `get_project`/`get_diff`/`git rev-parse origin/main`) + `detect-hotfix` (`list_edits` × `git log origin/main`, só reporta) | A | MUST | ⬜ TODO |
-| R10-02 | Escopo **dinâmico** = pasta "Grupo Ideia" (workspace "Grupo Ideia - Dev" `2NHP…`): a skill resolve via `list_projects(workspace_id, folder_id)` e **recusa** qualquer projeto fora da pasta | A | MUST | ⬜ TODO |
+| R10-02 | **Resolver de escopo identity-aware (2 tiers, operacional):** `in_scope = (na pasta "Grupo Ideia") OU (created_by == get_me.id)`; tiers `todos` (pasta) + `pessoal:<dono>` (created_by); override opcional `lovable-scope.yaml`; recusa o resto. É escopo/foco do IdeiaOS, **NÃO** privacidade dura | A | MUST | ⬜ TODO |
 | R10-03 | Contenção dura: MCP **off-by-default** (`disabledMcpServers`) + **harness-deny** das ~15 tools mutantes no `.claude/settings.json` dos produtos + `query_database` em **deny PURO** na v1 + `@devops` único a promover tool ID a `ask` | A | MUST | ⬜ TODO |
 | R10-04 | Empacotamento/propagação: skill em `build-plugins.sh` (CORE_SKILLS) + `manifests/modules.json` + `plugin-membership.md` + `README.md`; rule nova `source/rules/lovable/mcp-protocol.md` **adicionada explicitamente ao `build_lovable()`** (ao lado de `deployment-protocol.md`); cross-link de 1 linha no `/lovable-handoff`; gates binários verdes | A | MUST | ⬜ TODO |
 | R10-05 | ADR de postura (read-first aditivo + contenção 2 níveis) em `docs/decisions/` | A | GOVERNANÇA | ✅ DONE (`v10-lovable-mcp-readfirst-containment.md`) |
@@ -36,16 +36,20 @@
 - [ ] Nenhum verbo chama `query_database`, `send_message`, `deploy_project` ou qualquer tool mutante.
 - [ ] Helper gateado por `source/lib/gates.sh` (verificação por exit code binário).
 
-### R10-02 — Escopo dinâmico por pasta · Fase A
-- [ ] A skill obtém o `folder_id` da pasta "Grupo Ideia" (config do produto / passado pelo usuário) e resolve a lista via `list_projects(workspace_id, folder_id)`.
-- [ ] Qualquer `project_id` fora da pasta é **recusado** com mensagem clara (não silenciosamente ignorado).
-- [ ] Documentado que folder-scope é camada **operacional** (skill-enforced), não fronteira de segurança da Lovable.
+### R10-02 — Resolver de escopo identity-aware (2 tiers, operacional) · Fase A
+Refinado via `/grelha` (grilling dedicado ao modelo de acesso, 2026-06-18). É **escopo/foco do IdeiaOS** — NÃO privacidade/segurança (essa é nativa da Lovable: visibility/membership).
+- [ ] **Tiers:** `todos` = projetos na pasta "Grupo Ideia" (`folder_id fold_01kvdc18tgf86ts7s0tdx6hges`, workspace `2NHPnABxF0jdSX3qVLCw`); `pessoal:<dono>` = projetos fora da pasta, pelo `created_by`. (`grupo:<nome>` deferido — adicionar só se aparecer subconjunto de devs.)
+- [ ] **Resolução:** a skill chama `get_me` → `in_scope = (na pasta) OU (created_by == get_me.id)`; recusa o resto com mensagem clara (não silenciosamente).
+- [ ] **Override opcional:** `lovable-scope.yaml` (commitado no IdeiaOS) só para exceções (forçar um projeto a `todos`, ou excluir). Sem ele, a resolução é 100% derivada da Lovable (pasta + created_by).
+- [ ] **Enforcement = operacional** (escopo do IdeiaOS, confiando no time); NÃO esconde projetos de outras contas-membro por fora da skill. Privacidade dura (se necessária) = `visibility: draft` manual no painel, FORA deste modelo.
+- [ ] Identidade-chave = conta Lovable (`get_me.id` — ex.: `UYy17…` / gustavolpaiva@gmail.com; ≠ git `gustavo@redeideia.com.br`). Painel-UI de curadoria = ideia futura (v11), fora deste escopo.
 
 ### R10-03 — Contenção dura · Fase A
 - [ ] `.claude/settings.json` dos produtos: `disabledMcpServers` inclui o Lovable MCP por default; as ~15 tools mutantes em `permissions.deny`; `query_database` em deny.
 - [ ] Documentado o fluxo `@devops` para promover um tool ID a `ask` (nunca `allow`).
 - [ ] Pré-condição registrada: desligar `mcp_enabled` nos 2 workspaces não-dev (painel Lovable) + obter `folder_id`.
 - [ ] Entrada classificando o Lovable MCP como **High/Critical** na régua `mcp-hygiene`.
+- [ ] **Distinção de camadas documentada:** o resolver de escopo (R10-02, operacional, tiers `todos`/`pessoal`) é uma camada SEPARADA da contenção dura (harness-deny + toggle de workspace). Um é foco-do-IdeiaOS; o outro é fronteira de capability/token. Escopo não substitui contenção, e vice-versa.
 
 ### R10-04 — Empacotamento/propagação · Fase A
 - [ ] Skill em `build-plugins.sh` (CORE_SKILLS) + `manifests/modules.json` + `plugin-membership.md`; `README.md` "N components" sincronizado (gate `check-readme-sync`).

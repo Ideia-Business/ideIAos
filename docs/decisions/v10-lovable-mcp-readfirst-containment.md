@@ -61,6 +61,19 @@ níveis e autoridade `@devops` para qualquer mutação.** Concretamente:
   duro seria um workspace dedicado (overkill agora).
 - **CLI wrapper (mcp-to-cli):** inviável — Lovable é OAuth-only, sem API key para um script chamar.
 
+## Adendo (2026-06-18) — modelo de escopo/acesso (refinado via /grelha)
+
+Grilling dedicado fechou o modelo de escopo do `/lovable-mcp` (folds em R10-02/03):
+- **2 tiers:** `todos` (= pasta "Grupo Ideia") + `pessoal:<dono>` (= `created_by`); `grupo:<nome>` deferido.
+- **Operacional, não segurança:** o resolver é escopo/FOCO do IdeiaOS (cada dev mira o seu/do time, confiando
+  no time) — NÃO esconde projetos de outras contas-membro por fora da skill. Privacidade dura = `visibility:
+  draft` manual no painel, fora do modelo. **Decisão consciente** (a alternativa hard foi declinada).
+- **Resolução derivada:** `in_scope = (na pasta) OU (created_by == get_me.id)`; `lovable-scope.yaml` só p/ exceções.
+- **Sem sistema de tokens:** Lovable é OAuth-only, sem API key / sem token por-projeto; o OAuth por-dev já é a
+  identidade e a ACL nativa (visibility/membership/folder) já é a fronteira dura — reinventar authz seria brigar
+  com a plataforma.
+- **Painel-UI de curadoria:** deferido (ideia futura v11).
+
 ## Notas
 
 - Espelhamento ao Obsidian (`Decisions/`) fica a cargo do `/extract-learnings` (Passo 4c), sem pipeline novo.

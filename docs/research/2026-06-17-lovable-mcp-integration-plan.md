@@ -69,6 +69,23 @@ Lapidação em andamento. Workspace dev **renomeado para "Grupo Ideia - Dev"** (
 - **v3 (write-path + automação):** `drive-cloud-agent`/`publish` (gated, quiesce + bracketing SHA) +
   compilador source→Knowledge — só se o teste manual da v2 provar valor.
 
+### Modelo de acesso/escopo (grilling dedicado, 2026-06-18) — FOLD no v10 (refina R10-02/03)
+
+Subsistema desencadeado pela pergunta do cfoai (privado). Lapidado via `/grelha`, 6 galhos fechados:
+- **Ambição:** começou "N tiers nomeados, sem papéis/UI" mas o vocabulário fechou em **2 tiers** —
+  `todos` + `pessoal:<dono>` (`grupo:<nome>` deferido até aparecer subconjunto de devs).
+- **Enforcement:** **operacional** (escopo/foco do IdeiaOS, confiando no time), **NÃO privacidade dura**.
+  Reframe importante: não é sistema de segurança, é registro de FOCO. Privacidade real, se precisar, é
+  `visibility: draft` manual no painel — FORA deste modelo.
+- **Identidade:** conta Lovable (`get_me.id`). ⚠️ a conta conectada é `gustavolpaiva@gmail.com` ≠ git
+  `gustavo@redeideia.com.br`.
+- **Resolução:** `in_scope = (na pasta "Grupo Ideia") OU (created_by == get_me.id)` — derivado da Lovable,
+  sem arquivo a manter; `lovable-scope.yaml` (commitado no IdeiaOS) só para exceções/overrides.
+- **Por que NÃO um sistema de tokens:** Lovable é OAuth-only, sem API key / sem token por-projeto. O OAuth
+  por-dev JÁ é a identidade; a ACL nativa (visibility/membership/folder) já é a fronteira dura.
+- **Painel-UI de curadoria:** ideia futura (v11), deferida. Hoje a curadoria = a pasta + `created_by` + override.
+- **Encaixe:** FOLD no v10 (sem milestone próprio).
+
 ---
 
 ## 0. Contexto e pedido
