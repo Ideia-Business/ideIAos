@@ -1,6 +1,6 @@
 # Handoff — continuar em outro turno
 
-**Projeto:** `IdeiaOS` · **Branch:** `work` (= main) · **Atualizado:** 2026-06-16
+**Projeto:** `IdeiaOS` · **Branch:** `work` (= main) · **Atualizado:** 2026-06-18
 
 ---
 
@@ -159,12 +159,12 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 
 ✅ **Feito (agente):** harness-deny das 19 tools mutantes + `query_database` deny PURO + `disabledMcpServers` aplicado e **validado por checagem binária** (`deny=19`, `disabled=True`) no `.claude/settings.json` dos **4 produtos Lovable**: nfideia, ideiapartner, cfoai-grupori, lapidai (ideia-chat ficou de fora — sem `.lovable/`). `language` preservado em cada um. Persistência por design: **ideiapartner** = gitignored (local-only); **lapidai** (branch `work`) = autosync commita+pusha pra `origin/work`; **nfideia + cfoai** = tracked-on-main, deixados **uncommitted** (autosync protege main dirty; não commitei em main Lovable — regra `feedback-lovable-projects-branch-commit`). Fonte-de-verdade para reaplicar = snippet canônico em `source/rules/lovable/mcp-protocol.md`.
 
-⏳ **PENDENTE — AÇÕES DO USUÁRIO (cobrar no início da próxima sessão; o usuário pediu lembrete "quando só faltar as minhas ações" — já estamos nesse estado):**
-   1. No painel Lovable → Workspace Settings, **desligar `mcp_enabled`** em **Grupo IDeia - Projects** (`A0gwgrenO8S5IrZtE4ig`, 1.622 proj.) e **Dev's Lovable** (`pyHOQY0YDL838zK8GbR3`, 3 proj.). **Manter ON** em **Grupo Ideia - Dev** (`2NHPnABxF0jdSX3qVLCw`, 18 proj. — workspace de trabalho).
-   2. Só após os 2 toggles: rodar `/lovable-mcp verify-deploy` de dentro de um produto real (ex.: nfideia) como teste end-to-end.
+✅ **Toggles de painel FEITOS (2026-06-18)** — o usuário deixou apenas **Grupo Ideia - Dev** (`2NHPnABxF0jdSX3qVLCw`) no alcance, satisfazendo o Gate 3 da Fase B (os outros workspaces — Grupo IDeia - Projects `A0gwgrenO8S5IrZtE4ig` e Dev's Lovable `pyHOQY0YDL838zK8GbR3` — fora do alcance).
+
+⏳ **Resíduo (única ação do usuário):** rodar `/lovable-mcp verify-deploy` de dentro de um produto real (ex.: nfideia) como teste end-to-end.
    _(ids dos workspaces confirmados ao vivo via `get_me`/`list_workspaces` em 2026-06-18.)_
 
-**Fase B (sandbox) — PLANEJADA 2026-06-18 (usuário pediu "inicie a Fase B"):** plano GSD escrito e verificado adversarialmente (3 lentes) em `.planning/milestones/v10-phases/B-sandbox/B-01-PLAN.md`. Experimento: `remix_project` de 1 produto pouco ativo (cfoai) → fork descartável na workspace dev → mede (A1) namespace/timing do mirror GitHub↔Cloud, (A2) se `deploy_project` lê de `main` ou do estado interno, (A3) se `commit_sha` do `list_edits` casa com `git log`. Gate de TODO write-path; C/D dependem de B.
+**Fase B (sandbox) — CONCLUÍDA 2026-06-18 — veredito 🔴 BLOQUEAR `publish` via MCP** (contexto do plano original, mantido como histórico): plano GSD escrito e verificado adversarialmente (3 lentes) em `.planning/milestones/v10-phases/B-sandbox/B-01-PLAN.md`. Experimento: `remix_project` de 1 produto pouco ativo (cfoai) → fork descartável na workspace dev → mede (A1) namespace/timing do mirror GitHub↔Cloud, (A2) se `deploy_project` lê de `main` ou do estado interno, (A3) se `commit_sha` do `list_edits` casa com `git log`. Gate de TODO write-path; C/D dependem de B. **Resultado abaixo + `.planning/v10-MILESTONE-AUDIT.md`.**
 
 🟡 **Metade read-only da Fase B EXECUTADA (2026-06-18, zero crédito):** medido em nfideia real (`list_edits` × `git log origin/main` local) — **A1-namespace = ACOPLADO** (commit_sha da Cloud É o SHA do GitHub) + **A3 = PASS** (detect-hotfix no namespace certo); mirror **bidirecional** confirmado (commit `ai_update` `76e9cee5` do agente Cloud presente em `origin/main`). Ver `B-01-SUMMARY.md` + dossiê §2.5b. Isso retira 2 dos 3 riscos de desacoplamento e estreita o experimento de escrita.
 
@@ -178,7 +178,9 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 
 **✅ Fork descartável DELETADO pelo usuário (2026-06-18)** — confirmado `get_project`=404 + `list_projects`=0. Zero resíduo do experimento na conta Lovable. (Não há `delete_project` no MCP → deleção é sempre manual no painel.)
 
-**Próximos passos do v10:** (1) **Fases C/D seguem gateadas** até medir A2 **fora do MCP** (gitsync manual na UI do editor num projeto descartável + 1 push divergente + 1 deploy). (2) **Fase A** não depende de B e está operacional — falta só rodar `/lovable-mcp verify-deploy` num produto real como teste end-to-end (toggles de painel já todos feitos). Detalhe completo: `B-01-SUMMARY.md` + dossiê §2.5b.
+**✅ v10 FECHADO em escopo PARCIAL (2026-06-18)** — auditoria de fechamento `.planning/v10-MILESTONE-AUDIT.md` (workflow `wf_4fec3ed7-fc0`, 4 auditores + síntese): veredito BLOQUEAR confirmado SOUND (confiança alta), contenção ÍNTEGRA nos 5 alvos (deny=19), todo o status obsoleto reconciliado. **Tag: `no-tag`** (precedente v2.0..v9.0: tag só em milestone COMPLETO; este fecha parcial). Disposição: R10-01..05 DONE; R10-06 DONE (veredito BLOQUEAR); R10-07/08 PARQUEADAS-GATED.
+
+**Próximos passos do v10 (carried-forward):** (1) **Fases C/D seguem gateadas** até medir A2 **fora do MCP** (gitsync manual na UI do editor num projeto descartável + 1 push divergente + 1 deploy — critério objetivo de reabertura em `v10-MILESTONE-AUDIT.md` §9). (2) **Fase A** não depende de B e está operacional — falta só rodar `/lovable-mcp verify-deploy` num produto real como teste end-to-end (toggles de painel já todos feitos). Detalhe completo: `.planning/v10-MILESTONE-AUDIT.md` + `B-01-SUMMARY.md` + dossiê §2.5b.
 
 _Contexto da formalização (2026-06-17): plano vetado por 9 agentes (workflow `wf_a9c61aa5-2bf`), 4 forks + modelo de acesso fechados via `/grelha`; dossiê `docs/research/2026-06-17-lovable-mcp-integration-plan.md` (+ `…-synthesis.json`), ADR `docs/decisions/v10-lovable-mcp-readfirst-containment.md`._
 

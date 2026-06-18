@@ -26,7 +26,9 @@ O MCP da Lovable **não tem superfície para o gitsync GitHub**:
 - `get_project` — expõe `latest_commit_sha`, mas **nenhuma URL de repo nem campo gitsync**.
 - **Empírico:** fork `1d0652c4` criado; seu `sha_0` `cac6c856…` **não existe em nenhum repo GitHub** (`gh search commits --hash` = `[]`); **nenhum repo** foi auto-criado na org; a própria fonte ("Mornings Day POA") **não tem repo** → gitsync é manual-por-projeto, só nos 5 produtos principais, **na UI do editor**.
 
-**Consequência:** um fork remixado não herda nem auto-provisiona gitsync, e o MCP não consegue configurá-lo (`add_connector` está no `deny`). Sem `origin/main` no fork, o teste de divergência do A2 (e a medição de lag do A1) são **estruturalmente impossíveis via MCP**. Medir A2 exigiria configurar gitsync manualmente na UI do editor num projeto descartável — **fora do escopo de um experimento MCP autônomo**.
+**Consequência:** um fork remixado não herda nem auto-provisiona gitsync, e o MCP não consegue configurá-lo (`add_connector` está no `deny`). Sem `origin/main` no fork, o teste de divergência do A2 (e a medição de lag do A1) são **impossíveis no instrumento fork**. Medir A2 exigiria configurar gitsync manualmente na UI do editor num projeto descartável — **fora do escopo de um experimento MCP autônomo via fork**.
+
+> **Precisão (auditoria de fechamento `wf_4fec3ed7-fc0`):** o achado é "impossível **no INSTRUMENTO fork sem gitsync**", não "impossível via MCP". A2 **é** mensurável via MCP num **produto real com gitsync** (push divergente em `main` + `deploy_project` + ler o bundle). O fork foi a ferramenta errada — não há limite do MCP, há ausência de um 2º escritor a `main` no fork. Idem: o "pior-caso refutado" abaixo prova que a Cloud **ingere** git (`developer_update` aparece no `list_edits`), não que o **deploy** constrói o bundle do git pós-ingestão — gap que **reforça** o BLOQUEIO. Ver `.planning/v10-MILESTONE-AUDIT.md` §5–§6.
 
 ---
 

@@ -1,7 +1,7 @@
 # Roadmap — v10: Camada de Integração Lovable MCP
 
 **Milestone:** v10
-**Aberto:** 2026-06-17 · **Status:** 🔵 EM ANDAMENTO — Fase A SHIPPED 2026-06-18 (1/4); B/C/D pendentes/gated
+**Aberto:** 2026-06-17 · **Status:** 🟡 PARCIAL — Fase A SHIPPED + Fase B CONCLUÍDA (veredito 🔴 BLOQUEAR `publish`) 2026-06-18 (2/4); C/D gateadas até medir A2 fora do MCP. Fechamento: `.planning/v10-MILESTONE-AUDIT.md`
 **Numeração de fases:** lettered (Fase A–D), espelhando v8/v9.
 **Grafo de dependências:** `A (independente, buildável já)` ; `B → C → D` (B é o gate de toda escrita).
 
@@ -26,12 +26,12 @@ Somar ao plano-GitHub maduro (`/lovable-handoff`) uma **camada de verificação 
 **Pré-condições do usuário (painel Lovable, ~1 min):** desligar `mcp_enabled` nos 2 workspaces não-dev; passar o `folder_id` da pasta "Grupo Ideia".
 **Done:** dry-run de `verify-deploy` num produto pega (ou confirma ausência de) drift comparando com um `/lovable-handoff` recém-feito; `idea-doctor` 0 FAIL; membership 0 deriva; README N/N. **Não depende da Fase B.**
 
-### Fase B — Sandbox / validação de suposições (gate de TODA escrita)
+### Fase B — Sandbox / validação de suposições (gate de TODA escrita) · ✅ CONCLUÍDA 2026-06-18 — veredito 🔴 BLOQUEAR `publish` via MCP
 
 **Objetivo (goal-backward):** medir, sem risco em prod, as suposições que decidem se o write-path é seguro.
 **Entregar:** experimento via `remix_project` de 1 produto; medições de (1) namespace/timing do mirror GitHub↔Cloud, (2) fonte de leitura do `deploy_project` (main vs estado Cloud interno); resultado registrado no dossiê.
 **Cobre:** R10-06.
-**Done:** as 4 suposições da §2.5 do dossiê respondidas com evidência; veredito explícito sobre liberar (ou bloquear) `publish`/`send_message`. Custo: alguns créditos de build.
+**Resultado:** A1-namespace=**ACOPLADO** (commit_sha da Cloud É o SHA do GitHub) + A3=**PASS** (read-only). A1-lag e A2 ficaram **inmensuráveis no instrumento fork** (fork sem gitsync — o MCP não expõe/gerencia gitsync GitHub) → indeterminado vota **BLOQUEAR**. Pior-caso do A2 refutado (git pushes entram no Cloud via `developer_update`). Custo: 1 remix bem-sucedido (0 órfão); fork deletado pelo usuário (zero resíduo). Ver `.planning/v10-MILESTONE-AUDIT.md` + `B-01-SUMMARY.md`.
 
 ### Fase C — v2: schema-check + teste manual dos dois cérebros · após B
 
