@@ -59,13 +59,13 @@ O `permissions.deny` **é relido mid-session e bloqueia de fato** as mutações 
 - Saldo pré: 100/0 em ambas as workspaces (sem mudança material).
 - Mutações cobradas: 1 remix bem-sucedido (`Mornings Day POA` → fork). 1 tentativa de remix do cfoai **falhou** (Supabase) e **não criou projeto** (0 órfão). Bem abaixo do teto (≤8).
 
-## Forks pendentes de deleção manual do usuário
+## Forks — deleção CONCLUÍDA ✅
 
-| Fork | project_id | Estado | Ação |
-|---|---|---|---|
-| **SANDBOX-FASEB-DELETAR-2** | `1d0652c4-5477-49cc-bafd-70761a7f9fd6` | `private` + `unpublished` (contido, não-público) | **Deletar no painel Lovable** (não há `delete_project` no MCP). `editor_url`: https://lovable.dev/projects/1d0652c4-5477-49cc-bafd-70761a7f9fd6 |
+| Fork | project_id | Estado |
+|---|---|---|
+| **SANDBOX-FASEB-DELETAR-2** | `1d0652c4-5477-49cc-bafd-70761a7f9fd6` | ✅ **DELETADO pelo usuário (2026-06-18)** — confirmado por `get_project`=404 + `list_projects`=0 |
 
-(A tentativa falha do cfoai não deixou projeto — confirmado por `list_projects(query=SANDBOX)` = 0 antes do fork-2.)
+(A tentativa falha do cfoai não deixou projeto.) **Zero resíduo do experimento na conta Lovable.**
 
 ---
 

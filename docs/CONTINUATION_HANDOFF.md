@@ -176,7 +176,7 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 
 **Achado de segurança (bônus):** `permissions.deny` é **relido e enforçado mid-session** (o remix só funcionou com a janela aberta; assert pós-close passou) — a contenção do harness vale ao vivo, não só no startup.
 
-**⏳ AÇÃO DO USUÁRIO:** deletar manualmente no painel Lovable o fork **SANDBOX-FASEB-DELETAR-2** (`1d0652c4-5477-49cc-bafd-70761a7f9fd6`; já está `private`+`unpublished`, não-público) — não há `delete_project` no MCP. `editor_url`: https://lovable.dev/projects/1d0652c4-5477-49cc-bafd-70761a7f9fd6
+**✅ Fork descartável DELETADO pelo usuário (2026-06-18)** — confirmado `get_project`=404 + `list_projects`=0. Zero resíduo do experimento na conta Lovable. (Não há `delete_project` no MCP → deleção é sempre manual no painel.)
 
 **Próximos passos do v10:** (1) **Fases C/D seguem gateadas** até medir A2 **fora do MCP** (gitsync manual na UI do editor num projeto descartável + 1 push divergente + 1 deploy). (2) **Fase A** não depende de B e está operacional — falta só rodar `/lovable-mcp verify-deploy` num produto real como teste end-to-end (toggles de painel já todos feitos). Detalhe completo: `B-01-SUMMARY.md` + dossiê §2.5b.
 

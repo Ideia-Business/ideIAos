@@ -13,8 +13,8 @@
   "fork_editor_url": "https://lovable.dev/projects/1d0652c4-5477-49cc-bafd-70761a7f9fd6",
   "fork_source": "3a14ce3b (Mornings Day POA, sem DB)",
   "fork_sha_0": "cac6c856d05dd566ff9b340609e4e4a59092b00e",
-  "PENDENTE_DELECAO_MANUAL": "Fork SANDBOX-FASEB-DELETAR-2 (1d0652c4) precisa ser deletado pelo usuario no painel Lovable ao fim. Tambem houve 1 tentativa falha (cfoai) que NAO criou projeto.",
-  "note": "Janela FECHADA: deny reaplicado.",
+  "DELECAO_MANUAL": "FEITA 2026-06-18 — fork SANDBOX-FASEB-DELETAR-2 (1d0652c4) deletado pelo usuario; confirmado por get_project=404 + list_projects=0. Tentativa falha do cfoai nao criou projeto. ZERO residuo na conta Lovable.",
+  "note": "Janela FECHADA: deny reaplicado. Experimento encerrado, fork deletado.",
   "preflight": {
     "captured_at": "2026-06-18",
     "workspaces_reachable": [
