@@ -164,7 +164,9 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
    2. Só após os 2 toggles: rodar `/lovable-mcp verify-deploy` de dentro de um produto real (ex.: nfideia) como teste end-to-end.
    _(ids dos workspaces confirmados ao vivo via `get_me`/`list_workspaces` em 2026-06-18.)_
 
-**Fase B (sandbox) — trilha separada, opt-in:** quando houver apetite por write-path: `remix_project` mede namespace/timing do mirror GitHub↔Cloud (gate de TODA escrita). C/D dependem de B.
+**Fase B (sandbox) — PLANEJADA 2026-06-18 (usuário pediu "inicie a Fase B"):** plano GSD escrito e verificado adversarialmente (3 lentes) em `.planning/milestones/v10-phases/B-sandbox/B-01-PLAN.md`. Experimento: `remix_project` de 1 produto pouco ativo (cfoai) → fork descartável na workspace dev → mede (A1) namespace/timing do mirror GitHub↔Cloud, (A2) se `deploy_project` lê de `main` ou do estado interno, (A3) se `commit_sha` do `list_edits` casa com `git log`. Gate de TODO write-path; C/D dependem de B.
+
+⏳ **Fase B NÃO foi rodada ao vivo** — é `autonomous:false`. Para executar exige: (1) **go humano explícito** ("pode rodar a Fase B"); (2) **deny-lift @devops** — o `.claude/settings.json` do IdeiaOS hoje **nega as 19 tools mutantes** (`deny=19`, contenção funcionando até no repo orquestrador), então @devops promove SÓ `remix_project`/`send_message`/`deploy_project` de `deny`→`ask` numa janela e **reaplica `deny` ao fim** (Task 6, verificação binária =19). Custo = créditos de build; **não há `delete_project`** no MCP → cleanup = `set_project_visibility` + pasta-lixo + deleção manual do usuário no painel. **Ordem limpa:** fazer os 2 toggles de painel acima ANTES do 1º write ("conter antes de escrever").
 
 _Contexto da formalização (2026-06-17): plano vetado por 9 agentes (workflow `wf_a9c61aa5-2bf`), 4 forks + modelo de acesso fechados via `/grelha`; dossiê `docs/research/2026-06-17-lovable-mcp-integration-plan.md` (+ `…-synthesis.json`), ADR `docs/decisions/v10-lovable-mcp-readfirst-containment.md`._
 
