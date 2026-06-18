@@ -33,8 +33,12 @@ Lapidação em andamento. Workspace dev **renomeado para "Grupo Ideia - Dev"** (
   nos 2 workspaces sem nada in-scope ("Grupo IDeia - Projects" 1.622 + "Dev's Lovable") no painel Lovable.
   **Caveat honesto:** pasta NÃO é fronteira de segurança na Lovable (token é full-account) → folder-scope é
   camada OPERACIONAL (skill-enforced); a fronteira DURA é o toggle de workspace. Pré-condição da v1.
-  _Pendência de execução:_ pegar o `folder_id` da pasta (do URL no painel) + confirmar a semântica do toggle
-  `mcp_enabled` (30s no painel).
+  _Folder obtido (2026-06-18):_ workspace `2NHPnABxF0jdSX3qVLCw`, folder `fold_01kvdc18tgf86ts7s0tdx6hges`.
+  **In-scope = 6 projetos na pasta:** ideiapartner (`afce7743`), nfideia (`bf83d98a`), ideia-partner-hub
+  /Painel Colaborador (`748a31c2`), lapidai (`44f5d5d2`), IDeia Client/geo-lovelace-hub (`3a451ad9`), e
+  "Chatwoot Insights" (`f1fbc853`, research/throwaway, 1 edit — bom alvo p/ a Fase B sandbox). ⚠️
+  **cfoai-grupori (`0e911cfd`) NÃO está na pasta** (estava assumido como produto/piloto) → fora de escopo pela
+  regra "só a pasta"; decisão do usuário pendente. _Pendência:_ confirmar a semântica do toggle `mcp_enabled`.
 - **Fork B — verbos da v1 → FECHADO: v1 SEM schema-check.** v1 = só `verify-deploy` + `detect-hotfix` (100%
   git-read). `query_database` fica em **deny PURO** no harness (sem promoção a `ask`) → v1 provadamente
   incapaz de tocar o DB de prod. `schema-check` (SQL fixo `information_schema`, `query_database` ask-gated) →
