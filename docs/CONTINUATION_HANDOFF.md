@@ -168,25 +168,17 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 
 🟡 **Metade read-only da Fase B EXECUTADA (2026-06-18, zero crédito):** medido em nfideia real (`list_edits` × `git log origin/main` local) — **A1-namespace = ACOPLADO** (commit_sha da Cloud É o SHA do GitHub) + **A3 = PASS** (detect-hotfix no namespace certo); mirror **bidirecional** confirmado (commit `ai_update` `76e9cee5` do agente Cloud presente em `origin/main`). Ver `B-01-SUMMARY.md` + dossiê §2.5b. Isso retira 2 dos 3 riscos de desacoplamento e estreita o experimento de escrita.
 
-🟠 **Metade de ESCRITA da Fase B — go humano DADO (2026-06-18); preflight FEITO + janela ABERTA; aguardando 2 ações do usuário + restart.** Resta medir A1-lag + A2 (`deploy_project` lê de main vs interno).
+✅ **Fase B (sandbox) CONCLUÍDA (2026-06-18) — veredito 🔴 BLOQUEAR `publish` via MCP.** Experimento de escrita rodado ao vivo: janela `deny→ask` aberta (`lovable-window.py open`), fork descartável criado, janela fechada (`close`, assert `deny=19`).
 
-**Já feito nesta sessão (reversível, read-only + prep local):**
-- Preflight read-only: saldo **100/0** nas 2 workspaces (teto folgado); 4+1 IDs de prod resolvidos p/ o guard anti-confusão (em `B-01-WINDOW-STATE.json`).
-- **Descoberta (drift):** o token alcança **só 2 workspaces** agora — `2NHPnABxF0jdSX3qVLCw` ("Grupo Ideia - Espaço dos Projetos", 18 proj, **onde vivem os 4 de prod**) e `pyHOQY0YDL838zK8GbR3` ("Dev's Lovable", 3 proj reais). A workspace de **1.622 proj sumiu do alcance** (toggle catastrófico ✅ FEITO). Não há sandbox vazio: o fork de cfoai cai junto da prod → guard anti-prod-id + Task 1b são a proteção.
-- Ferramenta idempotente `lovable-window.py` (`open|close|status`) criada (recovery passo 4) + `B-01-WINDOW-STATE.json` persistido.
-- **Janela ABERTA** via `lovable-window.py open`: `settings.json` agora `deny=14 / ask=5` (as 5 tools: remix/send_message/deploy/set_project_visibility/move_projects_to_folder). **Inerte nesta sessão** (memória tem deny=19 vivo) — por isso o restart.
+**Como foi:** preflight read-only (saldo 100/0; 5 IDs prod p/ guard) → Gate 3 satisfeito (usuário deixou **1 só workspace** no alcance; 1.622 + Dev's Lovable fora) → `remix_project(cfoai)` **falhou** (Supabase pesado, 0 órfão) → `remix_project(Mornings Day POA, sem DB)` → fork `1d0652c4` → Task 1b: DB isolado (disabled) + **busca de gitsync/repo = vazia**.
 
-**⏳ 2 AÇÕES DO USUÁRIO antes de retomar:**
-   1. **Gate 3 (🔴 bloqueante):** no painel Lovable, desligar `mcp_enabled` em **"Dev's Lovable"** (`pyHOQY0YDL838zK8GbR3`). (A de 1.622 já está feita.)
-   2. **Restart** da sessão Claude Code (p/ o harness reler o `settings.json` com a janela viva).
+**MURO DE VIABILIDADE (achado central):** o MCP da Lovable **não expõe nem gerencia o gitsync GitHub** — nenhum connector "github" (`list_connectors`), zero conexão GitHub (`list_connections`), `get_project` sem URL de repo; o `sha_0` do fork não existe em repo nenhum (`gh search commits`=`[]`), nenhum repo auto-criado, fonte sem repo; `add_connector` está no `deny`. Logo **A1-lag + A2 são inmensuráveis num sandbox MCP** (sem `origin/main` no fork não há divergência a testar) → indeterminado vota **BLOQUEAR** (regra do PLAN). **Pior-caso do A2 REFUTADO** pelo read-only (git pushes `developer_update` entram no Cloud → não é bypass total; risco residual = lag de ingestão).
 
-**RETOMAR (sessão nova) — ordem exata:**
-   a. **Re-verificar Gate 3** via `get_me` — "Dev's Lovable" SUMIU do alcance? Se **não** → abortar, `python3 lovable-window.py close`, cobrar o toggle. Se **sim** → seguir.
-   b. Rodar Tasks 1-6 do `B-01-PLAN.md`: `remix_project(0e911cfd…)` → gravar `F.project_id` em WINDOW-STATE IMEDIATAMENTE → Task 1b (isolamento DB/repo read-only, ANTES de escrever) → A1 (send_message + lag, deadline 10min) → A2 (git-push divergente `GIT-ONLY-PROBE` + deploy + preview cache-bust) → A3 → contenção do fork.
-   c. **Fechar a janela:** `python3 lovable-window.py close` (assert endurecido deny=19/ask=0/allow=0/disabled). Invariante: nenhuma sessão termina com janela aberta (happy path OU `<recovery>`).
-   d. Veredito por tabela-verdade no `B-01-SUMMARY.md` + §2.5 do dossiê; registrar fork pendente de deleção manual (id + preview_url).
+**Achado de segurança (bônus):** `permissions.deny` é **relido e enforçado mid-session** (o remix só funcionou com a janela aberta; assert pós-close passou) — a contenção do harness vale ao vivo, não só no startup.
 
-**Custo:** créditos de build (saldo 100, teto prático ≤8 msgs). **Sem `delete_project`** no MCP → cleanup = `set_project_visibility(private)` + pasta-lixo + deleção manual do usuário no painel.
+**⏳ AÇÃO DO USUÁRIO:** deletar manualmente no painel Lovable o fork **SANDBOX-FASEB-DELETAR-2** (`1d0652c4-5477-49cc-bafd-70761a7f9fd6`; já está `private`+`unpublished`, não-público) — não há `delete_project` no MCP. `editor_url`: https://lovable.dev/projects/1d0652c4-5477-49cc-bafd-70761a7f9fd6
+
+**Próximos passos do v10:** (1) **Fases C/D seguem gateadas** até medir A2 **fora do MCP** (gitsync manual na UI do editor num projeto descartável + 1 push divergente + 1 deploy). (2) **Fase A** não depende de B e está operacional — falta só rodar `/lovable-mcp verify-deploy` num produto real como teste end-to-end (toggles de painel já todos feitos). Detalhe completo: `B-01-SUMMARY.md` + dossiê §2.5b.
 
 _Contexto da formalização (2026-06-17): plano vetado por 9 agentes (workflow `wf_a9c61aa5-2bf`), 4 forks + modelo de acesso fechados via `/grelha`; dossiê `docs/research/2026-06-17-lovable-mcp-integration-plan.md` (+ `…-synthesis.json`), ADR `docs/decisions/v10-lovable-mcp-readfirst-containment.md`._
 

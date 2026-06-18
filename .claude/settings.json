@@ -15,9 +15,7 @@
       "mcp__6f530143-e779-405d-bf42-190cae4e231b__set_folder_visibility",
       "mcp__6f530143-e779-405d-bf42-190cae4e231b__add_connector",
       "mcp__6f530143-e779-405d-bf42-190cae4e231b__remove_connector",
-      "mcp__6f530143-e779-405d-bf42-190cae4e231b__get_file_upload_url"
-    ],
-    "ask": [
+      "mcp__6f530143-e779-405d-bf42-190cae4e231b__get_file_upload_url",
       "mcp__6f530143-e779-405d-bf42-190cae4e231b__remix_project",
       "mcp__6f530143-e779-405d-bf42-190cae4e231b__send_message",
       "mcp__6f530143-e779-405d-bf42-190cae4e231b__deploy_project",

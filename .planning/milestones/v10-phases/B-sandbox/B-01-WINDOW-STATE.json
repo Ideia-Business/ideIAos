@@ -1,5 +1,5 @@
 {
-  "state": "open",
+  "state": "closed",
   "connector": "6f530143-e779-405d-bf42-190cae4e231b",
   "promoted": [
     "mcp__6f530143-e779-405d-bf42-190cae4e231b__remix_project",
@@ -8,9 +8,13 @@
     "mcp__6f530143-e779-405d-bf42-190cae4e231b__set_project_visibility",
     "mcp__6f530143-e779-405d-bf42-190cae4e231b__move_projects_to_folder"
   ],
-  "fork_project_id": null,
-  "fork_preview_url": null,
-  "note": "Janela ABERTA: 5 tools em ask. Provavelmente exige restart da sessao p/ valer.",
+  "fork_project_id": "1d0652c4-5477-49cc-bafd-70761a7f9fd6",
+  "fork_preview_url": "https://id-preview--1d0652c4-5477-49cc-bafd-70761a7f9fd6.lovable.app",
+  "fork_editor_url": "https://lovable.dev/projects/1d0652c4-5477-49cc-bafd-70761a7f9fd6",
+  "fork_source": "3a14ce3b (Mornings Day POA, sem DB)",
+  "fork_sha_0": "cac6c856d05dd566ff9b340609e4e4a59092b00e",
+  "PENDENTE_DELECAO_MANUAL": "Fork SANDBOX-FASEB-DELETAR-2 (1d0652c4) precisa ser deletado pelo usuario no painel Lovable ao fim. Tambem houve 1 tentativa falha (cfoai) que NAO criou projeto.",
+  "note": "Janela FECHADA: deny reaplicado.",
   "preflight": {
     "captured_at": "2026-06-18",
     "workspaces_reachable": [
@@ -51,5 +55,6 @@
     },
     "topology_drift": "PLAN assumiu 3 workspaces (com 'Grupo Ideia - Dev' sandbox limpo). Realidade: 2 workspaces, ambas com projetos reais; nao ha sandbox vazio. Fork de cfoai cai na workspace de producao -> guard anti-prod-id e Task 1b sao a protecao."
   },
-  "opened_at": "2026-06-18T19:28:34Z"
+  "opened_at": "2026-06-18T19:28:34Z",
+  "closed_at": "2026-06-18T19:59:28Z"
 }

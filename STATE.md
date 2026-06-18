@@ -1,6 +1,6 @@
 # Estado do projeto — ideIAos
 
-**Atualizado:** 2026-06-18 · **Branch:** `work` → `main` · **Versão ideIAos:** v9 shipped (tag `v9.0`); v10 Lovable MCP — Fase A (v1 read-only) SHIPPED; **Fase B (sandbox): metade read-only FEITA + go humano DADO + preflight FEITO + janela ABERTA** (`settings.json` deny=14/ask=5, inerte até restart) — aguardando 1 toggle de painel ("Dev's Lovable" OFF) + restart, daí roda o experimento de escrita
+**Atualizado:** 2026-06-18 · **Branch:** `work` → `main` · **Versão ideIAos:** v9 shipped (tag `v9.0`); v10 Lovable MCP — Fase A (v1 read-only) SHIPPED; **Fase B (sandbox) CONCLUÍDA 2026-06-18 — veredito 🔴 BLOQUEAR `publish` via MCP** (A1-lag + A2 inmensuráveis no sandbox: o MCP não expõe/gerencia gitsync GitHub). Contenção `deny=19` confirmada enforçada mid-session. Fases C/D gateadas. Janela fechada (assert deny=19). 1 fork a deletar manualmente (`1d0652c4`)
 
 ## Snapshot
 
@@ -8,7 +8,7 @@
 |------|--------|
 | **Milestones v2.0–v9** | ✅ Todos shipped (tags v2.0 … v9.0) |
 | **v10 Lovable MCP — Fase A** | ✅ v1 read-only SHIPPED (2026-06-18): `/lovable-mcp` + helper + harness-deny 19 tools + rule. Rollout: deny aplicado nos 4 produtos + no próprio IdeiaOS (deny=19); ⏳ 2 toggles de painel pendentes (usuário) |
-| **v10 Lovable MCP — Fase B** | 🟠 EM CURSO — read-only FEITA (A1-namespace=ACOPLADO + A3=PASS em nfideia real). Escrita: **go DADO + preflight FEITO** (saldo 100/0; 5 IDs prod p/ guard) + **janela ABERTA** (`lovable-window.py open` → deny=14/ask=5, inerte até restart). **Drift:** só 2 workspaces no alcance (1.622 já contida; "Dev's Lovable" ainda ON). ⏳ aguarda toggle "Dev's Lovable" OFF + restart → roda Tasks 1-6 (A1-lag + A2). Ver `B-01-PLAN.md`/`-SUMMARY.md`/`-WINDOW-STATE.json` |
+| **v10 Lovable MCP — Fase B** | ✅ CONCLUÍDA 2026-06-18 — **veredito 🔴 BLOQUEAR `publish` via MCP**. Read-only: A1-namespace=ACOPLADO + A3=PASS. Escrita (fork `1d0652c4`, janela aberta+fechada): **muro de viabilidade** — MCP não expõe/gerencia gitsync GitHub (sem connector github, `get_project` sem repo, `add_connector` negado), logo A1-lag + A2 **inmensuráveis no sandbox** → indeterminado vota BLOQUEAR. Pior-caso do A2 refutado (git pushes entram no Cloud via `developer_update`). Contenção `deny=19` **enforçada mid-session** (comprovado). Fases C/D gateadas. Janela fechada (assert deny=19). Ver `B-01-SUMMARY.md` |
 | **v9 Camada de Alinhamento** | ✅ SHIPPED (tag `v9.0`) — `/grelha`, glossário `CONTEXT.md`, `ubiquitous-language`, Passo 1.5, `/aprofundar` |
 | **v8 Camada de Disciplina** | ✅ `/doubt`, `operating-discipline`, `/context-engineering`, R8-09 (rules Claude×Cursor) |
 | **v7 Resiliência + Spec** | ✅ Piloto `/spec` nfideia, drift-guard, branch `spec/multi-tenancy-pilot` |
@@ -43,7 +43,8 @@ Sessão de **pesquisa + planejamento** do milestone **v9 — "Camada de Alinhame
 ## Pendências não-bloqueantes
 
 - ⏳ **AÇÃO DO USUÁRIO — rollout Lovable MCP Fase A (cobrar no início da próxima sessão; usuário pediu lembrete "quando só faltar as minhas ações"):** no painel Lovable, desligar `mcp_enabled` em **Grupo IDeia - Projects** (`A0gwgrenO8S5IrZtE4ig`) e **Dev's Lovable** (`pyHOQY0YDL838zK8GbR3`); manter ON em **Grupo Ideia - Dev** (`2NHPnABxF0jdSX3qVLCw`). Depois: rodar `/lovable-mcp verify-deploy` num produto real. _Lado-agente (harness-deny nos 4 produtos) já feito 2026-06-18 — ver `docs/CONTINUATION_HANDOFF.md` § Próximo passo._
-- 🟠 **Fase B (sandbox) — metade de escrita ARMADA, aguardando 2 ações do usuário.** Read-only FEITA (A1-namespace=ACOPLADO + A3=PASS). Escrita: go DADO + preflight FEITO (saldo 100/0; 5 IDs prod) + **janela ABERTA** (`settings.json` deny=14/ask=5 via `lovable-window.py open`; inerte até restart). **Falta do usuário:** (1) toggle `mcp_enabled` OFF em "Dev's Lovable" (`pyHOQY0YDL838zK8GbR3`) — a de 1.622 já saiu do alcance; (2) **restart da sessão** (deny-lift lido no startup). Sessão nova: re-verifica Gate 3 via `get_me` → roda Tasks 1-6 → `lovable-window.py close` (assert deny=19). Passos exatos em `docs/CONTINUATION_HANDOFF.md` § Próximo passo.
+- ✅ **Fase B (sandbox) CONCLUÍDA — veredito 🔴 BLOQUEAR `publish`.** Read-only (A1-namespace ACOPLADO + A3 PASS) + escrita ao vivo (fork descartável, janela `deny→ask` aberta+fechada). Muro de viabilidade: o MCP não tem superfície p/ gitsync GitHub → A1-lag + A2 inmensuráveis no sandbox → bloqueio conservador. Fases C/D gateadas até medir A2 fora do MCP (gitsync manual na UI). **AÇÃO DO USUÁRIO:** deletar manualmente no painel Lovable o fork **SANDBOX-FASEB-DELETAR-2** (`1d0652c4-5477-49cc-bafd-70761a7f9fd6`; já está private+unpublished, não-público) — não há `delete_project` no MCP.
+- ⏳ **Rollout Fase A (residual):** rodar `/lovable-mcp verify-deploy` de dentro de um produto real como teste end-to-end (os toggles de painel já estão todos feitos — só 1 workspace no alcance).
 - **Higiene de memória Claude:** inspecionar/remover secrets em sessões Jarvis e iCloud Projects (`idea-doctor` seção 7).
 - **nfideia** (`spec/multi-tenancy-pilot`): 2 specs vivas + `PILOT-BACKLOG.md` — PR/merge quando conveniente.
 - **gsd-browser:** monitorar upstream (ainda não publicado).
