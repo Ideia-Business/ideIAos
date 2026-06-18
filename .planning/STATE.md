@@ -54,11 +54,12 @@ progress:
 
 ## Próximo passo
 
-Milestone v9 (Camada de Alinhamento) **SHIPPED** — tag v9.0. Os 7 requisitos (R9-01..R9-07) entregues; gates binários verdes (membership 0 deriva, README N/N, build-plugins/adapters exit 0, idea-doctor 0 FAIL); dogfood `/doubt` = SHIP; auditoria `.planning/v9-MILESTONE-AUDIT.md` PASSED. **Fase G (could-haves) também entregue** (pós-v9.0): deltas `to-prd` (@pm) + nota de seam (`/gsd-debug`) como Patches 14/15 do overlay — ver `v9-phases/G-could-haves/G-01-SUMMARY.md`. Próximo: novas demandas.
+Milestone v9 (Camada de Alinhamento) **SHIPPED** — tag v9.0. Os 7 requisitos (R9-01..R9-07) entregues; gates binários verdes (membership 0 deriva, README N/N, build-plugins/adapters exit 0, idea-doctor 0 FAIL); dogfood `/doubt` = SHIP; auditoria `.planning/v9-MILESTONE-AUDIT.md` PASSED. **Fase G (could-haves) também entregue** (pós-v9.0): deltas `to-prd` (@pm) + nota de seam (`/gsd-debug`) como Patches 14/15 do overlay — ver `v9-phases/G-could-haves/G-01-SUMMARY.md`. **Próximo: avaliar/afinar a integração Lovable MCP** (dossiê `docs/research/2026-06-17-lovable-mcp-integration-plan.md` — candidato a milestone v10, EM DISCUSSÃO; nada implementado).
 
 **Fechamento operacional (2026-06-17):** tag `v9.0` empurrada para `origin`; LOW do dogfood resolvido (README esclarece que `scan-absorbed.sh` mira a quarentena, não `source/`); branch `planning` sincronizado com os docs de milestone v9 via git plumbing (memory store preservado); **`main` reconciliada** com `work` por fast-forward (IdeiaOS vai direto na main); **validador YAML antifrágil** (`scripts/validate-agent-yaml.sh`, parser autoritativo js-yaml) wired no `idea-doctor` + Patch 14 (rollback). Aprendizado extraído (`docs/learnings/2026-06-17-git-plumbing-partial-branch-overlay-sync.md` → memória global + vault Obsidian) + Changelog do vault atualizado para v9. **Nada pendente no repo** — `main`=`work`=`origin`.
 
 ## Pendências (opt-in, decisão do usuário)
+- **Integração Lovable MCP (candidato v10) — EM DISCUSSÃO:** dossiê `docs/research/2026-06-17-lovable-mcp-integration-plan.md` (+ `…-synthesis.json` verbatim). Plano read-first vetado (9 agentes, workflow `wf_a9c61aa5-2bf`); 4 forks abertos (A contenção blast-radius / B v1 fina / C skill nova vs handoff / D dois cérebros). Decisão atual = discutir/afiar. Retomar: reagir aos forks, `/grelha`, ou investigar Fork A read-only (`get_workspace` nos 3 workspaces).
 - Piloto /spec (delta-spec) num produto brownfield (nfideia) — branch `spec/multi-tenancy-pilot` pronta para PR/merge. ⚠️ nfideia é Lovable.
 - gsd-browser: reavaliar quando publicar npm/crates (ADR docs/decisions/).
 - DeepSeek V4 Pro: habilitar nos PRODUTOS (cfoai/nfideia etc.), fora do escopo IdeiaOS.

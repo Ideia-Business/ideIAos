@@ -153,6 +153,10 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 
 ## Próximo passo
 
+**🔵 ATUAL (2026-06-17, noite) — Integração Lovable MCP (candidato v10), EM DISCUSSÃO.** A Lovable lançou um MCP server (OAuth-only, escopo full-account ~1.640 projetos, ~47 tools, DB de prod, agente Cloud editável). Estudo completo e durável em **`docs/research/2026-06-17-lovable-mcp-integration-plan.md`** (+ `…-synthesis.json` verbatim). Plano vetado por 9 agentes (workflow `wf_a9c61aa5-2bf`): **read-first, aditivo (não substitui `/lovable-handoff`), contenção REAL no harness (`permissions.deny`), write-path travado atrás de um experimento em sandbox `remix_project`**. Os 3 verbos v1 (todos read-only): `verify-deploy` (deploy-drift), `detect-hotfix`, `schema-check` (SQL fixo). Produtos Lovable verificados e MUITO ativos (nfideia 1.709 edits, ideiapartner 2.616) → two-writers agudo; **qualquer escrita começa num fork, nunca em prod**. Decisão do usuário nesta sessão = **só discutir/afiar** (NADA implementado). Próximo: reagir aos 4 forks (A contenção blast-radius / B v1 fina / C skill nova vs handoff / D dois cérebros), ou `/grelha` sobre o dossiê, ou investigar Fork A read-only (`get_workspace` nos 3 workspaces — leitura pura, 0 crédito).
+
+---
+
 **✅ MILESTONE v9 (Camada de Alinhamento) SHIPPED — 2026-06-17, tag `v9.0`.**
 
 Execução autônoma multi-agente (6 fases A–F, builders + painéis de revisão 3-lentes por fase). Entregue:

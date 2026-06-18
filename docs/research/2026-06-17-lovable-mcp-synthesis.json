@@ -1,0 +1,203 @@
+{
+  "executive_summary": "O MCP da Lovable abre um segundo plano de escrita (agente in-Cloud, DB de produção, Knowledge/Skills) sobre os mesmos repos onde o IdeiaOS já opera no plano GitHub — e faz isso com um único token OAuth de escopo full-account que alcança ~1.640 projetos, incluindo os 4 produtos reais. O maior ganho é transformar três operações hoje manuais e às cegas (verificação de deploy-drift, detecção de hotfix inline, verificação schema-first) em checagens read-only programáticas e baratas — sem créditos, sem blast-radius de escrita, e sem depender de nenhuma suposição não-verificada. Tudo que escreve (send_message, deploy_project, query_database-write, set_*_knowledge) é perigoso, custa crédito e depende do comportamento não-medido do sync GitHub↔Cloud da Lovable, então é demovido para fases posteriores atrás de um experimento de validação em sandbox (remix_project). A recomendação é adotar de forma ADITIVA (nunca substituir o /lovable-handoff atual), com contenção REAL no harness (permissions.deny/ask no settings.json, não em prosa de skill) e autoridade @devops para mutações.",
+  "verdict": "Adotar de forma aditiva, read-first, com contenção no harness (deny/ask) e @devops-gated; piloto read-only em 1 produto (cfoai); todo write-path demovido até o experimento de sync em sandbox passar.",
+  "pillars": [
+    {
+      "name": "verify-deploy — gate de deploy-drift (read-only)",
+      "today": "Quando um bug 'já corrigido' reaparece em prod, o playbook manda comparar 'código deployado vs main' à mão: abrir o editor Lovable, achar o último commit, comparar timestamps de olho e caçar strings nos chunks do bundle. Lento, falível, e depende do humano lembrar de checar ANTES de mexer no código — regra que falha sob pressão.",
+      "after": "Uma checagem determinística de uma chamada: get_project(project_id).latest_commit_sha comparado com git rev-parse origin/main local. Divergiu = drift confirmado antes de tocar uma linha. get_diff(base=origin/main, sha=latest) mostra exatamente o que divergiu. Resolve o padrão de incidente nº1 (80%+ dos 'bugs persistentes'). Custo zero (read-only, sem crédito).",
+      "mcp_tools": [
+        "get_project",
+        "get_diff",
+        "list_files",
+        "read_file"
+      ],
+      "ideiaos_home": "source/skills/lovable-mcp/SKILL.md (verbo verify-deploy) + helper source/skills/lovable-mcp/lib/ gateado por source/lib/gates.sh",
+      "priority": "must",
+      "risk": "low",
+      "mitigation": "Read-only puro, sem créditos, sem escrita. Único risco residual é o timing do mirror GitHub (ver assumptions) gerar falso-negativo durante a janela de lag — aceitável para uma checagem de drift, que erra para o lado seguro (manda investigar)."
+    },
+    {
+      "name": "detect-hotfix — reconciliação de hotfix inline (read-only)",
+      "today": "Quando alguém conserta um bug direto no chat da Lovable sem passar pelo Git, o IdeiaOS só descobre por acaso; o playbook manda 'pedir o trecho exato ao operador' — perguntar a um humano o que outro sistema fez. Débito técnico invisível que o próximo redeploy de main re-introduz.",
+      "after": "list_edits(project_id) retorna cada edit com commit_sha + a mensagem/prompt que o causou + timestamp. Cruza-se contra git log origin/main: qualquer SHA na Cloud ausente no main = hotfix não-sincronizado. get_diff(message_id) recupera o conteúdo exato para reconciliar no repo, sem depender da memória do operador. Resolve o padrão de incidente nº3.",
+      "mcp_tools": [
+        "list_edits",
+        "get_diff"
+      ],
+      "ideiaos_home": "source/skills/lovable-mcp/SKILL.md (verbo detect-hotfix)",
+      "priority": "must",
+      "risk": "low",
+      "mitigation": "Read-only. Risco: se o commit_sha do list_edits for do repo Lovable interno e não do mirror GitHub, o cruzamento dá falsos positivos sistemáticos. Por isso o verbo só REPORTA candidatos para revisão humana, nunca reconcilia automaticamente — e o namespace de SHA é medido no experimento de sandbox (assumption F-A')."
+    },
+    {
+      "name": "schema-check — verificação schema-first com SQL hardcoded (read-only)",
+      "today": "O padrão nº2 manda SELECT as colunas antes de qualquer UPDATE/INSERT, mas o IdeiaOS NUNCA teve acesso ao banco de prod — o SELECT é colado num handoff para o humano rodar no SQL Editor, ou a IA confia no types desatualizado.",
+      "after": "query_database executa SELECT contra o Postgres de produção real. CRÍTICO (ajuste do skeptic de simplicidade): o verbo NÃO aceita SQL arbitrário — usa templates hardcoded (SELECT column_name FROM information_schema.columns WHERE table_name=...). Sem SQL livre = zero superfície de escrita por construção = sem necessidade de parser regex anti-DML. Valida que a coluna existe ANTES de gerar migration/UPDATE.",
+      "mcp_tools": [
+        "query_database",
+        "get_database_status"
+      ],
+      "ideiaos_home": "source/skills/lovable-mcp/SKILL.md (verbo schema-check, SQL hardcoded — NÃO uma skill /lovable-db separada com parser)",
+      "priority": "must",
+      "risk": "medium",
+      "mitigation": "query_database roda com permissão total de prod (write modifica prod permanentemente). Contenção no harness, não em prompt: o tool ID mcp__...__query_database fica em permissions.deny por default; só a janela de schema-check (SQL hardcoded, sob @devops) o promove a ask. Defense-in-depth: deny no harness > SQL hardcoded > @devops."
+    },
+    {
+      "name": "Contenção no HARNESS — deny/ask no settings.json (não em skill)",
+      "today": "Inexistente. As ~47 tools (15 mutantes) ficariam todas chamáveis assim que o MCP é habilitado. 'Read-only por padrão' e 'allowlist de 4 IDs' propostos rodam DENTRO da skill — o modelo pode pular a skill e chamar a tool direto (fechadura pintada na porta).",
+      "after": "As ~15 tools mutantes (deploy_project, send_message, query_database-write, set_*_knowledge, create/update/delete_workspace_skill, enable/disable_project_skill, enable_database, add/remove_connector, remix_project, set_*_visibility, move_projects_to_folder, create_project) entram em permissions.deny por default no .claude/settings.json de TODO produto. @devops é o único fluxo que promove um tool ID para ask (prompt humano sempre, nunca allow silencioso). Read-only fica livre. Na janela habilitada, tarefa read-only nega também as mutantes via deny — habilitar o servidor ≠ habilitar 47 tools.",
+      "mcp_tools": [
+        "deploy_project",
+        "send_message",
+        "query_database",
+        "set_project_knowledge",
+        "set_workspace_knowledge",
+        "create_workspace_skill",
+        "remix_project"
+      ],
+      "ideiaos_home": ".claude/settings.json dos 4 produtos (permissions.deny/ask) — a peça inegociável; estende .claude/rules/agent-authority.md só para documentar o mapa",
+      "priority": "must",
+      "risk": "low",
+      "mitigation": "É a própria mitigação dos riscos de escrita/injeção: enforcement na única camada que o modelo não pode pular. Anti-injection deixa de ser 'instruir o modelo a tratar como dado' e passa a ser 'negar a capability no harness' — uma injeção via README/learning bate num prompt de permissão determinístico."
+    },
+    {
+      "name": "Allowlist de 4 IDs hardcoded + MCP off-por-default",
+      "today": "Um único OAuth alcança 3 workspaces incluindo um de 1.622 projetos auto-gerados. Blast-radius ~1.640 projetos. MCP sempre-on estouraria o teto de 80 tools da mcp-hygiene (47 tools = >½ do budget).",
+      "after": "Os 4 project IDs reais hardcoded como array no helper da skill (NÃO um ~/.ideiaos/lovable-allowlist.json com schema — generality especulativa até existir 5º produto). MCP Lovable em disabledMcpServers por default (High/Critical pela mcp-hygiene), habilitado on-demand só na janela de trabalho, desabilitado após. Contenção REAL do blast-radius, porém, só vem do lado Lovable: restringir o OAuth ao workspace 'Gustavolpaiva Dev' no painel, se a plataforma suportar.",
+      "mcp_tools": [
+        "get_workspace",
+        "list_projects",
+        "get_me"
+      ],
+      "ideiaos_home": "Array hardcoded em source/skills/lovable-mcp/lib/ + entrada classificando o Lovable MCP como High/Critical na tabela de risco de source/rules/common/ (mcp-hygiene)",
+      "priority": "must",
+      "risk": "medium",
+      "mitigation": "Honestidade obrigatória ao usuário: allowlist client-side é camada SECUNDÁRIA, não fronteira. Não há contenção real dos 1.640 projetos sem ação no painel Lovable (token por-workspace ou desabilitar third-party MCP nos workspaces não-usados — Enterprise já desabilita por default)."
+    },
+    {
+      "name": "send_message — dirigir o agente Cloud (MUTANTE, demovido)",
+      "today": "Inexistente. O agente in-Cloud e o IdeiaOS trabalham em planos separados (problema dos dois cérebros).",
+      "after": "send_message(project_id, message, plan_mode) instrui o agente Cloud em linguagem natural; get_message faz poll. MELHOR que editar local SÓ para o que só a Cloud faz: provisionar Supabase, aplicar migrations, instalar conector Stripe, mexer em arquivos protegidos (client.ts/types.ts). PIOR para qualquer coisa testável local (mais rápido, sem crédito) e durante os 39-108 edits/dia que a Cloud já faz (two-writers agudo). Sempre plan_mode:true primeiro (dry-run barato).",
+      "mcp_tools": [
+        "send_message",
+        "get_message",
+        "list_messages"
+      ],
+      "ideiaos_home": "source/skills/lovable-mcp/SKILL.md (verbo drive-cloud-agent) — v2, atrás de header explícito; @devops",
+      "priority": "should",
+      "risk": "high",
+      "mitigation": "DEMOVIDO para depois do experimento de sandbox (queima crédito + depende do timing do mirror não-medido + two-writers). Gate @devops + deny no harness + lease/quiesce (só então). Default plan_mode:true. Checar CREDIT BALANCE antes."
+    },
+    {
+      "name": "publish — deploy_project verificado (MUTANTE, demovido)",
+      "today": "Após merge em main, a IA INSTRUI o humano 'vá no editor e clique Update→Publish' e nunca tem certeza de que o build terminou; confirmação é caça-hash manual no index-*.js.",
+      "after": "deploy_project(project_id) publica programaticamente; get_project retorna status (completed) + latest_screenshot_url para confirmar com evidência visual real, fechando o loop 'está em produção?'.",
+      "mcp_tools": [
+        "deploy_project",
+        "get_project"
+      ],
+      "ideiaos_home": "source/skills/lovable-mcp/SKILL.md (verbo publish) — v2; @devops",
+      "priority": "could",
+      "risk": "high",
+      "mitigation": "DEMOVIDO: consome crédito + suposição não-verificada (deploy_project lê de main ou do estado Cloud interno? — se for interno, é rota de deploy paralela que ignora todos os gates IdeiaOS). BLOQUEADO até o experimento medir a fonte de leitura (assumption F3)."
+    },
+    {
+      "name": "Compilador de Knowledge/Skills → agente Cloud (os dois cérebros, demovido p/ manual-1x)",
+      "today": "As regras do IdeiaOS (RLS obrigatório, arquivos protegidos, no console.log, ESM-only, 3 padrões de debugging) vivem no repo local; o agente in-Cloud NÃO as lê — só lê Project/Workspace Knowledge (10k chars cada) e Workspace Skills da Lovable. Hoje, edição via chat Lovable ignora todas elas.",
+      "after": "Knowledge compilada de source/rules/lovable/* via set_project_knowledge (arquivos protegidos por-projeto) e set_workspace_knowledge (invariantes: RLS, anon-only, ESM, PT-BR, disciplina de deploy condensada). Skills via create_workspace_skill (ideiaos-deploy-discipline, ideiaos-rls-review). Mesma disciplina source→build do build-adapters.",
+      "mcp_tools": [
+        "set_project_knowledge",
+        "set_workspace_knowledge",
+        "get_project_knowledge",
+        "create_workspace_skill"
+      ],
+      "ideiaos_home": "v3: scripts/build-lovable-knowledge.sh (GERA artefato, NÃO chama MCP) + source/templates/lovable/knowledge/. Publicação = verbo @devops separado. Antes disso: escrever 1x à mão em cfoai e MEDIR o efeito.",
+      "priority": "could",
+      "risk": "high",
+      "mitigation": "DEMOVIDO o pipeline inteiro (skeptic simplicidade: infra de manutenção antes de 1 uso validado = speculative generality; efeito comportamental do set_knowledge no agente Cloud é NÃO-MEDIDO). v1: escrever Knowledge à mão em 1 produto e ver se o agente passa a recusar tocar arquivo protegido. Só então automatizar. Drift artefato↔Cloud NÃO vira gate do idea-doctor (skeptic IdeiaOS-fit: viola antifrágil — exige I/O de rede mutável); vira verbo on-demand /lovable-mcp knowledge-status sob @devops. Backup obrigatório (get_*_knowledge salvo em knowledge/_backup/) antes do 1º set_* — escrita na Cloud não tem rollback automático."
+    }
+  ],
+  "concurrency_model": "A v1 é read-only, então NÃO tem o problema dos dois escritores — zero escritas IdeiaOS-plane = zero colisão. Por isso o lease per-projeto (LOVABLE_LEASE.json + quiesce) é CORTADO da v1 (skeptic simplicidade + skeptic concorrência concordam: ele admitidamente não exclui — o plano Cloud nunca lê o lease file, é advisory de um lado só; chamá-lo de 'lock' é falsa segurança). v1 substitui por uma regra de prosa de uma linha: nunca disparar send_message (v2) sem antes list_messages retornar zero in_progress. QUANDO send_message/deploy_project (v2) entrarem, o modelo passa a ser DETECÇÃO+RECONCILIAÇÃO, não exclusão mútua: (1) quiesce por polling — list_messages → zero in_progress imediatamente antes de qualquer trabalho GitHub-plane, e re-checar APÓS; (2) bracketing SHA contra TOCTOU — snapshot get_project.latest_commit_sha ANTES do trabalho local E imediatamente antes do push; se o SHA mudou, abortar e reconciliar (não confiar só em list_messages, que pode estar 'completed' mas com commit ainda não espelhado no GitHub → lost update silencioso); (3) serializar um send_message por projeto do lado IdeiaOS. Honestidade ao usuário: prevenção total é impossível sem cooperação da plataforma Lovable — um humano abrindo o editor no browser fura qualquer convenção; vendemos detecção+reconciliação, não lock verdadeiro. Tudo isso pressupõe o timing do mirror medido no experimento (sem ele, todo bracketing tem falsos resultados durante a janela de lag).",
+  "security_model": "Contenção REAL vive no harness, não em skill (skeptic segurança, achados críticos 1-3): as ~15 tools mutantes entram em permissions.deny por default no .claude/settings.json de TODO produto; @devops é o único fluxo que promove um tool ID para ask (prompt humano sempre, nunca allow silencioso). Read-only fica livre. query_database fica em deny e só é promovido para ask na janela de schema-check com SQL hardcoded (sem SQL arbitrário = sem parser regex teatral). create_project = @devops + aprovação humana sempre (cria asset + queima crédito). Default read-only-first: a v1 inteira é read-only, então a superfície de escrita simplesmente não é exposta. Anti-injection passa a ser determinístico: uma injeção via README/learning/read_file Cloud bate num prompt de permissão do harness, não numa instrução que o modelo pode reinterpretar. Crédito: ler get_workspace (CREDIT BALANCE) e abortar abaixo de um piso antes de qualquer send_message/create_project. OAuth leak (sem rotação, sem API key, scope = conta inteira) é existencial: redução de superfície ANTES (MCP off por default elevado de 'hygiene' a controle primário; nunca logar o token; snapshot/backup do DB de prod ANTES de qualquer janela de write para que 'irreversível' tenha undo) + playbook reativo (revogar OAuth no painel, re-auth, auditar list_edits/list_messages dos 4 produtos). Honestidade: não há contenção real dos 1.640 projetos sem ação no painel Lovable.",
+  "governance_model": "As regras do IdeiaOS chegam ao agente in-Cloud por DOIS canais que só a MCP expõe — Project/Workspace Knowledge (10k chars cada) e Workspace Skills — porque o agente Cloud NÃO lê .claude/rules nem AGENTS.md locais. Fonte única de verdade = source/rules/lovable/* (com deployment-protocol.md como dono único dos 3 padrões de debugging — template, Cloud-skill e skill local REFERENCIAM, não duplicam, evitando 3 cópias dessincronizadas). Push one-way local→Cloud: a Knowledge é espelho derivado, nunca editada à mão no painel. MAS o pipeline compilador (build-lovable-knowledge.sh + Workspace Skills) é DEMOVIDO para v3 — em v1 escreve-se a Knowledge à mão em 1 produto (cfoai) e mede-se o efeito comportamental real (o agente passa a recusar tocar arquivo protegido?) antes de construir CI/gate/manifesto sobre uma aposta não-medida. Divisão de budget: Workspace Knowledge = invariantes cross-produto (RLS obrigatório, anon-only/nunca service_role no front, ESM/import.meta.env/Supabase singleton/Tailwind safelist/no console.log, PT-BR, disciplina de deploy condensada) ~3-4k chars; Project Knowledge = específico (arquivos protegidos literais com path exato, glossário canônico só-termos do CONTEXT.md, gatilho de sync) ~2-3k/produto. Verificação: o drift artefato↔Cloud NÃO é gate do idea-doctor (seria I/O de rede mutável-por-humano, viola antifrágil); é o verbo on-demand /lovable-mcp knowledge-status sob @devops. Só o drift source→artefato é gateável localmente por SHA binário no CI. Conteúdo externo (learnings) tratado como DADO (anti-injection) ao compilar. set_*_knowledge e *_workspace_skill = @devops.",
+  "phased_rollout": [
+    {
+      "phase": "Fase 0 — Experimento de validação em sandbox (PRÉ-REQUISITO de todo write-path)",
+      "goal": "Medir as 3 suposições não-verificadas que travam send_message/deploy_project/lease ANTES de aprovar qualquer escrita. Nenhuma tool mutante toca prod.",
+      "deliverables": [
+        "remix_project(nfideia) → fork descartável",
+        "Medir F-A: get_project.latest_commit_sha == git rev-parse origin/main do mirror? (namespace de SHA)",
+        "Medir F4: Δt entre get_message:completed e o commit aparecer em origin/main (lag do mirror)",
+        "Medir F-A': commit_sha de list_edits bate com o SHA que apareceu no git log origin/main?",
+        "Medir F3: deploy_project(fork) publica de main ou do estado Cloud interno?"
+      ],
+      "pilot": "Tudo num fork via remix_project — zero risco em prod; custo = alguns créditos de build. Retorno: as premissas que decidem se write-path é seguro."
+    },
+    {
+      "phase": "Fase 1 — Read-only em 1 produto (a 'cabana' que entrega 80%)",
+      "goal": "Provar valor dos 3 verbos read-only sem créditos, sem escrita, sem depender de nenhuma suposição.",
+      "deliverables": [
+        "source/skills/lovable-mcp/SKILL.md com 3 verbos: verify-deploy, detect-hotfix, schema-check (SQL hardcoded)",
+        "Helper source/skills/lovable-mcp/lib/ gateado por source/lib/gates.sh",
+        "4 project IDs hardcoded no helper",
+        "MCP em disabledMcpServers por default + habilitar on-demand",
+        "Cross-link de 1 linha em lovable-handoff/SKILL.md → /lovable-mcp verify-deploy",
+        "permissions.deny das ~15 tools mutantes no .claude/settings.json do cfoai"
+      ],
+      "pilot": "Habilitar on-demand só no cfoai-grupori (menor atividade: 175 edits vs 2.616 do ideiapartner). Validar que verify-deploy pega drift real comparando com um /lovable-handoff recém-feito. Read-only roda nos 4 produtos no dia 1 (leituras idempotentes, free) — só a escrita é faseada."
+    },
+    {
+      "phase": "Fase 2 — Knowledge MANUAL em 1 produto (medir o cérebro Cloud)",
+      "goal": "Provar que set_project_knowledge muda o comportamento do agente Cloud ANTES de construir o compilador.",
+      "deliverables": [
+        "Conteúdo de Project Knowledge redigido à mão (arquivos protegidos do cfoai)",
+        "get_*_knowledge salvo em knowledge/_backup/cfoai.md (rollback) ANTES do set_*",
+        "set_project_knowledge no cfoai sob @devops",
+        "Teste de aceitação: pedir um edit que violaria arquivo protegido e ver se o agente recusa"
+      ],
+      "pilot": "Só cfoai. Escrita de baixo risco (não toca código nem DB). Se o agente passar a respeitar a regra → justifica automatizar (v3). Se não → o compilador inteiro morre aqui, economizando o maior bloco de complexidade do plano."
+    },
+    {
+      "phase": "Fase 3 — Write-path mutante (send_message + publish), gated",
+      "goal": "Só após Fase 0 provar o timing do mirror e Fase 2 provar o efeito da Knowledge.",
+      "deliverables": [
+        "Verbos drive-cloud-agent (default plan_mode:true) e publish na skill, atrás de header explícito",
+        "Quiesce + bracketing SHA (lease reintroduzido só agora, se necessário)",
+        "CREDIT BALANCE check antes de cada chamada",
+        "get_message polling + confirmação por screenshot real"
+      ],
+      "pilot": "drive-cloud-agent em plan_mode:true (sem editar) primeiro; depois plan_mode:false num edit trivial reversível no cfoai. publish só após F3 confirmar que deploy_project lê de main."
+    },
+    {
+      "phase": "Fase 4 — Rollout aos 4 produtos + compilador (v3)",
+      "goal": "Expandir na ordem de atividade crescente, e só então o pipeline de compilação.",
+      "deliverables": [
+        "cfoai → ideia-partner-hub → nfideia → ideiapartner, cada um após o anterior estável 1 semana (só para verbos de escrita)",
+        "scripts/build-lovable-knowledge.sh (gera artefato, não chama MCP) + gate SHA source→artefato no CI",
+        "modules.json +2 entradas, build-plugins.sh, plugin-membership.md, README counts, check-readme-sync",
+        "build_lovable() ganha mcp-protocol.md ao lado de deployment-protocol.md (caminho de deploy correto)"
+      ],
+      "pilot": "Rollout semanal só para escrita; read-only já está nos 4 desde a Fase 1. Compilador só depois da Knowledge manual provar valor."
+    }
+  ],
+  "assumptions_to_validate": [
+    "CRÍTICA (trava todo write-path): timing e namespace do mirror GitHub↔Cloud. A doc MCP não menciona sync GitHub. O commit_sha de list_edits/get_project é do mirror GitHub ou do repo Lovable interno? Qual o lag entre get_message:completed e o commit aparecer em origin/main? Medir em fork via remix_project ANTES de aprovar send_message/deploy_project/lease.",
+    "CRÍTICA: deploy_project via MCP publica a partir de main (mirror GitHub) ou do estado Cloud interno? Se interno, é uma rota de deploy paralela que IGNORA todos os gates IdeiaOS (typecheck, console-log-guard, RLS) e a regra 'Update só lê main' não vale. Bloquear publish até medir.",
+    "send_message concorrentes no mesmo projeto são serializados pela Lovable ou colidem dentro do próprio plano Cloud? Medir comportamento nativo.",
+    "CORREÇÃO de premissa do draft L4: propagate-if-changed.sh JÁ propaga source/rules/ (linhas 78-79) — a memória propagate-rules-gap está parcialmente errada. O gap real é mais estreito: setup.sh --project-only só deploya source/rules/common/ (via build-adapters). Uma rule em source/rules/lovable/mcp-protocol.md NÃO tem caminho de deploy automático para .claude/rules/ dos produtos — só vai para o plugin ideiaos-lovable. FIX: adicionar mcp-protocol.md à lista explícita de build_lovable() ao lado de deployment-protocol.md (verificado: linha que faz cp de deployment-protocol.md como reference).",
+    "Efeito comportamental real de set_project_knowledge/create_workspace_skill no agente in-Cloud é NÃO-MEDIDO. Validar com 1 produto à mão (Fase 2) antes de construir o compilador.",
+    "Em workspace Enterprise, third-party MCP client access é desabilitado por default. Confirmar se 'Gustavolpaiva Dev' permite restringir o OAuth a um único workspace ou tokens por-workspace — única contenção REAL do blast-radius de 1.640 projetos.",
+    "query_database aceita múltiplos statements separados por ';'? (relevante mesmo com SQL hardcoded, para garantir que o template não pode ser explorado). Confirmar no fork."
+  ],
+  "cut_for_simplicity": [
+    "Lease per-projeto (LOVABLE_LEASE.json + quiesce) CORTADO da v1: a v1 é read-only, não tem two-writers; e o lease admitidamente não exclui (plano Cloud nunca lê o file). Substituído por regra de prosa de 1 linha. Reintroduzido só na Fase 3, se send_message exigir.",
+    "Compilador de Knowledge inteiro (build-lovable-knowledge.sh + gate de drift + artefato versionado + 3 Workspace Skills) DEFERIDO para v3: é o maior bloco de complexidade e o de payoff mais incerto (efeito no agente Cloud não-medido). v1 escreve Knowledge à mão 1x em cfoai e mede primeiro.",
+    "Skill /lovable-db separada com parser regex anti-DML + flag --allow-write CORTADA: é segurança teatral (o próprio draft admite que SELECT...FOR UPDATE fura a regex). schema-check usa SQL hardcoded por template = zero superfície de escrita por construção, sem precisar de parser.",
+    "Reduzido de 5 verbos para 3 na v1: drive-cloud-agent e publish (os 2 mutantes) viram v2/v3, atrás de header explícito — não obrigam a desenhar gate de autoridade e guard de crédito antes de provar valor.",
+    "Arquivo ~/.ideiaos/lovable-allowlist.json com schema CORTADO: 4 project IDs hardcoded como array no helper. Config separada é generality especulativa até existir um 5º produto.",
+    "Rollout 4 fases × 1 semana aplicado SÓ aos verbos de escrita: read-only roda nos 4 produtos no dia 1 (leituras idempotentes, free). Esperar 1 semana entre produtos para tools que só leem é cerimônia desproporcional.",
+    "Gate de drift artefato↔Cloud no idea-doctor CORTADO: seria I/O de rede mutável-por-humano (viola antifrágil — não confiar em leitura). Vira verbo on-demand /lovable-mcp knowledge-status sob @devops. Só o drift source→artefato (SHA binário, sem rede) é gate de CI."
+  ],
+  "net_recommendation": "Aprovar a v1 enxuta: uma skill source/skills/lovable-mcp/SKILL.md com 3 verbos read-only (verify-deploy, detect-hotfix, schema-check com SQL hardcoded), 4 project IDs hardcoded, helper gateado por gates.sh, MCP em disabledMcpServers por default e habilitado on-demand, cross-link de 1 linha no lovable-handoff, e — a peça inegociável — as ~15 tools mutantes em permissions.deny no .claude/settings.json dos produtos. Isso ataca os padrões de incidente nº1, nº3 e metade do nº2 (80% do valor), com ~5% do risco e zero créditos, sem depender de NENHUMA suposição não-verificada. É aditivo (nunca substitui o /lovable-handoff), respeita overlay/pristine (tudo em source/, nada toca .aiox-core), autoridade @devops, e mcp-hygiene (off por default). Tudo que escreve (send_message, deploy_project, compilador de Knowledge, lease) é DEMOVIDO atrás do experimento de sandbox da Fase 0, que mede o comportamento do sync GitHub↔Cloud da Lovable antes de qualquer escrita. Pré-requisito de engenharia a corrigir: a premissa do draft sobre propagate-rules-gap está errada — o fix real é adicionar mcp-protocol.md (quando criada na v2) à lista explícita de build_lovable(), não 'consertar a propagação'."
+}
