@@ -305,6 +305,15 @@ Nunca substitui o `/lovable-handoff` atual — soma a ele.
   `propagate-rules-gap` está parcialmente errada. Gap real: uma rule `source/rules/lovable/mcp-protocol.md`
   precisa ser adicionada explicitamente ao `build_lovable()`, ao lado de `deployment-protocol.md`.
 
+### 2.5b RESULTADOS PARCIAIS da Fase B (2026-06-18 — metade read-only)
+
+Medido **read-only** (`list_edits`/`get_project` não estão no deny) em produto REAL (nfideia `bf83d98a-…`) × `git log origin/main` local — zero crédito, zero risco, sem deny-lift. Detalhe em `.planning/milestones/v10-phases/B-sandbox/B-01-SUMMARY.md`.
+
+- **A1-namespace = ACOPLADO ✅** — todo `commit_sha` do `list_edits` casa 1:1 (SHA-cheio) com `git log origin/main`. O `commit_sha` da Cloud É o SHA do mirror GitHub, não um namespace interno.
+- **A3 = PASS ✅** — 100% dos SHAs `completed` ∈ `git log origin/main`; `detect-hotfix` opera no namespace certo.
+- **Bônus** — commits `type: ai_update` do agente Cloud (ex.: `76e9cee5` "Rescan security concluído") aparecem em `origin/main`: mirror **bidirecional** confirmado; "dois escritores" visível no histórico. `status` do `list_edits` = build da Lovable, não do git (`c35b5207` é `failed` no build mas existe em `origin/main`).
+- **AINDA BLOQUEADO** — `A1-lag` (magnitude; indício de ~0 pelos timestamps idênticos) e **A2** (`deploy_project` lê de main vs interno) exigem o experimento de escrita gateado (fork + `send_message` + `deploy_project` com `GIT-ONLY-PROBE`). Resta só isso para o veredito final de `publish`.
+
 ### 2.6 Cortado por simplicidade
 Lease/lock (falsa segurança), o compilador de Knowledge inteiro (deferido até medir), skill `/lovable-db`
 com parser anti-DML (substituída por SQL fixo), `lovable-allowlist.json` (4 IDs hardcoded), espera de 1
