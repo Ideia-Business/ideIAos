@@ -219,6 +219,12 @@ def plausible_sk(val: str) -> bool:
         return False
     low = val.lower()
     junk = ("###", "***", "redact", "placeholder", "example", "your_", "<", "changeme", "\\n", "\\t")
+    # Dummies sequenciais/dicionário (fixtures de teste tipo sk-abcdEFGH1234567890...)
+    # não são chaves reais: uma chave de alta entropia praticamente nunca contém
+    # uma corrida sequencial longa. Check conservador — não pula chaves genuínas.
+    seq = ("abcdefgh", "0123456789", "1234567890", "qwerty")
+    if any(s in low for s in seq):
+        return False
     return not any(j in val or j in low for j in junk)
 
 # Valores sk-* reais ou JWT em contexto service_role — não nomes de env var nem anon keys soltas.
