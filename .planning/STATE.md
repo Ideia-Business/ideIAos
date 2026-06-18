@@ -75,7 +75,7 @@ _v9 (Camada de Alinhamento) SHIPPED 2026-06-17, tag v9.0 — 7 requisitos, audit
 
 ## Compact Snapshot
 
-**Auto-saved:** 2026-06-18 16:18 (PreCompact hook, trigger: manual)
+**Auto-saved:** 2026-06-18 17:42 (PreCompact hook, trigger: manual)
 
 - Snapshot automático antes do /compact.
 - Detalhes da sessão em ~/.claude/sessions/ (session-summary hook).
