@@ -1,6 +1,6 @@
 ---
 name: project-lovable-mcp-v10-candidate
-description: "Integração Lovable MCP (milestone v10): Fase A (v1 read-only) SHIPPED 2026-06-18 — skill /lovable-mcp (verify-deploy + detect-hotfix) + helper source/lib/lovable-mcp.sh + harness-deny de 19 tools mutantes + rule mcp-protocol.md; gates verdes + verificação adversarial 4 lentes PASSED. ROLLOUT lado-agente FEITO 2026-06-18 (deny+disabledMcpServers nos 4 produtos: nfideia/ideiapartner/cfoai/lapidai, validado binário deny=19). Pendente SÓ ação do usuário: rodar /lovable-mcp verify-deploy num produto real. **Fase B (sandbox) CONCLUÍDA 2026-06-18: veredito BLOQUEAR publish via MCP** — A1-namespace=ACOPLADO + A3=PASS (read-only), mas A1-lag + A2 INMENSURÁVEIS no sandbox porque o MCP não expõe/gerencia gitsync GitHub (sem connector github, get_project sem repo, add_connector negado) → indeterminado vota bloquear; Fases C/D gateadas até medir A2 fora do MCP. read-first, aditiva, contenção 2 níveis; 4 forks fechados via /grelha"
+description: "Integração Lovable MCP (milestone v10): Fase A (v1 read-only) SHIPPED 2026-06-18 — skill /lovable-mcp (verify-deploy + detect-hotfix) + helper source/lib/lovable-mcp.sh + harness-deny de 19 tools mutantes + rule mcp-protocol.md; gates verdes + verificação adversarial 4 lentes PASSED. ROLLOUT lado-agente FEITO 2026-06-18 (deny+disabledMcpServers nos 4 produtos: nfideia/ideiapartner/cfoai/lapidai, validado binário deny=19). Toggles de painel FEITOS (só 1 workspace no alcance); pendente SÓ rodar /lovable-mcp verify-deploy num produto real. **Fase B (sandbox) CONCLUÍDA 2026-06-18: veredito BLOQUEAR publish via MCP** — A1-namespace=ACOPLADO + A3=PASS (read-only), mas A1-lag + A2 INMENSURÁVEIS no INSTRUMENTO fork (fork sem gitsync; A2 É mensurável num produto real com gitsync) → indeterminado vota bloquear; Fases C/D PARQUEADAS-GATED até medir A2 fora do MCP. **v10 FECHADO em escopo PARCIAL 2026-06-18 (sem tag) — auditoria .planning/v10-MILESTONE-AUDIT.md (wf_4fec3ed7-fc0): veredito SOUND, contenção íntegra nos 5 alvos.** read-first, aditiva, contenção 2 níveis; 4 forks de decisão fechados via /grelha"
 metadata:
   node_type: memory
   type: project
@@ -28,10 +28,7 @@ entre aspas; exit-codes; shallow-clone com aviso stderr; contagem README=46).
 dos **4 produtos Lovable**: nfideia, ideiapartner, cfoai-grupori, lapidai (ideia-chat fora — sem `.lovable/`).
 Persistência por design: ideiapartner=gitignored (local-only); lapidai(branch work)=autosync pusha; nfideia+cfoai=
 tracked-on-main deixados uncommitted (autosync protege main dirty; NÃO commitei em main Lovable). Fonte-de-verdade p/
-reaplicar = snippet em `source/rules/lovable/mcp-protocol.md`. **Pendente = SÓ ação do usuário:** no painel, desligar
-`mcp_enabled` em **Grupo IDeia - Projects** (`A0gwgrenO8S5IrZtE4ig`, 1.622 proj) e **Dev's Lovable**
-(`pyHOQY0YDL838zK8GbR3`, 3 proj); manter ON em **Grupo Ideia - Dev** (`2NHPnABxF0jdSX3qVLCw`, 18 proj); depois rodar
-`/lovable-mcp verify-deploy` num produto real. _(ids confirmados ao vivo; conta Lovable `UYy17VvrHjhaxSUrjA7Fa5tivyD3`,
+reaplicar = snippet em `source/rules/lovable/mcp-protocol.md`. Contenção auditada ÍNTEGRA nos 5 alvos (deny=19/ask=0/allow=0/disabled=true; `wf_4fec3ed7-fc0`). **Toggles de painel FEITOS** (usuário deixou só **Grupo Ideia - Dev** `2NHPnABxF0jdSX3qVLCw` no alcance; Grupo IDeia - Projects `A0gwgrenO8S5IrZtE4ig` + Dev's Lovable `pyHOQY0YDL838zK8GbR3` fora). **Resíduo = SÓ rodar `/lovable-mcp verify-deploy` num produto real.** _(ids confirmados ao vivo; conta Lovable `UYy17VvrHjhaxSUrjA7Fa5tivyD3`,
 gustavolpaiva@gmail.com.)_ Trilha separada opt-in: **Fase B** (sandbox `remix_project`
 = gate de TODA escrita). Lapidado via `/grelha` (4 forks). Artefatos de planejamento:
 `.planning/milestones/v10-{REQUIREMENTS,ROADMAP}.md`, ADR `docs/decisions/v10-lovable-mcp-readfirst-containment.md`,
@@ -62,12 +59,12 @@ veredito do write-path é **BLOQUEAR**: A2 (`deploy_project` lê de main vs inte
 **INMENSURÁVEIS num sandbox MCP** — o MCP da Lovable **não tem superfície para o gitsync GitHub** (nenhum
 connector "github" em `list_connectors`; `get_project` sem URL de repo; `add_connector` no deny; fork remixado
 não herda/auto-cria repo → `gh search commits` do sha do fork = vazio). Sem `origin/main` no fork, a divergência
-do teste A2 é estruturalmente impossível via MCP. **Achado de segurança:** `permissions.deny` é relido+enforçado
+do teste A2 é impossível **no instrumento fork** (precisão da auditoria de fechamento: A2 NÃO é "impossível via MCP" — É mensurável via MCP num PRODUTO REAL com gitsync, via push divergente + deploy_project + ler bundle). **Achado de segurança:** `permissions.deny` é relido+enforçado
 **mid-session** (o remix só funcionou com a janela `deny→ask` aberta; assert pós-close passou) — contenção do
 harness vale ao vivo. Pior-caso do A2 refutado (git pushes entram no Cloud via `developer_update`). Ferramenta
-`lovable-window.py` (open|close|status idempotente) em `.planning/milestones/v10-phases/B-sandbox/`. **Fork a
-deletar manualmente:** `SANDBOX-FASEB-DELETAR-2` (`1d0652c4-5477-49cc-bafd-70761a7f9fd6`, já private+unpublished).
-**Para destravar C/D:** medir A2 FORA do MCP (gitsync manual na UI do editor + 1 push divergente + 1 deploy).
+`lovable-window.py` (open|close|status idempotente) em `.planning/milestones/v10-phases/B-sandbox/`. **Fork
+descartável (`1d0652c4-5477-49cc-bafd-70761a7f9fd6`) DELETADO pelo usuário 2026-06-18** — get_project=404 + list_projects=0; zero resíduo na conta Lovable.
+**Para destravar C/D (R10-06 reabre):** medir A2 FORA do MCP (gitsync manual na UI do editor + 1 push divergente + 1 deploy); critério objetivo em `.planning/v10-MILESTONE-AUDIT.md` §9.
 
 **Modelo de acesso (refinado via /grelha 2026-06-18, FOLD no v10 R10-02/03):** 2 tiers — `todos` (pasta
 "Grupo Ideia") + `pessoal:<dono>` (`created_by`); **operacional** (escopo/foco do IdeiaOS, NÃO privacidade
