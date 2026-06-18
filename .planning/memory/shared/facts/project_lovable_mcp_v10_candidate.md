@@ -1,6 +1,6 @@
 ---
 name: project-lovable-mcp-v10-candidate
-description: "Integração Lovable MCP (milestone v10): Fase A (v1 read-only) SHIPPED 2026-06-18 — skill /lovable-mcp (verify-deploy + detect-hotfix) + helper source/lib/lovable-mcp.sh + harness-deny de 19 tools mutantes + rule mcp-protocol.md; gates verdes + verificação adversarial 4 lentes PASSED. ROLLOUT lado-agente FEITO 2026-06-18 (deny+disabledMcpServers nos 4 produtos: nfideia/ideiapartner/cfoai/lapidai, validado binário deny=19). Pendente SÓ ação do usuário: desligar mcp_enabled nos 2 workspaces não-dev no painel + Fase B (sandbox, gate de escrita). read-first, aditiva, contenção 2 níveis; 4 forks fechados via /grelha"
+description: "Integração Lovable MCP (milestone v10): Fase A (v1 read-only) SHIPPED 2026-06-18 — skill /lovable-mcp (verify-deploy + detect-hotfix) + helper source/lib/lovable-mcp.sh + harness-deny de 19 tools mutantes + rule mcp-protocol.md; gates verdes + verificação adversarial 4 lentes PASSED. ROLLOUT lado-agente FEITO 2026-06-18 (deny+disabledMcpServers nos 4 produtos: nfideia/ideiapartner/cfoai/lapidai, validado binário deny=19). Pendente SÓ ação do usuário: rodar /lovable-mcp verify-deploy num produto real. **Fase B (sandbox) CONCLUÍDA 2026-06-18: veredito BLOQUEAR publish via MCP** — A1-namespace=ACOPLADO + A3=PASS (read-only), mas A1-lag + A2 INMENSURÁVEIS no sandbox porque o MCP não expõe/gerencia gitsync GitHub (sem connector github, get_project sem repo, add_connector negado) → indeterminado vota bloquear; Fases C/D gateadas até medir A2 fora do MCP. read-first, aditiva, contenção 2 níveis; 4 forks fechados via /grelha"
 metadata:
   node_type: memory
   type: project
@@ -56,10 +56,18 @@ cérebros) → D (v3: write-path + compilador source→Knowledge).
 
 **Cuidados não-óbvios:** dois escritores no mesmo repo (agente Cloud edita nfideia/ideiapartner dezenas/dia)
 → qualquer escrita começa num fork; produtos reais em "Grupo Ideia - Dev": nfideia `bf83d98a-…`, ideiapartner
-`afce7743-…`, cfoai `0e911cfd-…`, ideia-partner-hub `748a31c2-…`. Suposição que trava a escrita (não-medida):
-o `commit_sha` é do mirror GitHub ou do repo Lovable interno? `deploy_project` lê de main? (`gitsync_github:
-true` confirmado nos 3 workspaces). **Próximo concreto:** construir a Fase A; pré-condições do usuário no
-painel = desligar `mcp_enabled` nos 2 workspaces não-dev + passar o `folder_id` da pasta.
+`afce7743-…`, cfoai `0e911cfd-…`, ideia-partner-hub `748a31c2-…`. Suposição que travava a escrita — **RESOLVIDA na Fase B (2026-06-18):**
+o `commit_sha` É do mirror GitHub (A1-namespace=ACOPLADO, A3=PASS, medido read-only em nfideia real). MAS o
+veredito do write-path é **BLOQUEAR**: A2 (`deploy_project` lê de main vs interno) + A1-lag ficaram
+**INMENSURÁVEIS num sandbox MCP** — o MCP da Lovable **não tem superfície para o gitsync GitHub** (nenhum
+connector "github" em `list_connectors`; `get_project` sem URL de repo; `add_connector` no deny; fork remixado
+não herda/auto-cria repo → `gh search commits` do sha do fork = vazio). Sem `origin/main` no fork, a divergência
+do teste A2 é estruturalmente impossível via MCP. **Achado de segurança:** `permissions.deny` é relido+enforçado
+**mid-session** (o remix só funcionou com a janela `deny→ask` aberta; assert pós-close passou) — contenção do
+harness vale ao vivo. Pior-caso do A2 refutado (git pushes entram no Cloud via `developer_update`). Ferramenta
+`lovable-window.py` (open|close|status idempotente) em `.planning/milestones/v10-phases/B-sandbox/`. **Fork a
+deletar manualmente:** `SANDBOX-FASEB-DELETAR-2` (`1d0652c4-5477-49cc-bafd-70761a7f9fd6`, já private+unpublished).
+**Para destravar C/D:** medir A2 FORA do MCP (gitsync manual na UI do editor + 1 push divergente + 1 deploy).
 
 **Modelo de acesso (refinado via /grelha 2026-06-18, FOLD no v10 R10-02/03):** 2 tiers — `todos` (pasta
 "Grupo Ideia") + `pessoal:<dono>` (`created_by`); **operacional** (escopo/foco do IdeiaOS, NÃO privacidade
