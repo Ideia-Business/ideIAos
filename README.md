@@ -330,7 +330,7 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | Skill | installStrategy | Descrição |
 |-------|-----------------|-----------|
 | `/forge-agent` | always | Fundamenta a criação de agents e skills em pesquisa real do domínio antes de produzir spec — cita fontes verificáveis, lista anti-patterns derivados de pesquisa, justifica model routing com racional documentado. 4 fases: definir domínio → pesquisa (`/deep-research`, máx 3 ciclos) → model routing → spec grounded. |
-| `/spec` | always | Delta-spec brownfield — mantém contratos de comportamento vivos de produto por capability em `specs/<capability>/spec.md`. Fluxo: propose → spec/delta → tasks → merge+archive. Complementar ao GSD (spec = contrato; GSD = implementação). Adaptado do OpenSpec MIT. |
+| `/spec` | always | Delta-spec brownfield — mantém contratos de comportamento vivos de produto por capability em `specs/<capability>/spec.md`. Fluxo: propose → spec/delta → tasks → merge+archive. **Subcomandos de auditoria (v11):** `--analyze` (gate determinístico da spec viva pós-merge) e `--converge` (ponte append-only spec↔código). Complementar ao GSD (spec = contrato; GSD = implementação). Adaptado do OpenSpec MIT. |
 
 ### Skills v8 — Camada de Disciplina (absorvida de agent-skills MIT, addyosmani)
 
@@ -962,7 +962,19 @@ Mantém contratos de comportamento duráveis por capability em `specs/<capabilit
 Deia, registra que o login deve suportar 2FA com TOTP
 → Roteado para /spec → capability "auth" → proposta + delta.
 ```
-Libs internas: `source/skills/spec/lib/spec-validate.sh` (gate) + `source/skills/spec/lib/spec-merge.sh` (merge determinístico + archive datado). Rule de fronteira: `source/rules/common/delta-spec.md`.
+**Subcomandos de auditoria (v11):**
+```
+bash source/skills/spec/lib/spec-analyze.sh <produto-root> [<cap>] [--advisory-only]
+→ gate determinístico da spec VIVA pós-merge (complementa o spec-validate, que só vê o delta):
+  A1 req sem cenário · A2 cenário em nível errado · A3 header duplicado · A4 token de delta
+  vazado = HARD (exit 1). A5 path-morto + A6 req fora de ## Requisitos + passes LLM = ADVISORY.
+  Tudo na zona ## Requisitos, fence-aware. --advisory-only nunca falha.
+
+bash source/skills/spec/lib/spec-converge.sh <produto-root> [<cap>]
+→ ponte APPEND-ONLY spec↔código: gera delta-candidato + relatório numa quarentena
+  (_changes/_converge-<TS>/) que reentra no fluxo normal; NUNCA muta a fonte (sha256 antes/depois).
+```
+Libs internas: `spec-grammar.sh` (gramática única) · `spec-validate.sh` (gate do delta) · `spec-merge.sh` (merge+archive) · `spec-analyze.sh` (gate da fonte) · `spec-converge.sh` (ponte append-only) — em `source/skills/spec/lib/`. Fixture-regression: `tests/spec-analyze.bats` (roda no CI + SOAK). Rule de fronteira: `source/rules/common/delta-spec.md` (inclui `/spec --analyze` × `gsd-code-review`). ADR: `docs/decisions/v11-spec-kit-analyze-converge.md`.
 
 **GSD Lineage Lock (Fase 28) — blindagem do pin redux**
 O `versions.lock` traz nota expandida que documenta a distinção `gsd-redux 1.1.0 ≠ gsd-pi 3.x`. O `check-versions-lock.sh` bloqueia pinos fora da linha redux antes de qualquer commit. Histórico: o pin foi revertido 3 vezes antes desta blindagem.
