@@ -99,6 +99,58 @@ else
   warn "Re-rode: bash $SETUP_DIR/setup-dev-machine.sh (regrava o heredoc canônico)."
 fi
 
+# ── 2d. Guards anti-contaminação no git-autosync (pause-file + conflict-marker) ─
+# NASA systems-review (2026-06-19): o autosync é um escritor paralelo que pode
+# contornar os pre-commit guards. Dois guards determinísticos fecham os vetores
+# documentados: (1) pause-file — codifica o bootout manual (scripts/autosync-pause.sh);
+# (2) conflict-marker — `git diff --check` aborta auto-commit de árvore com
+# <<<<<<< /======= />>>>>>>. Patch in-place idempotente; fonte canônica = heredoc
+# do setup-dev-machine.sh.
+step "2d/6: guards anti-contaminação no git-autosync (pause-file + conflict-marker)"
+if [ ! -f "$AUTOSYNC" ]; then
+  skip "git-autosync não instalado nesta máquina"
+elif grep -qF "git-autosync.pause" "$AUTOSYNC" && grep -qF "leftover conflict marker" "$AUTOSYNC"; then
+  skip "git-autosync já tem os guards de pause-file e conflict-marker"
+else
+  /usr/bin/python3 - "$AUTOSYNC" <<'PYEOF'
+import sys, io
+p = sys.argv[1]
+s = open(p, encoding="utf-8").read()
+changed = False
+pause_block = (
+    '  # Guard de pause (cirurgia git/infra de IA): pause-file global ou por-repo faz\n'
+    '  # este repo ser pulado por inteiro. Codifica o bootout manual — quem pausa é\n'
+    '  # responsavel por remover (ver scripts/autosync-pause.sh). Restauracao garantida.\n'
+    '  if [ -f "${HOME}/.local/state/git-autosync.pause" ] || [ -f "$REPO/.git/autosync-pause" ]; then\n'
+    '    log "$NAME" "pausado (pause-file) — pulado"; exit 0\n'
+    '  fi\n'
+)
+conflict_block = (
+    '    # Guard anti-contaminacao: nunca auto-commitar arvore com conflict markers.\n'
+    '    if git diff --check 2>>"$LOG" | grep -q \'leftover conflict marker\'; then\n'
+    '      log "$NAME" "CONFLICT MARKERS — auto-commit ABORTADO em $BRANCH"\n'
+    '      notify "Git sync — conflict markers" "$NAME ($BRANCH): marcadores de conflito; auto-commit pulado."\n'
+    '      exit 0\n'
+    '    fi\n'
+)
+anchor_pause = '  local DIRTY=0; [ -n "$(git status --porcelain)" ] && DIRTY=1\n'
+if 'git-autosync.pause' not in s and anchor_pause in s:
+    s = s.replace(anchor_pause, anchor_pause + pause_block, 1); changed = True
+anchor_conf = '    git add -A -- . "${MEM_EXCLUDES[@]}" 2>>"$LOG"\n'
+if 'leftover conflict marker' not in s and anchor_conf in s:
+    s = s.replace(anchor_conf, conflict_block + anchor_conf, 1); changed = True
+if changed:
+    open(p, "w", encoding="utf-8").write(s); print("PATCHED")
+else:
+    print("NOCHANGE")
+PYEOF
+  if grep -qF "git-autosync.pause" "$AUTOSYNC" && grep -qF "leftover conflict marker" "$AUTOSYNC"; then
+    ok "git-autosync patcheado: pause-file + conflict-marker guards"
+  else
+    warn "não consegui patchear os guards em $AUTOSYNC — re-rode setup-dev-machine.sh"
+  fi
+fi
+
 # ── 3. Registro de hooks IdeiaOS faltantes no settings.json ──────────────────
 # O setup.sh instala os ARQUIVOS dos hooks mas (decisão T-01-10) só imprime o
 # snippet de registro. Este passo registra o que faltar, usando o hooks.json
