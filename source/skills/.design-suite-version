@@ -1,5 +1,9 @@
 # Suíte de Design vendorizada — pin de origem (update-design-suite.sh)
+# ref pinado a commit concreto em 2026-06-19 (era 'main' flutuante). O conteúdo
+# vendorizado ainda é o seed local de 2026-06-02; rode `bash scripts/update-design-suite.sh`
+# (sem arg) para alinhar ao ref pinado e gravar um commit upstream real.
 repo=https://github.com/nextlevelbuilder/ui-ux-pro-max-skill.git
-ref=main
+ref=b7e3af80f6e331f6fb456667b82b12cade7c9d35
 commit=local-seed-2026-06-02
 updated=2026-06-02
+pin-resolved=2026-06-19

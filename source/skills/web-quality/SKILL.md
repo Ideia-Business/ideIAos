@@ -3,6 +3,8 @@ name: web-quality
 description: "Automated web-quality audit — Core Web Vitals (LCP/CLS/INP), WCAG 2.1 accessibility, and SEO/best-practices, run programmatically via the already-installed Chrome DevTools MCP (lighthouse_audit + performance traces). Produces a scored, prioritized report with concrete fixes. Use when asked to 'auditar performance/acessibilidade/SEO', 'rodar lighthouse', 'medir Core Web Vitals', 'tá lento/pesado', 'site acessível?', 'melhorar SEO', 'WCAG', 'antes de publicar quero medir', or as the programmatic depth behind gsd-ui-review. Complements frontend-visual-loop (subjective visual check) and ui-ux-pro-max (the rules)."
 ---
 
+# SOURCE: IdeiaOS
+
 # Web Quality — Auditoria Programática
 
 Mede o que o olho não mede: **Core Web Vitals**, **acessibilidade WCAG 2.1** e **SEO/best-practices** — com números, não impressões. Roda sobre o **Chrome DevTools MCP** já instalado (`mcp__chrome-devtools__lighthouse_audit` + `performance_*`). Zero install novo.

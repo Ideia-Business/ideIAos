@@ -3,6 +3,8 @@ name: extract-learnings
 description: Ao final de uma implantação não-trivial, extrai aprendizado em formato estruturado (padrão > evidência > regra prática > falsos positivos) e grava em `docs/learnings/YYYY-MM-DD-<slug>.md`. Promove para memória global quando o padrão for replicável. Também espelha ADRs novos (`docs/decisions/`) ao vault Obsidian (`Decisions/`). Integra-se ao final da skill lovable-handoff e roda standalone em projetos não-Lovable.
 ---
 
+# SOURCE: IdeiaOS
+
 # Skill: extract-learnings
 
 Você é responsável por **destilar a sessão atual em aprendizado reaproveitável**. Esta skill é invocada **ao final** de uma implantação, após:

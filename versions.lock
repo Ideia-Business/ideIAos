@@ -38,8 +38,12 @@ aiox-core=5.2.9
 gsd=1.1.0
 
 # Suíte de Design (vendorizada; fonte nextlevelbuilder/ui-ux-pro-max-skill)
-# ref = tag/branch/commit pinado; commit = hash curto resolvido no último update.
-design-suite-ref=main
+# ref    = commit pinado (resolvido de 'main' em 2026-06-19 → NÃO mais flutuante).
+#          update-design-suite.sh aceita sha (cai no clone full + checkout).
+# commit = hash do conteúdo VENDORIZADO. 'local-seed-*' = seed local inicial cujo
+#          commit upstream exato é desconhecido. Para alinhar ao ref pinado e
+#          gravar um commit real: bash scripts/update-design-suite.sh
+design-suite-ref=b7e3af80f6e331f6fb456667b82b12cade7c9d35
 design-suite-commit=local-seed-2026-06-02
 
 # MCPs (user scope). npx @latest resolve no runtime — o spec é o contrato.
@@ -51,4 +55,4 @@ mcp-context7=@upstash/context7-mcp@latest
 ideiaos-plugin=3.0.0
 
 # Última atualização deste lock
-updated=2026-06-12
+updated=2026-06-19

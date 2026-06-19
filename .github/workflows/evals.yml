@@ -12,11 +12,19 @@ on:
       - 'source/**'
       - 'evals/**'
       - 'tests/**'
+      - 'scripts/**'
+      - 'versions.lock'
+      - 'manifests/**'
+      - '.github/workflows/**'
   pull_request:
     paths:
       - 'source/**'
       - 'evals/**'
       - 'tests/**'
+      - 'scripts/**'
+      - 'versions.lock'
+      - 'manifests/**'
+      - '.github/workflows/**'
   workflow_dispatch:
     inputs:
       run_llm:
@@ -112,6 +120,22 @@ jobs:
         run: |
           python3 -c "import yaml, sys; yaml.safe_load(open('.github/workflows/evals.yml'))" || { echo "YAML inválido"; exit 1; }
           echo "YAML válido"
+
+      # ── Guardas repo-level (v11 W2) ────────────────────────────────────────
+      # idea-doctor.sh INTEIRO audita o ambiente de uma MÁQUINA-DEV (install global
+      # ~/.claude) e falharia num runner fresco. Aqui rodamos só o SUBCONJUNTO de
+      # invariantes de auto-consistência do REPO, que não dependem de install global.
+      - name: Guard — versions.lock (anti-legado/anti-Pi-drift do pin GSD)
+        run: bash scripts/check-versions-lock.sh
+
+      - name: Guard — membership de plugins (manifesto × build-plugins.sh)
+        run: bash scripts/check-plugin-membership.sh
+
+      - name: Guard — proveniência de skills (# SOURCE) [advisory]
+        run: |
+          if ! bash scripts/check-source-headers.sh --strict; then
+            echo "::warning title=Proveniência::skill(s) sem # SOURCE — veja o output acima (advisory, não bloqueia)"
+          fi
 
   llm-evals:
     name: Evals LLM (requer API key)

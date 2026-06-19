@@ -155,7 +155,12 @@ if [ -f "$LOCK" ]; then
   if [ -n "$AV" ]; then
     [ "$AV" = "$AIOX_PIN" ] && pass "aiox-core $AV = pin" || warn "AIOX drift: instalado $AV ≠ pin $AIOX_PIN (update-upstream.sh --bump se intencional)"
   fi
-  info "Suíte de Design pin: $(read_lock design-suite-ref) ($(read_lock design-suite-commit))"
+  DS_REF="$(read_lock design-suite-ref)"; DS_COMMIT="$(read_lock design-suite-commit)"
+  if printf '%s' "$DS_COMMIT" | grep -qiE '^[0-9a-f]{7,40}$'; then
+    pass "Suíte de Design pin: ref=$DS_REF commit=$DS_COMMIT (hash real)"
+  else
+    warn "Suíte de Design commit='$DS_COMMIT' não é hash real (seed local) — alinhe ao ref pinado: bash scripts/update-design-suite.sh"
+  fi
 else
   warn "versions.lock ausente — esperado em $LOCK"
 fi
@@ -493,6 +498,19 @@ if [ -f "$PMCHECK" ]; then
   fi
 else
   info "check-plugin-membership.sh ausente (pulando)"
+fi
+
+# ── 11) Proveniência de skills (# SOURCE — v11) ───────────────────────────────
+step "11) Proveniência de skills (# SOURCE)"
+SHCHECK="$SETUP_DIR/scripts/check-source-headers.sh"
+if [ -f "$SHCHECK" ]; then
+  if bash "$SHCHECK" --strict >/dev/null 2>&1; then
+    pass "toda skill declara # SOURCE (ou é vendorizada via pin)"
+  else
+    warn "skill(s) sem # SOURCE — rode: bash scripts/check-source-headers.sh"
+  fi
+else
+  info "check-source-headers.sh ausente (pulando)"
 fi
 
 # ── Resumo ────────────────────────────────────────────────────────────────────
