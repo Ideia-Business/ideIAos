@@ -10,7 +10,7 @@
 |------|--------|--------|-----------|
 | **W1 — Autosync guard-aware** | pause-file + conflict-marker guards no heredoc canônico (setup-dev-machine.sh) + patch idempotente step 2d (ideiaos-update.sh) + helper autosync-pause.sh + instalado nesta máquina | ✅ **DONE 2026-06-19** | commit `44336c5`; syntax 4/4, conflict-guard detecta+sem-FP, pause skip e2e, happy-path intacto |
 | **W2 — Centralizar detecção + proveniência** (NASA #1+#5) | CI roda o SUBCONJUNTO repo-self-consistency no push (não só unit suites); guard `check-source-headers` (WARN); resolver `design-suite-commit` de ref flutuante `main` → hash real | ✅ **DONE 2026-06-19** | ver nota W2 abaixo |
-| **W3 — SOAK gate + profiles de skills** (NASA #4+#2) | Gate de SOAK: nenhum milestone DONE/tag até idea-doctor+regressão passarem em ≥2 máquinas por ≥1 dia (doc + check). Profiles curados via `gsd-surface` (máquina fresca expõe ~15-25 skills, não ~103); `/idea` routing como contrato testado | ⬜ TODO | — |
+| **W3 — SOAK gate + profiles de skills** (NASA #4+#2) | Gate de SOAK (doc + check). Profiles via `installStrategy` (já existe). `/idea` routing como contrato testado | ✅ **DONE 2026-06-19** | ver nota W3 abaixo |
 | **W4 — `/spec --analyze` + `--converge`** (R1, único delta de capacidade) | Subcomandos em `source/skills/spec/` (NÃO skills novas). **Núcleo determinístico = HARD gate** (grep IDs órfãos, requisitos sem cenário, cross-ref de paths spec↔código, reusa parser de `spec-merge.sh`). Passes LLM rotulados **ADVISORY** no header. `--converge` **append-only**. Fixture-regression (drift conhecido → `--analyze` detecta). Atualizar `delta-spec.md` (fronteira /spec×GSD×gsd-code-review) | ⬜ TODO | precede: `/grelha` sobre o recorte (recomendado pela validação) |
 | **W5 — Deltas LOW (PR de hardening, escopo cortado)** | **R2:** só a linha "feature nativa antes de dependência" no `operating-discipline.md` item 4 (NÃO a escada de 6). **R4:** rule curta de precedência de instrução (CLAUDE.md-usuário > skill > default) que REFERENCIA o OVERRIDE do harness, sem colidir com agent-authority/Constitution. **R6:** marcador `// debt:` comment-agnóstico + check WARN no idea-doctor com escopo `source/`+`scripts/` (ignorar próprio exemplo + terceiros). **R8:** nota de quarentena no ADR de licença (reflexion=GPL, zero código). **R3/R7:** backlog (só com gatilho operável). **R5:** adiar (gate confidence≥0.7 do /evolve já funciona) | ⬜ TODO | cada delta com corte individual; NÃO em lote cego |
 | **W6 — ADR + fechamento** | ADR `v11-spec-kit-analyze-converge.md` ("minerar prompts, não importar premissa greenfield") + ADR de licença (R8). Atualizar STATE/ROADMAP/README. SOAK antes de tag (W3). Milestone parcial = no-tag (precedente v10) | ⬜ TODO | — |
@@ -31,6 +31,19 @@
 
 **Resíduo honesto (não-bloqueante):** o conteúdo vendorizado da Suíte ainda é seed local; `idea-doctor` Seção 5 sinaliza com WARN + comando de alinhamento. Re-vendor para hash real = housekeeping futuro (fora do escopo de uma onda de CI/proveniência — muda conteúdo de 7 skills L2 + re-aplica overlay OKLCH).
 
+## Nota W3 — entregue (2026-06-19)
+
+**Entregue:**
+- `scripts/check-soak.sh` (NOVO) — SOAK gate: ledger append-only por milestone (`.planning/soak/<m>.log`), `--record` (roda idea-doctor+regressão estrutural, grava heartbeat), verify (≥2 máquinas + ≥1 dia → exit 0), `--status`, bypass por env. Dogfoodado: exit 1 quando não-soaked, 0 no cenário 2-máquinas/2d, 2 em invocação ruim. **Auto-aplica ao v11** (não pode tagear na sessão de build).
+- `docs/process/soak-gate.md` (NOVO) — política + mecanismo + integração com W6 (no-tag até soak) + relação com profiles. (`docs/ideiaos/` é gitignored/gerado — por isso `docs/process/`.)
+- **Profiles:** descoberto que a superfície de máquina fresca **já é curada** por `installStrategy` no `manifests/modules.json` — `always`=25 (perfil default, dentro do alvo 15-25), `stack:<x>`=10, `manual`=11. NÃO era ~103. Deliverable virou: documentar o contrato + guard de orçamento no `idea-doctor` Seção 11 (WARN se `always` > teto 28). Sem mudança de produto unilateral (no-invention).
+- **/idea routing como contrato testado:** EVAL-023 (bug intermitente→`/gsd-debug`), EVAL-024 (publicar→`/lovable-handoff`, invariante anti-main 🔴), EVAL-025 (vuln pré-deploy→agent `security-reviewer`). 22→25 casos; frontmatter OK; dry-run pega os 3.
+- `idea-doctor` Seção 11 renomeada → "Proveniência & superfície"; README sincronizado.
+
+**Correção de premissa (surfaced):** plano dizia "máquina fresca expõe ~103 skills" e "profiles via gsd-surface" → real: o `installStrategy` do manifesto JÁ cura para 25 always (alvo já atingido). gsd-surface (skill GSD) é para surfacing contextual, não para o perfil de install. O delta real era documentar + guardar contra regrowth, não construir mecanismo.
+
+**Resíduo honesto:** o ledger de soak do v11 começa de fato no W6 (heartbeats contra o estado RC, não commits intermediários — por isso o heartbeat de teste foi removido). As 3 eval cases de routing são LLM-scored (rodam no CI sob demanda / `run-evals.sh --ci`), não no gate estrutural.
+
 ## Divergências dos juízes (DECISÃO DO USUÁRIO — ver VALIDATION.md)
 
 - **Timing do W4 (v11):** Juiz A = fechar v10 (Lovable MCP, C/D parqueadas) ANTES; Juiz B = fazer já, com cortes. Ambos concordam na FORMA (determinístico + ADVISORY + R11-03 fora). **Aberto.**
@@ -40,4 +53,4 @@
 spec-kit=PARTIAL (W4+W5) · ponytail=PARTIAL-LOW (W5) · voltagent/awesome-agent-skills=PARTIAL-LOW (W5) · vídeo/superpowers=PARTIAL-LOW (W5/R4) · **mattpocock=ALREADY_HAVE** (v9, nada a fazer).
 
 ## Próximo passo (retomada)
-W1 e W2 estão DONE. Retomar em **W3** (SOAK gate + profiles de skills) — ondas de integridade primeiro. W4 (a feature) idealmente precedida de `/grelha` sobre o recorte. Recomenda-se contexto fresco por onda (disciplina de SOAK aplicada ao próprio trabalho).
+W1, W2 e W3 estão DONE (todas as ondas de INTEGRIDADE). Falta **W4** (a única onda de CAPACIDADE: `/spec --analyze`/`--converge`), **W5** (deltas LOW de hardening) e **W6** (ADRs + fechamento + SOAK antes de tag). W4 idealmente precedida de `/grelha` sobre o recorte. Recomenda-se contexto fresco por onda.

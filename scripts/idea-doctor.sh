@@ -500,8 +500,8 @@ else
   info "check-plugin-membership.sh ausente (pulando)"
 fi
 
-# ── 11) Proveniência de skills (# SOURCE — v11) ───────────────────────────────
-step "11) Proveniência de skills (# SOURCE)"
+# ── 11) Proveniência & superfície de skills (v11) ─────────────────────────────
+step "11) Proveniência & superfície de skills"
 SHCHECK="$SETUP_DIR/scripts/check-source-headers.sh"
 if [ -f "$SHCHECK" ]; then
   if bash "$SHCHECK" --strict >/dev/null 2>&1; then
@@ -511,6 +511,17 @@ if [ -f "$SHCHECK" ]; then
   fi
 else
   info "check-source-headers.sh ausente (pulando)"
+fi
+# Orçamento de superfície: perfil default (installStrategy: always) ~15-25 skills.
+# Guarda contra reinchar a superfície numa máquina fresca (cf. mcp-hygiene ≤80 tools).
+SURFACE_BUDGET="${IDEIAOS_SURFACE_BUDGET:-28}"
+ALWAYS_N="$(python3 -c "import json; m=json.load(open('$SETUP_DIR/manifests/modules.json')); mods=m if isinstance(m,list) else m.get('modules',[]); print(sum(1 for e in mods if e.get('kind')=='skill' and e.get('installStrategy')=='always'))" 2>/dev/null || echo '?')"
+if [ "$ALWAYS_N" = "?" ]; then
+  info "superfície de skills: manifesto não lido"
+elif [ "$ALWAYS_N" -le "$SURFACE_BUDGET" ]; then
+  pass "superfície default: $ALWAYS_N skill(s) always-on (teto $SURFACE_BUDGET; resto stack-gated/manual)"
+else
+  warn "superfície default INCHADA: $ALWAYS_N > $SURFACE_BUDGET always-on — stack-gate/manual em manifests/modules.json"
 fi
 
 # ── Resumo ────────────────────────────────────────────────────────────────────
