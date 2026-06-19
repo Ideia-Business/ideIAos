@@ -17,7 +17,7 @@
 | **Branches** | ✅ `main` = `work` · `planning` — alinhados e pushed (ver `git log`; hashes voláteis não fixados aqui) |
 | **idea-doctor** | ✅ 65 OK · 0 WARN · 0 FAIL (2026-06-18) — FAIL anterior era **falso-positivo** num dummy de fixture de teste (`sk-abcdEFGH…`, do `test-memory-export.sh`); `plausible_sk()` endurecido p/ rejeitar corridas sequenciais/dicionário. IdeiaOS repo limpo |
 | **README sync** | ✅ 112/112 |
-| **Deploy máquinas** | ✅ MacBook-Air-2 · ⚠️ Mac mini confirmar (`ideiaos-update.sh`) |
+| **Deploy máquinas** | ✅ MacBook-Air-2 · ✅ Mac mini git-synced (autosync ativo 06-18/06-19); `ideiaos-update.sh` aceito como baixo-risco (rodar quando for usar o mini) |
 | Próximo passo | Ver `docs/CONTINUATION_HANDOFF.md` § Próximo passo |
 
 ## Sessão 2026-06-18 — remediação doctor + incidente autosync + housekeeping produtos
@@ -59,16 +59,16 @@ Sessão de **pesquisa + planejamento** do milestone **v9 — "Camada de Alinhame
 
 ## Pendências não-bloqueantes
 
-- ⏳ **AÇÃO DO USUÁRIO — rollout Lovable MCP Fase A (residual):** os toggles de painel já estão feitos (usuário deixou só **Grupo Ideia - Dev** `2NHPnABxF0jdSX3qVLCw` no alcance, satisfazendo o Gate 3 da Fase B). **Resta só** rodar `/lovable-mcp verify-deploy` de dentro de um produto real (ex.: nfideia) como teste end-to-end. _Lado-agente: deny=19 **PERSISTIDO em 5/5** (após regressão 2/5 remediada 2026-06-18, `wf_247740a6` — ver §Sessão 2026-06-18)._
+- ✅ **Lovable MCP Fase A — rollout FECHADO (2026-06-19):** teste e2e `/lovable-mcp verify-deploy` **RODADO contra nfideia real** → verdict binário **`IN_SYNC`** (`CLOUD_SHA latest_commit_sha=3921f440a44eed620de6e60d3832f5c16f1022b8` == `origin/main`); resolver de escopo `in:todos` (projeto na pasta canônica "Grupo Ideia"); só tools read-only (`get_me`/`list_projects`/`get_project`); repo não-shallow. Toggles de painel já feitos; deny=19 **PERSISTIDO em 5/5** (regressão 2/5 remediada 2026-06-18, `wf_247740a6`). Fase A 100% operacional e validada end-to-end.
 - ✅ **Fase B (sandbox) CONCLUÍDA — veredito 🔴 BLOQUEAR `publish`.** Read-only (A1-namespace ACOPLADO + A3 PASS) + escrita ao vivo (fork descartável, janela `deny→ask` aberta+fechada). Muro de viabilidade: o MCP não tem superfície p/ gitsync GitHub → A1-lag + A2 inmensuráveis no sandbox → bloqueio conservador. Fases C/D gateadas até medir A2 fora do MCP (gitsync manual na UI). Fork descartável **deletado pelo usuário** (confirmado get_project=404) — zero resíduo na conta Lovable.
 - ✅ **Segurança (ENV-06) — DESCONSIDERADO (decisão do usuário, 2026-06-18):** o Ideia Chat é um **teste e NÃO vai a produção** → o `IDEIA_CHAT_SYSADMIN_PASSWORD` no histórico de `origin/main` do ideiapartner é inócuo; rotação dispensada. _Reabrir SÓ se o Ideia Chat for promovido a produção: aí rotacionar antes de ativar `FEATURE_IDEIA_CHAT_PROVISIONING_ENABLED`._
-- **OpenRouter (ENV-04):** confirmar no painel que a chave já rotacionada foi revogada no provedor.
+- ✅ **OpenRouter (ENV-04) — FECHADO (2026-06-19, decisão do usuário):** revogação da chave antiga confirmada/dispensada no painel. Sem ação pendente.
 - **Stashes (revisar antes de dropar):** nfideia `stash@{0}` (handoff trivial, regenerável); ideiapartner `stash@{1}` (type-safety pass real, ~20 arquivos — **NÃO** dropar sem revisar).
 - ✅ **Higiene de memória Claude — RESOLVIDO (2026-06-18):** o FAIL do `idea-doctor` (seção 7) era **falso-positivo** num dummy de fixture (`OPENAI_API_KEY=sk-abcdEFGH…`, do `test-memory-export.sh`); varredura exaustiva confirmou **zero secret real** comprometido (só anon keys Supabase públicas-por-design + tokens de sessão expirados em transcripts locais). Fix durável: `plausible_sk()` rejeita corridas sequenciais. Doctor verde 65/0/0.
 - **nfideia** (`spec/multi-tenancy-pilot`): 2 specs vivas + `PILOT-BACKLOG.md` — PR/merge quando conveniente.
 - **gsd-browser:** monitorar upstream (ainda não publicado).
 - **DeepSeek V4 Pro:** decisão adiada — habilitar nos produtos (fora do escopo IdeiaOS); ver handoff sessão consultiva 2026-06-16.
-- **Mac mini:** `git pull && bash scripts/ideiaos-update.sh` — confirmar quando conveniente.
+- ✅ **Mac mini — FECHADO como baixo-risco (2026-06-19, decisão do usuário):** git-synced confirmado (autosync `Mac-mini-de-Gustavo` ativo 06-18 12h→18h + sessão 06-19 07:53); `main` em dia lá. Rodar `ideiaos-update.sh` no mini só quando for usá-lo (aplica overlay de patches no install local; `versions.lock` já protegido repo-wide).
 
 ## Fonte de verdade
 
