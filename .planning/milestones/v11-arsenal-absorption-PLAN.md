@@ -60,7 +60,15 @@ Precedido por **design-panel** (3 designs independentes + juiz, `wf_449a5952`) e
 
 **Incidental:** o build-adapters materializou `.cursor/rules/ideiaos-lovable-mcp-protocol.mdc` (espelho cursor da rule v10 que nunca fora commitado) — incluído no commit por ser artefato gerado legítimo.
 
-**Resíduo:** verificação adversarial multi-lente (workflow) roda após o commit; achados viram follow-up.
+**Verificação adversarial (`wf_99173505`, 5 lentes + juiz) — veredito FIX_NEEDED, todos os achados endereçados (commit de hardening pós-commit `e65d0e0`):**
+- **HIGH (bloqueador) — A2 falso-positivo:** uma spec que segue o TEMPLATE OFICIAL (termina em `## Notas`/`## Historial`, com subseção de prosa `### Cenários futuros`) hard-falhava o gate. **Corrigido:** A2/A1/A3 agora são *section-aware* (HARD só na zona `## Requisitos`) + *fence-aware* (exemplos em ``` não disparam). Regressão encodada no teste (template-clean → exit 0).
+- **MEDIUM — drift do "ponto único":** 5/6 helpers da grammar eram dead-code e A2/A3/A4 duplicavam regex inline (a própria deriva que o design dizia evitar). **Corrigido:** `spec-grammar.sh` reescrito como MOTOR real (`gram_scan_reqs` + `gram_grep_delta_tokens`); A1-A4 consomem o motor, zero regex inline.
+- **MEDIUM — A1 falso-negativo sob PROSE:** req sem cenário colado sob `## Notas` escapava silenciosamente. **Corrigido:** modelo invertido (só `## Requisitos` é contrato HARD); `### Requisito:` fora dela = **A6 ADVISORY** (não-silencioso).
+- **MEDIUM — A3 section-blind** (contradizia A1): **corrigido** (A3 conta dup só na zona de contrato, via motor).
+- **MEDIUM — camada-4 sha256 no-op silencioso sem `/usr/bin/python3`** (imprimia "INTACTA" falso): **corrigido** — hasher portável (python3 PATH→shasum→sha256sum), **fail-loud** se nenhum (exit 2 antes de escrever).
+- **LOW — corrigidos:** A2 níveis 6/2 (regex `###|#####|######`); A4 case-insensitive (`## modificado`); spec ilegível = HARD; guard runtime realpath + rejeita symlink em `_changes`; timestamp com entropia `$$` + mkdir atômico.
+- **LOW — documentado (não-corrigido, raiz pré-existente):** round-trip do candidato cobre `spec-validate` mas nomes com metacaractere de regex podem não mergear (grep não-escapado do `spec-merge.sh`, pré-existente) — nota no RELATORIO + SKILL; não toquei o merge (gate verde, fora de escopo W4).
+- Teste 18→**23 asserts** (cada correção virou regressão). Dismissed pelo juiz: `--advisory-only` exit 2 em invocação (correto), e duplicatas consolidadas.
 
 ## Nota W5 — entregue (2026-06-19)
 

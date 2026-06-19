@@ -7,18 +7,24 @@
 # Complementa — NÃO duplica — spec-validate.sh:
 #   • spec-validate.sh gateia o DELTA  (pré-merge, no _changes/<slug>/delta/)
 #   • spec-analyze.sh   gateia a FONTE  (pós-merge, specs/<cap>/spec.md)
-# Pega defeitos que entraram antes do gate existir, ou por edição manual da fonte.
 #
-# Núcleo DETERMINÍSTICO (HARD — falha o exit):
-#   A1  requisito sem nenhum #### Cenário (não-testável)         [reusa gram_scan_reqs]
-#   A2  cenário em nível de heading errado (### ou #####)         [invisível ao parser]
-#   A3  header de requisito duplicado no mesmo spec.md            [quebra a chave única do merge]
-#   A4  token de seção de delta vazado na fonte (## ADICIONADO…)  [delta colado à mão, não mergeado]
+# Modelo de seção (corrigido após verificação adversarial wf_99173505): a ZONA DE
+# CONTRATO é `## Requisitos`. Só requisitos AÍ são contrato testável (A1/A2/A3 HARD).
+# `### Requisito:` fora dela = misplaced (A6 ADVISORY, não-silencioso). Tudo é
+# fence-aware (exemplos em ``` não disparam). Todas as detecções vêm do motor
+# compartilhado spec-grammar.sh (sem regex duplicada inline).
 #
-# ADVISORY (NUNCA falha o exit — só aconselha; guard-rail NASA "LLM/heurística = advisory"):
+# DETERMINÍSTICO (HARD — falha o exit):
+#   A1  requisito (em ## Requisitos) sem nenhum #### Cenário (não-testável)
+#   A2  cenário em nível errado (###/#####/######) dentro de um requisito de contrato
+#   A3  header de requisito duplicado dentro de ## Requisitos
+#   A4  token de seção de delta vazado na fonte (## ADICIONADO…, qualquer caixa, fora de fence)
+#   (spec ilegível também é HARD — gate determinístico não pode falhar em silêncio)
+#
+# ADVISORY (NUNCA falha o exit):
 #   A5  cross-ref spec→código: path citado entre backticks que não existe no produto
-#   + passes LLM (clareza de cenário, cobertura cenário↔código, caminho-de-erro,
-#     vocabulário ubíquo) — feitos pela skill /spec, fora deste gate determinístico.
+#   A6  '### Requisito:' fora de ## Requisitos (misplaced — contrato vive em ## Requisitos)
+#   + passes LLM (clareza, cobertura, caminho-de-erro, vocabulário) — feitos pela skill /spec
 #
 # Exit: 0 = limpo (ou --advisory-only) · 1 = ≥1 defeito HARD · 2 = erro de invocação
 # Uso:  bash spec-analyze.sh <produto-root> [<capability>] [--advisory-only]
@@ -31,7 +37,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 GREEN='\033[0;32m'; YELLOW='\033[1;33m'; RED='\033[0;31m'; CYAN='\033[0;36m'; BOLD='\033[1m'; NC='\033[0m'
 
-# ── args ──────────────────────────────────────────────────────────────────────
 ROOT="${1:-}"
 [ -n "$ROOT" ] || { echo "ERRO: uso: spec-analyze.sh <produto-root> [<capability>] [--advisory-only]" >&2; exit 2; }
 shift
@@ -48,7 +53,6 @@ done
 SPECS_DIR="$ROOT/specs"
 [ -d "$SPECS_DIR" ] || { echo "ERRO: diretório de specs não encontrado: $SPECS_DIR" >&2; exit 2; }
 
-# ── coletar specs alvo ─────────────────────────────────────────────────────────
 SPEC_FILES=()
 if [ -n "$CAP" ]; then
   F="$SPECS_DIR/$CAP/spec.md"
@@ -57,7 +61,7 @@ if [ -n "$CAP" ]; then
 else
   for d in "$SPECS_DIR"/*/; do
     base="$(basename "$d")"
-    case "$base" in _*) continue ;; esac   # pular _changes / _archive
+    case "$base" in _*) continue ;; esac
     [ -f "$d/spec.md" ] && SPEC_FILES+=("$d/spec.md")
   done
 fi
@@ -74,43 +78,55 @@ ADVISORY_BUF=""
 for SPEC in "${SPEC_FILES[@]}"; do
   CAPNAME="$(basename "$(dirname "$SPEC")")"
 
-  # ── A1: requisito sem cenário (pula SECTION=PROSE) ──
-  while IFS=$'\t' read -r name line hs sec; do
-    [ -z "${name:-}" ] && continue
-    [ "$sec" = "PROSE" ] && continue
-    if [ "$hs" = "0" ]; then
-      echo -e "  ${RED}✗ A1${NC} $CAPNAME/spec.md:$line — requisito '$name' sem nenhum #### Cenário (não-testável)"
-      ERRORS=$((ERRORS + 1))
-    fi
-  done < <(gram_scan_reqs "$SPEC")
+  # spec ilegível = defeito HARD (gate determinístico não falha em silêncio)
+  if [ ! -r "$SPEC" ]; then
+    echo -e "  ${RED}✗ IO${NC} $CAPNAME/spec.md — ilegível (sem permissão de leitura)"
+    ERRORS=$((ERRORS + 1)); continue
+  fi
 
-  # ── A2: cenário em nível de heading errado (### ou #####) ──
-  while IFS= read -r hit; do
-    [ -n "$hit" ] || continue
-    echo -e "  ${RED}✗ A2${NC} $CAPNAME/spec.md:$hit — cenário em nível errado (use #### com 4 hashtags)"
+  SCAN="$(gram_scan_reqs "$SPEC")"
+
+  # ── A1: requisito de contrato (## Requisitos) sem cenário ──
+  while IFS=$'\t' read -r line name; do
+    [ -n "${name:-}" ] || continue
+    echo -e "  ${RED}✗ A1${NC} $CAPNAME/spec.md:$line — requisito '$name' sem nenhum #### Cenário (não-testável)"
     ERRORS=$((ERRORS + 1))
-  done < <(grep -nE '^(###|#####) ([Cc]en|[Ss]cen)' "$SPEC" 2>/dev/null || true)
+  done < <(printf '%s\n' "$SCAN" | awk -F'\t' '$5=="REQUISITOS" && $3=="0" {print $2"\t"$1}')
 
-  # ── A3: header de requisito duplicado no mesmo arquivo ──
+  # ── A2: cenário em nível errado dentro de um requisito de contrato ──
+  while IFS=$'\t' read -r line name; do
+    [ -n "${name:-}" ] || continue
+    echo -e "  ${RED}✗ A2${NC} $CAPNAME/spec.md:$line — requisito '$name' tem cenário em nível errado (use #### com 4 hashtags)"
+    ERRORS=$((ERRORS + 1))
+  done < <(printf '%s\n' "$SCAN" | awk -F'\t' '$5=="REQUISITOS" && $4=="1" {print $2"\t"$1}')
+
+  # ── A3: header de requisito duplicado dentro de ## Requisitos ──
   while IFS= read -r dup; do
     [ -n "$dup" ] || continue
-    echo -e "  ${RED}✗ A3${NC} $CAPNAME/spec.md — header de requisito DUPLICADO: '$dup' (quebra a chave única do merge)"
+    echo -e "  ${RED}✗ A3${NC} $CAPNAME/spec.md — header de requisito DUPLICADO em ## Requisitos: '$dup' (quebra a chave única do merge)"
     ERRORS=$((ERRORS + 1))
-  done < <(grep -h '^### Requisito:' "$SPEC" 2>/dev/null | sed 's/^### Requisito: *//' | sort | uniq -d || true)
+  done < <(printf '%s\n' "$SCAN" | awk -F'\t' '$5=="REQUISITOS"{print $1}' | sort | uniq -d)
 
-  # ── A4: token de seção de delta vazado na fonte ──
+  # ── A4: token de seção de delta vazado (qualquer caixa, fora de fence) ──
   while IFS= read -r hit; do
     [ -n "$hit" ] || continue
-    echo -e "  ${RED}✗ A4${NC} $CAPNAME/spec.md:$hit — token de seção de DELTA vazado na fonte (cole-mão? rode o merge, não edite a fonte)"
+    echo -e "  ${RED}✗ A4${NC} $CAPNAME/spec.md:$hit — token de seção de DELTA vazado na fonte (rode o merge, não edite a fonte)"
     ERRORS=$((ERRORS + 1))
-  done < <(grep -nE '^## (ADICIONADO|ADDED|MODIFICADO|MODIFIED|REMOVIDO|REMOVED|RENOMEADO|RENAMED)' "$SPEC" 2>/dev/null || true)
+  done < <(gram_grep_delta_tokens "$SPEC")
+
+  # ── A6 (ADVISORY): '### Requisito:' fora de ## Requisitos (misplaced) ──
+  while IFS=$'\t' read -r line name sec; do
+    [ -n "${name:-}" ] || continue
+    ADVISORY_BUF="${ADVISORY_BUF}  ${YELLOW}⚠ A6${NC} $CAPNAME/spec.md:$line — requisito '$name' FORA de ## Requisitos (seção '$sec'; contrato vive em ## Requisitos)"$'\n'
+  done < <(printf '%s\n' "$SCAN" | awk -F'\t' '$5!="REQUISITOS" {print $2"\t"$1"\t"$5}')
 
   # ── A5 (ADVISORY): cross-ref spec→código — path citado que não existe ──
-  while IFS= read -r missing; do
-    [ -n "$missing" ] || continue
-    ADVISORY_BUF="${ADVISORY_BUF}  ${YELLOW}⚠ A5${NC} $CAPNAME/spec.md — path citado não existe no produto: \`$missing\`"$'\n'
-  done < <(
-    /usr/bin/python3 - "$SPEC" "$ROOT" <<'PYEOF' 2>/dev/null || true
+  if command -v python3 >/dev/null 2>&1; then
+    while IFS= read -r missing; do
+      [ -n "$missing" ] || continue
+      ADVISORY_BUF="${ADVISORY_BUF}  ${YELLOW}⚠ A5${NC} $CAPNAME/spec.md — path citado não existe no produto: \`$missing\`"$'\n'
+    done < <(
+      python3 - "$SPEC" "$ROOT" <<'PYEOF' 2>/dev/null || true
 import re, sys, os
 spec, root = sys.argv[1], sys.argv[2]
 try:
@@ -127,17 +143,16 @@ for tok in re.findall(r'`([^`\s]+)`', text):
         if not os.path.exists(os.path.join(root, tok)):
             print(tok)
 PYEOF
-  )
+    )
+  fi
 done
 
-# ── bloco ADVISORY (separado; nunca afeta o exit) ──
 if [ -n "$ADVISORY_BUF" ]; then
   echo ""
   echo -e "${YELLOW}${BOLD}## Advisory (não-gated; não afeta o exit code)${NC}"
   printf '%b' "$ADVISORY_BUF"
 fi
 
-# ── resumo + exit ──────────────────────────────────────────────────────────────
 echo ""
 if [ "$ERRORS" -eq 0 ]; then
   echo -e "  ${GREEN}${BOLD}spec-analyze: OK${NC} — 0 defeitos determinísticos (HARD) nas ${#SPEC_FILES[@]} spec(s)"

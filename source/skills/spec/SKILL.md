@@ -137,13 +137,19 @@ Complementa — NÃO duplica — o `spec-validate.sh`:
 - `spec-validate.sh` gateia o **DELTA** (pré-merge, no `_changes/<slug>/delta/`)
 - `spec-analyze.sh` gateia a **FONTE** (pós-merge, `specs/<cap>/spec.md`) — pega defeitos que entraram antes do gate existir, ou por edição manual da fonte.
 
+**Zona de contrato:** os checks HARD valem só para `### Requisito:` SOB `## Requisitos`.
+Tudo é **fence-aware** (exemplos em ``` ``` não disparam) e as detecções vêm do motor
+único `spec-grammar.sh` (sem regex duplicada).
+
 | Check | Severidade | Detecta |
 |-------|-----------|---------|
-| **A1** | DETERMINÍSTICO / **HARD** | requisito sem nenhum `#### Cenário` (não-testável) |
-| **A2** | DETERMINÍSTICO / **HARD** | cenário em nível de heading errado (`###`/`#####` em vez de `####`) |
-| **A3** | DETERMINÍSTICO / **HARD** | header de requisito duplicado no mesmo `spec.md` (quebra a chave única do merge) |
-| **A4** | DETERMINÍSTICO / **HARD** | token de seção de delta vazado na fonte (`## ADICIONADO…` — delta colado à mão) |
+| **A1** | DETERMINÍSTICO / **HARD** | requisito (em `## Requisitos`) sem nenhum `#### Cenário` (não-testável) |
+| **A2** | DETERMINÍSTICO / **HARD** | cenário em nível de heading errado (`###`/`#####`/`######`) dentro de um requisito de contrato |
+| **A3** | DETERMINÍSTICO / **HARD** | header de requisito duplicado dentro de `## Requisitos` (quebra a chave única do merge) |
+| **A4** | DETERMINÍSTICO / **HARD** | token de seção de delta vazado na fonte (`## ADICIONADO…`, qualquer caixa, fora de fence) |
+| spec ilegível | DETERMINÍSTICO / **HARD** | `spec.md` sem permissão de leitura (gate não falha em silêncio) |
 | **A5** | heurística / **ADVISORY** | cross-ref spec→código: path citado entre backticks que não existe no produto |
+| **A6** | heurística / **ADVISORY** | `### Requisito:` FORA de `## Requisitos` (misplaced — contrato vive em `## Requisitos`) |
 | passes LLM | LLM / **ADVISORY** | clareza de cenário, cobertura cenário↔código, caminho-de-erro, vocabulário ubíquo |
 
 **Exit:** `0` = limpo · `1` = ≥1 defeito HARD · `2` = erro de invocação. `--advisory-only` NUNCA retorna 1 (rebaixa HARD a aviso).
