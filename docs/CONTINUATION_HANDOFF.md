@@ -176,12 +176,15 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 
 ## Próximo passo
 
-> **▶ RETOMAR AQUI (2026-06-19, v11 em andamento) — leia primeiro:** as **3 ondas de INTEGRIDADE do v11 estão DONE** (commitadas + pushadas em `work`, `origin/work=70f0cd6`, 0/0):
-> - **W1** autosync guard-aware (pause-file + conflict-marker) — `44336c5`
-> - **W2** CI repo-self-consistency gates (versions-lock + plugin-membership HARD; `check-source-headers` provenance ADVISORY) + 10 skills nativas com `# SOURCE` + design-suite ref `main`→`b7e3af8` — `ccb3ff0`
-> - **W3** SOAK gate (`scripts/check-soak.sh` + `docs/process/soak-gate.md`, auto-aplica ao v11) + surface-budget guard no idea-doctor + `/idea` routing como contrato testado (EVAL-023/24/25) — `70f0cd6`
+> **▶ RETOMAR AQUI (2026-06-19, v11 COMPLETO — fechamento PARCIAL/no-tag):** as **6 ondas do v11 estão DONE**, commitadas + pushadas em `work` (`origin/work=4011186`, 0/0):
+> - **W1** autosync guard-aware — `44336c5`
+> - **W2** CI repo-self-consistency gates + `check-source-headers` + design-suite ref resolvido — `ccb3ff0`
+> - **W3** SOAK gate `check-soak.sh` + surface-budget + `/idea` routing eval cases — `70f0cd6`
+> - **W4** `/spec --analyze`+`--converge` (libs `spec-grammar`/`analyze`/`converge`, tests 23 asserts) — `e65d0e0` **+ hardening** `4011186` (corrigiu bloqueador A2-template-FP + 9 achados da verificação adversarial wf_99173505)
+> - **W5** deltas LOW R2/R4/R6/R8 — `4637b1d`
+> - **W6** 2 ADRs (`v11-spec-kit-analyze-converge`, `v11-license-provenance-quarantine`) + SOAK heartbeat
 >
-> **PRÓXIMO = W4** (`/spec --analyze`/`--converge` — a ÚNICA onda de CAPACIDADE; subcomandos em `source/skills/spec/`, núcleo determinístico HARD reusando o parser de `spec-merge.sh`, passes LLM ADVISORY, `--converge` append-only, fixture-regression). **Plano recomenda preceder com `/grelha`** sobre o recorte. Depois **W5** (deltas LOW: R2/R4/R6 com corte individual; R8 nota de quarentena GPL; R3/R7 backlog; R5 adiar) e **W6** (ADRs + fechamento; **rodar `check-soak.sh v11-arsenal` antes de qualquer tag** — milestone parcial = no-tag, precedente v10). Tracker: `.planning/milestones/v11-arsenal-absorption-PLAN.md` (notas W2/W3 com correções de premissa). **2 decisões abertas do usuário** registradas no tracker (timing v11; R5). ⚠️ Pausar autosync antes de cirurgia git (helper `scripts/autosync-pause.sh on/off`).
+> **ÚNICO passo restante para a TAG `v11.0`:** rodar `bash scripts/check-soak.sh v11-arsenal --record` numa **2ª máquina** (Mac mini) e esperar **≥1 dia**; então `bash scripts/check-soak.sh v11-arsenal` → exit 0 → criar a tag. **Nada de código pendente.** Metodologia: design por painel (`wf_449a5952`) + verificação adversarial 5-lentes (`wf_99173505`). Tracker com notas W1-W6: `.planning/milestones/v11-arsenal-absorption-PLAN.md`. ⚠️ Pausar autosync antes de cirurgia git (`scripts/autosync-pause.sh on/off`).
 
 ---
 

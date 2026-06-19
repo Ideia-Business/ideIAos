@@ -13,7 +13,7 @@
 | **W3 — SOAK gate + profiles de skills** (NASA #4+#2) | Gate de SOAK (doc + check). Profiles via `installStrategy` (já existe). `/idea` routing como contrato testado | ✅ **DONE 2026-06-19** | ver nota W3 abaixo |
 | **W4 — `/spec --analyze` + `--converge`** (R1, único delta de capacidade) | Subcomandos em `source/skills/spec/lib/`. Núcleo determinístico HARD reusando a grammar. Passes LLM ADVISORY. `--converge` append-only. Fixture-regression. Rule delta-spec atualizada | ✅ **DONE 2026-06-19** | ver nota W4 abaixo; design-panel `wf_449a5952` |
 | **W5 — Deltas LOW (hardening, escopo cortado)** | R2, R4, R6, R8 entregues com corte individual; R3/R7 backlog; R5 adiado | ✅ **DONE 2026-06-19** | ver nota W5 abaixo |
-| **W6 — ADR + fechamento** | ADR `v11-spec-kit-analyze-converge.md` ("minerar prompts, não importar premissa greenfield") + ADR de licença (R8). Atualizar STATE/ROADMAP/README. SOAK antes de tag (W3). Milestone parcial = no-tag (precedente v10) | ⬜ TODO | — |
+| **W6 — ADR + fechamento** | 2 ADRs escritos (`v11-spec-kit-analyze-converge.md` + `v11-license-provenance-quarantine.md`). STATE/handoff atualizados. SOAK heartbeat gravado nesta máquina (RC). **v11 fecha PARTIAL = no-tag** (SOAK exige ≥2 máquinas/≥1 dia — auto-aplicado) | ✅ **DONE 2026-06-19 (parcial, no-tag)** | ver nota W6 abaixo |
 
 ## Nota W2 — entregue (2026-06-19)
 
@@ -82,6 +82,25 @@ Cada delta com corte individual (não em lote cego):
 
 Rules propagadas aos espelhos `.claude/rules` + `.cursor/rules` via `build-adapters.sh` (não editados à mão).
 
+## Nota W6 — fechamento (2026-06-19, PARCIAL / no-tag)
+
+- **2 ADRs:** `docs/decisions/v11-spec-kit-analyze-converge.md` (minerar prompts, não premissa greenfield) + `docs/decisions/v11-license-provenance-quarantine.md` (quarentena GPL, # SOURCE).
+- **SOAK:** heartbeat gravado nesta máquina (MacBook-Air-2 @ `4011186`) — idea-doctor PASS + regressão PASS. `check-soak.sh v11-arsenal` ainda dá **exit 1** (1 máquina, 0 dias) → **v11 NÃO é tagueado** (precedente v10). O gate se auto-aplica: para tagear v11, falta gravar o heartbeat numa 2ª máquina e esperar ≥1 dia (`bash scripts/check-soak.sh v11-arsenal --record` no Mac mini; depois `check-soak.sh v11-arsenal` → exit 0 → tag).
+- STATE.md + handoff atualizados.
+
+## Estado final do v11 (2026-06-19)
+
+| Onda | Tipo | Status |
+|------|------|--------|
+| W1 autosync guard-aware | integridade | ✅ `44336c5` |
+| W2 CI + proveniência | integridade | ✅ `ccb3ff0` |
+| W3 SOAK + profiles + routing | integridade | ✅ `70f0cd6` |
+| W4 /spec --analyze + --converge | capacidade | ✅ `e65d0e0` + hardening `4011186` (pós-verificação adversarial) |
+| W5 deltas LOW (R2/R4/R6/R8) | hardening | ✅ `4637b1d` |
+| W6 ADRs + fechamento | fechamento | ✅ parcial/no-tag |
+
+**Todas as 6 ondas DONE.** Tag PENDENTE só do SOAK (2ª máquina + 1 dia). Decisões abertas do usuário (timing, R5) resolvidas na prática: integridade-primeiro entregue; R5 adiado.
+
 ## Divergências dos juízes (DECISÃO DO USUÁRIO — ver VALIDATION.md)
 
 - **Timing do W4 (v11):** Juiz A = fechar v10 (Lovable MCP, C/D parqueadas) ANTES; Juiz B = fazer já, com cortes. Ambos concordam na FORMA (determinístico + ADVISORY + R11-03 fora). **Aberto.**
@@ -91,4 +110,4 @@ Rules propagadas aos espelhos `.claude/rules` + `.cursor/rules` via `build-adapt
 spec-kit=PARTIAL (W4+W5) · ponytail=PARTIAL-LOW (W5) · voltagent/awesome-agent-skills=PARTIAL-LOW (W5) · vídeo/superpowers=PARTIAL-LOW (W5/R4) · **mattpocock=ALREADY_HAVE** (v9, nada a fazer).
 
 ## Próximo passo (retomada)
-W1, W2, W3 (integridade) e W4 (capacidade — `/spec --analyze`/`--converge`) estão DONE. Falta **W5** (deltas LOW de hardening: R2/R4/R6 com corte individual; R8 nota GPL; R3/R7 backlog; R5 adiar) e **W6** (ADRs + fechamento + SOAK antes de tag — milestone parcial = no-tag). Verificação adversarial do W4 roda em workflow pós-commit.
+**Todas as 6 ondas do v11 estão DONE** (fechamento PARCIAL, no-tag). Único passo restante para TAG: gravar o SOAK heartbeat numa 2ª máquina (`bash scripts/check-soak.sh v11-arsenal --record` no Mac mini) e esperar ≥1 dia; então `check-soak.sh v11-arsenal` dá exit 0 → criar a tag `v11.0`. Nada de código pendente.
