@@ -13,6 +13,21 @@ Proibido editar gsd= no versions.lock manualmente.
 
 ---
 
+## Sessão 2026-06-18 — remediação doctor + incidente autosync + housekeeping produtos
+
+**Manutenção, NÃO muda o milestone v10.** A seção `## Próximo passo` (v10, abaixo) segue válida.
+
+Disparada por `git pull && bash scripts/ideiaos-update.sh` → `idea-doctor` deu **FAIL de secret**. Tratado:
+
+1. **Scanner endurecido (durável)** — `scripts/idea-doctor.sh:225`: o FAIL era **falso-positivo** num dummy de fixture (`OPENAI_API_KEY=sk-abcdEFGH1234…`, do `test-memory-export.sh`). `plausible_sk()` agora rejeita corridas sequenciais/dicionário. **Insight (observer effect):** redigir o transcript não converge — auditar o dummy o **propaga** para novos logs (a contagem subiu 1→4); fix certo é a heurística, não caçar transcripts. Doctor → **65 OK / 0 WARN / 0 FAIL**. Varredura exaustiva: **zero secret real** comprometido (só anon keys Supabase públicas-por-design + tokens de sessão expirados).
+2. **Incidente autosync × cirurgia git** — o daemon `com.ideiaos.gitautosync` correu em paralelo às operações multi-repo: entregou o IdeiaOS sozinho (commit `wip: autosync`, conteúdo correto), **bloqueou** o push do nfideia (clone 78 atrás) e **contaminou** uma branch do ideiapartner (`add -A` varreu `package-lock.json` + um `CONTINUATION_HANDOFF.md` com marcadores de conflito). Com autorização do usuário: **pausado** (`launchctl bootout`) → repos reconciliados limpos → **religado** (`launchctl bootstrap`, status=0). _Lição: pausar autosync (com restauração garantida) antes de entrega git multi-repo assistida por IA._
+3. **Housekeeping produtos (Lovable — branch, nunca main):** nfideia `.env` **untrackeado** + push (`94fffd05` em `work`; `.env` no disco preservado, só `.env.example` rastreado). ideiapartner: branch suja **removida** (local+remote), de volta na `main` `d0dc883c`; split público(`.env`)/secret(`.env.local`) preservado por design (não recebeu untrack — intencional).
+4. **2 learnings extraídos** (memória global + vault): `secret-scanner-observer-effect`, `autosync-races-ai-git-surgery`.
+
+**Notas informativas (recuperável, não-pendência):** nfideia `stash@{0}` guarda a edição local de `CONTINUATION_HANDOFF.md` (regenerável pelo hook); o commit `0568e52d` do ideiapartner (com diff de `package-lock.json` −485) é recuperável via reflog se aquele estado de working-tree era desejado.
+
+---
+
 ## Sessão 2026-06-16 (Cursor) — pesquisa + plano milestone v9 (Camada de Alinhamento)
 
 Sessão de **pesquisa + planejamento**. **Nenhuma skill/código implementado** — só o pacote de planejamento do milestone **v9 — "Camada de Alinhamento"** (absorção seletiva de `mattpocock/skills`, MIT). Tudo já commitado/pushado nesta sessão.

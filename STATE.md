@@ -15,10 +15,21 @@
 | **v6 Marketing + GSD** | ✅ `/marketing`, antifragile gates, `/spec` delta-spec brownfield |
 | **v5 Memória entre IDEs** | ✅ import/export hooks, branch `planning`, 3 suites verdes |
 | **Branches** | ✅ `main` = `work` · `planning` — alinhados e pushed (ver `git log`; hashes voláteis não fixados aqui) |
-| **idea-doctor** | ⚠️ 61 OK · 1 WARN · 2 FAIL — secrets em memória Claude de **outros projetos** (Jarvis, iCloud Projects); IdeiaOS repo OK |
+| **idea-doctor** | ✅ 65 OK · 0 WARN · 0 FAIL (2026-06-18) — FAIL anterior era **falso-positivo** num dummy de fixture de teste (`sk-abcdEFGH…`, do `test-memory-export.sh`); `plausible_sk()` endurecido p/ rejeitar corridas sequenciais/dicionário. IdeiaOS repo limpo |
 | **README sync** | ✅ 112/112 |
 | **Deploy máquinas** | ✅ MacBook-Air-2 · ⚠️ Mac mini confirmar (`ideiaos-update.sh`) |
 | Próximo passo | Ver `docs/CONTINUATION_HANDOFF.md` § Próximo passo |
+
+## Sessão 2026-06-18 — remediação doctor + incidente autosync + housekeeping produtos
+
+Sessão de **manutenção/remediação** (não altera o milestone v10). Disparada por `ideiaos-update.sh` → `idea-doctor` deu FAIL de secret.
+
+1. **Scanner de secrets endurecido** (`scripts/idea-doctor.sh:225`) — o FAIL era **falso-positivo** num dummy de fixture (`sk-abcdEFGH1234…` do `test-memory-export.sh`). `plausible_sk()` agora rejeita corridas sequenciais/dicionário (`abcdefgh`, `0123456789`, `qwerty`). Fix **durável na heurística**, não caça-transcripts (o "observer effect" propaga o dummy ao auditá-lo). Doctor → **65 OK / 0 / 0**.
+2. **Incidente autosync × cirurgia git** — o daemon correu em paralelo às operações multi-repo: entregou o IdeiaOS sozinho, **bloqueou** o push do nfideia (clone defasado) e **contaminou** uma branch do ideiapartner (varreu `package-lock.json` + `CONTINUATION_HANDOFF.md` com marcadores de conflito). Com autorização do usuário: autosync **pausado** (`bootout`) → repos reconciliados → autosync **religado** (`bootstrap`, status=0).
+3. **Housekeeping produtos:** nfideia `.env` **untrackeado** + push (`94fffd05`, branch `work` — Lovable nunca na main); ideiapartner branch suja **removida** (local+remote), de volta na `main` `d0dc883c` (split público/secret do `.env` preservado por design).
+4. **2 learnings extraídos** → memória + vault: `secret-scanner-observer-effect`, `autosync-races-ai-git-surgery`.
+
+**Estado git ao fim:** IdeiaOS `work` limpo (autosync entregou o hardening); nfideia/ideiapartner limpos; autosync ativo. **Verificação binária:** doctor 65/0/0, guard presente (`idea-doctor.sh:225`), 3 repos no estado certo.
 
 ## Sessão 2026-06-16 (Cursor) — pesquisa+plano milestone v9
 
@@ -45,7 +56,7 @@ Sessão de **pesquisa + planejamento** do milestone **v9 — "Camada de Alinhame
 - ⏳ **AÇÃO DO USUÁRIO — rollout Lovable MCP Fase A (residual):** os toggles de painel já estão feitos (usuário deixou só **Grupo Ideia - Dev** `2NHPnABxF0jdSX3qVLCw` no alcance, satisfazendo o Gate 3 da Fase B). **Resta só** rodar `/lovable-mcp verify-deploy` de dentro de um produto real (ex.: nfideia) como teste end-to-end. _Lado-agente (harness-deny nos 4 produtos) feito 2026-06-18; contenção íntegra confirmada na auditoria de fechamento._
 - ✅ **Fase B (sandbox) CONCLUÍDA — veredito 🔴 BLOQUEAR `publish`.** Read-only (A1-namespace ACOPLADO + A3 PASS) + escrita ao vivo (fork descartável, janela `deny→ask` aberta+fechada). Muro de viabilidade: o MCP não tem superfície p/ gitsync GitHub → A1-lag + A2 inmensuráveis no sandbox → bloqueio conservador. Fases C/D gateadas até medir A2 fora do MCP (gitsync manual na UI). Fork descartável **deletado pelo usuário** (confirmado get_project=404) — zero resíduo na conta Lovable.
 - ⏳ **Rollout Fase A (residual):** rodar `/lovable-mcp verify-deploy` de dentro de um produto real como teste end-to-end (os toggles de painel já estão todos feitos — só 1 workspace no alcance).
-- **Higiene de memória Claude:** inspecionar/remover secrets em sessões Jarvis e iCloud Projects (`idea-doctor` seção 7).
+- ✅ **Higiene de memória Claude — RESOLVIDO (2026-06-18):** o FAIL do `idea-doctor` (seção 7) era **falso-positivo** num dummy de fixture (`OPENAI_API_KEY=sk-abcdEFGH…`, do `test-memory-export.sh`); varredura exaustiva confirmou **zero secret real** comprometido (só anon keys Supabase públicas-por-design + tokens de sessão expirados em transcripts locais). Fix durável: `plausible_sk()` rejeita corridas sequenciais. Doctor verde 65/0/0.
 - **nfideia** (`spec/multi-tenancy-pilot`): 2 specs vivas + `PILOT-BACKLOG.md` — PR/merge quando conveniente.
 - **gsd-browser:** monitorar upstream (ainda não publicado).
 - **DeepSeek V4 Pro:** decisão adiada — habilitar nos produtos (fora do escopo IdeiaOS); ver handoff sessão consultiva 2026-06-16.
