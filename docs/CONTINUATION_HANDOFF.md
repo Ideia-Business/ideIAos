@@ -176,7 +176,16 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 
 ## Próximo passo
 
-> **▶ RETOMAR AQUI (próxima sessão) — leia primeiro:** validação de resíduos um-a-um **COMPLETA (5/5)**. Itens 1–4 fechados (verify-deploy `IN_SYNC` · ENV-04 · Mac mini baixo-risco · nfideia spec → PR [nfideia#40](https://github.com/Ideia-Business/nfideia/pull/40)). **Item 5 (stashes) RESOLVIDO em 2026-06-19:**
+> **▶ RETOMAR AQUI (2026-06-19, v11 em andamento) — leia primeiro:** as **3 ondas de INTEGRIDADE do v11 estão DONE** (commitadas + pushadas em `work`, `origin/work=70f0cd6`, 0/0):
+> - **W1** autosync guard-aware (pause-file + conflict-marker) — `44336c5`
+> - **W2** CI repo-self-consistency gates (versions-lock + plugin-membership HARD; `check-source-headers` provenance ADVISORY) + 10 skills nativas com `# SOURCE` + design-suite ref `main`→`b7e3af8` — `ccb3ff0`
+> - **W3** SOAK gate (`scripts/check-soak.sh` + `docs/process/soak-gate.md`, auto-aplica ao v11) + surface-budget guard no idea-doctor + `/idea` routing como contrato testado (EVAL-023/24/25) — `70f0cd6`
+>
+> **PRÓXIMO = W4** (`/spec --analyze`/`--converge` — a ÚNICA onda de CAPACIDADE; subcomandos em `source/skills/spec/`, núcleo determinístico HARD reusando o parser de `spec-merge.sh`, passes LLM ADVISORY, `--converge` append-only, fixture-regression). **Plano recomenda preceder com `/grelha`** sobre o recorte. Depois **W5** (deltas LOW: R2/R4/R6 com corte individual; R8 nota de quarentena GPL; R3/R7 backlog; R5 adiar) e **W6** (ADRs + fechamento; **rodar `check-soak.sh v11-arsenal` antes de qualquer tag** — milestone parcial = no-tag, precedente v10). Tracker: `.planning/milestones/v11-arsenal-absorption-PLAN.md` (notas W2/W3 com correções de premissa). **2 decisões abertas do usuário** registradas no tracker (timing v11; R5). ⚠️ Pausar autosync antes de cirurgia git (helper `scripts/autosync-pause.sh on/off`).
+
+---
+
+> **▶ RETOMAR AQUI (sessão anterior, HISTÓRICO) — leia primeiro:** validação de resíduos um-a-um **COMPLETA (5/5)**. Itens 1–4 fechados (verify-deploy `IN_SYNC` · ENV-04 · Mac mini baixo-risco · nfideia spec → PR [nfideia#40](https://github.com/Ideia-Business/nfideia/pull/40)). **Item 5 (stashes) RESOLVIDO em 2026-06-19:**
 > - `nfideia stash@{0}` — confirmado noise (1 linha na seção auto-regenerada "Ultima sessao automatica") → **dropado** (`251593f1`).
 > - `ideiapartner stash@{0}` (autostash órfão) — noise + deleção stale de `package-lock.json` (−442, blob mudou desde) → **dropado** (`4e37d1be`).
 > - `ideiapartner stash@{1}` (type-safety pass, 2026-06-03) — revisado: 16/20 arq = casts `as TablesUpdate` (inócuos), MAS 4/20 = mudanças schema-coupled NÃO-verificáveis (`useAdminPartners` dropa `approved_at`/renomeia `paid_at`→`pix_paid_at`; `useCSAdvanced` reestrutura insert p/ `metadata`; `useAISystemContext` **conflita** na main atual). Veredito: **NÃO aplicar** (repo Lovable = source-of-truth no cloud; stale 3 sem; conflito). **Arquivado** em `~/dev/ideiapartner/.stash-archive/type-safety-pass-cursor-2026-06-03.patch` (24 KB, git-excluded via `.git/info/exclude`) e **dropado** (`b6975338`). Re-aplicável via `git apply` ou alimentar à Lovable se desejado.
