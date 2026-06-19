@@ -64,6 +64,17 @@ jobs:
           done
           echo "Todos os suites de shell passaram"
 
+      - name: Spec suites (dual-mode bats — fallback bash; sem bats no runner)
+        run: |
+          # tests/*.bats rodam em modo bash puro (fallback). Inclui spec-merge.bats
+          # (antes órfão do CI) e spec-analyze.bats (W4 — fixture-regression).
+          for suite in tests/*.bats; do
+            [ -e "$suite" ] || continue
+            echo "--- running $suite (bash fallback) ---"
+            bash "$suite" || { echo "FALHA: $suite"; exit 1; }
+          done
+          echo "Spec suites OK"
+
       - name: Contagem de casos (mínimo 22)
         run: |
           COUNT=$(ls evals/cases/EVAL-*.md 2>/dev/null | wc -l | tr -d ' ')

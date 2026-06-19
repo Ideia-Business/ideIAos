@@ -93,6 +93,25 @@ Cenarios com `###` (3 hashtags) sao rejeitados pelo `spec-validate.sh` antes do 
 
 ---
 
+## Fronteira /spec --analyze x gsd-code-review x GSD (v11 W4)
+
+Três gates, três alvos distintos — NÃO se sobrepõem:
+
+| Eixo | `spec-validate.sh` | `spec-analyze.sh` (`/spec --analyze`) | `gsd-code-review` |
+|------|--------------------|---------------------------------------|-------------------|
+| **Alvo** | o DELTA pré-merge (`_changes/<slug>/delta/`) | a SPEC VIVA pós-merge (`specs/<cap>/spec.md`) | o DIFF de código de uma fase |
+| **Pergunta** | o delta está bem-formado p/ aplicar? | o CONTRATO está internamente consistente e rastreável? (sem req sem cenário, sem cenário em nível errado, sem header duplicado, sem token de delta vazado, sem path-morto citado) | o CÓDIGO mudado tem bug/vuln/cheiro? |
+| **Gate** | HARD (exit 1) pré-merge | HARD no núcleo determinístico (A1-A4); A5 + LLM = ADVISORY | review com achados classificados por severidade |
+
+**Regra de não-sobreposição (3 níveis):**
+`spec-validate` gateia DELTAS pré-merge · `spec-analyze` gateia a SOURCE-OF-TRUTH pós-merge · `gsd-code-review` gateia o DIFF de implementação.
+
+**Frase-âncora:** `--analyze` NUNCA lê código para julgar QUALIDADE de código — só confirma que os paths que o CONTRATO cita existem (A5, e mesmo isso é ADVISORY). Avaliar o que há DENTRO do código é trabalho do `gsd-code-review`, que por sua vez NUNCA edita nem audita `specs/`.
+
+**`--converge` como ponte append-only:** quando o `--analyze` acha drift, `/spec --converge` produz um delta-candidato em `specs/_changes/_converge-<timestamp>/` que reentra no fluxo normal `/spec` (propose → validate → merge), fechando o loop spec↔código **sem mutar a fonte** (garantia sha256 before/after; cf. guard-rails `antifragile-gates` = exit binário, e "LLM/heurística = ADVISORY").
+
+---
+
 ## Complementaridade com o GSD — nao substituicao
 
 O `/spec` NAO e um substituto do GSD. Sao camadas distintas com preocupacoes distintas:

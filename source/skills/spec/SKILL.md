@@ -121,6 +121,53 @@ Imprime resumo `+ N adicionados / ~ N modificados / - N removidos / → N renome
 
 ---
 
+## Subcomandos de auditoria (W4)
+
+Além das 5 ações de MUTAÇÃO acima, o `/spec` tem 2 subcomandos de AUDITORIA — libs
+invocáveis que analisam a spec VIVA (source-of-truth pós-merge), sem fazer parte do
+fluxo de mutação:
+
+### `--analyze` — gate determinístico da spec viva
+
+```
+bash source/skills/spec/lib/spec-analyze.sh <produto-root> [<capability>] [--advisory-only]
+```
+
+Complementa — NÃO duplica — o `spec-validate.sh`:
+- `spec-validate.sh` gateia o **DELTA** (pré-merge, no `_changes/<slug>/delta/`)
+- `spec-analyze.sh` gateia a **FONTE** (pós-merge, `specs/<cap>/spec.md`) — pega defeitos que entraram antes do gate existir, ou por edição manual da fonte.
+
+| Check | Severidade | Detecta |
+|-------|-----------|---------|
+| **A1** | DETERMINÍSTICO / **HARD** | requisito sem nenhum `#### Cenário` (não-testável) |
+| **A2** | DETERMINÍSTICO / **HARD** | cenário em nível de heading errado (`###`/`#####` em vez de `####`) |
+| **A3** | DETERMINÍSTICO / **HARD** | header de requisito duplicado no mesmo `spec.md` (quebra a chave única do merge) |
+| **A4** | DETERMINÍSTICO / **HARD** | token de seção de delta vazado na fonte (`## ADICIONADO…` — delta colado à mão) |
+| **A5** | heurística / **ADVISORY** | cross-ref spec→código: path citado entre backticks que não existe no produto |
+| passes LLM | LLM / **ADVISORY** | clareza de cenário, cobertura cenário↔código, caminho-de-erro, vocabulário ubíquo |
+
+**Exit:** `0` = limpo · `1` = ≥1 defeito HARD · `2` = erro de invocação. `--advisory-only` NUNCA retorna 1 (rebaixa HARD a aviso).
+
+> **Regra-âncora:** *determinístico pode bloquear; LLM e cross-ref de path só aconselham* (guard-rail: passes LLM = ADVISORY, nunca gated).
+
+### `--converge` — ponte append-only spec↔código
+
+```
+bash source/skills/spec/lib/spec-converge.sh <produto-root> [<capability>]
+```
+
+Reconcilia a spec viva com a implementação **SEM JAMAIS mutar a source-of-truth**.
+Produz uma QUARENTENA `specs/_changes/_converge-<TIMESTAMP>/` com:
+- `RELATORIO.md` (banner NÃO-AUTORITATIVO + achados do `--analyze`)
+- `delta/<capability>.md` — delta-candidato (só `## MODIFICADO` com `#### Cenário: <PREENCHER>` para requisitos sem cenário; **nunca** infere REMOVIDO/RENOMEADO)
+- `proposta.md` stub
+
+O candidato **reentra no fluxo normal** `/spec` (humano revisa → propose → validate → merge — o gate real continua sendo o `spec-validate.sh`). Nada é aplicado.
+
+**Garantia append-only (4 camadas):** (1) único destino é a quarentena `_converge-<TIMESTAMP>/`; (2) guard runtime mata o processo se o destino sair da quarentena; (3) a fonte é aberta só para leitura; (4) sha256 de toda `specs/<cap>/spec.md` antes/depois — divergência → rollback + exit 2.
+
+---
+
 ## Exemplos de invocação
 
 ```
@@ -152,6 +199,10 @@ Deia, quero registrar que o login deve suportar 2FA com TOTP
 
 ## Onde encontrar as libs
 
-- `source/skills/spec/lib/spec-validate.sh` — gate binário (exit 0 = válido, exit 1 = inválido)
+- `source/skills/spec/lib/spec-grammar.sh` — **gramática compartilhada** (ponto único de verdade: header de requisito, cenário 4-hashtags, tokens de delta, fronteira de bloco). Os clientes abaixo a consomem.
+- `source/skills/spec/lib/spec-validate.sh` — gate binário do DELTA pré-merge (exit 0 = válido, exit 1 = inválido)
 - `source/skills/spec/lib/spec-merge.sh` — merge determinístico + archive datado
+- `source/skills/spec/lib/spec-analyze.sh` — gate determinístico da SPEC VIVA pós-merge (A1-A4 HARD, A5 ADVISORY)
+- `source/skills/spec/lib/spec-converge.sh` — ponte append-only spec↔código (quarentena + sha256 guard)
 - `source/skills/spec/templates/` — proposal.md, spec.md, delta.md, tasks.md
+- `tests/spec-merge.bats` · `tests/spec-analyze.bats` — fixture-regression (dual-mode bats/bash; rodam no CI e no SOAK)

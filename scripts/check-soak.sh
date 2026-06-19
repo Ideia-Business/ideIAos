@@ -85,7 +85,7 @@ if [ "$MODE" = "--record" ]; then
 
   info "rodando regressão estrutural (test suites + evals --dry-run)…"
   REG=PASS
-  for suite in "$ROOT"/tests/*/test-*.sh; do
+  for suite in "$ROOT"/tests/*/test-*.sh "$ROOT"/tests/*.bats; do
     [ -e "$suite" ] || continue
     if ! bash "$suite" >/dev/null 2>&1; then REG=FAIL; err "regressão FAIL: ${suite#$ROOT/}"; fi
   done

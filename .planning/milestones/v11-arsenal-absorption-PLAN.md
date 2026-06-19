@@ -11,7 +11,7 @@
 | **W1 — Autosync guard-aware** | pause-file + conflict-marker guards no heredoc canônico (setup-dev-machine.sh) + patch idempotente step 2d (ideiaos-update.sh) + helper autosync-pause.sh + instalado nesta máquina | ✅ **DONE 2026-06-19** | commit `44336c5`; syntax 4/4, conflict-guard detecta+sem-FP, pause skip e2e, happy-path intacto |
 | **W2 — Centralizar detecção + proveniência** (NASA #1+#5) | CI roda o SUBCONJUNTO repo-self-consistency no push (não só unit suites); guard `check-source-headers` (WARN); resolver `design-suite-commit` de ref flutuante `main` → hash real | ✅ **DONE 2026-06-19** | ver nota W2 abaixo |
 | **W3 — SOAK gate + profiles de skills** (NASA #4+#2) | Gate de SOAK (doc + check). Profiles via `installStrategy` (já existe). `/idea` routing como contrato testado | ✅ **DONE 2026-06-19** | ver nota W3 abaixo |
-| **W4 — `/spec --analyze` + `--converge`** (R1, único delta de capacidade) | Subcomandos em `source/skills/spec/` (NÃO skills novas). **Núcleo determinístico = HARD gate** (grep IDs órfãos, requisitos sem cenário, cross-ref de paths spec↔código, reusa parser de `spec-merge.sh`). Passes LLM rotulados **ADVISORY** no header. `--converge` **append-only**. Fixture-regression (drift conhecido → `--analyze` detecta). Atualizar `delta-spec.md` (fronteira /spec×GSD×gsd-code-review) | ⬜ TODO | precede: `/grelha` sobre o recorte (recomendado pela validação) |
+| **W4 — `/spec --analyze` + `--converge`** (R1, único delta de capacidade) | Subcomandos em `source/skills/spec/lib/`. Núcleo determinístico HARD reusando a grammar. Passes LLM ADVISORY. `--converge` append-only. Fixture-regression. Rule delta-spec atualizada | ✅ **DONE 2026-06-19** | ver nota W4 abaixo; design-panel `wf_449a5952` |
 | **W5 — Deltas LOW (PR de hardening, escopo cortado)** | **R2:** só a linha "feature nativa antes de dependência" no `operating-discipline.md` item 4 (NÃO a escada de 6). **R4:** rule curta de precedência de instrução (CLAUDE.md-usuário > skill > default) que REFERENCIA o OVERRIDE do harness, sem colidir com agent-authority/Constitution. **R6:** marcador `// debt:` comment-agnóstico + check WARN no idea-doctor com escopo `source/`+`scripts/` (ignorar próprio exemplo + terceiros). **R8:** nota de quarentena no ADR de licença (reflexion=GPL, zero código). **R3/R7:** backlog (só com gatilho operável). **R5:** adiar (gate confidence≥0.7 do /evolve já funciona) | ⬜ TODO | cada delta com corte individual; NÃO em lote cego |
 | **W6 — ADR + fechamento** | ADR `v11-spec-kit-analyze-converge.md` ("minerar prompts, não importar premissa greenfield") + ADR de licença (R8). Atualizar STATE/ROADMAP/README. SOAK antes de tag (W3). Milestone parcial = no-tag (precedente v10) | ⬜ TODO | — |
 
@@ -44,6 +44,24 @@
 
 **Resíduo honesto:** o ledger de soak do v11 começa de fato no W6 (heartbeats contra o estado RC, não commits intermediários — por isso o heartbeat de teste foi removido). As 3 eval cases de routing são LLM-scored (rodam no CI sob demanda / `run-evals.sh --ci`), não no gate estrutural.
 
+## Nota W4 — entregue (2026-06-19)
+
+Precedido por **design-panel** (3 designs independentes + juiz, `wf_449a5952`) em vez de `/grelha` (usuário pediu completar, não grilling interativo).
+
+**Entregue:**
+- `source/skills/spec/lib/spec-grammar.sh` (NOVO) — gramática COMPARTILHADA (ponto único de verdade: `gram_is_req_header`, `gram_req_name`, `gram_is_scenario`, `gram_is_delta_section`, `gram_is_block_break`, `gram_scan_reqs`). Cópia literal das condições de validate/merge → unificação futura trivial; **não** refatora os gates existentes (escopo/risco). Honra learning declarative-vs-imperative-drift.
+- `source/skills/spec/lib/spec-analyze.sh` (NOVO) — gate da SPEC VIVA pós-merge. **HARD:** A1 req-sem-cenário, A2 cenário-nível-errado, A3 header-duplicado, A4 delta-token-vazado. **ADVISORY:** A5 cross-ref path-morto + passes LLM. Exit 0/1/2; `--advisory-only` nunca falha.
+- `source/skills/spec/lib/spec-converge.sh` (NOVO) — ponte **append-only** spec↔código: quarentena `_changes/_converge-<TS>/` (RELATORIO + delta-candidato MODIFICADO/TODO + proposta stub). Garantia 4-camadas + sha256 before/after + rollback. **Round-trip provado:** candidato valida limpo no `spec-validate.sh`.
+- `tests/spec-analyze.bats` (NOVO) — fixture-regression dual-mode (1 defeito HARD por capability + A5 advisory + cap sã + produto-clean). **18/18 asserts verdes.**
+- `SKILL.md` + `delta-spec.md` (fronteira /spec --analyze × gsd-code-review × GSD) + espelho `.claude/rules` via build-adapters.
+- **CI + SOAK wiring:** evals.yml roda `tests/*.bats` (bash fallback) — **corrige o órfão pré-existente** `spec-merge.bats` (nunca rodava no CI) + adiciona o novo. `check-soak.sh` também varre `tests/*.bats`.
+
+**Correções de premissa (surfaced):** (1) o design-panel assumiu um harness `bats` instalado — na real `bats` não está instalado e o CI só globava `tests/{v6-hooks,idea-doctor}/test-*.sh`; `spec-merge.bats` é dual-mode (roda via `bash`) mas estava órfão do CI. Resolvido: rodar via bash fallback + wire. (2) A2 com `[aá]rio` em bracket multibyte não casava sob a locale; troquei pelo prefixo `[Cc]en`/`[Ss]cen` (robusto, espelha validate L54).
+
+**Incidental:** o build-adapters materializou `.cursor/rules/ideiaos-lovable-mcp-protocol.mdc` (espelho cursor da rule v10 que nunca fora commitado) — incluído no commit por ser artefato gerado legítimo.
+
+**Resíduo:** verificação adversarial multi-lente (workflow) roda após o commit; achados viram follow-up.
+
 ## Divergências dos juízes (DECISÃO DO USUÁRIO — ver VALIDATION.md)
 
 - **Timing do W4 (v11):** Juiz A = fechar v10 (Lovable MCP, C/D parqueadas) ANTES; Juiz B = fazer já, com cortes. Ambos concordam na FORMA (determinístico + ADVISORY + R11-03 fora). **Aberto.**
@@ -53,4 +71,4 @@
 spec-kit=PARTIAL (W4+W5) · ponytail=PARTIAL-LOW (W5) · voltagent/awesome-agent-skills=PARTIAL-LOW (W5) · vídeo/superpowers=PARTIAL-LOW (W5/R4) · **mattpocock=ALREADY_HAVE** (v9, nada a fazer).
 
 ## Próximo passo (retomada)
-W1, W2 e W3 estão DONE (todas as ondas de INTEGRIDADE). Falta **W4** (a única onda de CAPACIDADE: `/spec --analyze`/`--converge`), **W5** (deltas LOW de hardening) e **W6** (ADRs + fechamento + SOAK antes de tag). W4 idealmente precedida de `/grelha` sobre o recorte. Recomenda-se contexto fresco por onda.
+W1, W2, W3 (integridade) e W4 (capacidade — `/spec --analyze`/`--converge`) estão DONE. Falta **W5** (deltas LOW de hardening: R2/R4/R6 com corte individual; R8 nota GPL; R3/R7 backlog; R5 adiar) e **W6** (ADRs + fechamento + SOAK antes de tag — milestone parcial = no-tag). Verificação adversarial do W4 roda em workflow pós-commit.
