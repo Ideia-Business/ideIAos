@@ -1,6 +1,6 @@
 ---
 name: propagate-rules-gap
-description: "PENDENTE: propagate-if-changed.sh não auto-propaga mudanças de source/rules/ aos projetos; e setup.sh --project-only não deploya as .claude/rules do R8-09"
+description: "RESOLVIDO (2026-06-16, commit 66598c1): propagate-if-changed.sh ganhou source/rules/ em PROJECT_PATHS + setup.sh --project-only deploya .claude/rules via build-adapters. Prova viva: lapidai tem 8 rules ideiaos-common. Resíduo = housekeeping (re-rodar --project-only nos 3 produtos restantes)"
 metadata: 
   node_type: memory
   type: project
