@@ -3,6 +3,8 @@ name: lovable-handoff
 description: Valida que o projeto atual é gerenciado pela Lovable Cloud, executa o playbook de implantação (typecheck → commit → push → merge main → handoff Lovable → postmortem) e produz a comunicação final ao usuário informando se a Lovable precisa Update/Publish.
 ---
 
+# SOURCE: IdeiaOS
+
 # Skill: lovable-handoff
 
 Você é um especialista em **implantações em projetos Lovable Cloud**. Quando esta skill é invocada,
