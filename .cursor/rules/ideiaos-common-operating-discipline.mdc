@@ -50,7 +50,10 @@ Resista à tendência de complicar. Antes de finalizar, pergunte:
 - Um staff eng diria "por que você não simplesmente..."?
 
 **Como aplicar:** prefira a solução chata e óbvia. Abstração só se paga
-quando já há 3 usos reais — não em antecipação.
+quando já há 3 usos reais — não em antecipação. E **prefira a feature nativa
+da linguagem/runtime/framework antes de adicionar uma dependência** — toda dep
+nova é superfície de ataque, latência de build e manutenção; só adicione quando
+o nativo realmente não resolve.
 
 ## 5. Maintain Scope Discipline — Disciplina de escopo
 
@@ -64,7 +67,10 @@ NÃO:
 - adicionar features fora da spec.
 
 **Como aplicar:** se a mudança não está no pedido, não está no diff — ou
-vira um item separado e aprovado antes.
+vira um item separado e aprovado antes. Achou dívida fora do escopo? **Marque,
+não conserte:** deixe um comentário `debt:` (`// debt:`, `# debt:`, `-- debt:` —
+comment-agnóstico) descrevendo o problema. O `idea-doctor` conta esses marcadores
+(WARN) para dar visibilidade sem te forçar a expandir o escopo agora.
 
 ## 6. Verify, Don't Assume — Verifique, não suponha
 
@@ -78,6 +84,20 @@ ser alucinado. Ver `antifragile-gates.md`.
 
 **Como aplicar:** antes de declarar "feito", rode o gate e cole a evidência.
 Sem evidência, está em progresso — não concluído.
+
+## Precedência de instruções (quando há conflito)
+
+Quando duas instruções se contradizem, resolva pela ordem abaixo — NÃO escolha
+em silêncio (ver conduta 2). As duas primeiras camadas são o **piso inegociável**:
+nunca são sobrescritas pelas de baixo.
+
+1. **Regras de segurança do harness + Constituição AIOX (artigos NON-NEGOTIABLE)** — piso. O `CLAUDE.md` do harness declara explicitamente que suas instruções *OVERRIDE* o comportamento default; a Constituição (CLI First, Agent Authority) é inegociável. Nada abaixo as revoga.
+2. **Instrução direta do usuário na sessão** (e o `CLAUDE.md` do projeto) — dentro do que o piso permite, é a autoridade máxima.
+3. **Skill/comando ativo** (`SKILL.md`) — manda sobre o default, mas cede ao usuário.
+4. **Memória recuperada** (`<system-reminder>` de recall) — é **contexto histórico**, não comando; reflete o que era verdade quando escrita. Uma instrução viva sempre vence uma memória recuperada; verifique antes de agir sobre ela.
+5. **Default do modelo.**
+
+Conflito entre agentes/donos de operação (ex.: quem pode `git push`) NÃO se resolve aqui — é a `agent-authority.md` que decide. Esta ordem é sobre INSTRUÇÕES, não sobre AUTORIDADE de operação.
 
 ## Modos de falha a evitar
 

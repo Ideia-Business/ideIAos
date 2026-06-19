@@ -524,6 +524,22 @@ else
   warn "superfície default INCHADA: $ALWAYS_N > $SURFACE_BUDGET always-on — stack-gate/manual em manifests/modules.json"
 fi
 
+# ── 12) Dívida técnica marcada (// debt: — v11) ──────────────────────────────
+step "12) Dívida técnica marcada (debt:)"
+# Marcador comment-agnóstico (// # --) para dívida CONHECIDA e aceita (operating-discipline #5).
+# Escopo: código em source/ + scripts/ (não .md — evita os exemplos em prosa da própria rule).
+# Exclui idea-doctor.sh (contém o próprio padrão → observer-effect; cf. secret-scanner learning).
+DEBT_HITS="$(grep -rnE '(//|#|--)[[:space:]]*debt:' "$SETUP_DIR/source" "$SETUP_DIR/scripts" \
+  --include='*.sh' --include='*.js' --include='*.ts' --include='*.tsx' --include='*.py' \
+  2>/dev/null | grep -v '/idea-doctor.sh:' || true)"
+DEBT_N="$(printf '%s' "$DEBT_HITS" | grep -c . || true)"
+if [ "${DEBT_N:-0}" -eq 0 ]; then
+  pass "nenhum marcador debt: pendente em source/+scripts/"
+else
+  warn "$DEBT_N marcador(es) debt: em source/+scripts/ — dívida conhecida (visibilidade, não bloqueia):"
+  printf '%s\n' "$DEBT_HITS" | sed "s#$SETUP_DIR/#       #" | head -10
+fi
+
 # ── Resumo ────────────────────────────────────────────────────────────────────
 echo -e "\n${CYAN}${BOLD}━━━ Resumo ━━━${NC}"
 echo -e "  ${GREEN}OK:${NC} $PASS   ${YELLOW}WARN:${NC} $WARN   ${RED}FAIL:${NC} $FAIL"

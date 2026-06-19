@@ -12,7 +12,7 @@
 | **W2 — Centralizar detecção + proveniência** (NASA #1+#5) | CI roda o SUBCONJUNTO repo-self-consistency no push (não só unit suites); guard `check-source-headers` (WARN); resolver `design-suite-commit` de ref flutuante `main` → hash real | ✅ **DONE 2026-06-19** | ver nota W2 abaixo |
 | **W3 — SOAK gate + profiles de skills** (NASA #4+#2) | Gate de SOAK (doc + check). Profiles via `installStrategy` (já existe). `/idea` routing como contrato testado | ✅ **DONE 2026-06-19** | ver nota W3 abaixo |
 | **W4 — `/spec --analyze` + `--converge`** (R1, único delta de capacidade) | Subcomandos em `source/skills/spec/lib/`. Núcleo determinístico HARD reusando a grammar. Passes LLM ADVISORY. `--converge` append-only. Fixture-regression. Rule delta-spec atualizada | ✅ **DONE 2026-06-19** | ver nota W4 abaixo; design-panel `wf_449a5952` |
-| **W5 — Deltas LOW (PR de hardening, escopo cortado)** | **R2:** só a linha "feature nativa antes de dependência" no `operating-discipline.md` item 4 (NÃO a escada de 6). **R4:** rule curta de precedência de instrução (CLAUDE.md-usuário > skill > default) que REFERENCIA o OVERRIDE do harness, sem colidir com agent-authority/Constitution. **R6:** marcador `// debt:` comment-agnóstico + check WARN no idea-doctor com escopo `source/`+`scripts/` (ignorar próprio exemplo + terceiros). **R8:** nota de quarentena no ADR de licença (reflexion=GPL, zero código). **R3/R7:** backlog (só com gatilho operável). **R5:** adiar (gate confidence≥0.7 do /evolve já funciona) | ⬜ TODO | cada delta com corte individual; NÃO em lote cego |
+| **W5 — Deltas LOW (hardening, escopo cortado)** | R2, R4, R6, R8 entregues com corte individual; R3/R7 backlog; R5 adiado | ✅ **DONE 2026-06-19** | ver nota W5 abaixo |
 | **W6 — ADR + fechamento** | ADR `v11-spec-kit-analyze-converge.md` ("minerar prompts, não importar premissa greenfield") + ADR de licença (R8). Atualizar STATE/ROADMAP/README. SOAK antes de tag (W3). Milestone parcial = no-tag (precedente v10) | ⬜ TODO | — |
 
 ## Nota W2 — entregue (2026-06-19)
@@ -61,6 +61,18 @@ Precedido por **design-panel** (3 designs independentes + juiz, `wf_449a5952`) e
 **Incidental:** o build-adapters materializou `.cursor/rules/ideiaos-lovable-mcp-protocol.mdc` (espelho cursor da rule v10 que nunca fora commitado) — incluído no commit por ser artefato gerado legítimo.
 
 **Resíduo:** verificação adversarial multi-lente (workflow) roda após o commit; achados viram follow-up.
+
+## Nota W5 — entregue (2026-06-19)
+
+Cada delta com corte individual (não em lote cego):
+- **R2 (feito):** 1 linha em `operating-discipline.md` item 4 — "feature nativa antes de dependência" (dep = superfície de ataque/build/manutenção). Sem a escada de 6 do source.
+- **R4 (feito):** seção "Precedência de instruções" em `operating-discipline.md` — ordem harness+Constituição(piso) > usuário/CLAUDE.md > skill > memória-recuperada > default. Referencia o OVERRIDE do harness; **defere explicitamente** à `agent-authority.md` para conflito de AUTORIDADE de operação (não colide). Memória recuperada = contexto, não comando.
+- **R6 (feito):** marcador `debt:` comment-agnóstico (`//`/`#`/`--`) documentado em `operating-discipline.md` #5 (escape-valve de escopo) + `idea-doctor` Seção 12 (WARN, escopo source/+scripts/ código, exclui idea-doctor.sh p/ evitar observer-effect; .md de prosa excluído por --include).
+- **R8 (feito):** ADR `docs/decisions/v11-license-provenance-quarantine.md` — cenário de licenças das fontes v11 + regra de quarentena GPL (reflexion=GPL-3.0 → conceito-only, código-zero; nenhuma linha copiada) + `# SOURCE` obrigatório + pipeline `scan-absorbed.sh`.
+- **R3/R7 (backlog):** sem gatilho operável agora — ficam no backlog, não viram código especulativo (operating-discipline: abstração só com 3 usos reais).
+- **R5 (adiado):** o gate `confidence≥0.7` do `/evolve` já cobre a promoção de instinct; rubric extra de 5 eixos não paga a complexidade hoje. Reabrir se a promoção mostrar ruído.
+
+Rules propagadas aos espelhos `.claude/rules` + `.cursor/rules` via `build-adapters.sh` (não editados à mão).
 
 ## Divergências dos juízes (DECISÃO DO USUÁRIO — ver VALIDATION.md)
 
