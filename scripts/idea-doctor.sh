@@ -9,7 +9,8 @@
 #   4. Os 15 patches do overlay (markers de idempotência)
 #   5. Versões instaladas vs versions.lock (aiox-core, gsd) + pin da Suíte
 #   6. Autosync (LaunchAgent) ativo
-#   7. Security Audit (deny rules, hooks perigosos, secrets em memória, quarentena)
+#   7. Security Audit (deny rules, hooks perigosos, secrets em memória, quarentena,
+#      contenção Lovable MCP nos produtos — 7e, anti-regressão deny=19)
 #
 # Exit: 0 se sem FAIL; 1 se houver FAIL (componente crítico ausente/quebrado).
 # WARN não falha (drift, opcionais). Cada achado vem com a remediação.
@@ -290,6 +291,93 @@ if [ -x "$SETUP_DIR/security/scan-absorbed.sh" ]; then
   pass "pipeline de quarentena (security/scan-absorbed.sh) presente"
 else
   warn "security/scan-absorbed.sh ausente — quarentena obrigatória não disponível"
+fi
+
+# 7e) Contenção Lovable MCP nos produtos (anti-regressão)
+# O server MCP da Lovable (prefixo 6f530143) expõe 19 tools mutantes (deploy/publish/db-write/...).
+# Cada produto Lovable DEVE ter essas 19 em permissions.deny — em .claude/settings.json (tracked) OU
+# .claude/settings.local.json (quando .claude é gitignored, ex.: ideiapartner). Em 2026-06-18 a
+# contenção regrediu p/ 2/5 (deny uncommitted-on-main se perdeu) e ninguém notou até auditoria manual.
+# Este check é a prevenção. Ref: docs/learnings/2026-06-18-uncommitted-security-config-is-ephemeral.md
+DEV_DIR="$(dirname "$SETUP_DIR")"
+if [ -d "$DEV_DIR" ]; then
+  LOVABLE_OUT="$(
+    /usr/bin/python3 - "$DEV_DIR" "$(basename "$SETUP_DIR")" "6f530143" "19" <<'PYEOF'
+import json, sys
+from pathlib import Path
+
+dev = Path(sys.argv[1]); exclude = sys.argv[2]; prefix = sys.argv[3]; threshold = int(sys.argv[4])
+
+def deny_count(p):
+    try:
+        d = json.loads(p.read_text())
+    except (OSError, ValueError):
+        return 0
+    deny = (d.get("permissions") or {}).get("deny") or []
+    return sum(1 for x in deny if isinstance(x, str) and prefix in x)
+
+def is_lovable(repo):
+    if (repo / ".lovable").is_dir():
+        return True
+    for vc in repo.glob("vite.config.*"):
+        try:
+            t = vc.read_text(errors="replace")
+        except OSError:
+            continue
+        if "lovable-tagger" in t or "componentTagger" in t:
+            return True
+    pj = repo / "package.json"
+    if pj.is_file():
+        try:
+            if "lovable" in pj.read_text(errors="replace").lower():
+                return True
+        except OSError:
+            pass
+    return False
+
+found = bad = 0
+try:
+    entries = sorted(dev.iterdir())
+except OSError:
+    entries = []
+for repo in entries:
+    if not repo.is_dir() or repo.name == exclude or not (repo / ".git").exists():
+        continue
+    if not is_lovable(repo):
+        continue
+    found += 1
+    sj = deny_count(repo / ".claude" / "settings.json")
+    sl = deny_count(repo / ".claude" / "settings.local.json")
+    count = max(sj, sl)
+    if sj >= threshold:
+        src, persist = "settings.json", "tracked"
+    elif sl >= threshold:
+        src, persist = "settings.local.json", "local-only"
+    else:
+        src, persist = ("settings.json" if sj >= sl else "settings.local.json"), "missing"
+    status = "OK" if count >= threshold else "BAD"
+    bad += 1 if status == "BAD" else 0
+    print("PROD|%s|%d|%s|%s|%s" % (repo.name, count, src, status, persist))
+print("SUMMARY|%d|%d" % (found, bad))
+sys.exit(0)
+PYEOF
+  )"
+  if echo "$LOVABLE_OUT" | grep -q '^PROD'; then
+    while IFS='|' read -r tag name count src status persist; do
+      [ "$tag" = "PROD" ] || continue
+      if [ "$status" = "OK" ]; then
+        if [ "$persist" = "local-only" ]; then
+          pass "Lovable MCP contido: $name (deny=$count via $src) — local-only, re-materializar após reclone"
+        else
+          pass "Lovable MCP contido: $name (deny=$count)"
+        fi
+      else
+        fail "Lovable MCP SEM contenção: $name (deny=$count, esperado >=19) — copie .permissions.deny de ../lapidai/.claude/settings.json p/ $name/.claude/settings.json (commit na branch work, NUNCA main) ou settings.local.json se .claude for gitignored"
+      fi
+    done <<< "$LOVABLE_OUT"
+  else
+    info "Nenhum produto Lovable em $DEV_DIR (check de contenção MCP n/a)"
+  fi
 fi
 
 # ── 8) Contexts e shell aliases ──────────────────────────────────────────────
