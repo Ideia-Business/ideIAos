@@ -29,7 +29,12 @@ Sessão de **manutenção/remediação** (não altera o milestone v10). Disparad
 3. **Housekeeping produtos:** nfideia `.env` **untrackeado** + push (`94fffd05`, branch `work` — Lovable nunca na main); ideiapartner branch suja **removida** (local+remote), de volta na `main` `d0dc883c` (split público/secret do `.env` preservado por design).
 4. **2 learnings extraídos** → memória + vault: `secret-scanner-observer-effect`, `autosync-races-ai-git-surgery`.
 
-**Estado git ao fim:** IdeiaOS `work` limpo (autosync entregou o hardening); nfideia/ideiapartner limpos; autosync ativo. **Verificação binária:** doctor 65/0/0, guard presente (`idea-doctor.sh:225`), 3 repos no estado certo.
+### Gap-closure audit (2026-06-18, wf_247740a6 — 6 auditores read-only)
+5. **Regressão de segurança HIGH achada e REMEDIADA:** a contenção Lovable MCP (`deny=19`) estava só em **2/5** alvos (lapidai+IdeiaOS) — os blocos que a sessão de rollout deixou **uncommitted na main** de nfideia/cfoai se perderam (regressão silenciosa). Reaplicado e **PERSISTIDO**: nfideia `e43f35f5` + cfoai-grupori `cdfa8d6` (commit na branch `work` + push); ideiapartner via `settings.local.json` (local, `.claude` gitignored lá). Agora **5/5** (deny=19, revalidado binário). 3ª learning extraída: `uncommitted-security-config-ephemeral`.
+6. **Housekeeping rules (PRG-03):** materializadas as 8 `.claude/rules/ideiaos-common-*.md` + `.cursor/rules` nos 3 produtos (paridade com lapidai). Gap de propagação em si = já fechado em código (66598c1); memória `propagate-rules-gap` corrigida de PENDENTE→RESOLVIDO.
+7. **Doc/memória stale corrigidas:** item "Jarvis/iCloud secrets" encerrado no handoff; memória v10 reconciliada (4-produtos→2/5→5/5). **`.env` ideiapartner confirmado SEGURO** (3 vars públicas; NÃO untrack — untrack causou SEV-1 antes). Itens user-decision (rotação de secrets em histórico, stashes) deixados para você.
+
+**Estado git ao fim:** IdeiaOS `work` limpo; nfideia/cfoai `work` com deny+rules pushados; ideiapartner `main` intacta (contenção local); autosync religado (status=0). **Verificação binária:** doctor 65/0/0, deny=19 em 5/5, guard `idea-doctor.sh:225`.
 
 ## Sessão 2026-06-16 (Cursor) — pesquisa+plano milestone v9
 
