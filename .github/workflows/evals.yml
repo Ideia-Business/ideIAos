@@ -47,13 +47,14 @@ jobs:
             bash -n "$f" || { echo "FALHA de sintaxe: $f"; exit 1; }
           done
 
-      - name: Shell test suites v6 (sem API key)
+      - name: Shell test suites (sem API key)
         run: |
-          for suite in tests/v6-hooks/test-*.sh; do
+          for suite in tests/v6-hooks/test-*.sh tests/idea-doctor/test-*.sh; do
+            [ -e "$suite" ] || continue
             echo "--- running $suite ---"
             bash "$suite" || { echo "FALHA: $suite"; exit 1; }
           done
-          echo "Todos os suites v6-hooks passaram"
+          echo "Todos os suites de shell passaram"
 
       - name: Contagem de casos (mínimo 22)
         run: |
