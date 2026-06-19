@@ -26,6 +26,14 @@ Disparada por `git pull && bash scripts/ideiaos-update.sh` → `idea-doctor` deu
 
 **Notas informativas (recuperável, não-pendência):** nfideia `stash@{0}` guarda a edição local de `CONTINUATION_HANDOFF.md` (regenerável pelo hook); o commit `0568e52d` do ideiapartner (com diff de `package-lock.json` −485) é recuperável via reflog se aquele estado de working-tree era desejado.
 
+**2ª onda — gap-closure audit (ultracode) + prevenção:**
+5. **Regressão de segurança HIGH achada e remediada:** auditoria read-only (`wf_247740a6`) achou a contenção Lovable MCP (`deny=19`) em só **2/5** alvos — os blocos uncommitted-on-main de nfideia/cfoai se perderam. Reaplicado e **PERSISTIDO em 5/5**: nfideia `e43f35f5` + cfoai `cdfa8d6` (commit na `work`) + ideiapartner `settings.local.json` (local; `.claude` gitignored lá). Verificação adversarial 4 lentes (`wf_a910bea1` + `wf_455c4880`) = PASS após corrigir claims stale de doc (MEMORY/STATE/handoff).
+6. **Prevenção (a regressão passou despercebida porque nada falhava alto):** novo **check 7e** no `idea-doctor` — valida `deny>=19` por produto Lovable, **FAIL** se regredir; lê `settings.json` ou `settings.local.json`; skip gracioso sem produto. + teste de regressão (`tests/idea-doctor/test-lovable-mcp-containment.sh`, 9 asserts, prova o caminho de FALHA) + wiring no CI (`evals.yml`). 3ª learning: `uncommitted-security-config-ephemeral`.
+7. **ENV-06 DESCONSIDERADO** (decisão do usuário): Ideia Chat é teste, não vai a produção → secret no histórico do ideiapartner é inócuo, rotação dispensada (memória `project-ideia-chat-test-secret-acceptable`).
+8. **Housekeeping rules (PRG-03):** 8 `.claude/rules/ideiaos-common-*` materializadas em nfideia/cfoai/ideiapartner (paridade lapidai). Gap de propagação já fechado em código (`66598c1`).
+
+**PR aberto:** [#3](https://github.com/Ideia-Business/ideIAos/pull/3) — `work`→`main`, consolida a sessão (11 commits). Revisar/mergear ou ff-merge direto (padrão IdeiaOS). Estado verificado: idea-doctor **69/0/0** (5/5 contidos) · teste 9/9 · readme-sync 116/116.
+
 ---
 
 ## Sessão 2026-06-16 (Cursor) — pesquisa + plano milestone v9 (Camada de Alinhamento)
@@ -167,6 +175,8 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 **Verificação pós-sync:** README 112/112 ✅ · idea-doctor 61 OK / 2 FAIL — secrets em memória Claude de **Jarvis** e **iCloud Projects** (não IdeiaOS); remediação manual em `~/.claude/projects/`.
 
 ## Próximo passo
+
+> **ATUALIZAÇÃO 2026-06-18 (fechamento) — leia primeiro:** a contenção `deny=19` descrita mais abaixo como "uncommitted em nfideia/cfoai" **REGREDIU e foi RE-REMEDIADA p/ 5/5 PERSISTIDO** (nfideia `e43f35f5` + cfoai `cdfa8d6` na `work`; ideiapartner `settings.local.json`) — ver §Sessão 2026-06-18 (2ª onda). Novo **check 7e** no `idea-doctor` previne nova regressão. **Próximo passo imediato:** revisar/mergear o **PR [#3](https://github.com/Ideia-Business/ideIAos/pull/3)** (`work`→`main`) ou ff-merge direto. **Resíduos user-only:** `/lovable-mcp verify-deploy` e2e · confirmar revogação OpenRouter (ENV-04) · Mac mini `ideiaos-update.sh` · nfideia spec PR · revisar stashes. ENV-06 = desconsiderado (Ideia Chat é teste). O texto v10 abaixo segue como contexto histórico.
 
 **🔵 ATUAL (2026-06-18) — Integração Lovable MCP v10: Fase A (v1 read-only) SHIPPED.** A camada de verificação read-only foi construída e verificada. **Entregue:** skill `/lovable-mcp` (`source/skills/lovable-mcp/SKILL.md`) com 2 verbos read-only — `verify-deploy` (deploy-drift cruzando o commit da Cloud com `origin/main`) e `detect-hotfix` (edições do chat Lovable ausentes no Git); helper `source/lib/lovable-mcp.sh` (gateado por `gates.sh`, verdicts binários, **testado em sandbox git** + parser de escopo); resolver de escopo identity-aware (2 tiers `todos`/`pessoal`, override `lovable-scope.yaml`); **harness-deny de 19 tools mutantes** (+ `query_database` em deny PURO) no `.claude/settings.json` + `disabledMcpServers`; rule `source/rules/lovable/mcp-protocol.md` (doutrina: contenção, @devops, dois-escritores, fronteira MCP×GitHub); empacotamento completo (`build-plugins.sh` LOVABLE_SKILLS + `build_lovable()` cp da rule, `modules.json`, `plugin-membership.md`, `README.md`) e cross-link no `/lovable-handoff`. **Gates verdes** (membership 0 deriva, readme-sync 116/116, build OK). **Verificação adversarial de 4 lentes (workflow `wf_e0d15139-74a`)**: deny-completeness CLEAN, read-only-integrity CLEAN, helper + packaging com achados — todos **corrigidos** (parser awk: dash coluna-0 e `#` entre aspas; exit-codes normalizados; shallow-clone com aviso; contagem README 46). R10-01..05 = DONE.
 
