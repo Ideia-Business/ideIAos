@@ -228,7 +228,7 @@ _v2.0–v8 todos SHIPPED._ v8 (Camada de Disciplina) fechado em 2026-06-16 — 4
 
 **R8-09 FECHADO (2026-06-16):** `build-adapters.sh build_claude_project_rules()` deploya `source/rules/common/*.md` → `<projeto>/.claude/rules/ideiaos-common-*.md` (paridade Claude×Cursor; Claude auto-carrega `.claude/rules/`). Verificado em sandbox `/tmp` + dogfoodado no repo (manual `operating-discipline.md` → gerado). **Sem pendências do v8.**
 
-**Executável quando houver demanda:** (1) higiene memória Claude — limpar secrets em sessões Jarvis/iCloud Projects (`idea-doctor` FAIL); (2) backlog passivo v7 — `nfideia:spec/multi-tenancy-pilot` (2 specs + `PILOT-BACKLOG.md`); (3) monitorar `gsd-browser` upstream; (4) DeepSeek V4 Pro nos **produtos** (decisão adiada); (5) `ideiaos-update.sh` no Mac mini.
+**Executável quando houver demanda:** (1) ✅ higiene memória Claude **RESOLVIDA 2026-06-18** (era falso-positivo de fixture; `idea-doctor` 0 FAIL; Jarvis ausente de `~/dev`); (2) backlog passivo v7 — `nfideia:spec/multi-tenancy-pilot` (2 specs + `PILOT-BACKLOG.md`); (3) monitorar `gsd-browser` upstream; (4) DeepSeek V4 Pro nos **produtos** (decisão adiada); (5) `ideiaos-update.sh` no Mac mini.
 
 ---
 _Histórico v7 abaixo:_
