@@ -52,6 +52,11 @@ dist/
 build/
 *.log
 logs/
+# EXCEÇÃO: o ledger de SOAK (.planning/soak/*.log) DEVE ser commitado — é o
+# registro cross-máquina do gate (check-soak.sh). Sem isto, os heartbeats de
+# máquinas diferentes nunca convergem e o SOAK nunca passa (bug latente do v11 W3).
+!.planning/soak/
+!.planning/soak/*.log
 
 # IDE & OS (AIOX)
 Thumbs.db
