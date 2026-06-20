@@ -176,6 +176,13 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 
 ## Próximo passo
 
+> **▶ RETOMAR AQUI (2026-06-20 noite, Mac mini — SOAK 2ª máquina v12/v13 + LaunchAgent + tag v12 agendada) — leia primeiro:**
+> Rodada operacional na **Mac mini** (2ª máquina) para destravar o SOAK de v12 e v13:
+> - **v12-qa-security:** heartbeat da 2ª máquina gravado (idea-doctor+regressão PASS), commit+push (`462ce2b`, capturado pelo autosync — benigno). Ledger agora **2 máquinas distintas**; span fecha **hoje 22:36:36**. **Tag `v12.0` AGENDADA** p/ hoje **22:45** via task local `close-soak-v12-tag-tonight` (`~/.claude/scheduled-tasks/`): re-grava heartbeat (fecha span ≥1d) → verifica `check-soak` exit 0 → `git tag v12.0` + push. **Aborta sem taguear** se qualquer gate falhar. ⚠️ exige o app Claude Code **aberto** na Mac mini às 22:45 (senão roda no próximo launch).
+> - **v13-security-freshness:** heartbeat da 2ª máquina gravado (`703da4d`, pushed). Ledger **2 máquinas**; span fecha **amanhã 2026-06-21 17:46:26**. Tag `v13.0` aguarda 1 re-gravação **após** esse horário (`check-soak v13-security-freshness --record` → commit/push → `git tag v13.0`).
+> - **LaunchAgent mensal AI-security ATIVADO na Mac mini** (`com.ideiaos.refresh-ai-security`, bootstrap OK status 0; dispara dia 1 de cada mês 09:00). _Pendência v12 do LaunchAgent: FECHADA._
+> - Autosync pausado durante a cirurgia e **religado** ao fim. idea-doctor verde nas 2 gravações.
+>
 > **▶ RETOMAR AQUI (2026-06-20 — v13 Security Freshness Gate: núcleo + surfacing C + propagação, PARCIAL/no-tag) — leia primeiro:**
 > Milestone **v13** ("Selo de Frescor de Segurança") implementado e propagado. Segurança verificada periodicamente e **por sistema**, padrão SOAK aplicado a dívida de segurança (gatilho determinístico risk-weighted → `@security-reviewer` → re-selo). **Nunca gateia PR de feature.**
 > - **Núcleo W1-W4** (`8779d88`): `check-security-freshness.sh` + ledger + idea-doctor §14 (ADVISORY) + rule `security-freshness` + sandbox 10/10.
@@ -191,7 +198,7 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 > - **Rule auto-propaga** via post-merge a cada pull de `main` (lapidai já tem); não foi commitada manualmente nos produtos.
 > - ⚠️ Antes de cirurgia git multi-repo: pausar autosync (`scripts/autosync-pause.sh on/off`, com `trap`). _Esta sessão não precisou (footprint 100% local/untracked)._
 >
-> **✅ v11.0 TAGUEADO 2026-06-20** (`ec965b1`→`1ba01c8`, pushed) — SOAK fechou hoje (re-record 18:21 na MacBook-Air-2 abriu o span ≥1d; 2 máquinas reais já tinham heartbeat). **Pendências SOAK restantes: v12.0 + v13.0** (cada um precisa de 2ª máquina real + span ≥1d) + LaunchAgent mensal AI-security na Mac mini. Lembrete agendado: rotina `ideiaos-soak-tag-readiness` (2026-06-21 18:00).
+> **✅ v11.0 TAGUEADO 2026-06-20** (`ec965b1`→`1ba01c8`, pushed). **SOAK 2ª máquina FEITA na Mac mini para v12 E v13** (2026-06-20 noite) + **LaunchAgent mensal AI-security ATIVADO na Mac mini**. Restam só os spans ≥1d: **v12.0** será taguada via task agendada hoje 22:45 (`close-soak-v12-tag-tonight`); **v13.0** aguarda re-gravação após amanhã 17:46:26. (Nota: a rotina `ideiaos-soak-tag-readiness` NÃO estava persistida nesta máquina — `list_scheduled_tasks` vazio; substituída pela task local one-shot.)
 
 ---
 
