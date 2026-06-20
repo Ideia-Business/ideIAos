@@ -176,6 +176,25 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 
 ## Próximo passo
 
+> **▶ RETOMAR AQUI (2026-06-20 — v13 Security Freshness Gate: núcleo + surfacing C + propagação, PARCIAL/no-tag) — leia primeiro:**
+> Milestone **v13** ("Selo de Frescor de Segurança") implementado e propagado. Segurança verificada periodicamente e **por sistema**, padrão SOAK aplicado a dívida de segurança (gatilho determinístico risk-weighted → `@security-reviewer` → re-selo). **Nunca gateia PR de feature.**
+> - **Núcleo W1-W4** (`8779d88`): `check-security-freshness.sh` + ledger + idea-doctor §14 (ADVISORY) + rule `security-freshness` + sandbox 10/10.
+> - **Surfacing por produto = opção C** (`a6ab59d`): hook **`post-commit` advisory** (não bloqueia por construção). `SECFRESH_ROOT` → 1 engine no IdeiaOS audita qualquer repo → **produto não versiona script** (zero trigger Lovable). `setup_security_freshness_layer()` no `setup.sh --project-only` (bootstrap ledger local + install husky-aware + `.git/info/exclude`). Sandbox 14/14.
+> - **Propagação 4 produtos (local-only, surgical):** nfideia `.husky/post-commit` (excluído); ideiapartner/lapidai/cfoai `.git/hooks/post-commit`. Verificação binária: 4/4 OK, **0 tracked churn** (sem trigger Lovable, sem race autosync → não precisou pausar autosync). Live-test cfoai: warn→exit 0, fresco→silêncio.
+> - **SOAK:** heartbeat gravado (`.planning/soak/v13-security-freshness.log`, 1 máquina/0d).
+>
+> **Passos restantes p/ TAG `v13.0` (operacionais, não-código):**
+> 1. **2ª máquina** (Mac mini): `bash scripts/check-soak.sh v13-security-freshness --record` (após pull). 
+> 2. **Span ≥1d:** re-gravar 1 heartbeat **≥ 2026-06-21 17:46:26** (o `≥1d` é delta entre gravações, NÃO wall-clock — esperar não basta, tem que RE-gravar; ver [[learning-soak-span-is-record-delta-not-wallclock]]).
+> 3. `bash scripts/check-soak.sh v13-security-freshness` → exit 0 → `git tag v13.0`.
+> - **Ligar o gate** (`SECFRESH_GATE_ENABLED=1`) é decisão **pós-observação do 1º ciclo** (R13-07 — estreia advisory).
+> - **Rule auto-propaga** via post-merge a cada pull de `main` (lapidai já tem); não foi commitada manualmente nos produtos.
+> - ⚠️ Antes de cirurgia git multi-repo: pausar autosync (`scripts/autosync-pause.sh on/off`, com `trap`). _Esta sessão não precisou (footprint 100% local/untracked)._
+>
+> **Pendências SOAK acumuladas (3 milestones aguardam span/máquina): v11.0, v12.0, v13.0** + LaunchAgent mensal AI-security na Mac mini.
+
+---
+
 > **▶ RETOMAR AQUI (2026-06-19 noite — propagação v12 aos produtos + ROADMAP) — leia primeiro:**
 > Esta rodada fechou 2 gaps de documentação/propagação **além** do v12:
 > - **ROADMAP atualizado** — `.planning/ROADMAP.md` estava parado no v8; adicionados v9 (tag `v9.0`) + v10/v11/v12 (PARCIAL/no-tag) (`843f499`). Vault `Changelog/IdeiaOS.md` ganhou entrada v11+v12.
