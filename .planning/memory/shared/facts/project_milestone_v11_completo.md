@@ -1,6 +1,6 @@
 ---
 name: project-milestone-v11-completo
-description: "v11 (Integridade & Auditoria de Spec) — 6 ondas DONE 2026-06-19, fechamento PARCIAL/no-tag; tag v11.0 pendente só do SOAK numa 2ª máquina"
+description: "v11 (Integridade & Auditoria de Spec) — 6 ondas DONE 2026-06-19, fechamento PARCIAL/no-tag; SOAK 2/2 máquinas PASS, tag v11.0 só aguarda o span ≥1d (heartbeat ≥2026-06-20 17:51:44)"
 metadata: 
   node_type: memory
   type: project
@@ -25,6 +25,13 @@ um bloqueador HIGH (A2 hard-falhava em spec que segue o template oficial) + 9 ac
 o próprio SOAK gate e o idea-doctor pegaram defeitos (incl. o ledger sob `*.log`). Ver
 [[learning-broad-gitignore-sweeps-tracked-ledger]].
 
-**Para TAGUEAR v11.0:** rodar `bash scripts/check-soak.sh v11-arsenal --record` numa 2ª máquina
-(Mac mini) + esperar ≥1 dia; então `check-soak.sh v11-arsenal` → exit 0 → criar tag. Nada de código
-pendente. Sucede [[project-milestone-v9-completo]] (v10 ficou parcial). origin/work=`c60d97a`.
+**SOAK status (2026-06-19 18:30):** 2/2 máquinas PASS no ledger `.planning/soak/v11-arsenal.log`
+(MacBook-Air-2 @ 17:51 commit 4011186 · Mac-mini-de-Gustavo @ 18:30 commit 2ca25df) — a checagem
+de durabilidade cross-máquina (o risco real do SOAK) está GREEN. **Único critério restante: span ≥1d.**
+Ambos heartbeats são de 06-19 (~39min) → `span 0d < 1d`. O 1º heartbeat ancora a janela em
+2026-06-19 17:51:44; o gate vira verde com QUALQUER heartbeat ≥ **2026-06-20 17:51:44**.
+
+**Para TAGUEAR v11.0** (amanhã ≥17:51, qualquer máquina):
+`bash scripts/check-soak.sh v11-arsenal --record` → `git add .planning/soak/v11-arsenal.log && git commit && git push`
+→ `bash scripts/check-soak.sh v11-arsenal` (exit 0) → `git tag v11.0`. Nada de código pendente.
+Sucede [[project-milestone-v9-completo]] (v10 ficou parcial). origin/work=`049a947`.

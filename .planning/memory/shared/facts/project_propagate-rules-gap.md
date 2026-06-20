@@ -25,3 +25,16 @@ em `PROJECT_PATHS`; (2) `setup.sh` (config de projeto, roda em `--project-only`)
 antes de `build_cursor` (alvo load-bearing primeiro em deploy parcial). Verificado: bash -n +
 sandbox (rule-only propaga, docs-only não) + end-to-end setup --project-only + revisão
 adversarial 3-lentes (clean, só LOW). Cadeia completa fechada.
+
+**Follow-up (2026-06-19 noite) — propagação v12 fechada nos 4 produtos, + 2 achados:** ao
+propagar o delta de rules do v12 (nova `credential-isolation` + edits) medi que ele estava
+em **0/4** produtos e a `propagate-if-changed` automática tinha **falhado numa corrida com o
+autosync** (rodou às 21:41 sobre git sujo → `apply-to-all-projects falhou, 2 erros`). Re-propaguei
+manualmente com segurança (autosync pausado+religado por `trap`). Resultado: 4/4 ATIVOS com 10
+`ideiaos-common` + `credential-isolation` (drift 7/8/9/8 zerado). **Dois achados que valem nota:**
+(1) a auto-propagação **não é robusta a corrida com autosync** — pode falhar silenciosamente; rodar
+`apply-to-all-projects.sh --apply` manual (com autosync pausado) é o fallback confiável. (2) **nfideia
+rastreia `.claude/rules` em `main`** (Lovable) → cada sync exige um **PR** (foi o [nfideia#41](https://github.com/Ideia-Business/nfideia/pull/41),
+MERGED) — enquanto **ideiapartner gitignora** as rules (local, frictionless). Recomendação durável:
+alinhar nfideia ao modelo gitignore (um `git rm --cached` + commit em main). Mecanismo do gate de push:
+[[learning-devops-push-gate-command-scoped-agent]].
