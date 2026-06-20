@@ -35,7 +35,15 @@
 # =============================================================================
 set -uo pipefail
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# ROOT = repositório auditado. Default: o repo onde este script vive (../).
+# Override por env SECFRESH_ROOT — permite UMA cópia do engine (no IdeiaOS) auditar
+# QUALQUER repo (ex.: o hook post-commit de um produto Lovable aponta p/ si mesmo),
+# sem versionar o script dentro do produto → zero trigger de Lovable em `main`.
+if [ -n "${SECFRESH_ROOT:-}" ] && [ -d "$SECFRESH_ROOT" ]; then
+  ROOT="$(cd "$SECFRESH_ROOT" && pwd)"
+else
+  ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+fi
 SEC_DIR="$ROOT/.security"
 LEDGER="$SEC_DIR/review-ledger.log"
 

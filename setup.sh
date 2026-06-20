@@ -295,6 +295,79 @@ setup_learnings_layer() {
   fi
 }
 
+# Setup da camada de Frescor de Segurança (v13 — Selo de Frescor de Segurança).
+# Instala, POR PRODUTO e LOCALMENTE (nunca versionado), um hook post-commit
+# ADVISORY que avisa quando a segurança do repo está defasada (tier warn/egrégio).
+# Reusa UMA cópia do engine (no IdeiaOS) via SECFRESH_ROOT — o produto não versiona
+# script algum → zero trigger de Lovable em `main`. Bootstrap de ledger-baseline
+# LOCAL (dia-1 = score 0). Idempotente, fail-soft (NUNCA aborta o setup).
+#
+# post-commit é advisory por construção: roda DEPOIS do commit; o git ignora seu
+# exit code → impossível travar uma feature (o "não enrijecer" do v13).
+setup_security_freshness_layer() {
+  local project_dir="$1"
+  local project_name="$2"
+
+  step "9) Camada de Frescor de Segurança (v13 — advisory, local-only)"
+
+  local engine="$SETUP_DIR/scripts/check-security-freshness.sh"
+  local tmpl="$SETUP_DIR/source/templates/security/post-commit-security-freshness.sh"
+  if [ ! -x "$engine" ] || [ ! -f "$tmpl" ]; then
+    warn "engine/template de frescor ausente — pulando (setup segue normalmente)"
+    return 0
+  fi
+  if [ ! -d "$project_dir/.git" ]; then
+    warn "projeto sem .git — frescor de segurança pulado"
+    return 0
+  fi
+
+  # 1. Bootstrap do ledger-baseline LOCAL (idempotente; dia-1 = score 0)
+  if SECFRESH_ROOT="$project_dir" bash "$engine" --bootstrap >/dev/null 2>&1; then
+    ok "ledger-baseline de segurança garantido (.security/review-ledger.log — local)"
+  else
+    warn "bootstrap de ledger de segurança falhou (não-fatal)"
+  fi
+
+  # 2. .git/info/exclude — mantém ledger/marcador (e hook-husky) LOCAIS: nunca
+  #    versionados, branch-agnostic. Protege contra o `git add -A` do autosync
+  #    em branch `work` e contra commit acidental em `main` (trigger Lovable).
+  local exclude_file="$project_dir/.git/info/exclude"
+  mkdir -p "$project_dir/.git/info"; touch "$exclude_file"
+  local e
+  for e in ".security/review-ledger.log" ".security/.last-warn-epoch"; do
+    grep -qxF "$e" "$exclude_file" 2>/dev/null || echo "$e" >> "$exclude_file"
+  done
+
+  # 3. Resolver o hooks dir (husky-aware): core.hooksPath ou .git/hooks
+  local hookspath
+  hookspath="$(git -C "$project_dir" config --get core.hooksPath 2>/dev/null || true)"
+  local hooks_dir
+  if [ -z "$hookspath" ]; then
+    hooks_dir="$project_dir/.git/hooks"           # default (untracked, qualquer branch)
+  elif [ "${hookspath:0:1}" = "/" ]; then
+    hooks_dir="$hookspath"                          # caminho absoluto
+  else
+    hooks_dir="$project_dir/$hookspath"            # relativo ao repo (ex.: .husky — TRACKED)
+    grep -qxF "$hookspath/post-commit" "$exclude_file" 2>/dev/null \
+      || echo "$hookspath/post-commit" >> "$exclude_file"
+  fi
+  mkdir -p "$hooks_dir" 2>/dev/null || true
+  local hook="$hooks_dir/post-commit"
+  local marker="ideiaos-security-freshness-hook"
+
+  # 4. Instalar/atualizar o hook (idempotente; backup se foreign)
+  if [ -f "$hook" ] && ! grep -qF "$marker" "$hook" 2>/dev/null; then
+    cp "$hook" "$hook.bak" 2>/dev/null || true
+    warn "post-commit pré-existente não-nosso preservado em ${hook##*/}.bak"
+  fi
+  if sed "s|__ENGINE_PATH__|$engine|g" "$tmpl" > "$hook" 2>/dev/null; then
+    chmod +x "$hook" 2>/dev/null || true
+    ok "hook post-commit (advisory) instalado em ${hook#"$project_dir"/}"
+  else
+    warn "falha ao instalar hook post-commit (não-fatal)"
+  fi
+}
+
 # Extrai a versão do bundle IdeiaOS de um arquivo IDEIAOS.md (qualquer projeto
 # ou o template). Procura "Versão: X.Y" nas primeiras 10 linhas.
 # Retorna a versão (ex: "1.1") ou string vazia se não encontrar.
@@ -1627,6 +1700,9 @@ MEMMD
 
   # Camada IdeiaOS (orquestração GSD + AIOX + Lovable + Fase A)
   setup_ideiaos_layer "$PROJECT_DIR" "$PROJECT_NAME"
+
+  # Camada de Frescor de Segurança (v13 — hook advisory local, por produto)
+  setup_security_freshness_layer "$PROJECT_DIR" "$PROJECT_NAME"
 fi
 
 # ─────────────────────────────────────────────────────────────────────────────
