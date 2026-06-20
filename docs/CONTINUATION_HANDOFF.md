@@ -1,6 +1,6 @@
 # Handoff — continuar em outro turno
 
-**Projeto:** `IdeiaOS` · **Branch:** `work` (= main) · **Atualizado:** 2026-06-18
+**Projeto:** `IdeiaOS` · **Branch:** `work` (= main) · **Atualizado:** 2026-06-19
 
 ---
 
@@ -176,15 +176,24 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 
 ## Próximo passo
 
-> **▶ RETOMAR AQUI (2026-06-19, v11 COMPLETO — fechamento PARCIAL/no-tag):** as **6 ondas do v11 estão DONE**, commitadas + pushadas em `work` (`origin/work=4011186`, 0/0):
+> **▶ RETOMAR AQUI (2026-06-19, v11 COMPLETO — fechamento PARCIAL/no-tag · SOAK 2/2 máquinas PASS):** as **6 ondas do v11 estão DONE**, commitadas + pushadas em `work` (`origin/work=049a947`, 0/0):
 > - **W1** autosync guard-aware — `44336c5`
 > - **W2** CI repo-self-consistency gates + `check-source-headers` + design-suite ref resolvido — `ccb3ff0`
 > - **W3** SOAK gate `check-soak.sh` + surface-budget + `/idea` routing eval cases — `70f0cd6`
 > - **W4** `/spec --analyze`+`--converge` (libs `spec-grammar`/`analyze`/`converge`, tests 23 asserts) — `e65d0e0` **+ hardening** `4011186` (corrigiu bloqueador A2-template-FP + 9 achados da verificação adversarial wf_99173505)
 > - **W5** deltas LOW R2/R4/R6/R8 — `4637b1d`
-> - **W6** 2 ADRs (`v11-spec-kit-analyze-converge`, `v11-license-provenance-quarantine`) + SOAK heartbeat
+> - **W6** 2 ADRs (`v11-spec-kit-analyze-converge`, `v11-license-provenance-quarantine`) + SOAK heartbeat — `0ede0c0`; fix ledger gitignored — `c60d97a`; plugins/+README sync — `78e55b9`/`671f2de`
 >
-> **ÚNICO passo restante para a TAG `v11.0`:** rodar `bash scripts/check-soak.sh v11-arsenal --record` numa **2ª máquina** (Mac mini) e esperar **≥1 dia**; então `bash scripts/check-soak.sh v11-arsenal` → exit 0 → criar a tag. **Nada de código pendente.** Metodologia: design por painel (`wf_449a5952`) + verificação adversarial 5-lentes (`wf_99173505`). Tracker com notas W1-W6: `.planning/milestones/v11-arsenal-absorption-PLAN.md`. ⚠️ Pausar autosync antes de cirurgia git (`scripts/autosync-pause.sh on/off`).
+> **SOAK status (ledger `.planning/soak/v11-arsenal.log`):** 2/2 máquinas PASS — MacBook-Air-2 @17:51 (`4011186`) + Mac-mini-de-Gustavo @18:30 (`2ca25df`), ambos idea_doctor+regressão PASS → **durabilidade cross-máquina GREEN** (o risco real do gate fechou). Falta **só o span ≥1d** (ambos heartbeats de 06-19, ~39min → `0d`).
+>
+> **ÚNICO passo restante para a TAG `v11.0` (amanhã ≥ 2026-06-20 17:51:44, qualquer máquina):**
+> ```
+> bash scripts/check-soak.sh v11-arsenal --record
+> git add .planning/soak/v11-arsenal.log && git commit -m "chore(soak): heartbeat +1d v11-arsenal" && git push
+> bash scripts/check-soak.sh v11-arsenal     # exit 0
+> git tag v11.0 && git push origin v11.0
+> ```
+> **Nada de código pendente.** O 1º heartbeat ancora a janela em 06-19 17:51:44; o gate só vira verde com um heartbeat ≥ 06-20 17:51:44 (o `≥1d` é delta entre gravações, NÃO wall-clock — esperar não basta, tem que RE-gravar). Sem bypass (`SOAK_MIN_DAYS=0` trairia o gate integridade-first). Metodologia: design por painel (`wf_449a5952`) + verificação adversarial 5-lentes (`wf_99173505`). Tracker: `.planning/milestones/v11-arsenal-absorption-PLAN.md`. ⚠️ Pausar autosync antes de cirurgia git (`scripts/autosync-pause.sh on/off`).
 
 ---
 
@@ -280,5 +289,5 @@ _Histórico v7 abaixo:_
 
 ## Ultima sessao automatica (2026-06-19)
 
-- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-19-ideiaos-32df5c2a-1220-4b2b-877f-3821faf9.tmp`
+- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-19-ideiaos-3eb736d7-c52c-4642-8594-9a57f376.tmp`
 - Próximo passo: (definir antes de retomar)
