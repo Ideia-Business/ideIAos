@@ -1166,6 +1166,19 @@
       "plugin": "ideiaos-core"
     },
     {
+      "id": "rule-credential-isolation",
+      "kind": "rule",
+      "description": "Doutrina preventiva (sempre-on): segredo nunca transita pelo contexto do LLM — separa autoridade-de-operação (agent-authority) de posse-de-segredo. Preenche o vão deixado pelo ferramental hoje só reativo (idea-doctor §7c, memory-export gate, security-reviewer). Conceito-only de TalEliyahu/Awesome-AI-Security (MIT) + OWASP LLM02/LLM06 (genai.owasp.org, CC BY-SA 4.0). v12.",
+      "source": "source/rules/common/credential-isolation.md",
+      "targets": [
+        "claude",
+        "cursor"
+      ],
+      "deps": [],
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
+    },
+    {
       "id": "rule-learning-channel-routing",
       "kind": "rule",
       "description": "Roteamento dos dois canais de aprendizado do IdeiaOS: gotcha de domínio/incidente → memória nativa da IDE (auto-injetada, sincronizada via /memory-sync); reflexo de engenharia stack-agnóstico → camada de instincts (/learn, /instinct-analyze) → promoção via /evolve. Nunca o mesmo fato verbatim nos dois. Instincts são telemetria write-only, não conduta ao vivo. Cross-link operating-discipline/token-economy. v2.",

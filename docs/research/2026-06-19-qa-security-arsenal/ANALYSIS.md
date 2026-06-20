@@ -33,11 +33,14 @@ agentes que dirigem um browser/runtime. Emite artefatos estruturados de execucao
 `chat_messages.json` com metadados de custo, resultados por dimensao).
 
 ### Licenca e o que ela permite
-- **Licenca:** permissiva — **Apache-2.0** (declarada no recon; nao re-verificavel offline deste ambiente).
-- **O que permite:** uso, modificacao e absorcao de codigo COM atribuicao. Ainda assim, a disciplina
-  IdeiaOS prescreve **absorcao conceito-only** aqui (zero codigo importado), porque o valor esta no
-  *mapa de dimensoes* e nos *principios de design*, nao no runtime Python do Hercules — que traria
-  dependencia pesada (browser-driver, agent-runtime) sem pagar a propria complexidade.
+- **Licenca:** **AGPL-3.0** (GNU Affero GPL v3) — verificado AUTORITATIVAMENTE via GitHub API
+  (`repos/test-zeus-ai/testzeus-hercules` → SPDX `AGPL-3.0`; endpoint `/license` → `LICENSE`, SPDX `AGPL-3.0`).
+  ⚠️ O recon original alegou "Apache-2.0" — **ERRADO**; corrigido aqui (2026-06-19) contra a fonte autoritativa.
+- **O que EXIGE:** AGPL-3.0 e **copyleft FORTE** — qualquer derivado distribuido, inclusive sob *uso-em-rede*,
+  teria de ser liberado sob AGPL. Isso por si so **PROIBE** importar codigo do Hercules para o IdeiaOS. A
+  disciplina IdeiaOS ja prescreveria **conceito-only** de qualquer forma (o valor esta no *mapa de dimensoes*
+  e nos *principios de design*, nao no runtime Python — que traria dep pesada sem pagar a complexidade); a
+  licenca AGPL torna isso **mandatorio**, nao so preferivel. **ZERO codigo, ZERO prosa** do Hercules.
 - **Convencao obrigatoria:** qualquer artefato derivado leva cabecalho `# SOURCE: ... Hercules`.
 
 ### O que oferece (dimensoes de QA)
@@ -96,8 +99,8 @@ token = falha verify-don't-assume). **Rejeitado** (ver PROPOSAL.md).
 taxonomias de seguranca de IA. Nao e codigo executavel; e um **indice de descoberta**.
 
 ### Licenca e o que ela permite
-- **Licenca:** classe awesome-list (declarada MIT/CC0/CC-BY no recon; **nao re-verificavel offline** —
-  exige conferir a licenca real ANTES de merge para garantir que nao e copyleft).
+- **Licenca:** **MIT** — verificado via GitHub API (SPDX `MIT`, "(c) 2025 Tal Eliyahu"). Permissiva;
+  fatos/links/taxonomia absorviveis com citacao, **zero codigo**.
 - **O que permite:** absorver **fatos publicos estaveis e links** com citacao (taxonomias OWASP, IDs,
   cross-map de frameworks). **Zero codigo.** Ponteiros para fontes autoritativas (owasp.org, nist.gov,
   iso.org, cloudsecurityalliance.org) sao o vetor seguro — apontar para o primario, nao para a lista volatil.
@@ -136,7 +139,9 @@ Top 10 2025** e na postura de que **prompt injection e nao-corrigivel-por-design
 mitigar por CONTENCAO; "AI browsers may always be vulnerable").
 
 ### Licenca e o que ela permite
-- **Licenca do repo:** classe awesome-list (nao re-verificavel offline). Mas o **artefato-fonte real**
+- **Licenca do repo:** **SEM LICENCA** — verificado via GitHub API (`license: null`; footer "(c) muellerberndt"
+  = all-rights-reserved por default). Logo a **PROSA curada do repo e NAO-copiavel**: absorve-se SO o fato
+  publico nao-protegido (nomes de framework/ataque) re-derivado do primario. O **artefato-fonte real**
   citado e o **OWASP Gen AI Security Project**, que e **CC BY-SA 4.0 (ShareAlike / copyleft)** —
   confirmado no primario genai.owasp.org pelo recon. Logo: absorver **CONCEITO apenas** (taxonomia de
   10 classes), **ZERO prosa copiada**, atribuicao obrigatoria. O header `# SOURCE` DEVE citar

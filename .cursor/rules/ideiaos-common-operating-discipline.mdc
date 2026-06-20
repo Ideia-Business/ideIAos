@@ -80,7 +80,10 @@ runtime real.
 
 **Cross-link:** verificar = exit code binário, nunca confiar no Read tool.
 Use `test -s PATH` / exit code de teste/build — output binário que não pode
-ser alucinado. Ver `antifragile-gates.md`.
+ser alucinado. Ver `antifragile-gates.md`. **Exceção de regime:** quando NÃO há
+exit-code (estado de runtime/UI), a verificação por render+screenshot
+(`frontend-visual-loop`) é legítima — ver "Dois regimes de verificação" em
+`antifragile-gates.md`. Onde há exit-code, ele continua sendo lei.
 
 **Como aplicar:** antes de declarar "feito", rode o gate e cole a evidência.
 Sem evidência, está em progresso — não concluído.

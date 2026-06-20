@@ -69,19 +69,18 @@ security/
       LATEST.md                         # ultimo bloco DIFF legivel (sobrescrito)
 ```
 
-- O **snapshot e versionado** (committed) — e o baseline cross-maquina. Vive em
-  `security/intel/` (cria o dir; hoje so existe `security/quarantine/` e
-  `security/scan-absorbed.sh`). Coerente com a pasta `security/` ja ser o lar de
-  artefatos de seguranca/proveniencia.
-- O **sha** versionado permite comparacao barata sem re-baixar para checar igualdade.
-- **Reports datados** sao imutaveis (audit trail); `LATEST.md` e conveniencia.
+- ⚠️ **CORRECAO DE PROVENIENCIA (pos-implementacao):** o snapshot e copia VERBATIM do README de
+  `muellerberndt/awesome-ai-security`, que e **all-rights-reserved (SEM LICENCA)**. Versiona-lo
+  seria **redistribuicao sem licenca**. Logo `security/intel/` e **gitignored** e o baseline e
+  **LOCAL por maquina** (nao cross-maquina). Cada maquina bootstrapa seu proprio snapshot e
+  detecta novidades mes-a-mes localmente. So o **script/spec/plist** (nossos) sao versionados.
+- O **sha** local permite comparacao barata sem re-baixar para checar igualdade.
+- **Reports datados** ficam LOCAIS (mesmo motivo); `LATEST.md` e conveniencia local.
+- A distilacao acionavel (FATOS, nao prosa) vive em `SECURITY-KNOWLEDGE.md` (versionado, nosso).
 
-> **Interacao com autosync (licoes do MEMORY):** `security/intel/` deve estar numa
-> branch sob autosync (nunca em `main` pull-only de produto). Como o IdeiaOS pode ir
-> direto na `main`, o commit do snapshot/report e auto-pushado normalmente pelo
-> git-autosync — desejavel aqui (baseline compartilhada entre maquinas). O script
-> **nao** faz `git add/commit/push` — deixa o autosync (ou o usuario) commitar, para
-> nao colidir com a cirurgia git do autosync (licao `autosync-races-ai-git-surgery`).
+> **Interacao com autosync:** como `security/intel/` e gitignored, o script nunca produz arquivo
+> versionado — zero colisao com a cirurgia git do autosync (licao `autosync-races-ai-git-surgery`).
+> O script **nao** faz `git add/commit/push` em hipotese alguma.
 
 ---
 

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  SOURCE: IdeiaOS v12 — LaunchAgent do refresh mensal de AI-security intel.
+  Ativar (per-máquina, de preferência a always-on / Mac mini):
+
+    cp infra/launchd/com.ideiaos.refresh-ai-security.plist ~/Library/LaunchAgents/
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.ideiaos.refresh-ai-security.plist
+
+  Desativar:
+    launchctl bootout gui/$(id -u)/com.ideiaos.refresh-ai-security
+    rm -f ~/Library/LaunchAgents/com.ideiaos.refresh-ai-security.plist
+
+  Dispara dia 1 de cada mês, 09:00. Se a máquina estava desligada, o
+  StartCalendarInterval faz catch-up no próximo wake. O job é curl+diff puro
+  (zero LLM). Ajuste o ProgramArguments se o repo não estiver em ~/dev/IdeiaOS.
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.ideiaos.refresh-ai-security</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/Users/gustavolopespaiva/dev/IdeiaOS/scripts/refresh-ai-security.sh</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Day</key><integer>1</integer>
+    <key>Hour</key><integer>9</integer>
+    <key>Minute</key><integer>0</integer>
+  </dict>
+  <key>StandardOutPath</key>
+  <string>/tmp/ideiaos-refresh-ai-security.log</string>
+  <key>StandardErrorPath</key>
+  <string>/tmp/ideiaos-refresh-ai-security.err</string>
+</dict>
+</plist>

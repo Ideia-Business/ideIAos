@@ -42,6 +42,29 @@ Apply a gate after every step that is expected to write a file artifact and whos
 will be consumed by a subsequent step. Minimum 3 gate points per script that handles
 file I/O pipelines.
 
+## Dois regimes de verificação — artefato-de-arquivo vs estado-de-runtime
+
+<!-- # SOURCE: testzeus-hercules (AGPL-3.0) — conceito-only, zero código/prosa. -->
+
+A regra acima (`test -s` é lei) cobre o **artefato-de-arquivo**: algo que um passo
+gravou no disco e um passo seguinte vai consumir. Aí o exit-code binário é
+inegociável — nunca o Read tool.
+
+Mas há um **segundo regime** onde não existe exit-code: o **estado de runtime/UI**.
+Verificar que "o botão ficou azul" ou "o modal abriu" não é um `test -s` — é
+interpretação de screenshot + accessibility-tree, que a skill já-shippada
+`frontend-visual-loop` faz legitimamente. Isso **não viola** o gate: são dois
+regimes distintos, não uma exceção a ele.
+
+| Regime | O que se verifica | Instrumento (lei) |
+|--------|-------------------|-------------------|
+| **Artefato-de-arquivo** | arquivo gravado, build, teste | `test -s` / exit-code binário — NUNCA Read tool |
+| **Estado-de-runtime/UI** | comportamento visual/interativo sem exit-code | render + screenshot + a11y-tree (`frontend-visual-loop`), com critério explícito |
+
+A fronteira: **se existe exit-code, ele é lei** (não troque por interpretação em NL).
+Só quando não existe exit-code (runtime/UI) a verificação por interpretação é
+legítima — e ainda assim exige critério explícito declarado, nunca "parece certo".
+
 ## Inline Fallback
 
 When a hook is installed to ~/.claude/hooks/ and IDEIAOS_DIR is not available at

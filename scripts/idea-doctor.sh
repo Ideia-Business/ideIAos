@@ -540,6 +540,29 @@ else
   printf '%s\n' "$DEBT_HITS" | sed "s#$SETUP_DIR/#       #" | head -10
 fi
 
+# ── 13) AI-security intel refresh (v12) ──────────────────────────────────────
+step "13) AI-security intel refresh (v12)"
+REFRESH_SH="$SETUP_DIR/scripts/refresh-ai-security.sh"
+AISEC_SNAP="$SETUP_DIR/security/intel/awesome-ai-security.snapshot.md"
+if [ ! -f "$REFRESH_SH" ]; then
+  info "refresh-ai-security.sh ausente (mecanismo de intel mensal não instalado)"
+elif [ ! -s "$AISEC_SNAP" ]; then
+  warn "snapshot de AI-security ausente — rode: bash scripts/refresh-ai-security.sh"
+else
+  SNAP_EPOCH="$(stat -f %m "$AISEC_SNAP" 2>/dev/null || stat -c %Y "$AISEC_SNAP" 2>/dev/null || echo 0)"
+  AGE_D=$(( ( $(date +%s) - SNAP_EPOCH ) / 86400 ))
+  if [ "$AGE_D" -le 40 ]; then
+    pass "snapshot AI-security fresco (${AGE_D}d ≤ 40d)"
+  else
+    warn "snapshot AI-security velho (${AGE_D}d > 40d) — rode: bash scripts/refresh-ai-security.sh"
+  fi
+  if launchctl list 2>/dev/null | grep -q "com.ideiaos.refresh-ai-security"; then
+    info "LaunchAgent mensal de refresh ativo"
+  else
+    info "LaunchAgent mensal não carregado (opcional, per-máquina — ative na always-on; ver MONTHLY-REFRESH-SPEC.md)"
+  fi
+fi
+
 # ── Resumo ────────────────────────────────────────────────────────────────────
 echo -e "\n${CYAN}${BOLD}━━━ Resumo ━━━${NC}"
 echo -e "  ${GREEN}OK:${NC} $PASS   ${YELLOW}WARN:${NC} $WARN   ${RED}FAIL:${NC} $FAIL"

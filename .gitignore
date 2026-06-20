@@ -67,3 +67,9 @@ Thumbs.db
 .aiox-core/local/
 .claude/settings.local.json
 .aiox/install-log.txt
+
+# AI-security intel (v12): o snapshot e os reports são cópia VERBATIM do README de
+# terceiro (muellerberndt/awesome-ai-security = SEM LICENÇA / all-rights-reserved).
+# NÃO redistribuímos a prosa → baseline LOCAL por máquina. Só o script/spec/plist
+# (nossos) são versionados. Cada máquina mantém seu próprio snapshot p/ diff mensal.
+security/intel/
