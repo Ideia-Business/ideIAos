@@ -3,6 +3,8 @@ name: idea
 description: Orquestrador "Deia" do IdeiaOS — Sistema Operacional unificado para desenvolvimento IA da Ideia Business. ATIVE esta skill SEMPRE que o usuário começar mensagem com "Deia,", "Deia ", "deia,", "deia " (variantes com vírgula, espaço, maiúscula/minúscula, ou acento "Déia"), OU quando digitar /idea, /deia, /dei. Também ative para pedidos em linguagem natural sem direcionamento claro de qual ferramenta usar (ex "quero implementar X", "preciso debugar Y", "como faço Z"). A skill roteia automaticamente para a camada certa (GSD para execução goal-backward, AIOX para personas/stories, Lovable handoff para deploys, Fase A para aprendizado, continuation para retomada). É o "what should I run?" do ecossistema — quando em dúvida, ative.
 ---
 
+# SOURCE: IdeiaOS
+
 # Skill: Deia — Orquestrador IdeiaOS (alias: /idea)
 
 ## Como o usuário invoca esta skill

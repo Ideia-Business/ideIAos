@@ -330,7 +330,7 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | Skill | installStrategy | Descrição |
 |-------|-----------------|-----------|
 | `/forge-agent` | always | Fundamenta a criação de agents e skills em pesquisa real do domínio antes de produzir spec — cita fontes verificáveis, lista anti-patterns derivados de pesquisa, justifica model routing com racional documentado. 4 fases: definir domínio → pesquisa (`/deep-research`, máx 3 ciclos) → model routing → spec grounded. |
-| `/spec` | always | Delta-spec brownfield — mantém contratos de comportamento vivos de produto por capability em `specs/<capability>/spec.md`. Fluxo: propose → spec/delta → tasks → merge+archive. Complementar ao GSD (spec = contrato; GSD = implementação). Adaptado do OpenSpec MIT. |
+| `/spec` | always | Delta-spec brownfield — mantém contratos de comportamento vivos de produto por capability em `specs/<capability>/spec.md`. Fluxo: propose → spec/delta → tasks → merge+archive. **Subcomandos de auditoria (v11):** `--analyze` (gate determinístico da spec viva pós-merge) e `--converge` (ponte append-only spec↔código). Complementar ao GSD (spec = contrato; GSD = implementação). Adaptado do OpenSpec MIT. |
 
 ### Skills v8 — Camada de Disciplina (absorvida de agent-skills MIT, addyosmani)
 
@@ -356,6 +356,8 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | **`scripts/check-versions-lock.sh`** | **Guarda do pin GSD** — bloqueia valor pré-redux (1.3x/1.4x) e edição manual do `gsd=` que não corresponda à versão instalada (único escritor: `update-upstream.sh --bump`; bypass: `IDEIAOS_LOCK_OVERRIDE=1`). Roda no pre-commit. |
 | **`scripts/check-memory-not-on-main.sh`** | **Guarda Lovable-safe da memória (v5)** — bloqueia qualquer caminho de memória (`.planning/memory/`, `.lovable_mem_tmp.md`, `.cursor/rules/memory-bridge.mdc`) staged no branch `main` e o merge `planning`→`main`; mensagem direcional (diz qual lado está errado); bypass consciente: `IDEIAOS_MEM_OVERRIDE=1`. Modos `--staged` (pre-commit) e `--merge` (pre-merge-commit). |
 | **`scripts/check-plugin-membership.sh`** | **Guarda anti-deriva de plugins (v7)** — bloqueia commit que toque `manifests/modules.json`, `manifests/plugin-membership.md` ou `scripts/build-plugins.sh` se houver deriva entre as atribuições `plugin:` do manifesto e os arrays do `build-plugins.sh` (o bug que deixou `spec`/`forge-agent`/`memory-sync` fora do empacotamento). Roda no pre-commit e no `idea-doctor` (seção 10). |
+| **`scripts/check-source-headers.sh`** | **Guarda de proveniência das skills (v11, ADVISORY)** — toda `source/skills/*/SKILL.md` deve declarar origem com uma linha `# SOURCE:` após o frontmatter (absorvida: upstream+licença; nativa: `IdeiaOS`). As 7 skills vendorizadas da Suíte de Design são OK-via-pin (`source/skills/.design-suite-version`), pois o `cp -R` do `update-design-suite.sh` apagaria header inline — a lista vendorizada é derivada da linha `SUITE=` do próprio script (sem duplicação). WARN por padrão; `--strict` falha se faltar. Roda no CI (anotação non-blocking) e no `idea-doctor` (seção 11). |
+| **`scripts/check-soak.sh`** | **SOAK gate de fechamento de milestone (v11)** — nenhum milestone tagueado até passar `idea-doctor` (0 FAIL) + regressão estrutural em **≥2 máquinas** por **≥1 dia**. `--record` roda os gates e grava heartbeat em `.planning/soak/<milestone>.log`; o verify (default) só dá exit 0 quando o soak satisfaz a política (`SOAK_MIN_MACHINES`/`SOAK_MIN_DAYS`). Barreira contra "verificação point-in-time numa única máquina". Doc: [`docs/process/soak-gate.md`](docs/process/soak-gate.md). |
 | **`scripts/idea-doctor.sh`** | Diagnóstico read-only: skills, MCPs, 15 patches, versões vs `versions.lock`, drift, autosync, **Seção 7 Security Audit** (deny rules, hooks, secrets, quarentena, **7e contenção Lovable MCP** — deny=19 por produto, anti-regressão), **Seção 8 Contexts** (~/.ideiaos/contexts/, funções claude-dev/review/research, statusline), **Seção 9 Memória v5** (planning, store shared/, patches 12/13) |
 | **`scripts/install-global-patches.sh`** | Aplica overlay ideIAos (Caminho C) sobre GSD/AIOX/Claude — idempotente, 15 patches (incl. Patch 11: backlog-sync-check, Patches 12/13: memória v5) |
 | **`security/scan-absorbed.sh`** | **Pipeline de quarentena obrigatório** — escaneia o conteúdo de terceiros na pasta de quarentena (`security/quarantine/`), **não** `source/`: unicode invisível/payloads/comandos + AgentShield. Só após PASS o material é absorvido para `source/`. Exit 1 = bloqueado. |
@@ -364,7 +366,8 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | **`scripts/sync-all.sh`** | Orquestrador — `git pull` → `update-upstream` → `setup.sh --global-only` → overlay → `idea-doctor` |
 | **`scripts/apply-to-all-projects.sh`** | Propaga `setup.sh --project-only` a todos os repos `~/dev/*`. Dry-run por padrão; use `--apply` para executar. `--only proj1,proj2` para filtrar. |
 | **`scripts/propagate-if-changed.sh`** | Propagação **automática** — após pull no IdeiaOS, detecta diff em templates/skills/setup e roda global + `apply-to-all --apply`. Gatilhos: `git-autosync`, `post-merge` hook, `sync-all.sh`. Log: `~/.local/state/propagate-projects.log`. |
-| **`scripts/ideiaos-update.sh`** | **Atualização de máquina em 1 comando** — sync-all + guarda do git-autosync (versions.lock fora do add -A) + funções claude-dev/review/research no shell + statusline no settings.json (idempotente, com backup; edita config do usuário por consentimento explícito — diferente do setup.sh/T-01-10) |
+| **`scripts/ideiaos-update.sh`** | **Atualização de máquina em 1 comando** — sync-all + guardas do git-autosync (versions.lock fora do add -A; **pause-file + conflict-marker**, step 2d) + funções claude-dev/review/research no shell + statusline no settings.json (idempotente, com backup; edita config do usuário por consentimento explícito — diferente do setup.sh/T-01-10) |
+| **`scripts/autosync-pause.sh`** | **Pausa/retoma o git-autosync de forma codificada** (`on`/`off`/`status`) — substitui o `launchctl bootout`/`bootstrap` manual por um pause-file que o autosync respeita; usar durante cirurgia git/infra de IA. O autosync também aborta auto-commit de árvore com conflict markers (`git diff --check`). |
 | **`scripts/build-adapters.sh`** | **Compila `source/` → harnesses** — copia hooks/agents para Claude (`~/.claude/`) e rules para Cursor (`.cursor/rules/*.mdc`). Suporte a `--target claude\|cursor\|all` e `--dry-run`. |
 | **`scripts/build-plugins.sh`** | **Gera `plugins/` a partir de `source/`** — gerador idempotente dos 3 sub-plugins do marketplace. Suporte a `--plugin core\|design-suite\|lovable\|all` e `--dry-run`. |
 | **`versions.lock`** | Lockfile de versões (aiox-core, gsd, ref da Suíte, MCPs, plugins) que toda máquina deve convergir |
@@ -824,6 +827,8 @@ ideIAos/
 │   ├── check-versions-lock.sh              ← Guarda do pin GSD no versions.lock (anti-revert pré-redux)
 │   ├── check-memory-not-on-main.sh          ← Guarda Lovable-safe (v5): memória nunca no main; bloqueia merge planning→main
 │   ├── check-plugin-membership.sh           ← Guarda anti-deriva (v7): manifesto plugin: × arrays do build-plugins.sh
+│   ├── check-source-headers.sh             ← Guarda de proveniência (v11): skill sem # SOURCE (advisory; vendorizadas OK-via-pin)
+│   ├── check-soak.sh                       ← SOAK gate (v11): milestone só tagueia após idea-doctor+regressão em ≥2 máquinas/≥1 dia
 │   ├── idea-doctor.sh                      ← Diagnóstico saúde + drift (read-only)
 │   ├── install-global-patches.sh           ← Overlay ideIAos (Caminho C — 15 patches idempotentes)
 │   ├── update-upstream.sh                  ← Detecta updates GSD + AIOX vs versions.lock (--bump re-pina)
@@ -957,7 +962,19 @@ Mantém contratos de comportamento duráveis por capability em `specs/<capabilit
 Deia, registra que o login deve suportar 2FA com TOTP
 → Roteado para /spec → capability "auth" → proposta + delta.
 ```
-Libs internas: `source/skills/spec/lib/spec-validate.sh` (gate) + `source/skills/spec/lib/spec-merge.sh` (merge determinístico + archive datado). Rule de fronteira: `source/rules/common/delta-spec.md`.
+**Subcomandos de auditoria (v11):**
+```
+bash source/skills/spec/lib/spec-analyze.sh <produto-root> [<cap>] [--advisory-only]
+→ gate determinístico da spec VIVA pós-merge (complementa o spec-validate, que só vê o delta):
+  A1 req sem cenário · A2 cenário em nível errado · A3 header duplicado · A4 token de delta
+  vazado = HARD (exit 1). A5 path-morto + A6 req fora de ## Requisitos + passes LLM = ADVISORY.
+  Tudo na zona ## Requisitos, fence-aware. --advisory-only nunca falha.
+
+bash source/skills/spec/lib/spec-converge.sh <produto-root> [<cap>]
+→ ponte APPEND-ONLY spec↔código: gera delta-candidato + relatório numa quarentena
+  (_changes/_converge-<TS>/) que reentra no fluxo normal; NUNCA muta a fonte (sha256 antes/depois).
+```
+Libs internas: `spec-grammar.sh` (gramática única) · `spec-validate.sh` (gate do delta) · `spec-merge.sh` (merge+archive) · `spec-analyze.sh` (gate da fonte) · `spec-converge.sh` (ponte append-only) — em `source/skills/spec/lib/`. Fixture-regression: `tests/spec-analyze.bats` (roda no CI + SOAK). Rule de fronteira: `source/rules/common/delta-spec.md` (inclui `/spec --analyze` × `gsd-code-review`). ADR: `docs/decisions/v11-spec-kit-analyze-converge.md`.
 
 **GSD Lineage Lock (Fase 28) — blindagem do pin redux**
 O `versions.lock` traz nota expandida que documenta a distinção `gsd-redux 1.1.0 ≠ gsd-pi 3.x`. O `check-versions-lock.sh` bloqueia pinos fora da linha redux antes de qualquer commit. Histórico: o pin foi revertido 3 vezes antes desta blindagem.

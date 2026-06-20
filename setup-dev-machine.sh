@@ -178,6 +178,12 @@ sync_one() {
   local BRANCH; BRANCH="$(git branch --show-current)"
   [ -z "$BRANCH" ] && { log "$NAME" "detached HEAD — pulado"; exit 0; }
   local DIRTY=0; [ -n "$(git status --porcelain)" ] && DIRTY=1
+  # Guard de pause (cirurgia git/infra de IA): pause-file global ou por-repo faz
+  # este repo ser pulado por inteiro. Codifica o bootout manual — quem pausa é
+  # responsavel por remover (ver scripts/autosync-pause.sh). Restauracao garantida.
+  if [ -f "${HOME}/.local/state/git-autosync.pause" ] || [ -f "$REPO/.git/autosync-pause" ]; then
+    log "$NAME" "pausado (pause-file) — pulado"; exit 0
+  fi
   case "$BRANCH" in
     main|master)
       if [ "$DIRTY" -eq 1 ]; then log "$NAME" "$BRANCH (protegida) com alterações — pulado"; exit 0; fi
@@ -218,6 +224,14 @@ sync_one() {
       # Defesa em profundidade: além de versions.lock e memória local, o store
       # shared também jamais pode ser staged no main.
       MEM_EXCLUDES+=(":(exclude).planning/memory" ":(exclude).lovable_mem_tmp.md")
+    fi
+    # Guard anti-contaminacao: nunca auto-commitar arvore com conflict markers
+    # (incidente 2026-06: autosync varreu <<<<<<< /======= />>>>>>> p/ uma branch
+    # e pushou). git diff --check reporta "leftover conflict marker" — deterministico.
+    if git diff --check 2>>"$LOG" | grep -q 'leftover conflict marker'; then
+      log "$NAME" "CONFLICT MARKERS — auto-commit ABORTADO em $BRANCH"
+      notify "Git sync — conflict markers" "$NAME ($BRANCH): marcadores de conflito; auto-commit pulado."
+      exit 0
     fi
     git add -A -- . "${MEM_EXCLUDES[@]}" 2>>"$LOG"
     git commit -q -m "wip: autosync $(date '+%Y-%m-%d %H:%M') ($HOST)" 2>>"$LOG" && log "$NAME" "auto-commit em $BRANCH" || log "$NAME" "nada para commitar em $BRANCH"

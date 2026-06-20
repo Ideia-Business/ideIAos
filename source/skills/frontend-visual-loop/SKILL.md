@@ -3,6 +3,8 @@ name: frontend-visual-loop
 description: "Closed visual feedback loop for frontend work — render the running app, capture a screenshot + accessibility-tree snapshot, critique it against design rules, fix the code, and re-render until it passes. Runs entirely on the already-installed Chrome DevTools MCP (no Playwright install needed). Use AFTER writing or changing UI when you want to SEE the result and self-correct, not just trust the JSX. Triggers: 'veja o resultado', 'confere visualmente', 'tá feio/quebrado', 'itera no visual', 'render e corrige', 'screenshot e ajusta', 'visual review do que implementei', 'loop visual', 'antes de commitar a UI'. Complements ui-ux-pro-max (the rubric), web-quality (the audit), and gsd-ui-review (the retroactive audit)."
 ---
 
+# SOURCE: IdeiaOS
+
 # Frontend Visual Loop
 
 A skill que **fecha o ciclo** entre escrever UI e ver a UI. O modelo escreve código frontend "às cegas" por padrão — esta skill obriga a renderizar, olhar, criticar e corrigir antes de declarar pronto.

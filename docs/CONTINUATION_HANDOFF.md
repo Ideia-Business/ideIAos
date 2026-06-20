@@ -176,7 +176,19 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 
 ## Próximo passo
 
-> **▶ RETOMAR AQUI (próxima sessão) — leia primeiro:** validação de resíduos um-a-um **COMPLETA (5/5)**. Itens 1–4 fechados (verify-deploy `IN_SYNC` · ENV-04 · Mac mini baixo-risco · nfideia spec → PR [nfideia#40](https://github.com/Ideia-Business/nfideia/pull/40)). **Item 5 (stashes) RESOLVIDO em 2026-06-19:**
+> **▶ RETOMAR AQUI (2026-06-19, v11 COMPLETO — fechamento PARCIAL/no-tag):** as **6 ondas do v11 estão DONE**, commitadas + pushadas em `work` (`origin/work=4011186`, 0/0):
+> - **W1** autosync guard-aware — `44336c5`
+> - **W2** CI repo-self-consistency gates + `check-source-headers` + design-suite ref resolvido — `ccb3ff0`
+> - **W3** SOAK gate `check-soak.sh` + surface-budget + `/idea` routing eval cases — `70f0cd6`
+> - **W4** `/spec --analyze`+`--converge` (libs `spec-grammar`/`analyze`/`converge`, tests 23 asserts) — `e65d0e0` **+ hardening** `4011186` (corrigiu bloqueador A2-template-FP + 9 achados da verificação adversarial wf_99173505)
+> - **W5** deltas LOW R2/R4/R6/R8 — `4637b1d`
+> - **W6** 2 ADRs (`v11-spec-kit-analyze-converge`, `v11-license-provenance-quarantine`) + SOAK heartbeat
+>
+> **ÚNICO passo restante para a TAG `v11.0`:** rodar `bash scripts/check-soak.sh v11-arsenal --record` numa **2ª máquina** (Mac mini) e esperar **≥1 dia**; então `bash scripts/check-soak.sh v11-arsenal` → exit 0 → criar a tag. **Nada de código pendente.** Metodologia: design por painel (`wf_449a5952`) + verificação adversarial 5-lentes (`wf_99173505`). Tracker com notas W1-W6: `.planning/milestones/v11-arsenal-absorption-PLAN.md`. ⚠️ Pausar autosync antes de cirurgia git (`scripts/autosync-pause.sh on/off`).
+
+---
+
+> **▶ RETOMAR AQUI (sessão anterior, HISTÓRICO) — leia primeiro:** validação de resíduos um-a-um **COMPLETA (5/5)**. Itens 1–4 fechados (verify-deploy `IN_SYNC` · ENV-04 · Mac mini baixo-risco · nfideia spec → PR [nfideia#40](https://github.com/Ideia-Business/nfideia/pull/40)). **Item 5 (stashes) RESOLVIDO em 2026-06-19:**
 > - `nfideia stash@{0}` — confirmado noise (1 linha na seção auto-regenerada "Ultima sessao automatica") → **dropado** (`251593f1`).
 > - `ideiapartner stash@{0}` (autostash órfão) — noise + deleção stale de `package-lock.json` (−442, blob mudou desde) → **dropado** (`4e37d1be`).
 > - `ideiapartner stash@{1}` (type-safety pass, 2026-06-03) — revisado: 16/20 arq = casts `as TablesUpdate` (inócuos), MAS 4/20 = mudanças schema-coupled NÃO-verificáveis (`useAdminPartners` dropa `approved_at`/renomeia `paid_at`→`pix_paid_at`; `useCSAdvanced` reestrutura insert p/ `metadata`; `useAISystemContext` **conflita** na main atual). Veredito: **NÃO aplicar** (repo Lovable = source-of-truth no cloud; stale 3 sem; conflito). **Arquivado** em `~/dev/ideiapartner/.stash-archive/type-safety-pass-cursor-2026-06-03.patch` (24 KB, git-excluded via `.git/info/exclude`) e **dropado** (`b6975338`). Re-aplicável via `git apply` ou alimentar à Lovable se desejado.
@@ -268,5 +280,5 @@ _Histórico v7 abaixo:_
 
 ## Ultima sessao automatica (2026-06-19)
 
-- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-19-ideiaos-3eb736d7-c52c-4642-8594-9a57f376.tmp`
+- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-19-ideiaos-32df5c2a-1220-4b2b-877f-3821faf9.tmp`
 - Próximo passo: (definir antes de retomar)

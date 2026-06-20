@@ -155,7 +155,12 @@ if [ -f "$LOCK" ]; then
   if [ -n "$AV" ]; then
     [ "$AV" = "$AIOX_PIN" ] && pass "aiox-core $AV = pin" || warn "AIOX drift: instalado $AV ≠ pin $AIOX_PIN (update-upstream.sh --bump se intencional)"
   fi
-  info "Suíte de Design pin: $(read_lock design-suite-ref) ($(read_lock design-suite-commit))"
+  DS_REF="$(read_lock design-suite-ref)"; DS_COMMIT="$(read_lock design-suite-commit)"
+  if printf '%s' "$DS_COMMIT" | grep -qiE '^[0-9a-f]{7,40}$'; then
+    pass "Suíte de Design pin: ref=$DS_REF commit=$DS_COMMIT (hash real)"
+  else
+    warn "Suíte de Design commit='$DS_COMMIT' não é hash real (seed local) — alinhe ao ref pinado: bash scripts/update-design-suite.sh"
+  fi
 else
   warn "versions.lock ausente — esperado em $LOCK"
 fi
@@ -493,6 +498,46 @@ if [ -f "$PMCHECK" ]; then
   fi
 else
   info "check-plugin-membership.sh ausente (pulando)"
+fi
+
+# ── 11) Proveniência & superfície de skills (v11) ─────────────────────────────
+step "11) Proveniência & superfície de skills"
+SHCHECK="$SETUP_DIR/scripts/check-source-headers.sh"
+if [ -f "$SHCHECK" ]; then
+  if bash "$SHCHECK" --strict >/dev/null 2>&1; then
+    pass "toda skill declara # SOURCE (ou é vendorizada via pin)"
+  else
+    warn "skill(s) sem # SOURCE — rode: bash scripts/check-source-headers.sh"
+  fi
+else
+  info "check-source-headers.sh ausente (pulando)"
+fi
+# Orçamento de superfície: perfil default (installStrategy: always) ~15-25 skills.
+# Guarda contra reinchar a superfície numa máquina fresca (cf. mcp-hygiene ≤80 tools).
+SURFACE_BUDGET="${IDEIAOS_SURFACE_BUDGET:-28}"
+ALWAYS_N="$(python3 -c "import json; m=json.load(open('$SETUP_DIR/manifests/modules.json')); mods=m if isinstance(m,list) else m.get('modules',[]); print(sum(1 for e in mods if e.get('kind')=='skill' and e.get('installStrategy')=='always'))" 2>/dev/null || echo '?')"
+if [ "$ALWAYS_N" = "?" ]; then
+  info "superfície de skills: manifesto não lido"
+elif [ "$ALWAYS_N" -le "$SURFACE_BUDGET" ]; then
+  pass "superfície default: $ALWAYS_N skill(s) always-on (teto $SURFACE_BUDGET; resto stack-gated/manual)"
+else
+  warn "superfície default INCHADA: $ALWAYS_N > $SURFACE_BUDGET always-on — stack-gate/manual em manifests/modules.json"
+fi
+
+# ── 12) Dívida técnica marcada (// debt: — v11) ──────────────────────────────
+step "12) Dívida técnica marcada (debt:)"
+# Marcador comment-agnóstico (// # --) para dívida CONHECIDA e aceita (operating-discipline #5).
+# Escopo: código em source/ + scripts/ (não .md — evita os exemplos em prosa da própria rule).
+# Exclui idea-doctor.sh (contém o próprio padrão → observer-effect; cf. secret-scanner learning).
+DEBT_HITS="$(grep -rnE '(//|#|--)[[:space:]]*debt:' "$SETUP_DIR/source" "$SETUP_DIR/scripts" \
+  --include='*.sh' --include='*.js' --include='*.ts' --include='*.tsx' --include='*.py' \
+  2>/dev/null | grep -v '/idea-doctor.sh:' || true)"
+DEBT_N="$(printf '%s' "$DEBT_HITS" | grep -c . || true)"
+if [ "${DEBT_N:-0}" -eq 0 ]; then
+  pass "nenhum marcador debt: pendente em source/+scripts/"
+else
+  warn "$DEBT_N marcador(es) debt: em source/+scripts/ — dívida conhecida (visibilidade, não bloqueia):"
+  printf '%s\n' "$DEBT_HITS" | sed "s#$SETUP_DIR/#       #" | head -10
 fi
 
 # ── Resumo ────────────────────────────────────────────────────────────────────

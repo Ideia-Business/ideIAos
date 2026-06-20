@@ -3,6 +3,8 @@ name: motion
 description: "Animation & motion implementation for web UIs — turns animation intent into real, production-grade code. Covers library selection (Framer Motion / Motion for React as default, GSAP + ScrollTrigger for complex timelines & scroll, react-spring for physics niches), gestures (drag/hover/tap), enter/exit (AnimatePresence), layout animations, scroll-linked effects, spring physics, SVG, and bundle optimization (LazyMotion). Enforces motion principles: 150–300ms durations, meaningful motion, prefers-reduced-motion. Use when asked to 'animar', 'adicionar transição/animação', 'efeito de scroll', 'fazer aparecer/sair suave', 'micro-interação', 'page transition', 'parallax', 'hover animado', 'stagger', 'deixar com vida/fluido'. Complements ui-ux-pro-max (priority 7 = animation guidelines) and ui-styling (the components being animated)."
 ---
 
+# SOURCE: IdeiaOS
+
 # Motion — Animação para UIs Web
 
 A skill que **escreve animação de verdade**. O `ui-ux-pro-max` diz *quando* e *quão rápido* animar (prioridade 7); esta skill entrega o *como* — código Framer Motion / GSAP correto, performático e acessível.

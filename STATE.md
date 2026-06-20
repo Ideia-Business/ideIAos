@@ -16,7 +16,7 @@
 | **v5 Memória entre IDEs** | ✅ import/export hooks, branch `planning`, 3 suites verdes |
 | **Branches** | ✅ `main` = `work` · `planning` — alinhados e pushed (ver `git log`; hashes voláteis não fixados aqui) |
 | **idea-doctor** | ✅ 65 OK · 0 WARN · 0 FAIL (2026-06-18) — FAIL anterior era **falso-positivo** num dummy de fixture de teste (`sk-abcdEFGH…`, do `test-memory-export.sh`); `plausible_sk()` endurecido p/ rejeitar corridas sequenciais/dicionário. IdeiaOS repo limpo |
-| **README sync** | ✅ 112/112 |
+| **README sync** | ✅ 118/118 |
 | **Deploy máquinas** | ✅ MacBook-Air-2 · ✅ Mac mini git-synced (autosync ativo 06-18/06-19); `ideiaos-update.sh` aceito como baixo-risco (rodar quando for usar o mini) |
 | Próximo passo | Ver `docs/CONTINUATION_HANDOFF.md` § Próximo passo |
 
@@ -58,6 +58,8 @@ Sessão de **pesquisa + planejamento** do milestone **v9 — "Camada de Alinhame
 5. **Verificação** — README 112/112 ✅ · idea-doctor 2 FAIL (secrets Jarvis/iCloud Projects — remediação manual).
 
 ## Pendências não-bloqueantes
+
+- 🟢 **Milestone v11 — Integridade & Auditoria de Spec — TODAS as 6 ondas DONE (fechamento PARCIAL/no-tag, 2026-06-19):** plano+notas em `.planning/milestones/v11-arsenal-absorption-PLAN.md`. **W1** autosync guard-aware (`44336c5`) · **W2** CI repo-self-consistency gates + `check-source-headers` + design-suite ref resolvido (`ccb3ff0`) · **W3** SOAK gate `check-soak.sh` + surface budget + `/idea` routing eval cases EVAL-023/24/25 (`70f0cd6`) · **W4** `/spec --analyze`+`--converge` (libs `spec-grammar`/`analyze`/`converge` + tests/spec-analyze.bats 23 asserts) (`e65d0e0`) **+ hardening pós-verificação adversarial** wf_99173505 (`4011186` — corrigiu bloqueador A2-template-FP + 9 achados) · **W5** deltas LOW R2/R4/R6/R8 (`4637b1d`) · **W6** 2 ADRs (`v11-spec-kit-analyze-converge`, `v11-license-provenance-quarantine`) + SOAK heartbeat gravado. **Design por painel (wf_449a5952) + verificação adversarial (wf_99173505).** **TAG `v11.0` PENDENTE só do SOAK:** falta `check-soak.sh v11-arsenal --record` numa 2ª máquina (Mac mini) + ≥1 dia → então exit 0 → tag. Nada de código pendente.
 
 - ✅ **Lovable MCP Fase A — rollout FECHADO (2026-06-19):** teste e2e `/lovable-mcp verify-deploy` **RODADO contra nfideia real** → verdict binário **`IN_SYNC`** (`CLOUD_SHA latest_commit_sha=3921f440a44eed620de6e60d3832f5c16f1022b8` == `origin/main`); resolver de escopo `in:todos` (projeto na pasta canônica "Grupo Ideia"); só tools read-only (`get_me`/`list_projects`/`get_project`); repo não-shallow. Toggles de painel já feitos; deny=19 **PERSISTIDO em 5/5** (regressão 2/5 remediada 2026-06-18, `wf_247740a6`). Fase A 100% operacional e validada end-to-end.
 - ✅ **Fase B (sandbox) CONCLUÍDA — veredito 🔴 BLOQUEAR `publish`.** Read-only (A1-namespace ACOPLADO + A3 PASS) + escrita ao vivo (fork descartável, janela `deny→ask` aberta+fechada). Muro de viabilidade: o MCP não tem superfície p/ gitsync GitHub → A1-lag + A2 inmensuráveis no sandbox → bloqueio conservador. Fases C/D gateadas até medir A2 fora do MCP (gitsync manual na UI). Fork descartável **deletado pelo usuário** (confirmado get_project=404) — zero resíduo na conta Lovable.

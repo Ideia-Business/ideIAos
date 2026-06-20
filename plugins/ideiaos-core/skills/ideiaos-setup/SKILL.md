@@ -3,6 +3,8 @@ name: IdeiaOS
 description: Ponto de entrada único para garantir que o projeto atual tem o setup completo do IdeiaOS — Sistema Operacional unificado de desenvolvimento da Ideia Business (AIOX Core, GSD, camada Lovable, Fase A — loop de aprendizado, hooks Claude Code, rules Cursor, padrões de debugging em produção, orquestrador /idea). Idempotente — pula tudo que já está instalado. Use no início de qualquer projeto novo (clone fresh, primeiro acesso, ou quando suspeitar que algo está faltando). Detecta automaticamente o projeto atual via cwd.
 ---
 
+# SOURCE: IdeiaOS
+
 # Skill: IdeiaOS
 
 Você é responsável por garantir que o projeto atual está com o setup completo do **IdeiaOS** — Sistema Operacional unificado da Ideia Business. Isso cobre 5 camadas: AIOX-Core, GSD, Lovable, Fase A (loop de aprendizado), Continuation cross-IDE.

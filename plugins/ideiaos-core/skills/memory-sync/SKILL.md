@@ -3,6 +3,8 @@ name: memory-sync
 description: Gatilho manual da memória compartilhada entre IDEs/máquinas do IdeiaOS. `/memory-sync export` força a exportação da memória nativa da IDE para o store canônico no branch `planning` (via git plumbing, sem resíduo no working tree, NUNCA tocando `main`); `/memory-sync import` força a importação dos fatos `shared/` do `planning` para a memória nativa. `/memory-sync status` é diferido (v5.x). Use quando quiser sincronizar memória sem esperar os hooks de SessionStart/Stop, ou ao fechar uma sessão com aprendizado novo.
 ---
 
+# SOURCE: IdeiaOS v5
+
 # Skill: memory-sync
 
 Você é responsável pelo **gatilho manual explícito** da memória compartilhada do IdeiaOS — a camada que sincroniza a memória nativa de cada IDE (Claude Code, Cursor) com um store canônico que vive no branch `planning`, atravessando máquinas via git, **sem nunca tocar o `main`**.

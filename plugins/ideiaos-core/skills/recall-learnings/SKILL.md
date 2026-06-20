@@ -3,6 +3,8 @@ name: recall-learnings
 description: Lê aprendizados anteriores (`docs/learnings/`, memória Claude, e Obsidian vault se conectado) antes de começar qualquer planejamento de resolução. Garante que a IA inicia a sessão sabendo o que já foi aprendido sobre o projeto, evitando re-explorar gotchas conhecidos.
 ---
 
+# SOURCE: IdeiaOS
+
 # Skill: recall-learnings
 
 Você é responsável por **carregar contexto de aprendizado** antes de propor qualquer plano de resolução em um projeto. Esta skill é invocada **automaticamente no início** de:
