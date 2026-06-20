@@ -1166,6 +1166,19 @@
       "plugin": "ideiaos-core"
     },
     {
+      "id": "rule-learning-channel-routing",
+      "kind": "rule",
+      "description": "Roteamento dos dois canais de aprendizado do IdeiaOS: gotcha de domínio/incidente → memória nativa da IDE (auto-injetada, sincronizada via /memory-sync); reflexo de engenharia stack-agnóstico → camada de instincts (/learn, /instinct-analyze) → promoção via /evolve. Nunca o mesmo fato verbatim nos dois. Instincts são telemetria write-only, não conduta ao vivo. Cross-link operating-discipline/token-economy. v2.",
+      "source": "source/rules/common/learning-channel-routing.md",
+      "targets": [
+        "claude",
+        "cursor"
+      ],
+      "deps": [],
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
+    },
+    {
       "id": "skill-observability",
       "kind": "skill",
       "description": "Skill /observability — observabilidade & instrumentação: log estruturado + correlation ID, RED/USE metrics, OpenTelemetry tracing, alertas em sintomas. OPT-IN (catálogo via /ideiaos-catalog). Absorvido de agent-skills MIT (addyosmani). v8.",
