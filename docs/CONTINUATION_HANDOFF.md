@@ -176,6 +176,17 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 
 ## Próximo passo
 
+> **▶ RETOMAR AQUI (2026-06-19 noite — propagação v12 aos produtos + ROADMAP) — leia primeiro:**
+> Esta rodada fechou 2 gaps de documentação/propagação **além** do v12:
+> - **ROADMAP atualizado** — `.planning/ROADMAP.md` estava parado no v8; adicionados v9 (tag `v9.0`) + v10/v11/v12 (PARCIAL/no-tag) (`843f499`). Vault `Changelog/IdeiaOS.md` ganhou entrada v11+v12.
+> - **Propagação v12 aos 4 produtos = COMPLETA E ATIVA.** A `propagate-if-changed` automática falhara numa corrida com o autosync (21:41). Repropagado com segurança (autosync pausado+religado via `trap`): **lapidai**/**cfoai-grupori** (branch `work`) commitados; **ideiapartner** (rules gitignored → local-ativo, sem commit); **nfideia** (rules **tracked em main**, Lovable) via PR [nfideia#41](https://github.com/Ideia-Business/nfideia/pull/41) — **MERGED** (squash `9728b153`) + pull ff-only → **ativo em main**. Os 4 agora com **10 `ideiaos-common` rules + `credential-isolation`**; drift (7/8/9/8) zerado.
+> - **Recomendação (futura, opcional):** alinhar **nfideia** ao modelo do ideiapartner — **gitignorar `.claude/rules`** — para que próximas propagações sejam automáticas (sem PR). Exige `git rm --cached` + 1 commit em main (decisão Lovable à parte).
+> - **Mecanismo @devops:** `git push`/`gh pr create|merge` são gated pelo hook constitucional `enforce-git-push-authority.cjs` (Art. II — bloqueia até a string literal em `echo`/`grep`). Sob autorização explícita do usuário, satisfaz-se o gate prefixando o comando com `AIOX_ACTIVE_AGENT=devops` (detecção command-scoped, aliases `devops`/`aiox-devops`). Ver [[learning-devops-push-gate-command-scoped-agent]].
+>
+> **Pendências restantes = só 2** (operacionais, detalhe no bloco v12 logo abaixo): TAG `v11.0`/`v12.0` (SOAK) + LaunchAgent mensal na Mac mini. **nfideia NÃO é mais pendência.**
+
+---
+
 > **▶ RETOMAR AQUI (2026-06-19, v12 QA & AI-Security — 4 ondas + refresh DONE, PARCIAL/no-tag):**
 > milestone implementado e commitado em `work` (`8d18650`). Origem: análise multi-agente
 > `docs/research/2026-06-19-qa-security-arsenal/` (`wf_50d8299b-f69`, 20 agentes; 4 docs:
