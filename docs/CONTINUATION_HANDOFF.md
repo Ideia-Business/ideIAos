@@ -191,7 +191,7 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 > - **Rule auto-propaga** via post-merge a cada pull de `main` (lapidai já tem); não foi commitada manualmente nos produtos.
 > - ⚠️ Antes de cirurgia git multi-repo: pausar autosync (`scripts/autosync-pause.sh on/off`, com `trap`). _Esta sessão não precisou (footprint 100% local/untracked)._
 >
-> **Pendências SOAK acumuladas (3 milestones aguardam span/máquina): v11.0, v12.0, v13.0** + LaunchAgent mensal AI-security na Mac mini.
+> **✅ v11.0 TAGUEADO 2026-06-20** (`ec965b1`→`1ba01c8`, pushed) — SOAK fechou hoje (re-record 18:21 na MacBook-Air-2 abriu o span ≥1d; 2 máquinas reais já tinham heartbeat). **Pendências SOAK restantes: v12.0 + v13.0** (cada um precisa de 2ª máquina real + span ≥1d) + LaunchAgent mensal AI-security na Mac mini. Lembrete agendado: rotina `ideiaos-soak-tag-readiness` (2026-06-21 18:00).
 
 ---
 
