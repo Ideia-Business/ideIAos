@@ -563,6 +563,22 @@ else
   fi
 fi
 
+# ── 14) Security freshness (selo de segurança, v13) ──────────────────────────
+step "14) Security freshness (v13)"
+SECFRESH_SH="$SETUP_DIR/scripts/check-security-freshness.sh"
+if [ ! -f "$SECFRESH_SH" ]; then
+  info "check-security-freshness.sh ausente (gate de frescor não instalado)"
+else
+  SF_TIER="$(bash "$SECFRESH_SH" --tier 2>/dev/null || echo erro)"
+  case "$SF_TIER" in
+    ok)             pass "frescor de segurança ok (revisão recente / pouca superfície tocada)" ;;
+    warn)           warn "segurança DEFASADA — rode @security-reviewer no diff + bash scripts/check-security-freshness.sh --record" ;;
+    egregious)      warn "segurança EGRÉGIA (atraso grande) — revise já; o tag será bloqueado quando o gate maturar (1º ciclo = advisory)" ;;
+    unbootstrapped) warn "selo de segurança não-bootstrapado — rode: bash scripts/check-security-freshness.sh --bootstrap" ;;
+    *)              info "frescor de segurança indeterminado (sem git ou erro)" ;;
+  esac
+fi
+
 # ── Resumo ────────────────────────────────────────────────────────────────────
 echo -e "\n${CYAN}${BOLD}━━━ Resumo ━━━${NC}"
 echo -e "  ${GREEN}OK:${NC} $PASS   ${YELLOW}WARN:${NC} $WARN   ${RED}FAIL:${NC} $FAIL"

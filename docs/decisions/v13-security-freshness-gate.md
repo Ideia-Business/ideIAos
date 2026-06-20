@@ -1,6 +1,6 @@
 # ADR — v13: Security Freshness Gate (Selo de Frescor de Segurança)
 
-**Status:** **Proposto** · zero código · aguarda aprovação do usuário antes de implementar (2026-06-20)
+**Status:** **Aceito** (2026-06-20) · aprovado pelo usuário; build GSD em andamento (W1→W4)
 **Contexto-fonte:** sessão de design 2026-06-20 (grilling + 3 decisões via AskUserQuestion)
 **Sucede:** [v12 — QA & AI-Security]; reusa o padrão SOAK (`.planning/soak/` + `check-soak.sh`) e a disciplina `antifragile-gates`.
 **Proveniência:** **nativo IdeiaOS** (composição de peças existentes; zero dependência/ferramenta/MCP novo).

@@ -57,6 +57,13 @@ logs/
 # máquinas diferentes nunca convergem e o SOAK nunca passa (bug latente do v11 W3).
 !.planning/soak/
 !.planning/soak/*.log
+# EXCEÇÃO: o ledger do Selo de Frescor de Segurança (.security/review-ledger.log)
+# DEVE ser commitado — é a prova cross-máquina do gate (check-security-freshness.sh).
+# Mesmo padrão do SOAK; sem isto o *.log da linha 53 engole o ledger silenciosamente
+# (learning broad-gitignore-sweeps-tracked-ledger). O .security/policy.sh (tunagem
+# por repo, opcional) fica fora do git por convenção — não é commitado.
+!.security/review-ledger.log
+.security/policy.sh
 
 # IDE & OS (AIOX)
 Thumbs.db

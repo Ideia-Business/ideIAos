@@ -1179,6 +1179,19 @@
       "plugin": "ideiaos-core"
     },
     {
+      "id": "rule-security-freshness",
+      "kind": "rule",
+      "description": "Selo de Frescor de Segurança (sempre-on): segurança verificada periodicamente e por sistema, não só sob demanda. Padrão SOAK aplicado a dívida de segurança — gatilho determinístico risk-weighted (git diff + path-globs + idade → tier) → revisão @security-reviewer → re-selo (.security/review-ledger.log). Nunca gateia PR; trava só o tag (IdeiaOS, via check-security-freshness.sh --gate) no tier egrégio; WARN nos Lovable. 1º ciclo advisory. Cross-link security-reviewer/antifragile-gates/credential-isolation. v13.",
+      "source": "source/rules/common/security-freshness.md",
+      "targets": [
+        "claude",
+        "cursor"
+      ],
+      "deps": [],
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
+    },
+    {
       "id": "rule-learning-channel-routing",
       "kind": "rule",
       "description": "Roteamento dos dois canais de aprendizado do IdeiaOS: gotcha de domínio/incidente → memória nativa da IDE (auto-injetada, sincronizada via /memory-sync); reflexo de engenharia stack-agnóstico → camada de instincts (/learn, /instinct-analyze) → promoção via /evolve. Nunca o mesmo fato verbatim nos dois. Instincts são telemetria write-only, não conduta ao vivo. Cross-link operating-discipline/token-economy. v2.",
