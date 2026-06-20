@@ -176,6 +176,29 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 
 ## Próximo passo
 
+> **▶ RETOMAR AQUI (2026-06-19, v12 QA & AI-Security — 4 ondas + refresh DONE, PARCIAL/no-tag):**
+> milestone implementado e commitado em `work` (`8d18650`). Origem: análise multi-agente
+> `docs/research/2026-06-19-qa-security-arsenal/` (`wf_50d8299b-f69`, 20 agentes; 4 docs:
+> ANALYSIS/PROPOSAL/SECURITY-KNOWLEDGE/MONTHLY-REFRESH-SPEC). Absorção **conceito-only**
+> (licenças via GitHub API: Hercules **AGPL-3.0** · TalEliyahu **MIT** · muellerberndt **SEM LICENÇA**):
+> - **W1** `antifragile-gates` (2 regimes: artefato-exit-code vs runtime-NL) + `operating-discipline` #6 + nova rule `credential-isolation` (+ entry no `modules.json`)
+> - **W2** `security-reviewer` (OWASP LLM Top 10 condicional + prompt-injection-runtime) + `mcp-hygiene` (critérios MCP SlowMist/TTPs + "Excessive Agency")
+> - **W3** `docs/process/qa-coverage-index.md` (índice + 3 gaps) + `docs/reference/ai-governance-crossmap.md`
+> - **W4** `evals/cases/EVAL-026/027/028` (anti-injection adversarial, ADVISORY)
+> - **Refresh mensal:** `scripts/refresh-ai-security.sh` (curl+diff+sha, nunca executa; snapshot **LOCAL/gitignored** — muellerberndt all-rights-reserved) + `infra/launchd/com.ideiaos.refresh-ai-security.plist` + idea-doctor §13
+>
+> ADR `docs/decisions/v12-qa-security-absorption.md`; plano `.planning/milestones/v12-qa-security-PLAN.md`.
+> Verificado: idea-doctor **73/1/0**, readme-sync 120/120, evals dry-run lista os 3 casos. Propagado a `.claude`/`.cursor`/`plugins`.
+>
+> **2 passos restantes (ambos operacionais, não-código):**
+> 1. **TAG `v12.0`** — pendente do SOAK (`.planning/soak/v12-qa-security.log`: 1 máquina/0d agora; precisa ≥2 máquinas + ≥1d). Rodar `bash scripts/check-soak.sh v12-qa-security --record` na 2ª máquina + esperar 1 dia, como o v11.
+> 2. **Ativar o refresh mensal na always-on (Mac mini):**
+>    `cp infra/launchd/com.ideiaos.refresh-ai-security.plist ~/Library/LaunchAgents/ && launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.ideiaos.refresh-ai-security.plist`
+>
+> ⚠️ **Lição:** dogfood pegou um agente alucinando "Hercules = Apache-2.0"; a API confirmou **AGPL-3.0**. Verificar licença de repo via `gh api repos/<o>/<r> --jq .license.spdx_id`, NUNCA via alegação de LLM. Ver [[learning-gitignore-third-party-verbatim-snapshot]].
+
+---
+
 > **▶ RETOMAR AQUI (2026-06-19, v11 COMPLETO — fechamento PARCIAL/no-tag · SOAK 2/2 máquinas PASS):** as **6 ondas do v11 estão DONE**, commitadas + pushadas em `work` (`origin/work=049a947`, 0/0):
 > - **W1** autosync guard-aware — `44336c5`
 > - **W2** CI repo-self-consistency gates + `check-source-headers` + design-suite ref resolvido — `ccb3ff0`
