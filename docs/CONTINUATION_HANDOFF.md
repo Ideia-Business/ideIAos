@@ -179,7 +179,7 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 > **▶ RETOMAR AQUI (2026-06-21, tarde — sessão headroom/cookbook, INDEPENDENTE do v14) — leia primeiro:**
 > - **Headroom (`chopratejas/headroom`) avaliado → NÃO adotar** como proxy/MCP/dependência. Memória `headroom-eval-2026-06`; relatório `/tmp/headroom-analysis/HEADROOM-ANALYSIS.md` (efêmero — recriável do clone).
 > - **`/tool-output-compressor` SHIPPED** (padrão minerado, invertido p/ CLI-First): skill + lib stdlib + spec viva (7 req) + tests verdes + plugin + **roteado pela Deia**. Commits `05d7149→9f3d02a→f50c022`. Uso: `bash ~/.claude/skills/tool-output-compressor/lib/toc.sh compress --json`. Opção (b) hook auto-compressão por limiar = **PARQUEADA não-bloqueante**.
-> - **PENDENTE:** parecer de absorção do `huggingface/cookbook` — workflow `wf_d785952e-8da` em curso (6 especialistas, fit por superfície). Entregar o ranking absorber/adaptar-no-produto/referência/skip quando fechar.
+> - **HF cookbook (`huggingface/cookbook`) — CONCLUÍDA: NÃO absorver.** 6 especialistas + verificação adversarial 8/8. 3 wins de pattern-transfer no produto (extração-com-âncora→nfideia; PII-scrubber→cfoai/nfideia; DDL-subset-text2SQL→cfoai); RAG gated em ter retrieval. Guia durável: `docs/guides/hf-cookbook-patterns.md`; memória `hf-cookbook-eval-2026-06`.
 > - Não toca o v14 (paths distintos). O próximo passo do v14 segue abaixo, **intacto**.
 
 > **▶ RETOMAR AQUI (2026-06-21, Mac mini — v14.0 PLANEJADO via multi-agente; execução GATED pelo v13) — leia primeiro:**
