@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v10
 milestone_name: Camada de Integração Lovable MCP
 status: partial
-last_updated: "2026-06-21T23:18:22.297Z"
+last_updated: "2026-06-21T23:28:08.017Z"
 progress:
   total_phases: 4
   completed_phases: 2
