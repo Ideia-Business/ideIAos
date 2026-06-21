@@ -55,6 +55,7 @@ CORE_SKILLS=(
   recall-learnings
   spec
   tdd
+  tool-output-compressor
   two-instance-kickoff
 )
 

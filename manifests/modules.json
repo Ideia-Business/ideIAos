@@ -1257,6 +1257,17 @@
       "plugin": "ideiaos-core"
     },
     {
+      "id": "skill-tool-output-compressor",
+      "kind": "skill",
+      "description": "Skill /tool-output-compressor — compressor local, determinístico e reversível (CCR via store keyed por sha256) de saídas de ferramenta (logs/JSON tabular) antes de entrarem no contexto; CLI-First, sem rede/dependência, nunca toca mensagem do usuário, fail-open, verificação por exit-code. Padrão minerado de chopratejas/headroom (Apache-2.0); a dependência NÃO foi adotada. Contrato vivo em specs/tool-output-compressor/.",
+      "source": "source/skills/tool-output-compressor/SKILL.md",
+      "targets": [
+        "claude"
+      ],
+      "installStrategy": "always",
+      "plugin": "ideiaos-core"
+    },
+    {
       "id": "rule-ubiquitous-language",
       "kind": "rule",
       "description": "Linguagem ubíqua do IdeiaOS (Evans/DDD): o que é o glossário CONTEXT.md e como ele se distingue dos outros dois artefatos com nome parecido (os três CONTEXT). Como /spec e o GSD consomem o glossário. Complementa a skill /grelha (mantém o glossário inline). Absorvido de mattpocock/skills MIT (R9-02). v9.",
