@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v10
 milestone_name: Camada de Integração Lovable MCP
 status: partial
-last_updated: "2026-06-21T22:59:52.706Z"
+last_updated: "2026-06-21T23:12:10.215Z"
 progress:
   total_phases: 4
   completed_phases: 2
@@ -74,14 +74,21 @@ _v9 (Camada de Alinhamento) SHIPPED 2026-06-17, tag v9.0 — 7 requisitos, audit
 - gsd-browser: reavaliar quando publicar npm/crates (ADR docs/decisions/) — aguarda upstream.
 - DeepSeek V4 Pro: habilitar nos PRODUTOS (cfoai/nfideia etc.), fora do escopo IdeiaOS.
 
-## v14.0 (Cockpit) — PLANEJADO 2026-06-21 (execução GATED pelo v13)
+## v14.0 (Cockpit) — EM EXECUÇÃO 2026-06-21
 
 Fase **v14.0 Substrato+Espinha** planejada via frota Ultracode (pattern-mapper → planner → 3
 verificadores adversariais). 7 PLAN.md (20 tasks/3 waves) em
 `.planning/milestones/v14-phases/14.0-substrate-spine/`, commit `9bcb15c`. 6 defeitos pegos pela
 revisão adversarial e corrigidos (verificados por exit-code, 0 violações antifragile).
-**`/gsd-execute-phase 14.0` só após o v13 tagar** — o `14.0-01` edita `idea-doctor.sh`, que o SOAK
-do v13 re-executa na re-gravação (acoplamento de runtime). Detalhe no handoff.
+
+**Planos executados:**
+- ✅ `14.0-01` (idea-doctor --json): commit `24290e6`
+- ✅ `14.0-02` (cockpit.sh ref plumbing): commit `2b3122a`
+- ✅ `14.0-03` (ttt-baseline.sh + ttt-median.sh): commits `4de6360`, `02d5d90`
+  - Harness TTT: N>=5 por jornada J1/J4/J2 registrado; medianas J1=0.002s J4=0.001s J2=0.002s
+  - Decisões: modo interativo via `[ -t 0 ]`; mediana N par = linha inferior N/2 (determinista)
+
+**Próximo:** `14.0-04` ou próximo plano da wave 1/2/3.
 
 ## Compact Snapshot
 
