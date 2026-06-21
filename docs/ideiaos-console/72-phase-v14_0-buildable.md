@@ -85,28 +85,29 @@ Este doc converte a v14.0 em **tarefas `- [ ] N.M` consumíveis pelo GSD**, cada
 **Sequência EXATA** (grava `snapshots/<machine_id>.json` dentro de `refs/heads/cockpit`, órfão se não existir, append sobre a árvore anterior se existir):
 
 ```bash
-# Dado: SNAP_JSON (conteúdo), MID (machine_id), REPO (IdeiaOS hub)
+# Dado: SNAP_JSON gravado em $snapshot_json (arquivo), MID (machine_id), REPO (IdeiaOS hub)
 cd "$REPO"
-BLOB=$(printf '%s' "$SNAP_JSON" | git hash-object -w --stdin)          # 1) blob no object store
 
-# 2) base = árvore do cockpit atual (ou vazia se ref não existe) → preserva snapshots das outras máquinas
-PARENT=$(git rev-parse --verify --quiet refs/heads/cockpit || true)
-if [ -n "$PARENT" ]; then
-  BASE_TREE=$(git rev-parse "refs/heads/cockpit^{tree}")
-  TREE=$(git ls-tree "$BASE_TREE" \
-         | grep -v "	snapshots/${MID}.json$" ;                         # remove a entrada antiga DESTA máquina
-         printf '100644 blob %s\tsnapshots/%s.json\n' "$BLOB" "$MID")  # adiciona a nova
-  NEW_TREE=$(printf '%s' "$TREE" | git mktree)
-  COMMIT=$(printf 'cockpit snapshot %s\n' "$MID" | git commit-tree "$NEW_TREE" -p "$PARENT")
-else
-  NEW_TREE=$(printf '100644 blob %s\tsnapshots/%s.json\n' "$BLOB" "$MID" | git mktree)
-  COMMIT=$(printf 'cockpit snapshot %s (orphan)\n' "$MID" | git commit-tree "$NEW_TREE")  # SEM -p = órfão
-fi
+# 1) blob para o json do snapshot
+blob=$(git hash-object -w "$snapshot_json")                            # blob no object store
 
-git update-ref refs/heads/cockpit "$COMMIT"                            # 3) move o ref — working tree intocado
+# 2) subárvore FLAT snapshots/ — o nome da entrada é SÓ "<mid>.json", SEM prefixo "snapshots/".
+#    Caso APPEND: lê as entradas existentes da subárvore snapshots do cockpit atual,
+#    descarta qualquer cujo nome == "<mid>.json", adiciona a nova, e mktree do conjunto mesclado.
+#    Caso ÓRFÃO (ref não existe): `existing` fica vazio → mktree só da entrada nova.
+existing=$(git ls-tree refs/heads/cockpit:snapshots 2>/dev/null | grep -v $'\t'"$MID.json"'$' || true)
+sub=$(printf '%s\n100644 blob %s\t%s.json\n' "$existing" "$blob" "$MID" | grep -v '^$' | git mktree)
+
+# 3) árvore TOPO referenciando a subárvore sob o nome "snapshots"
+top=$(printf '040000 tree %s\tsnapshots\n' "$sub" | git mktree)
+
+# 4) commit (parent = tip atual do cockpit se existir, senão órfão) e move o ref — working tree intocado
+parent=$(git rev-parse -q --verify refs/heads/cockpit || true)
+commit=$(git commit-tree "$top" ${parent:+-p "$parent"} -m "cockpit: snapshot $MID")
+git update-ref refs/heads/cockpit "$commit"
 ```
 
-> **Por que `mktree` por linha e não `update-index`:** `update-index` exigiria um índice temporário (`GIT_INDEX_FILE`) e cuidado para não vazar no índice real. `ls-tree | grep -v | append | mktree` é puramente in-memory sobre objetos — zero risco de tocar o índice/working tree do branch corrente. A lista de entradas vem da **árvore-alvo** (cockpit), não do índice (espelha o learning `git-plumbing-partial-branch-overlay-sync`).
+> **Por que árvore de DOIS níveis e não `update-index`:** `git mktree` é **um-nível-só** — passar um path com barra (`snapshots/<mid>.json`) numa única chamada falha (`fatal: path ... contains slash`, exit 128). A correção constrói a subárvore FLAT `snapshots/` primeiro (entrada `<mid>.json`, sem prefixo) e depois a árvore-topo que a referencia sob o nome `snapshots`. `update-index` exigiria um índice temporário (`GIT_INDEX_FILE`) e cuidado para não vazar no índice real; o pipeline `ls-tree | grep -v | append | mktree` em dois níveis é puramente in-memory sobre objetos — zero `git add`/`update-index`, zero toque no índice/working tree. A lista de entradas vem da **subárvore-alvo** (`cockpit:snapshots`), não do índice (espelha o learning `git-plumbing-partial-branch-overlay-sync`).
 
 **Como o autosync passa a empurrá-lo** — espelho EXATO de `push_planning_ref` (linhas 16-24):
 
@@ -229,7 +230,15 @@ CREATE TABLE api_key (              -- credential-isolation materializada no sch
 ### Tarefas
 
 - [ ] 4.1 `source/console/schema.sql` — DDL das 8 tabelas v14.0 (do doc 40 §3). **Pronto:** `sqlite3 /tmp/t.db < source/console/schema.sql && sqlite3 /tmp/t.db '.tables' | grep -q api_key` exit 0.
-- [ ] 4.2 **Guard estrutural anti-`value`:** `sqlite3 /tmp/t.db 'PRAGMA table_info(api_key)' | grep -qiv '|value|'`. **Pronto:** exit 0 — assertar que NÃO existe coluna `value`. Falha se alguém a adicionar.
+- [ ] 4.2 **Guard estrutural anti-`value` (gate DISCRIMINANTE — exit 0 = coluna `value` EXISTE = FAIL):** isola a 2ª coluna do `PRAGMA` e busca exatamente `value`:
+  ```bash
+  if sqlite3 "$DB" 'PRAGMA table_info(api_key)' | cut -d'|' -f2 | grep -qiw value; then
+    echo "FAIL: api_key table has a 'value' column — credential-isolation violated"; exit 1
+  fi
+  # pass = a coluna está ausente. Assert equivalente em uma linha:
+  #   ! sqlite3 "$DB" 'PRAGMA table_info(api_key)' | cut -d'|' -f2 | grep -qiw value
+  ```
+  **Pronto:** o assert `! sqlite3 "$DB" 'PRAGMA table_info(api_key)' | cut -d'|' -f2 | grep -qiw value` sai exit 0 quando NÃO existe coluna `value`; qualquer `ALTER` que a adicione faz o `grep -qiw value` casar → exit 1 (FAIL). O `grep -qiv '|value|'` antigo era oco: `grep -v` casava qualquer linha sem o literal e sempre saía 0 (a tabela tem outras colunas), nunca enforçava nada.
 - [ ] 4.3 `source/console/ingest.js` — lê refs+ledgers → UPSERT idempotente. **Pronto:** rodar 2× sobre os mesmos snapshots e `sqlite3 read-model.db 'SELECT COUNT(*) FROM machine'` retorna o mesmo número (idempotência) exit 0.
 - [ ] 4.4 **Reconstrutibilidade (cenário A5 da spec):** `rm -f ~/.ideiaos/console/read-model.db && node ingest.js && test -s ~/.ideiaos/console/read-model.db`. **Pronto:** exit 0 — DB reconstruído integralmente dos refs.
 - [ ] 4.5 Dedup + classificação de ator: fixture com `192` e `Mac-mini-de-Gustavo` → 1 só `Machine`; commit `wip: autosync`→`actor_class='autosync'`. **Pronto:** `sqlite3 ... "SELECT COUNT(DISTINCT machine_id) FROM machine"`==N esperado **E** `SELECT COUNT(*) FROM commit_log WHERE actor_class='human' AND subject LIKE 'wip: autosync%'`==0, ambos exit 0.
