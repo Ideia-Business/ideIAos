@@ -38,13 +38,15 @@ aiox-core=5.2.9
 gsd=1.1.0
 
 # Suíte de Design (vendorizada; fonte nextlevelbuilder/ui-ux-pro-max-skill)
-# ref    = commit pinado (resolvido de 'main' em 2026-06-19 → NÃO mais flutuante).
-#          update-design-suite.sh aceita sha (cai no clone full + checkout).
-# commit = hash do conteúdo VENDORIZADO. 'local-seed-*' = seed local inicial cujo
-#          commit upstream exato é desconhecido. Para alinhar ao ref pinado e
-#          gravar um commit real: bash scripts/update-design-suite.sh
+# ref    = commit pinado. b7e3af80 foi HEAD do upstream de 2026-04-03 a 2026-06-02
+#          (próximos commits só em 06-21) — é a PROVENIÊNCIA real do seed-2026-06-02.
+# commit = hash do conteúdo VENDORIZADO. Verificado por content-match (2026-06-20):
+#          5/7 skills idênticas a b7e3af80; design-system + banner-design diferem só
+#          pelos overlays IdeiaOS (OKLCH/--brand-hue + oklch-tokens.md; nota de deps
+#          externas). ⚠️ NÃO rode update-design-suite.sh p/ "alinhar": o clone-por-sha
+#          do script cai no HEAD (06-21) e APAGA o dataset (data/stacks + scripts/*.py).
 design-suite-ref=b7e3af80f6e331f6fb456667b82b12cade7c9d35
-design-suite-commit=local-seed-2026-06-02
+design-suite-commit=b7e3af80f6e331f6fb456667b82b12cade7c9d35
 
 # MCPs (user scope). npx @latest resolve no runtime — o spec é o contrato.
 mcp-chrome-devtools=chrome-devtools-mcp@latest
