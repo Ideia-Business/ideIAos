@@ -1300,12 +1300,22 @@ step "5.21b) Skills do manifesto (installStrategy: always → ~/.claude/skills)"
 MANIFEST="$SETUP_DIR/manifests/modules.json"
 if [ -f "$MANIFEST" ]; then
   INSTALLED_SKILLS="$(/usr/bin/python3 - "$MANIFEST" "$SETUP_DIR" "$HOME/.claude/skills" <<'PYEOF'
-import json, os, shutil, sys
+import json, os, shutil, sys, subprocess
 manifest, setup_dir, dst_root = sys.argv[1], sys.argv[2], sys.argv[3]
 try:
     mods = json.load(open(manifest))["modules"]
 except Exception:
     sys.exit(0)
+
+def _dirs_differ(a, b):
+    # content-aware, MESMA semântica do idea-doctor (`diff -rq`): detecta diferença
+    # em QUALQUER subdir (lib/, references/, data/), não só no SKILL.md. Antes o
+    # gate comparava só SKILL.md e copiava só SKILL.md — mudança só em lib/ (sem
+    # bump de versão) ficava órfã no global = drift silencioso (ex.: libs do /spec).
+    return subprocess.run(["diff", "-rq", a, b],
+                          stdout=subprocess.DEVNULL,
+                          stderr=subprocess.DEVNULL).returncode != 0
+
 count = 0
 for m in mods:
     if m.get("kind") != "skill" or m.get("installStrategy") != "always":
@@ -1317,14 +1327,14 @@ for m in mods:
     dst = os.path.join(dst_root, name)
     if not os.path.isdir(src):
         continue
-    src_skill = os.path.join(src, "SKILL.md")
-    dst_skill = os.path.join(dst, "SKILL.md")
     try:
         if not os.path.isdir(dst):
             shutil.copytree(src, dst)
             count += 1
-        elif os.path.isfile(src_skill) and (not os.path.isfile(dst_skill) or open(src_skill).read() != open(dst_skill).read()):
-            shutil.copy2(src_skill, dst_skill)
+        elif _dirs_differ(src, dst):
+            # re-espelha o diretório INTEIRO (rmtree + copytree), não só SKILL.md.
+            shutil.rmtree(dst)
+            shutil.copytree(src, dst)
             count += 1
     except Exception:
         pass
