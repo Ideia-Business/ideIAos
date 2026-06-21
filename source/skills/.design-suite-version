@@ -1,10 +1,11 @@
 # Suíte de Design vendorizada — pin de origem (update-design-suite.sh)
-# Proveniência VERIFICADA por content-match (2026-06-20): o seed local de 2026-06-02
-# corresponde a b7e3af80 (HEAD do upstream em 06-02) + overlays IdeiaOS em
-# design-system (OKLCH/--brand-hue + references/oklch-tokens.md) e banner-design
-# (nota de deps externas claudekit-origin). As outras 5 skills são pristine b7e3af80.
-# ⚠️ NÃO rode update-design-suite.sh para "alinhar": o clone-por-sha do script cai no
-# HEAD (06-21) e APAGA o dataset (data/stacks/*.csv + scripts/*.py). Pin já honesto.
+# Proveniência VERIFICADA por content-match (2026-06-20, `diff -rq` resolve symlinks):
+# o seed local de 2026-06-02 corresponde a b7e3af80 (HEAD do upstream em 06-02) +
+# overlays IdeiaOS em design-system (OKLCH/--brand-hue + references/oklch-tokens.md) e
+# banner-design (nota de deps externas claudekit-origin). As outras 5 skills são
+# pristine b7e3af80. update-design-suite.sh agora é SEGURO (corrigido 2026-06-20):
+# usa `cp -RL` p/ desreferenciar os symlinks data//scripts/ do upstream (o `cp -R`
+# puro os copiava DANGLING = deleção do dataset) + salvaguarda anti-deleção-líquida.
 repo=https://github.com/nextlevelbuilder/ui-ux-pro-max-skill.git
 ref=b7e3af80f6e331f6fb456667b82b12cade7c9d35
 commit=b7e3af80f6e331f6fb456667b82b12cade7c9d35

@@ -40,11 +40,12 @@ gsd=1.1.0
 # Suíte de Design (vendorizada; fonte nextlevelbuilder/ui-ux-pro-max-skill)
 # ref    = commit pinado. b7e3af80 foi HEAD do upstream de 2026-04-03 a 2026-06-02
 #          (próximos commits só em 06-21) — é a PROVENIÊNCIA real do seed-2026-06-02.
-# commit = hash do conteúdo VENDORIZADO. Verificado por content-match (2026-06-20):
-#          5/7 skills idênticas a b7e3af80; design-system + banner-design diferem só
-#          pelos overlays IdeiaOS (OKLCH/--brand-hue + oklch-tokens.md; nota de deps
-#          externas). ⚠️ NÃO rode update-design-suite.sh p/ "alinhar": o clone-por-sha
-#          do script cai no HEAD (06-21) e APAGA o dataset (data/stacks + scripts/*.py).
+# commit = hash do conteúdo VENDORIZADO. Verificado por content-match (2026-06-20,
+#          via `diff -rq` que resolve symlinks): 5/7 skills idênticas a b7e3af80;
+#          design-system + banner-design diferem só pelos overlays IdeiaOS (OKLCH +
+#          oklch-tokens.md; nota de deps). update-design-suite.sh agora é SEGURO
+#          (corrigido 2026-06-20): `cp -RL` desreferencia os symlinks data//scripts/
+#          do upstream + salvaguarda anti-deleção (o `cp -R` puro apagava o dataset).
 design-suite-ref=b7e3af80f6e331f6fb456667b82b12cade7c9d35
 design-suite-commit=b7e3af80f6e331f6fb456667b82b12cade7c9d35
 
