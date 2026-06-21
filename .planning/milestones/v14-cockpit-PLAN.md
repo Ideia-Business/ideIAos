@@ -20,11 +20,11 @@ O IdeiaOS já se auto-telemetra cross-máquina (SOAK, security-freshness, idea-d
 | R14-02 | `ideiaos-agentd` coletor read-only → `snapshots/<machine_id>.json` no ref `cockpit` via git-plumbing (working tree limpo) + `com.ideiaos.cockpit.plist` (4º LaunchAgent, 900s) + push do ref pelo autosync (nunca `main`) | v14.0 | 🔵 PROPOSTO |
 | R14-03 | `console-ingest` → read-model SQLite descartável (`~/.ideiaos/console/read-model.db`, `rm && rebuild` reconstrói dos refs) | v14.0 | 🔵 PROPOSTO |
 | R14-04 | Scaffold Vite/React/TS/Tailwind/shadcn black-gold OKLCH (reuso nfideia) + `check-cockpit.sh` + `idea-doctor §15` (dogfooding: agentd ativo? ref existe? snapshot fresco?) | v14.0 | 🔵 PROPOSTO |
-| R14-05 | MVP Bridge read-only (loopback, sem login): Overview (System Pulse local-vivo) + Frota + Cofre-Espelho (metadata-only, zero botão de mutação) + Command Palette ⌘K (allowlist fixo de verbos locais reversíveis) | v14.1 | 🔵 PROPOSTO |
+| R14-05 | MVP Bridge read-only (loopback, sem login): Overview (System Pulse local-vivo) + Frota + Cofre-Espelho (metadata-only, zero botão de mutação) + Command Palette ⌘K (allowlist fixo) + **Flight Recorder v0** (naco de wow estrutural — replay determinístico do flip-flop real do pin `gsd` no `versions.lock`, via `git show <sha>:versions.lock`; o card Releases cede o countdown decorativo — doc 71) | v14.1 | 🔵 PROPOSTO |
 | R14-06 | Gate **Zero-Leak** (`test:zeroleak`, exit-code binário, bloqueia release) + harness de medição de **Time-to-Truth** (baseline terminal N≥5 J1/J4/J2 → meta <10s) | v14.1 | 🔵 PROPOSTO |
-| R14-07 | Pilares completos (ainda read-only): Constelação (produtos) + Sinapse (IAs & MCP + deny-list watch) + Pulso honesto (4 KPIs entrega-verificada) + Atalaia (alertas/drift) | v14.2 | 🔵 PROPOSTO |
-| R14-08 | Inteligência (Wave 2): Time-Travel determinístico (demo: incidente deny-list 5/5→2/5) + CTO Copiloto (readers de args FIXOS, anti-injection) + Token-Cost Ledger (estimativa rotulada) + Atlas de instincts | v14.3 | 🔵 PROPOSTO |
-| R14-09 | **Comando cross-máquina + mutação de produção (rotate/revoke/deploy)** — só com `/spec` de segurança + threat-model STRIDE/OWASP-LLM aprovado; RBAC cto/dev + step-up; janela de privilégio com teardown | v14.4 | ⛔ GATED (aprovado em princípio; depende do threat-model) |
+| R14-07 | Pilares completos (ainda read-only): Constelação (produtos) + Sinapse (IAs & MCP + deny-list watch **que grava LEDGER ESTRUTURADO append-only de contenção: `epoch\|iso\|produto\|deny_count\|total\|commit`** — pré-requisito do momento-prêmio da v14.3, doc 71) + Pulso honesto (4 KPIs entrega-verificada) + Atalaia (alertas/drift) | v14.2 | 🔵 PROPOSTO |
+| R14-08 | Inteligência (Wave 2): Time-Travel completo (evolui o Flight Recorder v0) + CTO Copiloto (readers de args FIXOS, anti-injection) + Token-Cost Ledger (estimativa rotulada) + Atlas de instincts. **Dependência (doc 71):** o "momento-prêmio" deny-list 5/5→2/5 exige um **ledger estruturado** que só pode nascer na v14.2 — hoje só existe em prosa de commit (alucinável); sem ele, é vaporware | v14.3 | 🔵 PROPOSTO |
+| R14-09 | **Comando cross-máquina + mutação de produção (rotate/revoke/deploy)** — só com `/spec` de segurança + threat-model STRIDE/OWASP-LLM aprovado; RBAC cto/dev + step-up; janela de privilégio com teardown. **Precursor de threat-model = doc 70**: o `/spec` formal DEVE consumir as 9 questões abertas (§8) como requisitos literais. Achado bloqueante: **autenticação de origem** (`sha256≠assinatura`; quem assina o comando cross-máquina sem segredo no contexto) ainda aberta → habilitar incrementalmente (1º `rotate` local-na-máquina, sem cross-máquina) | v14.4 | ⛔ GATED (precursor escrito; write-path NÃO-pronto até origin-auth cravada) |
 
 ## Ondas (ordem integridade-antes-de-capacidade)
 
@@ -48,6 +48,15 @@ O IdeiaOS já se auto-telemetra cross-máquina (SOAK, security-freshness, idea-d
 1. v13 fechar (tag `v13.0` via SOAK — em andamento, agendado).
 2. `/gsd-plan-phase v14.0` consumindo `specs/_archive/2026-06-20-v14-cockpit-foundation/tasks.md` → `PLAN.md` task-a-task da fase 0.
 3. ✅ ADR `docs/decisions/v14-cockpit-local-first-git-as-bus.md` criado (decisão arquitetural irreversível: git-as-bus por ref + agentd; teto de poder gated).
+
+## Apuração (2026-06-20) — 4 eixos aprofundados
+
+Pente-fino pós-blueprint (Wave 1 = validação na própria Mac-mini; Wave 2 = 3 especialistas paralelos). Docs: `docs/ideiaos-console/70`–`73`.
+
+- **Eixo 1 — substrato REAL validado** (`doc 73`): rodou na Mac-mini (gap "1 máquina só" fechado). Confirmou `idea-doctor --json` ausente; **corrigiu** `192→MacBook-Air-2` (não Mac-mini); **expandiu** a Constelação p/ 7 projetos (Jarvis 469 sessões, ideia-chat) → descobrir, não hardcodar; mapeou a superfície de credenciais real e provou que **nenhum segredo crítico está git-tracked** (`credential-isolation` segura na prática).
+- **Eixo 2 — segurança v14.4** (`doc 70`): veredito = **write-path é GATE, não milestone**. ~metade fechada estruturalmente; a outra metade (**autenticação de origem**) é bloqueante — sem ela o RBAC é teatro. Gating incremental: `rotate` local primeiro; cross-máquina só após origin-auth. O `/spec` consome as 9 questões abertas.
+- **Eixo 3 — tensão MVP×wow** (`doc 71`): resolvida com **Flight Recorder v0** na v14.1 (replay determinístico do flip-flop do pin `gsd`, 100% exit-code, ~2 dias; o card Releases cede o countdown). Wow estrutural já na 1ª impressão. Achado: o Time-Travel da v14.3 depende de ledger estruturado nascido na v14.2.
+- **Eixo 4 — v14.0 buildável** (`doc 72`): 37 tarefas `- [ ] N.M` com critério por exit-code, prontas p/ `/gsd-plan-phase`. Maior risco = não-regressão da saída ANSI do `idea-doctor` (script vivo de ~593 linhas); mitigado por teste de diff ANSI-stripped. Escopo ~1 semana = realista p/ 1 dev (~5–7 dias úteis).
 
 ## Riscos & decisões adiadas
 - **Single-operator (P0):** P1/P2 (líder de squad, dev individual) e metade do Pulso dependem de sinal multi-usuário que ainda não existe (toda observação é `gustavo@`) → rotulados **vaporware honesto** até segundo ator.

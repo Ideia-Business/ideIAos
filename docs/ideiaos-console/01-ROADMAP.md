@@ -90,13 +90,15 @@ Cada fase só fecha com:
 
 **Entregáveis:**
 - **Constelação** — produtos, stack, deploy, **velocity humana** (commits humanos filtrados), Lovable MCP **read-only** (verify-deploy/detect-hotfix). Health-score com `idea-doctor: n/a` honesto nos Lovable.
-- **Sinapse** — Conexões MCP (`~/.claude.json`, `~/.cursor/mcp.json`) + Contas & IAs; **deny-list watch** (audita as 19 tools mutantes, alerta em regressão 5/5→N/5).
+- **Sinapse** — Conexões MCP (`~/.claude.json`, `~/.cursor/mcp.json`) + Contas & IAs; **deny-list watch** (audita as 19 tools mutantes, alerta em regressão 5/5→N/5) **+ emissão de LEDGER ESTRUTURADO append-only de contenção por produto**.
+  - **Por que (pré-requisito do "momento-prêmio" da v14.3):** o estado de contenção `5/5 → 2/5 → 5/5` NÃO vive num event-store estruturado hoje — está espalhado em mensagens de commit em prosa (ex.: *"docs(closing): remedia regressão deny Lovable MCP (2/5→5/5)"*) + memória curada. Reconstruí-lo deterministicamente na v14.3 (Time-Travel, como **lei** = exit-code binário, sem interpretar NL) é **impossível sem este ledger**. Emiti-lo agora é o que tira o blueprint §10 do vaporware.
+  - **Formato (pipe-delimited, análogo ao SOAK `.planning/soak/*.log` e ao security ledger `.security/review-ledger.log`):** `epoch|iso|produto|deny_count|total|commit`. Append-only, uma linha por amostra do watch, **uma coluna `produto`** (como o SOAK tem `host`). O watch **grava cada amostra** — não só sinaliza na hora.
 - **Pulso** — 4 KPIs honestos (feat/fix humano/dia, sessões meaningful, co-ocorrência, milestones SOAK-validados); banner recusando vaidade; P1/P2 rotulados vaporware até segundo ator.
 - **Atalaia** — strip "Atenção Agora" promovido a tela própria (regras: drift `versions.lock`, regressão deny-list, autosync parado, tier→stale, `.env` órfão, SOAK pronto-p/-tag, `.env.local` em iCloud).
 
 **Dependências:** v14.1.
 
-**Critério de PRONTO:** 5 pilares navegáveis; deny-list watch detecta uma regressão simulada; Pulso bate com `git log` filtrado; Atalaia dispara ≥1 alerta real do substrato; gate padrão verde.
+**Critério de PRONTO:** 5 pilares navegáveis; **deny-list watch grava no ledger estruturado (não só detecta)** — uma regressão simulada produz uma linha `epoch|iso|produto|deny_count|total|commit` no ledger append-only, verificável por `test -s` + parse pipe-delimited (exit-code binário, **sem NL**); Pulso bate com `git log` filtrado; Atalaia dispara ≥1 alerta real do substrato; gate padrão verde.
 
 ---
 

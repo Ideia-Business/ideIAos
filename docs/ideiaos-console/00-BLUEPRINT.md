@@ -196,9 +196,11 @@ A Bridge é, por construção, **um plano de leitura sobre cofres que ela nunca 
 
 `VERCEL_TOKEN = alto` (redeploy de produção) é o valor canônico — o "sensitive" do doc 40 fica deprecado.
 
-**4 gotchas verificados que o schema deve respeitar:** dedup `192`↔`Mac-mini` por alias-map; `gsd 1.1.0`(redux) por **string-equality, nunca semver**; daemon `-` em repouso é **normal** (cruzar com último heartbeat); security ledger de produto é **local** (`.git/info/exclude`) — federa via a string `--tier` no snapshot, não o ledger. Classificação de ator **determinística** (`@*.local$` ou `^wip: autosync` → autosync; `[bot]@` → bot; senão human) separa os 70 commits-fantasma do Mac mini de toda métrica humana.
+**4 gotchas verificados que o schema deve respeitar:** dedup `192`↔`MacBook-Air-2` por alias-map **`[CORRIGIDO 2026-06-20 — validação na Mac-mini, doc 73]`** (o `192` é a MacBook-Air-2/hostname-IP, NÃO a Mac-mini); `gsd 1.1.0`(redux) por **string-equality, nunca semver**; daemon `-` em repouso é **normal** (cruzar com último heartbeat); security ledger de produto é **local** (`.git/info/exclude`) — federa via a string `--tier` no snapshot, não o ledger. Classificação de ator **determinística** (`@*.local$` ou `^wip: autosync` → autosync; `[bot]@` → bot; senão human) separa os 70 commits-fantasma do Mac mini de toda métrica humana.
 
-**Assimetria entre máquinas, assumida honestamente `[CORRIGIDO gap]`:** todo o recon foi no MacBook; o Mac mini só é visto via ref commitado. O collector **não assume simetria** — cada snapshot declara `agentd_version` e `os_version`; a Frota mostra **divergência de versão do collector** como drift âmbar, em vez de quebrar quando os ambientes diferirem.
+**Assimetria entre máquinas `[GAP FECHADO 2026-06-20 — doc 73]`:** a apuração rodou **na própria Mac-mini** (`macOS 26.6`, `9d7fbccdbb1b`) — os 3 daemons + `idea-doctor --json` ausente conferem com o MacBook. A suposição de simetria não é mais cega. Por robustez, o collector ainda declara `agentd_version`/`os_version` e a Frota mostra divergência de versão como drift âmbar — mas o eixo "Mac mini nunca inspecionada" está resolvido.
+
+**Constelação descobre, não hardcoda `[APURADO 2026-06-20 — doc 73]`:** `~/dev` tem **7 projetos reais** (não 5) — `Jarvis` (469 sessões!) e `ideia-chat` existem além dos 5 do plano. O collector DEVE descobrir (`~/dev/*` com `.git`) e classificar (produto vs dir-de-teste vs tooling), nunca assumir uma lista fixa.
 
 ---
 
