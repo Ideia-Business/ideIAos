@@ -331,6 +331,7 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 |-------|-----------------|-----------|
 | `/forge-agent` | always | Fundamenta a criação de agents e skills em pesquisa real do domínio antes de produzir spec — cita fontes verificáveis, lista anti-patterns derivados de pesquisa, justifica model routing com racional documentado. 4 fases: definir domínio → pesquisa (`/deep-research`, máx 3 ciclos) → model routing → spec grounded. |
 | `/spec` | always | Delta-spec brownfield — mantém contratos de comportamento vivos de produto por capability em `specs/<capability>/spec.md`. Fluxo: propose → spec/delta → tasks → merge+archive. **Subcomandos de auditoria (v11):** `--analyze` (gate determinístico da spec viva pós-merge) e `--converge` (ponte append-only spec↔código). Complementar ao GSD (spec = contrato; GSD = implementação). Adaptado do OpenSpec MIT. |
+| `/tool-output-compressor` | always | Comprime saídas de ferramenta volumosas (logs, JSON tabular) ANTES de entrarem no contexto — local, determinístico, reversível (CCR via store keyed por sha256), CLI-First, sem rede/dep. NUNCA toca mensagem do usuário; fail-open; verificação por exit-code. Padrão minerado de headroom (Apache-2.0); a dependência NÃO foi adotada. Contrato vivo em `specs/tool-output-compressor/`. |
 
 ### Skills v8 — Camada de Disciplina (absorvida de agent-skills MIT, addyosmani)
 
@@ -844,13 +845,14 @@ ideIAos/
 │   ├── build-adapters.sh                   ← Compila source/ → harness targets (claude + cursor)
 │   └── build-plugins.sh                    ← Gera plugins/ a partir de source/ (marketplace)
 ├── source/                                 ← FONTE ÚNICA DE VERDADE (Fase 03+)
-│   ├── skills/                             ← 46 skills (core incl. /memory-sync + 10 design + 2 lovable (/lovable-handoff + /lovable-mcp) + /forge-agent + /spec + v8 disciplina + v9 alinhamento /grelha + /improve-architecture)
+│   ├── skills/                             ← 47 skills (core incl. /memory-sync + 10 design + 2 lovable (/lovable-handoff + /lovable-mcp) + /forge-agent + /spec + /tool-output-compressor + v8 disciplina + v9 alinhamento /grelha + /improve-architecture)
 │   │   ├── forge-agent/                    ← /forge-agent (v6 Fase 25) — pesquisa antes de criar agent/skill
 │   │   ├── spec/                           ← /spec (v6 Fase 30) — delta-spec brownfield; lib/ + templates/
 │   │   ├── doubt/                          ← /doubt (v8) — doubt-driven; revisor adversarial em-voo
 │   │   ├── context-engineering/            ← /context-engineering (v8) — curadoria de contexto em camadas
 │   │   ├── grelha/                         ← /grelha (v9) — grilling colaborativo pré-plano + glossário CONTEXT.md
-│   │   └── improve-architecture/           ← /improve-architecture (v9) — ritual de deepening (alias /aprofundar)
+│   │   ├── improve-architecture/           ← /improve-architecture (v9) — ritual de deepening (alias /aprofundar)
+│   │   └── tool-output-compressor/         ← /tool-output-compressor — compressor local/reversível de tool-output (padrão headroom, dep não adotada)
 │   ├── agents/                             ← 19 agents (ECC + 4 mkt-*)
 │   ├── hooks/                              ← 14 hooks de produto (incl. instinct-recover.sh v6 + memory-import/export) + 3 test-hooks
 │   ├── lib/                                ← libs shell reutilizáveis (v6): gates.sh (antifragile I/O) + handoff-packet.sh (context-packet)
