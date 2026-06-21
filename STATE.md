@@ -11,6 +11,7 @@
 | **v13 Security Freshness Gate** | 🟡 PARCIAL/no-tag (2026-06-20) — núcleo W1-W4 (`8779d88`) + surfacing por produto opção C (`a6ab59d`) + propagação 4 produtos (hook `post-commit` advisory local + ledger-baseline; **zero tracked churn**; husky-aware nfideia). idea-doctor §14 verde. **SOAK 2 máquinas** (MacBook-Air-2 + Mac mini, gravadas 2026-06-20)/span 0d → tag `v13.0` aguarda só o span ≥1d (abre 2026-06-21 17:46:26) |
 | **v10 Lovable MCP — Fase A** | ✅ v1 read-only SHIPPED (2026-06-18): `/lovable-mcp` + helper + harness-deny 19 tools + rule. Rollout: deny=19 em **5/5** (4 produtos + IdeiaOS) — **PERSISTIDO** após regressão 2/5 remediada 2026-06-18 (nfideia/cfoai commit na `work`; ideiapartner `settings.local.json`); ✅ toggles de painel feitos; ✅ `/lovable-mcp verify-deploy` validado e2e contra nfideia real → `IN_SYNC` (2026-06-19). **Fase A 100% entregue e validada** |
 | **v10 Lovable MCP — Fase B** | ✅ CONCLUÍDA 2026-06-18 — **veredito 🔴 BLOQUEAR `publish` via MCP**. Read-only: A1-namespace=ACOPLADO + A3=PASS. Escrita (fork `1d0652c4`, janela aberta+fechada): **muro de viabilidade** — MCP não expõe/gerencia gitsync GitHub (sem connector github, `get_project` sem repo, `add_connector` negado), logo A1-lag + A2 **inmensuráveis no sandbox** → indeterminado vota BLOQUEAR. Pior-caso do A2 refutado (git pushes entram no Cloud via `developer_update`). Contenção `deny=19` **enforçada mid-session** (comprovado). Fases C/D gateadas. Janela fechada (assert deny=19). Ver `B-01-SUMMARY.md` |
+| **tool-output-compressor** | ✅ SHIPPED (2026-06-21) — capability nativa CLI-First: skill `source/skills/tool-output-compressor/` + lib stdlib + spec viva `specs/tool-output-compressor/spec.md` (7 req) + tests gate verde (log 97,8%) + plugin + **Deia routing**. Padrão minerado de **headroom** (Apache-2.0); **dep NÃO adotada**. Commits `05d7149→9f3d02a→f50c022` |
 | **v9 Camada de Alinhamento** | ✅ SHIPPED (tag `v9.0`) — `/grelha`, glossário `CONTEXT.md`, `ubiquitous-language`, Passo 1.5, `/aprofundar` |
 | **v8 Camada de Disciplina** | ✅ `/doubt`, `operating-discipline`, `/context-engineering`, R8-09 (rules Claude×Cursor) |
 | **v7 Resiliência + Spec** | ✅ Piloto `/spec` nfideia, drift-guard, branch `spec/multi-tenancy-pilot` |
@@ -18,9 +19,19 @@
 | **v5 Memória entre IDEs** | ✅ import/export hooks, branch `planning`, 3 suites verdes |
 | **Branches** | ✅ `main` = `work` · `planning` — alinhados e pushed (ver `git log`; hashes voláteis não fixados aqui) |
 | **idea-doctor** | ✅ 74 OK · 1 WARN · 0 FAIL (2026-06-20, §14 frescor=ok). _Hist:_ 65 OK · 0 WARN · 0 FAIL (2026-06-18) — FAIL anterior era **falso-positivo** num dummy de fixture de teste (`sk-abcdEFGH…`, do `test-memory-export.sh`); `plausible_sk()` endurecido p/ rejeitar corridas sequenciais/dicionário. IdeiaOS repo limpo |
-| **README sync** | ✅ 121/121 (2026-06-20) |
+| **README sync** | ✅ 122/122 (2026-06-21, +/tool-output-compressor) |
 | **Deploy máquinas** | ✅ MacBook-Air-2 · ✅ Mac mini git-synced (autosync ativo 06-18/06-19); `ideiaos-update.sh` aceito como baixo-risco (rodar quando for usar o mini) |
 | Próximo passo | Ver `docs/CONTINUATION_HANDOFF.md` § Próximo passo |
+
+## Sessão 2026-06-21 (tarde) — Headroom eval + tool-output-compressor SHIPPED + HF cookbook (em curso)
+
+Sessão de **análise + entrega**, isolada da sessão v14 (paths distintos). Pedido: avaliar `chopratejas/headroom` (camada de compressão de contexto) e ver aproveitamento.
+
+1. **Headroom → NÃO adotar** (dep/proxy/MCP). Empírico (instalado 0.26.0; medido local: log 99,7%, JSON 38–58%, código 0% no core, prosa/usuário 0% por design) + workflow 62-agentes (5 dimensões, verificação adversarial). Razões: proxy colide com `mcp-hygiene` (`ANTHROPIC_BASE_URL`), ~$0 em subscription, inaplicável a Lovable-hosted (cfoai/nfideia) e Deno-edge (ideiapartner/lapidai). Memória `headroom-eval-2026-06`; relatório `/tmp/headroom-analysis/`.
+2. **tool-output-compressor → SHIPPED** (o padrão minerado, invertido p/ CLI-First): skill + `lib/toc_compress.py` (stdlib) + `lib/toc.sh` (fail-open) + spec viva (7 req via `/spec` propose→merge→archive) + `tests/tool-output-compressor-test.sh` (ALL PASS) + registro `modules.json`/`build-plugins.sh`/`plugin-membership.md` (drift OK) + deploy global `~/.claude/skills/` + **matriz da Deia**. Commits `05d7149`, `9f3d02a`, `f50c022` (+ `ddf6bca` autosync). Opção (b) hook auto-compressão por limiar = **PARQUEADA** não-bloqueante.
+3. **HF cookbook (`huggingface/cookbook`)** — análise de absorção **em curso** (workflow `wf_d785952e-8da`, 6 especialistas). Tese: Python+HF+GPU vs nossa stack Deno/hosted-API → absorve-se técnica, não código.
+
+**Learning:** autosync atropelou 1 commit (`ddf6bca`); memória `autosync-races-ai-git-surgery` corrigida (pausar via `scripts/autosync-pause.sh`; morde até em trabalho single-repo multi-step).
 
 ## Sessão 2026-06-21 — v14 IdeiaOS Cockpit (plano completo, PROPOSTO/zero-código)
 
