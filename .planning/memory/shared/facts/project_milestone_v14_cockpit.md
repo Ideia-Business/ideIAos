@@ -35,9 +35,26 @@ NUNCA working tree, então o `git add -A` cego do autosync não captura) + 4º L
   spec-validate + spec-analyze verdes). Foi o **1º uso de `specs/` dentro do próprio IdeiaOS**.
 - Plano GSD: `.planning/milestones/v14-cockpit-PLAN.md` (R14-00..09; v14.0→v14.4), status PROPOSTO.
 
-**Pendente p/ abrir v14 ATIVO:** (1) v13 fechar (tag via SOAK — agendado); (2) `/gsd-plan-phase v14.0`
-consumindo `specs/_archive/2026-06-20-v14-cockpit-foundation/tasks.md`. ADR
+**Pendente p/ abrir v14 ATIVO:** (1) v13 fechar (tag via SOAK — agendado). ADR
 `docs/decisions/v14-cockpit-local-first-git-as-bus.md` = ✅ criado (2026-06-20).
+
+**v14.0 (Substrato + Espinha) PLANEJADO (2026-06-21, commit `9bcb15c`, multi-agente Ultracode):**
+7 PLAN.md GSD em `.planning/milestones/v14-phases/14.0-substrate-spine/` (20 tasks / 3 waves) —
+01 idea-doctor `--json` (R14-01) · 02 ref `cockpit` por plumbing (R14-02) · 03 TtT baseline (R14-06) ·
+04 SPA scaffold Vite/React/black-gold (R14-04) · 05 agentd collector + plist (R14-02) · 06 schema.sql
+8 tabelas (ApiKey sem value) + ingest.js (R14-03) · 07 SPA lê read-model + gates/SOAK (R14-04).
+Frota: gsd-pattern-mapper → gsd-planner → 3 verificadores adversariais paralelos (plan-checker +
+security-reviewer + auditor antifragile). **6 defeitos pegos e corrigidos** (gate-theater
+tautológico; regex JWT fraca p/ service_role; falta gate bind-loopback; falta diff §15; IDs
+`R14-CTX-A*` fantasma = violação Art. IV No-Invention; tabela errada p/ `last_doctor`) — todos
+re-verificados por exit-code, 0 violações antifragile. `14.0-CONTEXT.md` + `14.0-PATTERNS.md` +
+seção "v14.0 PLANEJADO" no `v14-cockpit-PLAN.md`.
+
+**⚠️ Gate de execução (NÃO entrelaçar):** `/gsd-execute-phase 14.0` só **depois do v13 tagar**.
+Razão concreta (não só disciplina): o plano `14.0-01` edita `scripts/idea-doctor.sh`, que o SOAK
+pendente do v13 RE-EXECUTA na re-gravação (`idea_doctor=PASS|regression=PASS`) — editar agora
+arriscaria a tag do v13. Ver [[learning-active-milestone-gate-couples-via-shared-file]]. Se forçar
+antes, rodar só Wave 1 **menos o 14.0-01**.
 
 **Gotchas honestos (do blueprint):** P1/P2 multi-usuário = vaporware (tudo é `gustavo@`);
 idea-doctor `n/a` nos Lovable (health-score por produto com sub-sinal honesto).
