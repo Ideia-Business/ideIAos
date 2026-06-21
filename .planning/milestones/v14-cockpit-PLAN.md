@@ -58,6 +58,19 @@ Pente-fino pós-blueprint (Wave 1 = validação na própria Mac-mini; Wave 2 = 3
 - **Eixo 3 — tensão MVP×wow** (`doc 71`): resolvida com **Flight Recorder v0** na v14.1 (replay determinístico do flip-flop do pin `gsd`, 100% exit-code, ~2 dias; o card Releases cede o countdown). Wow estrutural já na 1ª impressão. Achado: o Time-Travel da v14.3 depende de ledger estruturado nascido na v14.2.
 - **Eixo 4 — v14.0 buildável** (`doc 72`): 37 tarefas `- [ ] N.M` com critério por exit-code, prontas p/ `/gsd-plan-phase`. Maior risco = não-regressão da saída ANSI do `idea-doctor` (script vivo de ~593 linhas); mitigado por teste de diff ANSI-stripped. Escopo ~1 semana = realista p/ 1 dev (~5–7 dias úteis).
 
+### Wave de completude (100% — docs `74`–`79`)
+
+Seis especialistas paralelos fecharam os eixos restantes (cada doc gateado por `test -s`):
+
+- **`74` Resiliência/federação/retenção** — fecha a **dependência circular autosync↔Frota**: o `agentd` empurra o ref `cockpit` por si (`git push origin refs/heads/cockpit:refs/heads/cockpit`, hard-scoped, jamais `main`/`--all`) → o autosync vira **redundância, não SPOF**; cada snapshot carrega `autosync_last_push` (auto-denúncia do autosync agonizando). Retenção: squash 48h/30d/90d do ref + audit-log encadeado por hash. Trust-Rate via `--verify` (recompute-from-disk, exit-code).
+- **`75` Modelo de dados + DDL** — 13 tabelas fundamentadas nos dados REAIS; **`ApiKey` isolada por construção** (sem coluna `value`; prova em 4 elos — `INSERT` com segredo falha por falta de coluna). Risco-chave: curadoria do alias-map/classificação-de-ator (não tem exit-code que a proteja — normalizar antes do UPSERT).
+- **`76` Pulso/produtividade** — KPI-âncora = **milestones SOAK-validados** (ininflável: `span≥1d` é delta de epochs gravados); barra a vaidade nº1 (contagem bruta de sessão — Jarvis 469 ≠ 469 entregas; filtro `human_turns>5`). Multi-usuário **já computado** (partição por email); gate revela P1/P2 só com 2º ator ≥10 commits/90d; até lá UI rotula "monousuário hoje", não card-fantasma.
+- **`77` Atalaia + allowlist** — 11 alertas (A1–A11) + 6 verbos ⌘K (B1–B6). Fora do allowlist **para sempre:** `revoke` em massa (DoS estrutural — nenhuma assinatura o torna seguro como ação atômica).
+- **`78` Testes & verificação** — Zero-Leak **materializa cada superfície de runtime em arquivo** antes de varrer (traz regime-2 p/ regime-1 = exit-code) + dogfood de veneno (`sk-ant-FAKE…` DEVE reprovar, senão o gate é teatro); harness de TtT; teste ANSI-stripped do `idea-doctor`.
+- **`79` Glossário + REGISTRO MESTRE** — 22 termos canônicos (rascunho do `CONTEXT.md`) + **registro consolidado de 39 questões/riscos** (9 abertos · 18 mitigados · 12 resolvidos). **É o índice canônico de risco do plano.**
+
+**Topo do registro mestre (`doc 79`):** a questão 🔴 de maior severidade ainda aberta é **Q1 — autenticação de origem cross-máquina** (`sha256 ≠ assinatura`; sem ela o RBAC é teatro) — o achado que faz a v14.4 ser **gate, não milestone**. Q2 (step-up sem relying-party server) e Q3 acompanham. Todas alimentam o `/spec` de segurança da v14.4.
+
 ## Riscos & decisões adiadas
 - **Single-operator (P0):** P1/P2 (líder de squad, dev individual) e metade do Pulso dependem de sinal multi-usuário que ainda não existe (toda observação é `gustavo@`) → rotulados **vaporware honesto** até segundo ator.
 - **idea-doctor não roda nos Lovable** → health-score por produto com sub-sinal `n/a` honesto, nunca nota inventada.
