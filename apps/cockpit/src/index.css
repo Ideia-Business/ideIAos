@@ -1,0 +1,60 @@
+/* SOURCE: IdeiaOS v14 | kind: styles | targets: apps/cockpit */
+/* Tema black-gold OKLCH — --brand-hue:75 (dourado/âmbar IdeiaOS Cockpit).
+ * Serve em loopback 127.0.0.1 sem login; local-first por design (ADR v14).
+ * NÃO herda o tema fiscal do nfideia — tema próprio do cockpit.
+ */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* ── Hue âncora ── */
+    --brand-hue: 75;
+
+    /* ── Tokens derivados (OKLCH: lightness chroma hue) ── */
+    /* Fundo: preto profundo */
+    --background: 0.08 0 0;
+    --foreground: 0.92 0.02 calc(var(--brand-hue) * 1deg);
+
+    /* Card: cinza-carvão levemente dourado */
+    --card: 0.12 0.008 calc(var(--brand-hue) * 1deg);
+    --card-foreground: 0.90 0.02 calc(var(--brand-hue) * 1deg);
+
+    /* Muted */
+    --muted: 0.18 0.005 calc(var(--brand-hue) * 1deg);
+    --muted-foreground: 0.60 0.015 calc(var(--brand-hue) * 1deg);
+
+    /* Bordas */
+    --border: 0.22 0.01 calc(var(--brand-hue) * 1deg);
+    --input: 0.22 0.01 calc(var(--brand-hue) * 1deg);
+    --ring: 0.70 0.15 calc(var(--brand-hue) * 1deg);
+
+    /* Primário: dourado de marca */
+    --primary: 0.75 0.18 calc(var(--brand-hue) * 1deg);
+    --primary-foreground: 0.08 0 0;
+
+    /* Brand alias */
+    --brand: 0.78 0.20 calc(var(--brand-hue) * 1deg);
+    --brand-foreground: 0.08 0 0;
+
+    /* Raio */
+    --radius: 0.5rem;
+  }
+
+  /* Força dark — cockpit é sempre escuro */
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Inter", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  * {
+    @apply border-border;
+    box-sizing: border-box;
+  }
+}
