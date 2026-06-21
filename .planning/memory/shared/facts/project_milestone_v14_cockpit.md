@@ -40,6 +40,15 @@ consumindo `specs/_archive/2026-06-20-v14-cockpit-foundation/tasks.md`. ADR
 `docs/decisions/v14-cockpit-local-first-git-as-bus.md` = ✅ criado (2026-06-20).
 
 **Gotchas honestos (do blueprint):** P1/P2 multi-usuário = vaporware (tudo é `gustavo@`);
-idea-doctor `n/a` nos Lovable (health-score por produto com sub-sinal honesto); assimetria
-entre máquinas (recon só no MacBook). Cross-link: [[project-milestone-v13-security-freshness]],
-[[project-aiox-core-pristine-overlay]].
+idea-doctor `n/a` nos Lovable (health-score por produto com sub-sinal honesto).
+
+**Apuração 4 eixos (2026-06-20, docs `docs/ideiaos-console/70`–`73`; Wave 1 validação NA Mac-mini +
+Wave 2 = 3 agentes):** (1) assimetria entre máquinas FECHADA — rodou na própria Mac-mini; (2)
+CORREÇÃO `192→MacBook-Air-2` (não Mac-mini) no alias-map SOAK; (3) Constelação tem **7 projetos**
+reais (Jarvis 469 sessões, ideia-chat) → descobrir, não hardcodar 5; (4) **nenhum segredo crítico
+git-tracked** (só `.env` públicos rastreados em nfideia/ideiapartner) — credential-isolation segura
+na prática; (5) **v14.4 write-path é GATE, não milestone** — autenticação de origem é bloqueante
+(`sha256≠assinatura`; doc 70 lista 9 questões p/ o /spec consumir); (6) MVP ganha **Flight Recorder
+v0** na v14.1 (replay determinístico do flip-flop do pin `gsd`, doc 71); (7) v14.0 = 37 tarefas
+buildáveis, risco-chave = não-regressão ANSI do idea-doctor (doc 72). Cross-link:
+[[project-milestone-v13-security-freshness]], [[project-aiox-core-pristine-overlay]].
