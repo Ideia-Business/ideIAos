@@ -1,6 +1,6 @@
 ---
 name: project-milestone-v13-security-freshness
-description: v13 Security Freshness Gate — núcleo + surfacing opção C + propagação 4 produtos (PARCIAL/no-tag 2026-06-20)
+description: v13 Security Freshness Gate — núcleo + surfacing opção C + propagação 4 produtos (SHIPPED tag v13.0 2026-06-21)
 metadata: 
   node_type: memory
   type: project
@@ -16,4 +16,4 @@ metadata:
 
 **Config (R13-03):** pesos/globs/limiares em **defaults do script + env `SECFRESH_*` + `.security/policy.sh`** — NÃO em `core-config.yaml` (que só existe no `.aiox-core` PRISTINE, ver [[project-aiox-core-pristine-overlay]]).
 
-**Pendente p/ tag `v13.0`:** SOAK ≥2 máquinas + span ≥1d sobre `.planning/soak/v13-security-freshness.log` (1 máquina/0d). Ligar `SECFRESH_GATE_ENABLED=1` é decisão pós-1º-ciclo (R13-07). Mesma situação de [[project-milestone-v11-completo]] e [[project-milestone-v12-qa-security]]. Padrão técnico em [[learning-local-tooling-via-env-root-and-git-exclude]].
+**✅ TAG `v13.0` SHIPPED 2026-06-21** (`57daf9c`): SOAK fechado — 2 máquinas reais distintas + span ≥1d via re-record manual na Mac mini. A task agendada `close-soak-v13-tag-tomorrow` estava **overdue/nunca disparou** (exigia app aberto na Mac mini às 17:50); executei os passos dela manualmente com confirmação do usuário e desabilitei a task (`enabled:false`). Ligar `SECFRESH_GATE_ENABLED=1` segue decisão pós-1º-ciclo (R13-07). Mesma jornada de [[project-milestone-v11-completo]] e [[project-milestone-v12-qa-security]] (ambos taggeados). Padrão técnico em [[learning-local-tooling-via-env-root-and-git-exclude]]; cuidado de integridade do SOAK em [[learning-automate-the-reminder-not-the-integrity-stamp]].

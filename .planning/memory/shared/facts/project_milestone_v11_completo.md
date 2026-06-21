@@ -1,6 +1,6 @@
 ---
 name: project-milestone-v11-completo
-description: "v11 (Integridade & Auditoria de Spec) — 6 ondas DONE 2026-06-19, fechamento PARCIAL/no-tag; SOAK 2/2 máquinas PASS, tag v11.0 só aguarda o span ≥1d (heartbeat ≥2026-06-20 17:51:44)"
+description: "v11 (Integridade & Auditoria de Spec) — 6 ondas DONE 2026-06-19; SHIPPED tag v11.0 2026-06-20 (SOAK 2 máquinas + span ≥1d fechados)"
 metadata: 
   node_type: memory
   type: project
@@ -25,13 +25,4 @@ um bloqueador HIGH (A2 hard-falhava em spec que segue o template oficial) + 9 ac
 o próprio SOAK gate e o idea-doctor pegaram defeitos (incl. o ledger sob `*.log`). Ver
 [[learning-broad-gitignore-sweeps-tracked-ledger]].
 
-**SOAK status (2026-06-19 18:30):** 2/2 máquinas PASS no ledger `.planning/soak/v11-arsenal.log`
-(MacBook-Air-2 @ 17:51 commit 4011186 · Mac-mini-de-Gustavo @ 18:30 commit 2ca25df) — a checagem
-de durabilidade cross-máquina (o risco real do SOAK) está GREEN. **Único critério restante: span ≥1d.**
-Ambos heartbeats são de 06-19 (~39min) → `span 0d < 1d`. O 1º heartbeat ancora a janela em
-2026-06-19 17:51:44; o gate vira verde com QUALQUER heartbeat ≥ **2026-06-20 17:51:44**.
-
-**Para TAGUEAR v11.0** (amanhã ≥17:51, qualquer máquina):
-`bash scripts/check-soak.sh v11-arsenal --record` → `git add .planning/soak/v11-arsenal.log && git commit && git push`
-→ `bash scripts/check-soak.sh v11-arsenal` (exit 0) → `git tag v11.0`. Nada de código pendente.
-Sucede [[project-milestone-v9-completo]] (v10 ficou parcial). origin/work=`049a947`.
+**✅ TAG `v11.0` SHIPPED 2026-06-20** (`1ba01c8`): SOAK fechado — 2 máquinas reais distintas (MacBook-Air-2 + Mac-mini) + span ≥1d via re-record em 06-20 18:21 (commit 056768e). Foi o **primeiro** dos 3 milestones PARCIAL a fechar; v12.0 e v13.0 seguiram em 2026-06-21 (ver [[project-milestone-v12-qa-security]], [[project-milestone-v13-security-freshness]]). Sucede [[project-milestone-v9-completo]] (v10 ficou parcial). Cuidado de integridade do SOAK em [[learning-automate-the-reminder-not-the-integrity-stamp]].

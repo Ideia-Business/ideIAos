@@ -1,6 +1,6 @@
 ---
 name: project-milestone-v12-qa-security
-description: "v12 (QA & AI-Security) — 4 ondas + refresh mensal DONE 2026-06-19 (commit 8d18650), conceito-only de 3 repos externos; PARCIAL/no-tag pendente SOAK"
+description: "v12 (QA & AI-Security) — 4 ondas + refresh mensal DONE 2026-06-19 (commit 8d18650), conceito-only de 3 repos externos; SHIPPED tag v12.0 2026-06-21"
 metadata:
   node_type: memory
   type: project
@@ -28,5 +28,4 @@ ADR `docs/decisions/v12-qa-security-absorption.md`; plano `.planning/milestones/
 Tudo conceito-only com `# SOURCE`. Verificado: idea-doctor **73/1/0**, readme 120/120, evals 3 casos.
 Propagado a `.claude`/`.cursor`/`plugins`. Dogfood pegou alucinação de licença (Hercules Apache→AGPL).
 
-**Pendente p/ TAG `v12.0`:** SOAK ≥2 máquinas + ≥1d (`.planning/soak/v12-qa-security.log`: 1 máquina/0d).
-**Ativar refresh mensal na Mac mini** (launchd, per-máquina — ver handoff). Sucede [[project-milestone-v11-completo]].
+**✅ TAG `v12.0` SHIPPED 2026-06-21** (`57daf9c`): SOAK fechado — 2 máquinas reais + span ≥1d via re-record manual na Mac mini. A task agendada `close-soak-v12-tag-tonight` **disparou 06-20 22:45 mas ABORTOU antes de taggear** (ledger sem re-record → bailou num gate inicial); executei os passos manualmente com confirmação do usuário e a task one-shot já está `enabled:false`. Refresh mensal AI-security já ATIVADO na Mac mini (launchd, 2026-06-20). Sucede [[project-milestone-v11-completo]]; cuidado de integridade do SOAK em [[learning-automate-the-reminder-not-the-integrity-stamp]].
