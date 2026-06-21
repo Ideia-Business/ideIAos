@@ -381,5 +381,5 @@ _Histórico v7 abaixo:_
 
 ## Ultima sessao automatica (2026-06-21)
 
-- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-21-ideiaos-0dc39c83-3226-4cda-8042-33b2fb9f.tmp`
-- Próximo passo: v14.0 PLANEJADO (commit `9bcb15c`); executar `/gsd-execute-phase 14.0` **só após o v13 tagar** (gate concreto: `14.0-01` edita `idea-doctor.sh` que o SOAK do v13 re-executa). Ver bloco "▶ RETOMAR AQUI (v14.0 PLANEJADO)" no topo de `## Próximo passo`.
+- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-21-ideiaos-e2d20fda-07d9-4d22-a7ac-b952167f.tmp`
+- Próximo passo: (definir antes de retomar)
