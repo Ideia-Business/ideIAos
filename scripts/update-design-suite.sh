@@ -49,8 +49,15 @@ TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
 echo -e "\n${CYAN}${BOLD}━━━ Clonando upstream ($REF) ━━━${NC}"
-# Tenta shallow no ref (tag/branch); se falhar (ex: commit sha), clona full + checkout.
-if git clone --quiet --depth 1 --branch "$REF" "$REPO" "$TMP/up" 2>/dev/null; then
+# Se REF é um SHA (7-40 hex), `--branch <sha>` SEMPRE falha (não é ref nomeado) —
+# vai DIRETO p/ full clone + checkout (o full clone é necessário de qualquer jeito:
+# o upstream usa symlinks p/ `src/`, que só existem num clone completo). Senão
+# (tag/branch nomeado), tenta shallow primeiro; cai no full se falhar.
+if printf '%s' "$REF" | grep -qiE '^[0-9a-f]{7,40}$'; then
+  git clone --quiet "$REPO" "$TMP/up" || die "falha ao clonar $REPO"
+  git -C "$TMP/up" checkout --quiet "$REF" || die "ref-sha inválido: $REF"
+  ok "clone full + checkout (sha) $REF"
+elif git clone --quiet --depth 1 --branch "$REF" "$REPO" "$TMP/up" 2>/dev/null; then
   ok "clone shallow @ $REF"
 else
   git clone --quiet "$REPO" "$TMP/up" || die "falha ao clonar $REPO"
@@ -66,13 +73,34 @@ MISSING=0
 for s in $SUITE; do
   if [ -d "$SRC/$s" ]; then
     rm -rf "${SKILLS_DIR:?}/$s"
-    cp -R "$SRC/$s" "$SKILLS_DIR/$s"
+    # -L DESREFERENCIA symlinks. O upstream publica data/ e scripts/ como symlinks
+    # p/ ../../../src/<s>/ — um `cp -R` puro copiaria os symlinks VERBATIM, e como
+    # o src/ não é vendorizado eles ficam DANGLING → o git lê o dataset inteiro como
+    # apagado (foi a deleção destrutiva de ~9374 linhas). -L copia o conteúdo REAL.
+    cp -RL "$SRC/$s" "$SKILLS_DIR/$s"
     ok "re-vendorizado: $s"
   else
     warn "ausente no upstream ($REF): $s — mantida a versão atual"
     MISSING=$((MISSING+1))
   fi
 done
+
+# ── SALVAGUARDA anti-vendor-destrutivo ───────────────────────────────────────
+# Se a re-vendorização apagou o dataset (symlinks dangling, layout upstream mudou,
+# skill renomeada), o diff terá deleção líquida enorme. Aborta e RESTAURA, em vez
+# de deixar você commitar a destruição por engano. Limiar tunável via env.
+if git -C "$SETUP_DIR" rev-parse --is-inside-work-tree &>/dev/null; then
+  NET="$(git -C "$SETUP_DIR" diff --numstat -- source/skills/ \
+         | awk '{ins+=$1; del+=$2} END{print (del-ins)+0}')"
+  THRESHOLD="${DESIGN_SUITE_MAX_NET_DELETIONS:-500}"
+  if [ "${NET:-0}" -gt "$THRESHOLD" ]; then
+    err "ABORTANDO: re-vendorização removeu ${NET} linhas líquidas de source/skills/ (> ${THRESHOLD})."
+    err "Causa provável: symlinks dangling, layout do upstream mudou, ou ref errado."
+    err "Restaurando source/skills/ do git e NÃO gravando o pin."
+    git -C "$SETUP_DIR" checkout -- source/skills/ 2>/dev/null
+    die "vendorização destrutiva barrada (revertido). Revise o ref/upstream à mão."
+  fi
+fi
 
 # Registra o pin
 COMMIT="$(git -C "$TMP/up" rev-parse --short HEAD 2>/dev/null || echo '?')"
