@@ -43,6 +43,16 @@ Rodada operacional na **Mac mini** (2ª máquina) para destravar o SOAK dos dois
 
 Anomalia notada (não-bloqueante): a 1ª entrada do ledger v12 tem host-label `192` (provável fragmento de IP do `hostname -s` na MacBook-Air); é máquina genuinamente distinta da Mac mini, gate ≥2 satisfeito. Ledger é append-only/commitado → não editado.
 
+## Sessão 2026-06-20 (noite, Mac mini) — housekeeping: doctor 0-WARN + planning sync v13 + design pin
+
+Limpeza pós-auditoria de pendências (pedido "deixe 100% correto"). **idea-doctor: 75 OK · 0 WARN · 0 FAIL.**
+
+1. **idea-doctor 3 WARN → 0:** (a) **/spec drift** — global sem 3 libs do v11 (`spec-{analyze,converge,grammar}.sh`); `setup.sh --global-only` é **version-gated** e não as copiou → espelhei o dir com `cp -Rp` ([[learning-global-skill-deploy-version-gated-misses-lib-changes]]). (b) **AI-security snapshot** ausente → bootstrap via `refresh-ai-security.sh` (local/gitignored). (c) **Suíte de Design seed** — pin re-ancorado à **proveniência real `b7e3af80`** (verificado por content-match: 5/7 skills idênticas + overlays IdeiaOS em design-system/banner-design) em `versions.lock`+`.design-suite-version` (`f1c4e53`). ⚠️ `update-design-suite.sh` é DESTRUTIVO p/ ref-SHA — cai no HEAD e apaga o dataset ([[learning-design-suite-sha-pin-clone-destructive]]).
+2. **Branch `planning` reconciliado + sincronizado → v13** (`4dd9c1f`): estava diverso 10/2 (churn do memory-sync cross-máquina). Merge de `origin/planning` (conflitos v11 em MEMORY.md + fato → resolvidos p/ a versão shipped; **memory store preservado, 47 facts, 0 perdido**), `.planning/STATE.md` v10→v13, `.planning/ROADMAP.md` + v9–v13. `planning` agora **0/0** com origin. (Descoberta: origin/planning já estava em v10 — a auditoria leu o planning *local* stale.)
+3. **2 defeitos latentes registrados em memória** (setup version-gated + design-suite sha-clone); fix dos scripts = follow-up.
+
+Estado final: `work` + `planning` ambos **0/0** com origin; doctor **0-WARN**; tags SOAK v12.0/v13.0 no piloto automático (tasks agendadas).
+
 ## Sessão 2026-06-18 — remediação doctor + incidente autosync + housekeeping produtos
 
 Sessão de **manutenção/remediação** (não altera o milestone v10). Disparada por `ideiaos-update.sh` → `idea-doctor` deu FAIL de secret.
