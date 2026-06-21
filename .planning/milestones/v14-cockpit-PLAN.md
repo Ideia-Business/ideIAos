@@ -47,7 +47,7 @@ O IdeiaOS já se auto-telemetra cross-máquina (SOAK, security-freshness, idea-d
 ## Pendente para abrir v14 como milestone ATIVO
 1. v13 fechar (tag `v13.0` via SOAK — em andamento, agendado).
 2. `/gsd-plan-phase v14.0` consumindo `specs/_archive/2026-06-20-v14-cockpit-foundation/tasks.md` → `PLAN.md` task-a-task da fase 0.
-3. (Recomendado) ADR `docs/decisions/v14-cockpit-local-first-git-as-bus.md` registrando a decisão arquitetural irreversível (git-as-bus por ref + agentd) e o teto de poder gated.
+3. ✅ ADR `docs/decisions/v14-cockpit-local-first-git-as-bus.md` criado (decisão arquitetural irreversível: git-as-bus por ref + agentd; teto de poder gated).
 
 ## Riscos & decisões adiadas
 - **Single-operator (P0):** P1/P2 (líder de squad, dev individual) e metade do Pulso dependem de sinal multi-usuário que ainda não existe (toda observação é `gustavo@`) → rotulados **vaporware honesto** até segundo ator.
