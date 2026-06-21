@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v10
 milestone_name: Camada de Integração Lovable MCP
 status: partial
-last_updated: "2026-06-19"
+last_updated: "2026-06-21T22:24:48.136Z"
 progress:
   total_phases: 4
   completed_phases: 2
@@ -46,11 +46,13 @@ progress:
 **Planejamento detalhado:** `.planning/milestones/v10-{REQUIREMENTS,ROADMAP}.md` + dossiê `docs/research/2026-06-17-lovable-mcp-integration-plan.md` (+ `…-synthesis.json` verbatim).
 
 ### v9 (Camada de Alinhamento) — ✅ SHIPPED 2026-06-17 (tag v9.0)
+
 6 fases A–F + G could-haves; auditoria PASSED; dogfood `/doubt` = SHIP. Planejamento em `.planning/milestones/v9-*`.
 
 ## Decisões Tecnicas Canonicas
 
 ### GSD — Linhagem Definitiva
+
 - Usamos `@opengsd/get-shit-done-redux@1.1.0` (linha VIVA/estável, org open-gsd).
 - redux 1.x ≠ gsd-pi 3.x (produto diferente, NÃO migrar). open-gsd ≠ gsd-build (legado).
 - versions.lock blindado (fase 28); guards anti-Pi-drift em check-versions-lock.sh + idea-doctor.sh.
@@ -66,6 +68,7 @@ _v9 (Camada de Alinhamento) SHIPPED 2026-06-17, tag v9.0 — 7 requisitos, audit
 **Fechamento operacional (2026-06-17):** tag `v9.0` empurrada para `origin`; LOW do dogfood resolvido (README esclarece que `scan-absorbed.sh` mira a quarentena, não `source/`); branch `planning` sincronizado com os docs de milestone v9 via git plumbing (memory store preservado); **`main` reconciliada** com `work` por fast-forward (IdeiaOS vai direto na main); **validador YAML antifrágil** (`scripts/validate-agent-yaml.sh`, parser autoritativo js-yaml) wired no `idea-doctor` + Patch 14 (rollback). Aprendizado extraído (`docs/learnings/2026-06-17-git-plumbing-partial-branch-overlay-sync.md` → memória global + vault Obsidian) + Changelog do vault atualizado para v9. **Nada pendente no repo** — `main`=`work`=`origin`.
 
 ## Pendências (opt-in, decisão do usuário)
+
 - **Lovable MCP (v10) — write-path C/D PARQUEADO-GATED:** Fase A SHIPPED+validado e rollout completo (deny 5/5 + verify-deploy `IN_SYNC`); Fase B executada (veredito 🔴 bloquear publish). C/D só reabrem com apetite por write-path E medição de A2 fora do MCP. Docs: `.planning/v10-MILESTONE-AUDIT.md` + ADR `docs/decisions/v10-lovable-mcp-readfirst-containment.md`.
 - ✅ Piloto /spec (delta-spec) no nfideia — **RESOLVIDO 2026-06-19**: specs portadas p/ main via PR [nfideia#40](https://github.com/Ideia-Business/nfideia/pull/40) (MERGED, doc-only); branch stale `spec/multi-tenancy-pilot` não arrastada.
 - gsd-browser: reavaliar quando publicar npm/crates (ADR docs/decisions/) — aguarda upstream.
