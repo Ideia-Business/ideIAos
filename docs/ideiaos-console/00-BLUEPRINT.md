@@ -1,10 +1,18 @@
-# IdeiaOS Bridge — Mission Control · BLUEPRINT
+# IdeiaOS Cockpit · BLUEPRINT
 
 > **Documento 00 · Blueprint FINAL · Lead Architect**
 > **Status:** PROPOSTO (zero código) · **Data:** 2026-06-20 · **Branch:** `work`
 > **Milestone-alvo:** **v14.x** do IdeiaOS
 > **Substitui:** `00-BLUEPRINT-DRAFT.md` (NEEDS_WORK) — incorpora a crítica adversarial e fecha 6 contradições, 6 buracos de segurança e 6 gaps.
 > **Supera os 6 docs-fonte** (`10`…`60`) onde divergiam. As correções estão marcadas `[CORRIGIDO]` com a contradição que resolvem.
+
+> ### ✅ Decisões do usuário (2026-06-20)
+> | # | Pergunta (§12) | Decisão |
+> |---|----------------|---------|
+> | D1 | Nome do produto | **IdeiaOS Cockpit** (metáfora glass-cockpit; "Atalaia" = subsistema de alertas; daemon = `ideiaos-agentd`). O ref de federação passa a ser `cockpit`. |
+> | D2 | Próximo passo | **Formalizar antes via `/spec` + GSD** — contrato da capability `cockpit` + plano de fase v14.0 antes de código. |
+> | D3 | Teto de poder | **Comando cross-máquina aprovado para v14.4**, gated por `/spec` + threat-model STRIDE/OWASP-LLM. v14.0–v14.3 permanecem read-only quanto a produção. |
+> | D4 | Brand-hue | Ouro IdeiaOS (`--brand-hue:75`) — default aceito (reversível em 1 linha). |
 
 ---
 
@@ -37,11 +45,12 @@ A crítica `NEEDS_WORK` apontou que o DRAFT prometia coisas mutuamente exclusiva
 
 ---
 
-## 2. Nome final `[DECIDIDO]`
+## 2. Nome final `[DECIDIDO pelo usuário — 2026-06-20]`
 
-- **Produto:** **IdeiaOS Bridge** · **Subtítulo:** *Mission Control* · encurtável para **"a Bridge"**.
-- **Atalaia:** nome do **subsistema de alertas** dentro da Bridge.
+- **Produto:** **IdeiaOS Cockpit** · encurtável para **"o Cockpit"**. A metáfora glass-cockpit é a âncora de UX (doc 50: *instrumento, não relatório*); a tela de overview é a *visão de cockpit*.
+- **Atalaia:** nome do **subsistema de alertas** dentro do Cockpit.
 - **Daemon local:** **`ideiaos-agentd`** — nome **único e canônico** em TODOS os docs (o `ideiaos-console-agent` do doc 30 está morto). `[CORRIGIDO C6]`
+- **Ref de federação:** **`cockpit`** (branch órfão via git-plumbing; substitui o nome provisório `mission-control` usado nos diagramas abaixo).
 
 ---
 
@@ -214,12 +223,14 @@ Não compete na categoria "dashboard" — **cria** a categoria: a ponte nativa d
 
 ## 12. Questões abertas (decisão do usuário — `/grelha`)
 
-As contradições do DRAFT foram **resolvidas neste doc**; restam só escolhas de gosto/escopo:
+As contradições do DRAFT foram **resolvidas neste doc**; as escolhas de gosto/escopo foram **decididas pelo usuário em 2026-06-20** (ver banner no topo):
 
-1. **Nome:** confirma **IdeiaOS Bridge** (Atalaia = subsistema de alertas)?
-2. **v14.1 = vertical slice read-only + comando local** `[recomendado]`, ou quer mais pilares de uma vez?
-3. **Brand-hue:** ouro IdeiaOS (`--brand-hue:75`) `[default]`?
-4. **v14.4 (cross-máquina/rotação) vale o threat-model**, ou a Bridge fica read-only + comando-local para sempre? (Decisão estratégica de quanto poder dar ao agentd.)
+1. **Nome:** ✅ **IdeiaOS Cockpit** (Atalaia = subsistema de alertas; ref de federação `cockpit`).
+2. **v14.1 = vertical slice read-only + comando local** ✅ recomendado mantido (default).
+3. **Brand-hue:** ✅ ouro IdeiaOS (`--brand-hue:75`).
+4. **v14.4 (cross-máquina/rotação):** ✅ **aprovado, gated** por `/spec` + threat-model. v14.0–v14.3 permanecem read-only quanto a produção.
+
+**Próximo passo decidido:** formalizar via `/spec` (capability `cockpit`) → GSD (fase v14.0). Sem código antes do contrato.
 
 ---
 
