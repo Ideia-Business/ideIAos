@@ -393,5 +393,5 @@ _Histórico v7 abaixo:_
 
 ## Ultima sessao automatica (2026-06-21)
 
-- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-21-ideiaos-0dc39c83-3226-4cda-8042-33b2fb9f.tmp`
+- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-21-ideiaos-4967678e-c231-43fe-af3c-75d677b3.tmp`
 - Próximo passo: (definir antes de retomar)
