@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v10
 milestone_name: Camada de Integração Lovable MCP
 status: partial
-last_updated: "2026-06-21T23:12:10.215Z"
+last_updated: "2026-06-21T23:18:22.297Z"
 progress:
   total_phases: 4
   completed_phases: 2
@@ -82,13 +82,19 @@ verificadores adversariais). 7 PLAN.md (20 tasks/3 waves) em
 revisão adversarial e corrigidos (verificados por exit-code, 0 violações antifragile).
 
 **Planos executados:**
+
 - ✅ `14.0-01` (idea-doctor --json): commit `24290e6`
 - ✅ `14.0-02` (cockpit.sh ref plumbing): commit `2b3122a`
 - ✅ `14.0-03` (ttt-baseline.sh + ttt-median.sh): commits `4de6360`, `02d5d90`
   - Harness TTT: N>=5 por jornada J1/J4/J2 registrado; medianas J1=0.002s J4=0.001s J2=0.002s
   - Decisões: modo interativo via `[ -t 0 ]`; mediana N par = linha inferior N/2 (determinista)
+- ✅ `14.0-04` (SPA scaffold Cockpit): commits `1fbcdcf`, `6f0c98d`
+  - apps/cockpit/ com Vite 7.3.5 + React 18.3.1 + TS + Tailwind 3 + shadcn/ui base
+  - Tema black-gold OKLCH `--brand-hue:75`; dev server loopback 127.0.0.1:5273 strictPort
+  - build_exit=0; test -s dist/index.html exit 0; serve_exit=0 (curl #root na porta fixa)
+  - Decisão: porta 5273 fixa; alias @/ via import.meta.url (ESM-safe); CSS variables OKLCH
 
-**Próximo:** `14.0-04` ou próximo plano da wave 1/2/3.
+**Próximo:** `14.0-05` ou próximo plano das waves 2/3.
 
 ## Compact Snapshot
 
