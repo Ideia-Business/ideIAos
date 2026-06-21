@@ -16,10 +16,10 @@ O IdeiaOS já se auto-telemetra cross-máquina (SOAK, security-freshness, idea-d
 | ID | Requisito | Fase | Status |
 |----|-----------|------|--------|
 | R14-00 | Contrato de comportamento `cockpit` vivo (`specs/cockpit/spec.md`, 9 req SHALL/DEVE) — fonte-de-verdade que os gates `spec-validate`/`spec-analyze` protegem | transversal | ✅ DONE (este turno) |
-| R14-01 | `idea-doctor.sh --json` — flag nova (14 seções → JSON) **+ fallback ANSI testado** antes de qualquer consumidor depender do JSON | v14.0 | 🔵 PROPOSTO |
-| R14-02 | `ideiaos-agentd` coletor read-only → `snapshots/<machine_id>.json` no ref `cockpit` via git-plumbing (working tree limpo) + `com.ideiaos.cockpit.plist` (4º LaunchAgent, 900s) + push do ref pelo autosync (nunca `main`) | v14.0 | 🔵 PROPOSTO |
-| R14-03 | `console-ingest` → read-model SQLite descartável (`~/.ideiaos/console/read-model.db`, `rm && rebuild` reconstrói dos refs) | v14.0 | 🔵 PROPOSTO |
-| R14-04 | Scaffold Vite/React/TS/Tailwind/shadcn black-gold OKLCH (reuso nfideia) + `check-cockpit.sh` + `idea-doctor §15` (dogfooding: agentd ativo? ref existe? snapshot fresco?) | v14.0 | 🔵 PROPOSTO |
+| R14-01 | `idea-doctor.sh --json` — flag nova (14 seções → JSON) **+ fallback ANSI testado** antes de qualquer consumidor depender do JSON | v14.0 | 🟡 PLANEJADO |
+| R14-02 | `ideiaos-agentd` coletor read-only → `snapshots/<machine_id>.json` no ref `cockpit` via git-plumbing (working tree limpo) + `com.ideiaos.cockpit.plist` (4º LaunchAgent, 900s) + push do ref pelo autosync (nunca `main`) | v14.0 | 🟡 PLANEJADO |
+| R14-03 | `console-ingest` → read-model SQLite descartável (`~/.ideiaos/console/read-model.db`, `rm && rebuild` reconstrói dos refs) | v14.0 | 🟡 PLANEJADO |
+| R14-04 | Scaffold Vite/React/TS/Tailwind/shadcn black-gold OKLCH (reuso nfideia) + `check-cockpit.sh` + `idea-doctor §15` (dogfooding: agentd ativo? ref existe? snapshot fresco?) | v14.0 | 🟡 PLANEJADO |
 | R14-05 | MVP Bridge read-only (loopback, sem login): Overview (System Pulse local-vivo) + Frota + Cofre-Espelho (metadata-only, zero botão de mutação) + Command Palette ⌘K (allowlist fixo) + **Flight Recorder v0** (naco de wow estrutural — replay determinístico do flip-flop real do pin `gsd` no `versions.lock`, via `git show <sha>:versions.lock`; o card Releases cede o countdown decorativo — doc 71) | v14.1 | 🔵 PROPOSTO |
 | R14-06 | Gate **Zero-Leak** (`test:zeroleak`, exit-code binário, bloqueia release) + harness de medição de **Time-to-Truth** (baseline terminal N≥5 J1/J4/J2 → meta <10s) | v14.1 | 🔵 PROPOSTO |
 | R14-07 | Pilares completos (ainda read-only): Constelação (produtos) + Sinapse (IAs & MCP + deny-list watch **que grava LEDGER ESTRUTURADO append-only de contenção: `epoch\|iso\|produto\|deny_count\|total\|commit`** — pré-requisito do momento-prêmio da v14.3, doc 71) + Pulso honesto (4 KPIs entrega-verificada) + Atalaia (alertas/drift) | v14.2 | 🔵 PROPOSTO |
@@ -46,8 +46,38 @@ O IdeiaOS já se auto-telemetra cross-máquina (SOAK, security-freshness, idea-d
 
 ## Pendente para abrir v14 como milestone ATIVO
 1. v13 fechar (tag `v13.0` via SOAK — em andamento, agendado).
-2. `/gsd-plan-phase v14.0` consumindo `specs/_archive/2026-06-20-v14-cockpit-foundation/tasks.md` → `PLAN.md` task-a-task da fase 0.
+2. ✅ `/gsd-plan-phase v14.0` EXECUTADO (2026-06-21) → 7 `PLAN.md` (20 tasks, 3 waves) em `.planning/milestones/v14-phases/14.0-substrate-spine/`, verificados por 3 lentes adversariais. Ver "## v14.0 — PLANEJADO" abaixo.
 3. ✅ ADR `docs/decisions/v14-cockpit-local-first-git-as-bus.md` criado (decisão arquitetural irreversível: git-as-bus por ref + agentd; teto de poder gated).
+4. **Próximo:** `/gsd-execute-phase 14.0` — **só após o v13 tagar** (não entrelaçar milestones ativos) e com contexto fresco (`/clear`).
+
+## v14.0 — PLANEJADO (2026-06-21)
+
+**Planos** (`.planning/milestones/v14-phases/14.0-substrate-spine/`), consomem `docs/ideiaos-console/72` (37 tarefas N.M, exit-code-gated) + `specs/cockpit/spec.md` (9 req):
+
+| Plano | Grupo | Wave | depends_on | Requisito | Gate-âncora |
+|-------|-------|------|------------|-----------|-------------|
+| `14.0-01` idea-doctor --json | §1+§0 | 1 | — | R14-01 | não-regressão ANSI (diff stripped exit 0) |
+| `14.0-02` ref cockpit (plumbing) | §2 | 1 | — | R14-02 | A4 `git status --porcelain` vazio |
+| `14.0-03` TtT baseline | §5 | 1 | — | R14-06 | N≥5/jornada + mediana bash puro |
+| `14.0-04` SPA scaffold | §6.1/6.2 | 1 | — | R14-04 | `npm run build` + loopback |
+| `14.0-05` agentd coletor | §3 | 2 | 01,02 | R14-02 | Zero-Leak snapshot + dogfood veneno DUPLO (sk- + JWT) |
+| `14.0-06` console-ingest | §4 | 2 | 02,05 | R14-03 | api_key sem `value` (PRAGMA) + A5 rm+rebuild |
+| `14.0-07` UI lê DB + gates | §6.3/§7 | 3 | 04,06 | R14-04 | bind-loopback explícito + Zero-Leak=0 + SOAK |
+
+**Verificação adversarial (3 lentes, 2026-06-21):**
+- **gsd-plan-checker** → CONCERNS (0 blocking; cobertura/ondas/escopo PASS).
+- **security-reviewer (opus)** → arquitetura SOUND; credential-isolation estruturalmente fechada.
+- **antifragile-gates auditor** → **0 violações** (81 critérios, 74 exit-code, 1 runtime-UI legítimo).
+
+**6 correções aplicadas pós-revisão** (todas verificadas por exit-code):
+- **W1** (gate-teatro): exit-code do baseline ANSI era tautológico (`$B=$B`) → grava `/tmp/ansi_baseline_exit` e compara sem fallback auto-anulável.
+- **H-01** (HIGH, jóia): regex JWT do Zero-Leak fortalecido p/ `eyJ…\.eyJ` (o `service_role` É um JWT) + poison dogfood DUPLO (sk- **e** JWT-veneno).
+- **M-01** (MEDIUM): gate de exit-code provando bind explícito em `127.0.0.1` (curl passaria com 0.0.0.0) — contém o treasure-map ao loopback.
+- **W2**: prova de que SÓ a §15 foi adicionada ao idea-doctor (diff ancorado em "━━━ Resumo ━━━").
+- **W3** (rastreabilidade): removidos IDs-fantasma `R14-CTX-A*` (inexistentes em fonte canônica — Article IV No-Invention); `requirements:` agora só R14-0x reais.
+- **W4**: card lê `last_doctor` de `machine` (não `machine_snapshot`).
+
+**Carry-forward p/ v14.3 (A-02):** subject de commit / tool-description MCP entram no read-model como DADO-não-confiável (anti-injection) — o Copiloto herda a quarentena.
 
 ## Apuração (2026-06-20) — 4 eixos aprofundados
 
