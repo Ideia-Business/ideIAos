@@ -93,8 +93,15 @@ revisão adversarial e corrigidos (verificados por exit-code, 0 violações anti
   - Tema black-gold OKLCH `--brand-hue:75`; dev server loopback 127.0.0.1:5273 strictPort
   - build_exit=0; test -s dist/index.html exit 0; serve_exit=0 (curl #root na porta fixa)
   - Decisão: porta 5273 fixa; alias @/ via import.meta.url (ESM-safe); CSS variables OKLCH
+- ✅ `14.0-05` (ideiaos-agentd collector): commits `3ddf283`, `5a41d24`, `338ed64`
+  - source/agentd/collect.js: leitores read-only por fonte, machine_id=sha256(IOPlatformUUID)[:12]
+  - source/agentd/agentd.js: snapshot ideiaos-cockpit-snapshot/v1 gravado em refs/heads/cockpit (MID=c706ac77d577)
+  - source/agentd/zeroleak-snapshot.sh: gate sk-/gho_/JWT-dois-seg/service_role/hex>40 — exit 0 no real, exit 1 no veneno
+  - infra/launchd/com.ideiaos.cockpit.plist: 4º LaunchAgent, StartInterval 900, NÃO carregado (passo manual)
+  - A4: git status --porcelain vazio após gravação; zero campo "value" no snapshot; DoD #2 read-only confirmado
+  - Decisão: MID Node canonical = c706ac77d577 (sha256 puro, ≠ shasum shell que adiciona '  -')
 
-**Próximo:** `14.0-05` ou próximo plano das waves 2/3.
+**Próximo:** `14.0-06` (console-ingest) ou `14.0-07` (spa-readmodel-gates) — waves 2/3.
 
 ## Compact Snapshot
 
