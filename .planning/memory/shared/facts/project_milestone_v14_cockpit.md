@@ -50,5 +50,13 @@ git-tracked** (só `.env` públicos rastreados em nfideia/ideiapartner) — cred
 na prática; (5) **v14.4 write-path é GATE, não milestone** — autenticação de origem é bloqueante
 (`sha256≠assinatura`; doc 70 lista 9 questões p/ o /spec consumir); (6) MVP ganha **Flight Recorder
 v0** na v14.1 (replay determinístico do flip-flop do pin `gsd`, doc 71); (7) v14.0 = 37 tarefas
-buildáveis, risco-chave = não-regressão ANSI do idea-doctor (doc 72). Cross-link:
+buildáveis, risco-chave = não-regressão ANSI do idea-doctor (doc 72). **Wave de completude (100%,
+docs 74-79):** resiliência (agentd empurra o ref `cockpit` por si → autosync vira redundância, não
+SPOF; doc 74); DDL completo, 13 tabelas, ApiKey sem coluna value provada em 4 elos (doc 75); fórmulas
+de produtividade — KPI-âncora = milestones SOAK (ininflável), multi-usuário gated por 2º ator
+≥10 commits/90d (doc 76); 11 alertas Atalaia + allowlist ⌘K, `revoke`-em-massa fica FORA pra sempre
+(doc 77); estratégia de testes Zero-Leak + dogfood de veneno `sk-ant-FAKE` (doc 78); glossário 22
+termos + **REGISTRO MESTRE de 39 questões/riscos (doc 79 = índice canônico)**. Topo aberto 🔴 = Q1
+autenticação de origem cross-máquina (`sha256≠assinatura`) — faz a v14.4 ser gate, não milestone.
+Cross-link:
 [[project-milestone-v13-security-freshness]], [[project-aiox-core-pristine-overlay]].
