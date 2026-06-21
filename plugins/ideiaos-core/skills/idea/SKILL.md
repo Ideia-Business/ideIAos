@@ -95,6 +95,7 @@ Use a matriz abaixo para detectar intenção. **Apenas UMA camada deve ser ativa
 | "acessibilidade", "WCAG ao construir" | **Skill** → `/accessibility` |
 | "medir antes de otimizar", "loop de benchmark" | **Skill** → `/benchmark-optimization-loop` |
 | "custo de tokens", "qual modelo usar" | **Skill** → `/cost-tracking` |
+| "comprimir essa saída/log/JSON gigante", "reduzir tokens dessa saída de ferramenta", "esse log/dump é enorme", "encolher esse output antes de analisar" | **Skill** → `/tool-output-compressor` (compressor local/reversível de tool-output: log→template, JSON→schema+CSV; CLI-First, nunca toca msg do usuário; original recuperável por hash) |
 | "começar projeto novo (2 instâncias)" | **Skill** → `/two-instance-kickoff` |
 | "gerar llms.txt", "docs pra IA" | **Skill** → `/llms-txt` |
 | "converter MCP em CLI", "MCP pesado demais" | **Skill** → `/mcp-to-cli` |
