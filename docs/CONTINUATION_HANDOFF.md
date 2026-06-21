@@ -176,6 +176,29 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 
 ## Próximo passo
 
+> **▶ RETOMAR AQUI (2026-06-21, Mac mini — v14.0 PLANEJADO via multi-agente; execução GATED pelo v13) — leia primeiro:**
+> A fase **v14.0 (Substrato + Espinha)** do Cockpit foi **planejada** (não executada). Frota Ultracode:
+> `gsd-pattern-mapper` → `gsd-planner` → **3 verificadores adversariais paralelos** (plan-checker +
+> security-reviewer + auditor antifragile).
+> - **Entregue (commit `9bcb15c`, `work` 0/0):** 7 PLAN.md GSD em
+>   `.planning/milestones/v14-phases/14.0-substrate-spine/` (**20 tasks / 3 waves**) — 01 idea-doctor
+>   `--json` · 02 ref `cockpit` por plumbing · 03 TtT baseline · 04 SPA scaffold black-gold · 05 agentd
+>   collector+plist · 06 schema.sql (8 tabelas, **ApiKey sem value**) + ingest.js · 07 SPA lê read-model
+>   + gates/SOAK. + `14.0-CONTEXT.md` + `14.0-PATTERNS.md` + seção "v14.0 PLANEJADO" no `v14-cockpit-PLAN.md`.
+> - **6 defeitos pegos e corrigidos pela revisão adversarial** (todos re-verificados por exit-code, 0
+>   violações antifragile): gate-theater tautológico; regex JWT fraca p/ service_role; falta de gate
+>   bind-loopback (`127.0.0.1`); falta de diff de não-regressão §15; IDs `R14-CTX-A*` **fantasma**
+>   (violação Art. IV No-Invention); tabela errada p/ `last_doctor`.
+> - **🚦 NÃO executar ainda — gate concreto, não só disciplina:** `/gsd-execute-phase 14.0` só **depois
+>   do v13 tagar**. O plano `14.0-01` edita `scripts/idea-doctor.sh`, e o SOAK pendente do v13
+>   **RE-EXECUTA** o `idea-doctor` na re-gravação (`idea_doctor=PASS|regression=PASS`) → editar agora
+>   arriscaria a tag do v13. Os milestones compartilham o **mesmo arquivo vivo**. Se forçar, rodar só
+>   Wave 1 **menos o `14.0-01`**. Learning: [[learning-active-milestone-gate-couples-via-shared-file]].
+> - **Estado do gate v13 (medido 2026-06-21 01:20):** SOAK 2/2 máquinas ✓, **span 3968s de 86400s** ✗;
+>   a janela ≥1d abre quando um heartbeat for gravado **≥ 2026-06-21 17:46:26** — o que a task agendada
+>   `close-soak-v13-tag-tomorrow` faz (exige app Claude Code aberto na Mac mini). Só `v11.0` tagado.
+> - **Próximo passo real:** quando o v13 tagar → `/gsd-execute-phase 14.0` com **contexto fresco**.
+
 > **▶ RETOMAR AQUI (2026-06-21, Mac mini — v14 IdeiaOS Cockpit: PLANO COMPLETO + apuração 100%, PROPOSTO/zero-código) — leia primeiro:**
 > Pedido: transformar instalação/ativação/gestão dos projetos numa **página web de visão CTO** = **IdeiaOS Cockpit** (console local-first sobre o substrato auto-telemetrado do IdeiaOS). **Doc-only, zero código de produto.** Decisões do usuário (AskUserQuestion): nome **Cockpit**; **formalizar via /spec+GSD antes de código**; comando cross-máquina **aprovado p/ v14.4 gated** por threat-model; brand ouro.
 > - **Pacote (`docs/ideiaos-console/` — 20 docs):** blueprint multi-agente (13 agentes; o crítico adversarial pegou contradição fatal — "piggyback no SOAK `--record`" é manual) + roadmap + phase-1 spec + 6 docs de especialista (10-60) + apuração (70-79).
@@ -358,5 +381,5 @@ _Histórico v7 abaixo:_
 
 ## Ultima sessao automatica (2026-06-21)
 
-- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-21-ideiaos-e2d20fda-07d9-4d22-a7ac-b952167f.tmp`
-- Próximo passo: (definir antes de retomar)
+- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-21-ideiaos-0dc39c83-3226-4cda-8042-33b2fb9f.tmp`
+- Próximo passo: v14.0 PLANEJADO (commit `9bcb15c`); executar `/gsd-execute-phase 14.0` **só após o v13 tagar** (gate concreto: `14.0-01` edita `idea-doctor.sh` que o SOAK do v13 re-executa). Ver bloco "▶ RETOMAR AQUI (v14.0 PLANEJADO)" no topo de `## Próximo passo`.

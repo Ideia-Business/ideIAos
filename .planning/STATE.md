@@ -71,6 +71,15 @@ _v9 (Camada de Alinhamento) SHIPPED 2026-06-17, tag v9.0 — 7 requisitos, audit
 - gsd-browser: reavaliar quando publicar npm/crates (ADR docs/decisions/) — aguarda upstream.
 - DeepSeek V4 Pro: habilitar nos PRODUTOS (cfoai/nfideia etc.), fora do escopo IdeiaOS.
 
+## v14.0 (Cockpit) — PLANEJADO 2026-06-21 (execução GATED pelo v13)
+
+Fase **v14.0 Substrato+Espinha** planejada via frota Ultracode (pattern-mapper → planner → 3
+verificadores adversariais). 7 PLAN.md (20 tasks/3 waves) em
+`.planning/milestones/v14-phases/14.0-substrate-spine/`, commit `9bcb15c`. 6 defeitos pegos pela
+revisão adversarial e corrigidos (verificados por exit-code, 0 violações antifragile).
+**`/gsd-execute-phase 14.0` só após o v13 tagar** — o `14.0-01` edita `idea-doctor.sh`, que o SOAK
+do v13 re-executa na re-gravação (acoplamento de runtime). Detalhe no handoff.
+
 ## Compact Snapshot
 
 **Auto-saved:** 2026-06-21 01:22 (PreCompact hook, trigger: manual)
