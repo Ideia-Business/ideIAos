@@ -1,6 +1,6 @@
 ---
 name: project-milestone-v11-completo
-description: "v11 (Integridade & Auditoria de Spec) — 6 ondas DONE 2026-06-19, fechamento PARCIAL/no-tag; SOAK 2/2 máquinas PASS, tag v11.0 só aguarda o span ≥1d (heartbeat ≥2026-06-20 17:51:44)"
+description: "v11 (Integridade & Auditoria de Spec) — SHIPPED 2026-06-20, tag v11.0 (ec965b1→1ba01c8); 6 ondas DONE; SOAK fechado (2 máquinas reais + span ≥1d)"
 metadata: 
   node_type: memory
   type: project
@@ -25,13 +25,15 @@ um bloqueador HIGH (A2 hard-falhava em spec que segue o template oficial) + 9 ac
 o próprio SOAK gate e o idea-doctor pegaram defeitos (incl. o ledger sob `*.log`). Ver
 [[learning-broad-gitignore-sweeps-tracked-ledger]].
 
-**SOAK status (2026-06-19 18:30):** 2/2 máquinas PASS no ledger `.planning/soak/v11-arsenal.log`
-(MacBook-Air-2 @ 17:51 commit 4011186 · Mac-mini-de-Gustavo @ 18:30 commit 2ca25df) — a checagem
-de durabilidade cross-máquina (o risco real do SOAK) está GREEN. **Único critério restante: span ≥1d.**
-Ambos heartbeats são de 06-19 (~39min) → `span 0d < 1d`. O 1º heartbeat ancora a janela em
-2026-06-19 17:51:44; o gate vira verde com QUALQUER heartbeat ≥ **2026-06-20 17:51:44**.
+**SOAK FECHADO + TAG (2026-06-20 18:21):** v11.0 **SHIPPED** — tag anotada `ec965b1` no commit
+`1ba01c8` (work), pushed para origin. O ledger `.planning/soak/v11-arsenal.log` tinha 2 máquinas
+reais (MacBook-Air-2 @ 06-19 17:51 · Mac-mini @ 06-19 18:30); a janela do span abriu em
+2026-06-20 17:51:44 e um **re-record na MacBook-Air-2 @ 18:21:55** (idea_doctor+regressão PASS)
+levou o span a ≥1d → `check-soak.sh v11-arsenal` exit 0 → `git tag` (mecanismo @devops via
+`AIOX_ACTIVE_AGENT=devops` p/ o push, sob autorização do usuário).
 
-**Para TAGUEAR v11.0** (amanhã ≥17:51, qualquer máquina):
-`bash scripts/check-soak.sh v11-arsenal --record` → `git add .planning/soak/v11-arsenal.log && git commit && git push`
-→ `bash scripts/check-soak.sh v11-arsenal` (exit 0) → `git tag v11.0`. Nada de código pendente.
-Sucede [[project-milestone-v9-completo]] (v10 ficou parcial). origin/work=`049a947`.
+**Lição confirmada:** o span ≥1d só fecha RE-GRAVANDO um heartbeat depois de 1 dia real numa
+máquina REAL — esperar não basta, e gravar de cloud/CI fraudaria o ≥2-máquinas (ver
+[[learning-soak-span-is-record-delta-not-wallclock]]). Convenção: tags de release são anotadas
+(como v9.0). Sucede [[project-milestone-v9-completo]]; v12.0/v13.0 ainda na fila do SOAK
+([[project-milestone-v12-qa-security]], [[project-milestone-v13-security-freshness]]).
