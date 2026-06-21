@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+    4º LaunchAgent do IdeiaOS — irmão de envsync/gitautosync/refresh-ai-security
+    Label: com.ideiaos.cockpit
+    Agenda: StartInterval 900 (15 min) — igual ao gitautosync
+
+    Para instalar / atualizar:
+        cp /Users/gustavolopespaiva/dev/IdeiaOS/infra/launchd/com.ideiaos.cockpit.plist \
+           ~/Library/LaunchAgents/com.ideiaos.cockpit.plist
+        launchctl bootout  gui/$(id -u) ~/Library/LaunchAgents/com.ideiaos.cockpit.plist 2>/dev/null || true
+        launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.ideiaos.cockpit.plist
+
+    Para remover:
+        launchctl bootout gui/$(id -u) ~/Library/LaunchAgents/com.ideiaos.cockpit.plist
+        rm ~/Library/LaunchAgents/com.ideiaos.cockpit.plist
+
+    NOTA: NÃO bootstrap/load neste arquivo — o daemon é carregado manualmente
+    após verificação. O arquivo é versionado no repo IdeiaOS para auditabilidade.
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key><string>com.ideiaos.cockpit</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/local/bin/node</string>
+        <string>/Users/gustavolopespaiva/dev/IdeiaOS/source/agentd/agentd.js</string>
+        <string>--once</string>
+    </array>
+    <key>StartInterval</key><integer>900</integer>
+    <key>RunAtLoad</key><true/>
+    <key>StandardOutPath</key><string>/tmp/ideiaos-cockpit.out.log</string>
+    <key>StandardErrorPath</key><string>/tmp/ideiaos-cockpit.err.log</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key><string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+    </dict>
+    <key>AbandonProcessGroup</key><false/>
+</dict>
+</plist>
