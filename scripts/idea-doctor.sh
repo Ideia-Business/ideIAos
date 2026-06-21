@@ -15,20 +15,122 @@
 # Exit: 0 se sem FAIL; 1 se houver FAIL (componente crítico ausente/quebrado).
 # WARN não falha (drift, opcionais). Cada achado vem com a remediação.
 #
-# Uso:  bash scripts/idea-doctor.sh
+# Uso:  bash scripts/idea-doctor.sh [--json]
+#       --json  Emite JSON ideiaos-doctor/v1 em vez de saída ANSI (sem output colorido).
 # =============================================================================
 set -uo pipefail
+
+# ── Flag --json ──────────────────────────────────────────────────────────────
+JSON_MODE=0
+for _arg in "$@"; do
+  [ "$_arg" = "--json" ] && JSON_MODE=1
+done
 
 SETUP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 LOCK="$SETUP_DIR/versions.lock"
 GSKILLS="$HOME/.claude/skills"
 
 GREEN='\033[0;32m'; YELLOW='\033[1;33m'; RED='\033[0;31m'; CYAN='\033[0;36m'; BOLD='\033[1m'; NC='\033[0m'
-pass() { echo -e "${GREEN}  ✓${NC} $*"; PASS=$((PASS+1)); }
-warn() { echo -e "${YELLOW}  ⚠${NC}  $*"; WARN=$((WARN+1)); }
-fail() { echo -e "${RED}  ✗${NC} $*"; FAIL=$((FAIL+1)); }
-info() { echo -e "${CYAN}  ℹ${NC} $*"; }
-step() { echo -e "\n${CYAN}${BOLD}━━━ $* ━━━${NC}"; }
+
+# ── Buffers para o sink JSON (arrays bash 3.2 paralelos) ─────────────────────
+# SEC_ID / SEC_TITLE acumulam uma entrada por step() numerado (não "Resumo").
+# ITEM_SEC / ITEM_LEVEL / ITEM_MSG acumulam um item por pass/warn/fail/info.
+SEC_ID=()
+SEC_TITLE=()
+ITEM_SEC=()
+ITEM_LEVEL=()
+ITEM_MSG=()
+_CURRENT_SEC=""  # id da seção corrente (string, e.g. "1")
+
+# ── Helper de escape JSON (sem jq/python no runtime) ─────────────────────────
+json_escape() {
+  # Escapa apenas \ e " — suficiente para metadata (paths, mensagens curtas).
+  local s="$1"
+  s="${s//\\/\\\\}"
+  s="${s//\"/\\\"}"
+  printf '%s' "$s"
+}
+
+# ── 5 emitters DECORADOS (echo ANSI inalterado + push em arrays) ─────────────
+# Em modo JSON_MODE=1 os echo ANSI vão para /dev/null (saída limpa p/ o sink).
+if [ "$JSON_MODE" -eq 1 ]; then
+  pass() {
+    echo -e "${GREEN}  ✓${NC} $*" >/dev/null
+    PASS=$((PASS+1))
+    ITEM_SEC+=("$_CURRENT_SEC")
+    ITEM_LEVEL+=("pass")
+    ITEM_MSG+=("$(json_escape "$*")")
+  }
+  warn() {
+    echo -e "${YELLOW}  ⚠${NC}  $*" >/dev/null
+    WARN=$((WARN+1))
+    ITEM_SEC+=("$_CURRENT_SEC")
+    ITEM_LEVEL+=("warn")
+    ITEM_MSG+=("$(json_escape "$*")")
+  }
+  fail() {
+    echo -e "${RED}  ✗${NC} $*" >/dev/null
+    FAIL=$((FAIL+1))
+    ITEM_SEC+=("$_CURRENT_SEC")
+    ITEM_LEVEL+=("fail")
+    ITEM_MSG+=("$(json_escape "$*")")
+  }
+  info() {
+    echo -e "${CYAN}  ℹ${NC} $*" >/dev/null
+    ITEM_SEC+=("$_CURRENT_SEC")
+    ITEM_LEVEL+=("info")
+    ITEM_MSG+=("$(json_escape "$*")")
+  }
+  step() {
+    echo -e "\n${CYAN}${BOLD}━━━ $* ━━━${NC}" >/dev/null
+    # Parse: ^([0-9]+)\)[[:space:]]*(.*)$ — "Resumo" (sem número) não empilha.
+    if [[ "$*" =~ ^([0-9]+)\)[[:space:]]*(.*) ]]; then
+      local sid="${BASH_REMATCH[1]}"
+      local stitle="${BASH_REMATCH[2]}"
+      SEC_ID+=("$sid")
+      SEC_TITLE+=("$(json_escape "$stitle")")
+      _CURRENT_SEC="$sid"
+    fi
+  }
+else
+  pass() {
+    echo -e "${GREEN}  ✓${NC} $*"
+    PASS=$((PASS+1))
+    ITEM_SEC+=("$_CURRENT_SEC")
+    ITEM_LEVEL+=("pass")
+    ITEM_MSG+=("$(json_escape "$*")")
+  }
+  warn() {
+    echo -e "${YELLOW}  ⚠${NC}  $*"
+    WARN=$((WARN+1))
+    ITEM_SEC+=("$_CURRENT_SEC")
+    ITEM_LEVEL+=("warn")
+    ITEM_MSG+=("$(json_escape "$*")")
+  }
+  fail() {
+    echo -e "${RED}  ✗${NC} $*"
+    FAIL=$((FAIL+1))
+    ITEM_SEC+=("$_CURRENT_SEC")
+    ITEM_LEVEL+=("fail")
+    ITEM_MSG+=("$(json_escape "$*")")
+  }
+  info() {
+    echo -e "${CYAN}  ℹ${NC} $*"
+    ITEM_SEC+=("$_CURRENT_SEC")
+    ITEM_LEVEL+=("info")
+    ITEM_MSG+=("$(json_escape "$*")")
+  }
+  step() {
+    echo -e "\n${CYAN}${BOLD}━━━ $* ━━━${NC}"
+    if [[ "$*" =~ ^([0-9]+)\)[[:space:]]*(.*) ]]; then
+      local sid="${BASH_REMATCH[1]}"
+      local stitle="${BASH_REMATCH[2]}"
+      SEC_ID+=("$sid")
+      SEC_TITLE+=("$(json_escape "$stitle")")
+      _CURRENT_SEC="$sid"
+    fi
+  }
+fi
 PASS=0; WARN=0; FAIL=0
 
 read_lock() { [ -f "$LOCK" ] && grep -m1 "^$1=" "$LOCK" 2>/dev/null | cut -d= -f2- || true; }
@@ -40,10 +142,12 @@ find_aiox_core() {
   return 1
 }
 
-echo -e "\n${CYAN}${BOLD}╔══════════════════════════════════════════════════════════╗"
-echo    "║          IdeiaOS — idea-doctor (health + drift)         ║"
-echo -e "╚══════════════════════════════════════════════════════════╝${NC}"
-echo -e "  Repo: ${BOLD}$SETUP_DIR${NC}   Global: ${BOLD}$GSKILLS${NC}"
+if [ "$JSON_MODE" -eq 0 ]; then
+  echo -e "\n${CYAN}${BOLD}╔══════════════════════════════════════════════════════════╗"
+  echo    "║          IdeiaOS — idea-doctor (health + drift)         ║"
+  echo -e "╚══════════════════════════════════════════════════════════╝${NC}"
+  echo -e "  Repo: ${BOLD}$SETUP_DIR${NC}   Global: ${BOLD}$GSKILLS${NC}"
+fi
 
 # ── 1) Skills globais ─────────────────────────────────────────────────────────
 step "1) Skills globais"
@@ -171,9 +275,11 @@ if launchctl list 2>/dev/null | grep -qi gitautosync; then pass "git-autosync at
 # Label antigo (com.gustavo) → migre para o genérico com.ideiaos (este check some sozinho após migrar)
 if launchctl list 2>/dev/null | grep -q "com.gustavo.gitautosync" || [ -f "$HOME/Library/LaunchAgents/com.gustavo.gitautosync.plist" ]; then
   warn "Autosync com label ANTIGO 'com.gustavo' — migre p/ 'com.ideiaos':"
-  echo "       launchctl bootout gui/\$(id -u)/com.gustavo.gitautosync 2>/dev/null"
-  echo "       rm -f ~/Library/LaunchAgents/com.gustavo.gitautosync.plist"
-  echo "       bash \"$SETUP_DIR/setup-dev-machine.sh\"   # recria com o label novo"
+  if [ "$JSON_MODE" -eq 0 ]; then
+    echo "       launchctl bootout gui/\$(id -u)/com.gustavo.gitautosync 2>/dev/null"
+    echo "       rm -f ~/Library/LaunchAgents/com.gustavo.gitautosync.plist"
+    echo "       bash \"$SETUP_DIR/setup-dev-machine.sh\"   # recria com o label novo"
+  fi
 fi
 
 # ── 7) Security Audit ─────────────────────────────────────────────────────────
@@ -580,14 +686,72 @@ else
 fi
 
 # ── Resumo ────────────────────────────────────────────────────────────────────
-echo -e "\n${CYAN}${BOLD}━━━ Resumo ━━━${NC}"
-echo -e "  ${GREEN}OK:${NC} $PASS   ${YELLOW}WARN:${NC} $WARN   ${RED}FAIL:${NC} $FAIL"
-if [ "$FAIL" -gt 0 ]; then
-  echo -e "\n  ${RED}${BOLD}Ambiente incompleto.${NC} Remediação rápida:"
-  echo "    bash $SETUP_DIR/setup.sh --global-only   # instala skills/MCPs faltando"
-  echo "    bash $SETUP_DIR/scripts/sync-all.sh      # + overlay + drift"
-  exit 1
+if [ "$JSON_MODE" -eq 0 ]; then
+  echo -e "\n${CYAN}${BOLD}━━━ Resumo ━━━${NC}"
+  echo -e "  ${GREEN}OK:${NC} $PASS   ${YELLOW}WARN:${NC} $WARN   ${RED}FAIL:${NC} $FAIL"
+  if [ "$FAIL" -gt 0 ]; then
+    echo -e "\n  ${RED}${BOLD}Ambiente incompleto.${NC} Remediação rápida:"
+    echo "    bash $SETUP_DIR/setup.sh --global-only   # instala skills/MCPs faltando"
+    echo "    bash $SETUP_DIR/scripts/sync-all.sh      # + overlay + drift"
+    exit 1
+  fi
+  [ "$WARN" -gt 0 ] && echo -e "\n  ${YELLOW}Avisos acima são não-críticos. sync-all.sh resolve a maioria.${NC}"
+  echo -e "  ${GREEN}${BOLD}Ambiente IdeiaOS saudável.${NC}"
+  exit 0
 fi
-[ "$WARN" -gt 0 ] && echo -e "\n  ${YELLOW}Avisos acima são não-críticos. sync-all.sh resolve a maioria.${NC}"
-echo -e "  ${GREEN}${BOLD}Ambiente IdeiaOS saudável.${NC}"
-exit 0
+
+# >>> JSON_SINK_BEGIN
+# Assembler JSON ideiaos-doctor/v1 — sem jq/python no runtime; bash 3.2; set -uo pipefail.
+# Montado por concatenação de strings dos arrays SEC_* / ITEM_* acumulados durante a execução.
+# summary.exit é idêntico ao exit-code ANSI: 0 se FAIL==0, senão 1.
+
+_json_summary_exit=0
+[ "$FAIL" -gt 0 ] && _json_summary_exit=1
+
+# Constrói sections[] — iterar arrays com guard bash 3.2 (set -u: array vazio aborta sem guard)
+_sections_json=""
+_sec_count="${#SEC_ID[@]}"
+_i=0
+while [ "$_i" -lt "$_sec_count" ]; do
+  _sid="${SEC_ID[$_i]}"
+  _stitle="${SEC_TITLE[$_i]}"
+
+  # Coleta itens desta seção e determina status (pior item: fail > warn > pass/info = ok)
+  _sec_ok=0; _sec_warn=0; _sec_fail=0
+  _items_json=""
+  _item_count="${#ITEM_SEC[@]}"
+  _j=0
+  while [ "$_j" -lt "$_item_count" ]; do
+    if [ "${ITEM_SEC[$_j]}" = "$_sid" ]; then
+      _lvl="${ITEM_LEVEL[$_j]}"
+      _msg="${ITEM_MSG[$_j]}"
+      [ -n "$_items_json" ] && _items_json="${_items_json},"
+      _items_json="${_items_json}{\"level\":\"${_lvl}\",\"msg\":\"${_msg}\"}"
+      case "$_lvl" in
+        pass) _sec_ok=$((_sec_ok+1)) ;;
+        warn) _sec_warn=$((_sec_warn+1)) ;;
+        fail) _sec_fail=$((_sec_fail+1)) ;;
+      esac
+    fi
+    _j=$((_j+1))
+  done
+
+  # Status da seção: FAIL se qualquer fail, WARN se qualquer warn, OK caso contrário
+  _sec_status="OK"
+  [ "$_sec_warn" -gt 0 ] && _sec_status="WARN"
+  [ "$_sec_fail" -gt 0 ] && _sec_status="FAIL"
+
+  [ -n "$_sections_json" ] && _sections_json="${_sections_json},"
+  _sections_json="${_sections_json}{\"id\":\"${_sid}\",\"titulo\":\"${_stitle}\",\"status\":\"${_sec_status}\",\"counts\":{\"ok\":${_sec_ok},\"warn\":${_sec_warn},\"fail\":${_sec_fail}},\"itens\":[${_items_json}]}"
+  _i=$((_i+1))
+done
+
+_generated_epoch="$(date +%s)"
+_repo_escaped="$(json_escape "$SETUP_DIR")"
+
+printf '{"schema":"ideiaos-doctor/v1","generated_epoch":%s,"repo":"%s","sections":[%s],"summary":{"ok":%d,"warn":%d,"fail":%d,"exit":%d}}\n' \
+  "$_generated_epoch" "$_repo_escaped" "$_sections_json" \
+  "$PASS" "$WARN" "$FAIL" "$_json_summary_exit"
+
+exit "$_json_summary_exit"
+# <<< JSON_SINK_END
