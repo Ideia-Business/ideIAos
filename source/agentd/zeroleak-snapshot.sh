@@ -106,15 +106,20 @@ TOTAL=$((TOTAL + CNT))
 # < 4.0 por baixa cardinalidade do alfabeto hex). A allowlist por SHAPE protege os
 # casos de fronteira (URLs/refs que misturam alfabetos). Nunca lista um valor real.
 ENTROPY_THRESHOLD="4.0"   # >=4,0 bits/char => suspeito (Shannon)
+# CANDIDATO = run de [A-Za-z0-9_-] (>=20 chars) — o SHAPE real de chave/token de
+# API. NÃO inclui . : / = (separadores de código JS / path / URL): se incluísse,
+# o bundle minificado do SPA mesclaria identificadores em pseudo-tokens de alta
+# entropia (falso-positivo verificado: dangerouslySetInnerHTML, /assets/index-..).
 ENTROPY_HITS=$(
-  grep -oE '[A-Za-z0-9_+/=.:-]{20,}' "$SNAP" 2>/dev/null | awk -v THRESH="$ENTROPY_THRESHOLD" '
+  { grep -oE '[A-Za-z0-9_-]{20,}' "$SNAP" 2>/dev/null || true; } | awk -v THRESH="$ENTROPY_THRESHOLD" '
     function is_allowlisted_shape(tok,   _n) {
       # (1) URL/path-shape — remote_url, github.com, .git: legítimo público
       if (tok ~ /\/\//)            return 1
       if (tok ~ /\.git$/)          return 1
       if (tok ~ /github\.com/)     return 1
-      # (2) hash hex puro (sha256 machine_id/input_hash/audit, SHA de commit 40-hex):
-      #     hex puro até 64 chars é shape de hash conhecido, nunca chave de API
+      # (2) hash hex puro (sha256 machine_id[:12]/input_hash 64-hex/audit, SHA de
+      #     commit 40-hex): hex puro até 64 chars é shape de hash conhecido público,
+      #     nunca chave de API. Por SHAPE (forma), nunca por valor específico.
       _n = length(tok)
       if (tok ~ /^[0-9a-f]+$/ && _n <= 64) return 1
       if (tok ~ /^[0-9A-F]+$/ && _n <= 64) return 1
@@ -123,6 +128,12 @@ ENTROPY_HITS=$(
     {
       tok = $0
       if (is_allowlisted_shape(tok)) next
+      # SHAPE de segredo: chave/token random é DIGIT-BEARING (base62/hex aleatório).
+      # Identificador de código (dangerouslySetInnerHTML, UNSAFE_componentWillMount)
+      # é word-like SEM dígito — alto-entropia legítimo do bundle. Exigir >=1 dígito
+      # separa segredo de identificador por SHAPE (não por valor). Verificado: 0
+      # falso-positivo em S1/S2/S5/S7; veneno (10 dígitos) e sk- (14) seguem pegos.
+      if (tok !~ /[0-9]/) next
       n = length(tok)
       delete freq
       for (i = 1; i <= n; i++) { c = substr(tok, i, 1); freq[c]++ }
