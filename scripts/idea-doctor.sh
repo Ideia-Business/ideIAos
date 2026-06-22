@@ -685,6 +685,59 @@ else
   esac
 fi
 
+# ── 15) Cockpit (v14.0) ──────────────────────────────────────────────────────
+step "15) Cockpit (v14.0)"
+# Três checks por exit-code — mesma lógica do check-cockpit.sh:
+#   (a) agentd com.ideiaos.cockpit ativo no launchctl
+#   (b) refs/heads/cockpit existe neste repo
+#   (c) snapshot local fresco (<2 ciclos de 900s)
+_CC_SH="$SETUP_DIR/scripts/check-cockpit.sh"
+if [ ! -f "$_CC_SH" ]; then
+  info "check-cockpit.sh ausente (Cockpit v14 não instalado)"
+else
+  # (a) agentd
+  if launchctl list 2>/dev/null | grep -q 'com.ideiaos.cockpit'; then
+    pass "agentd com.ideiaos.cockpit ativo"
+  else
+    warn "agentd não listado — LaunchAgent não carregado ou contexto sem launchd"
+  fi
+  # (b) ref cockpit
+  if git -C "$SETUP_DIR" rev-parse --verify --quiet refs/heads/cockpit >/dev/null 2>&1; then
+    _CC_TIP=$(git -C "$SETUP_DIR" rev-parse --short refs/heads/cockpit 2>/dev/null || echo "?")
+    pass "ref cockpit existe (tip=$_CC_TIP)"
+  else
+    fail "refs/heads/cockpit ausente — rode: cockpit_write_snapshot (source/lib/cockpit.sh)"
+  fi
+  # (c) snapshot local fresco (<2 ciclos)
+  _CC_MID=$(ioreg -rd1 -c IOPlatformExpertDevice 2>/dev/null \
+    | awk -F'"' '/IOPlatformUUID/{print $4}' \
+    | shasum -a 256 | cut -c1-12 2>/dev/null || true)
+  if [ -z "$_CC_MID" ]; then
+    warn "machine_id indisponível — IOPlatformUUID ausente (não-macOS?)"
+  else
+    _CC_SNAP=$(git -C "$SETUP_DIR" show "cockpit:snapshots/${_CC_MID}.json" 2>/dev/null || true)
+    if [ -z "$_CC_SNAP" ]; then
+      warn "snapshot de ${_CC_MID} ausente no ref cockpit"
+    else
+      _CC_EPOCH=$(printf '%s' "$_CC_SNAP" \
+        | python3 -c 'import json,sys;print(json.load(sys.stdin).get("taken_epoch",""))' \
+        2>/dev/null || echo "")
+      if [ -z "$_CC_EPOCH" ]; then
+        warn "taken_epoch ausente no snapshot de ${_CC_MID}"
+      else
+        _CC_NOW="$(date +%s)"
+        _CC_AGE=$(( _CC_NOW - _CC_EPOCH ))
+        _CC_MAX=1800   # 2 ciclos × 900s
+        if [ "$_CC_AGE" -le "$_CC_MAX" ]; then
+          pass "snapshot de ${_CC_MID} fresco (age=${_CC_AGE}s ≤ ${_CC_MAX}s)"
+        else
+          warn "snapshot defasado (age=${_CC_AGE}s > ${_CC_MAX}s) — aguardar próximo ciclo agentd"
+        fi
+      fi
+    fi
+  fi
+fi
+
 # ── Resumo ────────────────────────────────────────────────────────────────────
 if [ "$JSON_MODE" -eq 0 ]; then
   echo -e "\n${CYAN}${BOLD}━━━ Resumo ━━━${NC}"
