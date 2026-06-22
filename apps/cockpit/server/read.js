@@ -22,17 +22,250 @@ import http from 'node:http';
 import os   from 'node:os';
 import path from 'node:path';
 import fs   from 'node:fs';
+import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 
 // ── Caminhos ─────────────────────────────────────────────────────────────────
 const DB_PATH = path.join(os.homedir(), '.ideiaos', 'console', 'read-model.db');
+
+// ── ROOT do repo (cwd dos verbos do /command; spawnSync roda os scripts daqui) ─
+// read.js vive em apps/cockpit/server/ → ROOT = ../../../ (raiz do IdeiaOS).
+const __filename = fileURLToPath(import.meta.url);
+const __dirname  = path.dirname(__filename);
+const ROOT       = path.resolve(__dirname, '..', '..', '..');
 
 // ── Porta padrão (env READ_PORT override para testes) ─────────────────────
 const PORT = parseInt(process.env.READ_PORT || '3073', 10);
 
 // ── BIND LOOPBACK (M-01) — host: '127.0.0.1' explícito; bind-all proibido
 const HOST = '127.0.0.1';
+
+// =============================================================================
+// CANAL POST /command — superfície de COMANDO (executa spawnSync na máquina do
+// operador). É o ÚNICO endpoint de mutação; tudo abaixo é fail-closed.
+// =============================================================================
+
+// ── Token efêmero POR-BOOT (FIX S-01) — crypto.randomBytes, nunca durável,
+// nunca commitado, nunca no contexto do LLM (credential-isolation). Vive só
+// em memória deste processo; some no restart. O SPA o obtém via GET
+// /command-token (Origin+Host-gated) e o reenvia em X-Cockpit-Token.
+const COCKPIT_TOKEN = crypto.randomBytes(32).toString('hex');
+
+// ── Origin same-origin do SPA (Vite strictPort 5273) + variante 127.0.0.1 ──
+const ALLOWED_ORIGIN = 'http://127.0.0.1:5273';
+// Host esperado (defeito DNS-rebinding: uma aba que resolve hostname-atacante →
+// 127.0.0.1 chega com Host != esperado). Aceita a porta corrente (testes usam
+// READ_PORT) em 127.0.0.1 ou localhost.
+const ALLOWED_HOSTS = new Set([`127.0.0.1:${PORT}`, `localhost:${PORT}`]);
+
+// ── Header CORS para o canal de comando (mesma origem do SPA) ──
+const CMD_CORS = {
+  'Content-Type': 'application/json',
+  'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
+};
+
+// ── AUTENTICAÇÃO DO CANAL (FIX S-01) — Origin AND Host fail-closed.
+// CORS NÃO é a defesa (uma aba local maliciosa via CSRF/DNS-rebinding ainda
+// ENTREGA o POST). A defesa é validar server-side Origin AND Host; o browser
+// FORÇA o header Origin real (JS não pode forjá-lo cross-origin via SOP).
+// Retorna true se o request é da origem confiável (same-origin do SPA).
+function isTrustedOrigin(req) {
+  const origin = req.headers.origin || req.headers['origin'];
+  const host   = req.headers.host   || req.headers['host'];
+  if (origin !== ALLOWED_ORIGIN) return false; // Origin inválido → fail-closed
+  if (!host || !ALLOWED_HOSTS.has(host)) return false; // Host inválido → anti-DNS-rebinding
+  return true;
+}
+
+// ── ENUM TIPADO FECHADO de verbos (default-deny). 6 chaves EXATAS.
+// args CONSTANTES — nenhum input do usuário é interpolado. spawnSync(file, argv)
+// sem shell. arm:true ⇒ exige body.confirmed === true (armar-antes-de-disparar).
+// FOREVER-OUT (A8): nenhum rotate/deploy/revoke/git push/gh pr aqui — gate prova.
+const UID = process.getuid();
+const VERBS = {
+  // B1 — pausar autosync (destrutivo-mas-reversível → arm)
+  pause_autosync:  { cmd: ['bash', 'scripts/autosync-pause.sh', 'on', 'via Cockpit'], arm: true },
+  // B2 — retomar autosync (inverso de B1; não-destrutivo)
+  resume_autosync: { cmd: ['bash', 'scripts/autosync-pause.sh', 'off'], arm: false },
+  // B3 — re-selar frescor de segurança (carimba selo de integridade → arm)
+  reseal_security: { cmd: ['bash', 'scripts/check-security-freshness.sh', '--record', 'PASS', '@security-reviewer'], arm: true },
+  // B4 — forçar um ciclo de sync (idempotente)
+  force_sync:      { cmd: ['launchctl', 'kickstart', '-k', `gui/${UID}/com.ideiaos.gitautosync`], arm: false },
+  // B5 — kickstart de daemon X (cmd montado a partir de lookup-map fechado; ver handleCommand)
+  kickstart_daemon: { cmd: null, arm: false },
+  // B6 — rodar idea-doctor (read-only)
+  run_doctor:      { cmd: ['bash', 'scripts/idea-doctor.sh'], arm: false },
+};
+
+// ── B5: lookup-map FECHADO de daemons (FIX S-04). body.daemon é usado SÓ como
+// CHAVE deste objeto — NUNCA interpolado na arg launchctl. $UID vem de getuid().
+// Nota: o daemon do console é 'cockpit' (o nome stale do doc 77 B5 foi corrigido).
+const DAEMON_MAP = {
+  envsync:                'com.ideiaos.envsync',
+  'refresh-ai-security':  'com.ideiaos.refresh-ai-security',
+  cockpit:                'com.ideiaos.cockpit',
+};
+
+// ── STDOUT VIA ZERO-LEAK (FIX S-03) — varre o stdout pelo detector
+// (source/agentd/zeroleak-snapshot.sh) ANTES de devolver à UI. Materializa o
+// stdout num tmpfile, roda o scanner (exit 0 = limpo, exit 1 = segredo
+// detectado) e devolve o stdout SÓ se limpo; caso contrário, redige.
+// É output-as-surface (OWASP LLM02): nunca retornar stdout cru sem o detector.
+function zeroLeakScan(stdout) {
+  const text = String(stdout || '');
+  if (text.length === 0) return { clean: true, stdout: '' };
+  let tmp;
+  try {
+    tmp = path.join(os.tmpdir(), `cockpit-cmd-${crypto.randomBytes(8).toString('hex')}.json`);
+    // o scanner exige arquivo não-vazio; encapsula o stdout como JSON p/ a varredura S7
+    fs.writeFileSync(tmp, JSON.stringify({ stdout: text }), { mode: 0o600 });
+    const scan = spawnSync('bash', [path.join('source', 'agentd', 'zeroleak-snapshot.sh'), tmp], {
+      cwd: ROOT, encoding: 'utf8',
+    });
+    // exit 0 = limpo; qualquer outro (1 = segredo, 2 = erro) → redige por segurança
+    const clean = scan.status === 0;
+    if (!clean) {
+      return { clean: false, stdout: '[REDIGIDO: Zero-Leak detectou padrão de segredo no stdout]' };
+    }
+    // limpo → trunca p/ não estourar a UI (já scaneado)
+    return { clean: true, stdout: text.slice(0, 4000) };
+  } catch {
+    // fail-closed: se o detector não rodou, NÃO vaze stdout cru
+    return { clean: false, stdout: '[REDIGIDO: Zero-Leak indisponível — stdout não verificado]' };
+  } finally {
+    if (tmp) { try { fs.unlinkSync(tmp); } catch { /* ignore */ } }
+  }
+}
+
+// ── Handler POST /command — fail-closed, NESTA ordem (auth → body → enum → arm → exec → zero-leak).
+function handleCommand(req, res) {
+  // (1) AUTENTICAÇÃO DO CANAL (FIX S-01) — ANTES de qualquer parse/exec.
+  if (!isTrustedOrigin(req)) {
+    res.writeHead(403, CMD_CORS);
+    res.end(JSON.stringify({ error: 'origin/host não confiável (Origin+Host fail-closed)' }));
+    return;
+  }
+  // Token efêmero por-boot exigido em X-Cockpit-Token. Ausente/inválido → 403.
+  // Comparação em tempo-constante (timingSafeEqual) p/ não vazar por timing.
+  const provided = req.headers['x-cockpit-token'] || '';
+  const a = Buffer.from(String(provided));
+  const b = Buffer.from(COCKPIT_TOKEN);
+  const tokenOk = a.length === b.length && crypto.timingSafeEqual(a, b);
+  if (!tokenOk) {
+    res.writeHead(403, CMD_CORS);
+    res.end(JSON.stringify({ error: 'X-Cockpit-Token ausente ou inválido' }));
+    return;
+  }
+
+  // (2) BODY-PARSING HARDENED (FIX S-02) — Content-Type + cap 4KB + JSON.parse try/catch.
+  const ctype = (req.headers['content-type'] || '').split(';')[0].trim();
+  if (ctype !== 'application/json') {
+    res.writeHead(415, CMD_CORS);
+    res.end(JSON.stringify({ error: 'Content-Type deve ser application/json' }));
+    return;
+  }
+  const MAX_BODY = 4096; // 4KB = 4 * 1024
+  let raw = '';
+  let aborted = false;
+  req.on('data', (chunk) => {
+    if (aborted) return;
+    raw += chunk;
+    if (raw.length > MAX_BODY) {
+      aborted = true;
+      res.writeHead(413, CMD_CORS);
+      res.end(JSON.stringify({ error: 'body > 4KB (413)' }));
+      req.destroy();
+    }
+  });
+  req.on('end', () => {
+    if (aborted) return;
+    let body;
+    try {
+      body = JSON.parse(raw);
+    } catch {
+      res.writeHead(400, CMD_CORS);
+      res.end(JSON.stringify({ error: 'JSON malformado (400)' }));
+      return;
+    }
+    if (!body || typeof body !== 'object') {
+      res.writeHead(400, CMD_CORS);
+      res.end(JSON.stringify({ error: 'body deve ser objeto JSON' }));
+      return;
+    }
+
+    // (3) ENUM FECHADO — default-deny. Verbo fora do enum → 403 (gate v14.4).
+    const v = VERBS[body.verb];
+    if (!v) {
+      res.writeHead(403, CMD_CORS);
+      res.end(JSON.stringify({
+        error: 'verbo fora do allowlist (default-deny) — capacidade exige o gate de v14.4',
+        verb: typeof body.verb === 'string' ? body.verb : null,
+      }));
+      return;
+    }
+
+    // (4) ARMAR-ANTES-DE-DISPARAR server-side (Open Q4) — arm:true exige confirmed:true.
+    if (v.arm && body.confirmed !== true) {
+      res.writeHead(412, CMD_CORS);
+      res.end(JSON.stringify({
+        error: 'verbo destrutivo-mas-reversível exige confirmed:true (armar-antes-de-disparar)',
+        verb: body.verb,
+      }));
+      return;
+    }
+
+    // (5) B5: monta o cmd a partir do lookup-map FECHADO (FIX S-04). body.daemon
+    //     é SÓ chave; nunca interpolado. $UID de getuid(), nunca do body.
+    let cmd = v.cmd;
+    if (body.verb === 'kickstart_daemon') {
+      const label = DAEMON_MAP[body.daemon];
+      if (!label) {
+        res.writeHead(403, CMD_CORS);
+        res.end(JSON.stringify({ error: 'daemon fora do lookup-map fechado', daemon: null }));
+        return;
+      }
+      cmd = ['launchctl', 'kickstart', '-k', `gui/${UID}/${label}`];
+    }
+
+    // (6) EXECUÇÃO — spawnSync(file, argsArray), SEM shell, args constantes.
+    const proc = spawnSync(cmd[0], cmd.slice(1), {
+      cwd: ROOT, encoding: 'utf8', timeout: 60000, maxBuffer: 4 * 1024 * 1024,
+    });
+    const exitCode = (typeof proc.status === 'number') ? proc.status : -1;
+
+    // (7) STDOUT VIA ZERO-LEAK (FIX S-03) — varre ANTES do res.end. Nunca cru.
+    const combined = (proc.stdout || '') + (proc.stderr ? ('\n' + proc.stderr) : '');
+    const scanned = zeroLeakScan(combined);
+
+    res.writeHead(200, CMD_CORS);
+    res.end(JSON.stringify({
+      verb: body.verb,
+      exitCode,
+      stdout: scanned.stdout,        // já varrido pelo Zero-Leak (S7)
+      zeroleak: scanned.clean ? 'clean' : 'redacted',
+    }));
+  });
+  req.on('error', () => {
+    if (aborted) return;
+    res.writeHead(400, CMD_CORS);
+    res.end(JSON.stringify({ error: 'erro de leitura do body' }));
+  });
+}
+
+// ── Handler GET /command-token — entrega o token efêmero ao SPA same-origin.
+// Gated pelo MESMO Origin+Host (FIX S-01): só a origem confiável (o SPA em
+// :5273) lê o token. Uma aba cross-origin chega com Origin != ALLOWED → 403 e
+// NÃO consegue ler o token (o browser força o Origin real; SOP impede forja).
+function handleCommandToken(req, res) {
+  if (!isTrustedOrigin(req)) {
+    res.writeHead(403, CMD_CORS);
+    res.end(JSON.stringify({ error: 'origin/host não confiável' }));
+    return;
+  }
+  res.writeHead(200, CMD_CORS);
+  res.end(JSON.stringify({ token: COCKPIT_TOKEN }));
+}
 
 // ── Derivar last_doctor do payload_json do snapshot mais recente ─────────────
 // doctor.exit: -1=nunca rodou, 0=ok, 1=fail. Se warn>0 e fail==0 → 'warn'.
@@ -367,6 +600,13 @@ const server = http.createServer((req, res) => {
   }
   if (req.method === 'GET' && req.url === '/vault') {
     return handleVault(res);
+  }
+  // Canal de COMANDO (FIX S-01..S-04) — token efêmero + POST /command autenticado.
+  if (req.method === 'GET' && req.url === '/command-token') {
+    return handleCommandToken(req, res);
+  }
+  if (req.method === 'POST' && req.url === '/command') {
+    return handleCommand(req, res);
   }
   if (req.method === 'GET' && req.url === '/health') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
