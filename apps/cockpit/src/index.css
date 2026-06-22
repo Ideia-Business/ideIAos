@@ -38,6 +38,13 @@
     --brand: 0.78 0.20 calc(var(--brand-hue) * 1deg);
     --brand-foreground: 0.08 0 0;
 
+    /* ── Tokens de estado (50-ux) — verde/âmbar, NUNCA o hue de marca 75 ──
+     * Ouro != estado (50-ux §2.3): "certo" é verde discreto, não dourado.
+     * Formato OKLCH bare "lightness chroma hue" igual aos demais tokens.
+     */
+    --status-success: 0.80 0.18 150;  /* #4ADE80 — nominal, fresco, passou */
+    --status-warning: 0.83 0.16 85;   /* #FBBF24 — stale, drift, idade limítrofe */
+
     /* Raio */
     --radius: 0.5rem;
   }

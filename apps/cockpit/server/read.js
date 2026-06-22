@@ -23,6 +23,7 @@ import os   from 'node:os';
 import path from 'node:path';
 import fs   from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { execFileSync } from 'node:child_process';
 
 // ── Caminhos ─────────────────────────────────────────────────────────────────
 const DB_PATH = path.join(os.homedir(), '.ideiaos', 'console', 'read-model.db');
@@ -280,6 +281,76 @@ function handleVault(res) {
   }
 }
 
+// ── Handler GET /verify?cell=<machine_id> ─────────────────────────────────────
+// TRUST-RATE (A6): recomputa do DISCO no instante da pergunta — NUNCA de cache.
+// Para a célula (machine_id) consultada, executa `git show cockpit:snapshots/<MID>.json`
+// e compara o taken_epoch do disco com o servido pelo read-model.
+//
+// SEGURANÇA (T-14.1-01-T / Excessive Agency): o machine_id é VALIDADO contra um
+// allowlist estrito (^[0-9a-f]{12}$ — sha256[:12]) ANTES de virar argumento; e o
+// git é invocado por execFileSync com ARGV em ARRAY (sem shell) — input do usuário
+// NUNCA é interpolado numa string de shell.
+const MID_RE = /^[0-9a-f]{12}$/;
+
+function handleVerify(req, res) {
+  // Parse seguro do query param (sem montar URL com host arbitrário).
+  const q = new URL(req.url, 'http://127.0.0.1').searchParams;
+  const cell = q.get('cell') || '';
+
+  if (!MID_RE.test(cell)) {
+    res.writeHead(400, JSON_CORS);
+    res.end(JSON.stringify({ error: 'cell inválido (esperado machine_id [0-9a-f]{12})' }));
+    return;
+  }
+
+  // 1) Valor servido pelo read-model (o que o Cockpit AFIRMA).
+  let servedEpoch = null;
+  let db;
+  try {
+    db = openDb();
+    const row = db.prepare(`
+      SELECT MAX(taken_epoch) AS taken_epoch
+      FROM machine_snapshot
+      WHERE machine_id = ?
+    `).get(cell);
+    servedEpoch = row ? row.taken_epoch : null;
+  } catch (e) {
+    res.writeHead(503, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: e.message }));
+    return;
+  } finally {
+    if (db) try { db.close(); } catch { /* ignore */ }
+  }
+
+  // 2) RECOMPUTE-FROM-DISK: git show cockpit:snapshots/<MID>.json (argv array, sem shell).
+  //    A ref + o path são CONSTANTES com o MID já validado contra o allowlist.
+  let diskEpoch = null;
+  try {
+    const out = execFileSync(
+      'git',
+      ['show', 'cockpit:snapshots/' + cell + '.json'],
+      { encoding: 'utf8', maxBuffer: 8 * 1024 * 1024 }
+    );
+    const snap = JSON.parse(out);
+    diskEpoch = (typeof snap.taken_epoch === 'number') ? snap.taken_epoch : null;
+  } catch {
+    // sem snapshot no disco para esta célula → não verificável (nunca inventar)
+    diskEpoch = null;
+  }
+
+  const verified = diskEpoch !== null && servedEpoch !== null && diskEpoch === servedEpoch;
+
+  res.writeHead(200, JSON_CORS);
+  res.end(JSON.stringify({
+    cell,
+    verified,
+    served_epoch:       servedEpoch,
+    disk_epoch:         diskEpoch,
+    recomputed_at_epoch: Math.floor(Date.now() / 1000),
+    source:             'git-show-cockpit',
+  }));
+}
+
 // ── HTTP server ───────────────────────────────────────────────────────────────
 const server = http.createServer((req, res) => {
   if (req.method === 'GET' && req.url === '/machines') {
@@ -287,6 +358,9 @@ const server = http.createServer((req, res) => {
   }
   if (req.method === 'GET' && req.url === '/overview') {
     return handleOverview(res);
+  }
+  if (req.method === 'GET' && req.url.startsWith('/verify')) {
+    return handleVerify(req, res);
   }
   if (req.method === 'GET' && req.url === '/fleet') {
     return handleFleet(res);
