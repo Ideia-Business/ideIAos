@@ -1,6 +1,6 @@
-# ADR — v15: Cockpit split-plane (autoridade local + Plano de View web), sucede o local-first/git-as-bus
+# ADR — v15: Cockpit split-plane → PLATAFORMA DE TIME controlada (autoridade local + Plano de View web), sucede o local-first/git-as-bus
 
-**Status:** **PROPOSTO (DRAFT — saída de spike, NÃO ratificado pelo operador).** Recomendação de síntese de um painel de 4 propostas + 3 julgamentos (arquitetura, segurança, operabilidade); **`@security-reviewer` = NEEDS_REVISION** (invariante zero-trust sustenta-se; 4 must-fix listados em "Pendências de segurança" antes de ratificar). Reversível por edição. **Ratificar NÃO abre o gate R-WP10** nem cria tabela alguma — este ADR é *pure design*.
+**Status:** **PROPOSTO (DRAFT — re-escopado 2026-06-22 para plataforma de time multi-dev; NÃO ratificado).** Síntese de painel (4 propostas + 3 julgamentos) + re-escopo multi-dev fundamentado no deploy real dos 4 repos. **`@security-reviewer` = NEEDS_REVISION** em dois níveis: o read-fan-out (4 must-fix originais) **e** a plataforma de time (4 BLOCKERS novos, que convergem num calcanhar estrutural — a conta GitHub compartilhada; ver "Pendências de segurança da plataforma de time"). Reversível por edição. **Ratificar NÃO abre o gate R-WP10** nem cria tabela — *pure design*. **Design completo:** `docs/ideiaos-console/81-team-platform-control-DESIGN.md` + coordenação `82-team-coordination-onboarding-requirements.md`.
 **Sucede:** `docs/decisions/v14-cockpit-local-first-git-as-bus.md` no eixo de **leitura/federação**; **preserva-o intacto** no eixo de autoridade/segredo/write-path.
 **Design completo:** `docs/ideiaos-console/80-split-plane-control-plane-DESIGN.md`.
 **Não revoga:** O2 (`v14.4-origin-auth-signing-mechanism.md`), step-up HYBRID (`v14.4-step-up-without-relying-party.md`), Q5 (`v14.4-command-ref-origin-exposure.md`), R-WP1..R-WP11 (`specs/cockpit/spec.md`).
@@ -76,6 +76,29 @@ Varredura adversarial do **`@security-reviewer`**: invariante zero-trust **SUSTE
 4. **[MÉDIO] Step-up (S-08 CORS-loopback) vs UI servida de P3.** A UI que dispara `send-otp` não pode ser a remota se P4 exige CORS-loopback. → **Resolução:** o step-up (`send-otp`/`verify-otp`) só é disparado da **UI LOCAL (loopback)** e o O2-sign acontece na **origem-local**; a UI remota P3 é **read-only** e NUNCA inicia write-path. S-08 fica intacto. (Reconciliado com o hosting default da #2.)
 
 > Estas 4 resoluções são aplicadas ao texto da Decisão **quando o operador ratificar a direção** (ou no início da construção de P3/Fase 1, o que vier primeiro). P4 (step-up, o primeiro tijolo) **não** depende delas.
+
+## Pendências de segurança da PLATAFORMA DE TIME (re-escopo 2026-06-22 — NEEDS_REVISION)
+
+`@security-reviewer` sobre o re-escopo multi-dev (design `81-...`, coordenação `82-...`): invariante zero-trust **sustenta-se**, **zero** violação direta de credential-isolation no caminho-feliz (P3 `provider_link` sem coluna `value`; OAuth roda local e deposita no keychain). MAS o re-escopo converge num **calcanhar estrutural** + 4 BLOCKERS.
+
+### ⚠️ DECISÃO CRÍTICA — conta GitHub COMPARTILHADA vs. contas PESSOAIS por dev
+A conta GitHub compartilhada (`desenvolvimento@ideiabusiness`) **quebra 2 das 5 alavancas de controle** que o operador mais quer:
+- **Visão/atribuição (Pilar A) fica FORJÁVEL** — `git -c user.email=outro@ideiabusiness commit` falsifica autoria; o O2 assina *comandos*, não *commits* (commit-signing foi rejeitado no ADR O2); sem branch protection (403 *Upgrade to Pro* nos 4 repos), nada enforça.
+- **Reversão fica FURADA** — revogar uma estação (re-pin local) **não** revoga o token OAuth compartilhado no keychain do dev revogado; ele mantém push/PR/workflow na org até a **rotação global** do token (que afeta TODOS).
+- **Blast-radius org-wide** — 1 token (`repo`+`workflow`+`read:org`) idêntico em N keychains → comprometer **qualquer** estação = push em **toda** a org, inclusive projetos **fora** do escopo de Autorização daquele dev.
+
+**Recomendação (push back):** **contas GitHub PESSOAIS por dev** (a org concede acesso por-repo). Restaura atribuição real (não-repúdio), branch-protection por-ator, e torna a Reversão **efetiva** (remover o membro da org). Se a conta compartilhada for inegociável: declarar o blast-radius, derivar a atribuição da **telemetria assinada-O2 da estação** (não do git author email, que vira só *hint* cosmético), e adicionar detecção de push anômalo por-estação. **É o fork que mais muda o design — decisão do operador.**
+
+### 4 BLOCKERS (bloqueiam F1+)
+1. **[BLOCKER] Atribuição forjável** (acima) → declarar advisory + atribuir por telemetria assinada-O2, OU contas pessoais.
+2. **[BLOCKER] Reversão incompleta no GitHub** (acima) → contas pessoais (remove-member), OU rotação-global do token + detecção de anomalia.
+3. **[BLOCKER] RLS por-campo ainda em prosa** (agora ×N devs) → cláusulas SHALL + teste de RLS por-campo (mascarar nomes `risk_tier=critical` e cadência de rotação fora do escopo do subject). Bloqueia F1.
+4. **[BLOCKER] Step-up só-loopback não proof-gated** — é a ÚNICA barreira entre "sessão admin web roubada = recon" e "= deploy-prod/rotate"; provar por exit-code que origem ≠ loopback é **RECUSADA** no `send-otp`/`verify-otp`/O2-sign.
+
+(+ warns: cerimônia de enrollment remoto resistente a MITM ×N devs; proof-gate do Pilar B [OAuth-local não vaza valor a P3, reusando `zeroleak-snapshot.sh`]; `provider_link` sem coluna `value` como cláusula determinística no gate; fila de Publish é advisory sobre `main` não-protegida.)
+
+### Faseamento (design 81)
+F0 step-up (P4, **primeiro tijolo, não bloqueado**) → F1 view+admissão+autorização (gated pelos 4 must-fix do read-fan-out + os 4 BLOCKERS) → F2 pilares/enrollment → F3 coordenação/claims (R-COORD3/4/5) → F4 reserva-de-poder/fila-de-Publish gated → F5 Visão→Vault + DEV Tasks (futuro).
 
 ## Rastreabilidade
 
