@@ -176,7 +176,20 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 
 ## Próximo passo
 
-> **▶ RETOMAR AQUI (2026-06-21 noite — v14.1 MVP Bridge PLANEJADO; próximo = EXECUTAR) — leia primeiro:**
+> **▶ RETOMAR AQUI (2026-06-22 — v14.1 MVP Bridge EXECUTADO/code-complete; próximo = CLOSEOUT) — leia primeiro:**
+> Os **8 planos da v14.1 foram EXECUTADOS** sequencialmente (gate por wave, espelhando o método v14.0 — escolha do usuário). **22 commits locais em `work` (ahead 22, NÃO pushados; autosync PAUSADO)** — range `7673478..cd5a062`. **Suite A1–A12 exit-code = 9/9 verde** (A1,A2,A3,A4,A5,A6,A8,A9,A12); cada plano com `14.1-0N-SUMMARY.md` + verificação independente do orquestrador. Waves: W1 {01 data-access, 05 flight-recorder, 07 ttt-harness} · W2 {02 overview+shell} · W3 {03 frota-cofre, 04 ⌘K} · W4 {06 zero-leak, 08 closeout/exit-code}. ⌘K (04) rodado em **opus**, S-01..S-04 provados por HTTP-code (403/412/400); Zero-Leak (06) limpo→exit 0 + 3 venenos→exit≠0 (regex/entropia/runtime), sem FP.
+> - **FALTA só o CLOSEOUT (Task 3 = `checkpoint:human-action`) — tudo do orquestrador, NÃO feito ainda:**
+>   1. **A7/A10 visual** via `frontend-visual-loop` (Chrome DevTools): Overview/Frota/Cofre + ⌘K com ≥3 verbos inline. ⚠️ **NUNCA disparar B2 `resume_autosync` nem B4 `force_sync`** (des-pausam o autosync) — usar **B6 `run_doctor`** (read-only) + **B1 `pause_autosync`** (arm-confirm, idempotente).
+>   2. **Re-selo de segurança:** `@security-reviewer` sobre o diff da fase (cobre o novo canal `POST /command` + auth Origin+Host+token efêmero) → `bash scripts/check-security-freshness.sh --record PASS @security-reviewer`.
+>   3. **README** (recursos novos: Overview/Frota/Cofre, ⌘K allowlist B1-B6, Flight Recorder v0, gate Zero-Leak 7-superfícies, harness TtT Bridge) + **vault Obsidian** (Changelog + extract-learnings).
+>   4. **STATE.md + este handoff** (estado final).
+>   5. **SOAK v14.1** 1º heartbeat: `bash scripts/check-soak.sh v14.1 --record` — **tag v14.1 DEFERIDA** (1 máq/span 0d hoje, igual v11–v14.0; precisa ≥2 máq + span≥1d).
+>   6. **Push** via `AIOX_ACTIVE_AGENT=devops git push` (IdeiaOS pode main).
+> - **⚠️ autosync PAUSADO** (`bash scripts/autosync-pause.sh status`) — religar (`off`) **só ao FIM** do closeout, após o push.
+> - **Follow-up não-bloqueante (achado durante 08):** idea-doctor §15 check-(d) dá **WARN** porque o MID local computado (`131fd55c7b65` via `ioreg|shasum`) ≠ o MID do snapshot no ref (`c706ac77d577`, que o agentd/`collect.js` grava). A derivação manual difere da do `collect.js`; idea-doctor fica **verde** (degrada gracioso). Investigar a derivação real do `collect.js` antes de confiar no sub-sinal de frescor local do read-model.
+> - **Decisões travadas:** capability/ref = `cockpit` (NUNCA `mission-control`); data access = `node:sqlite`; execução = gate-por-wave sequencial. CLI GSD não resolve fases v14.
+
+> **▶ (histórico — fase JÁ EXECUTADA acima) RETOMAR AQUI (2026-06-21 noite — v14.1 MVP Bridge PLANEJADO; próximo = EXECUTAR) — leia primeiro:**
 > `/gsd-plan-phase v14.1` concluído. **8 `PLAN.md` (17 tasks / 4 waves)** + `14.1-CONTEXT/RESEARCH/PATTERNS/VALIDATION.md` em `.planning/milestones/v14-phases/14.1-mvp-bridge/`. Método **espelhou o v14.0** (dir manual + multi-agente) porque o CLI GSD **não resolve fases v14** (`roadmap.get-phase 14.1`→`found:false`; milestone usa `v14-cockpit-PLAN.md`, não `v14-ROADMAP.md` canônico — mesma causa do `phase.complete` falho no 14.0).
 > - **Verificado por 3 lentes adversariais:** plan-checker = CONCERNS (0 bloqueador de goal) · security-reviewer (opus) = SOUND-WITH-FIXES (1 HIGH **S-01** = canal `POST /command` só com CORS → CSRF/DNS-rebinding driva `spawnSync`; **corrigido**) · antifragile-gates = **0 violações** (52 critérios; A3/A8/A12 exit-code testados empiricamente). **9 fixes aplicados** (contidos a 5 planos + `VALIDATION.md`; 02/05/07 intactos). Todos os 8 planos `valid:true` no validador SDK.
 > - **Decisões travadas:** capability/ref = **`cockpit`** (NÃO `mission-control` — codinome morto nos docs 02/71); data access = **`node:sqlite`** (NÃO `better-sqlite3`); Zero-Leak = regex+entropia+veneno triplo; Flight Recorder v0 = 13 commits reais do `versions.lock` via `classifyActor`; ⌘K = `cmdk` + `POST /command` enum tipado default-deny (auth Origin+Host+token efêmero).
