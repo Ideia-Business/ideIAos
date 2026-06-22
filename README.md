@@ -430,6 +430,29 @@ O `/idea` roteia automaticamente para a camada certa e mostra qual comando está
 
 ---
 
+### 🖥️ Cockpit — console web local-first (v14.1 MVP Bridge)
+
+Visão de CTO sobre o substrato auto-telemetrado do IdeiaOS. **100% local-first** (loopback-only, zero nuvem); o `git` é o barramento (ref `cockpit`).
+
+```bash
+cd apps/cockpit
+node server/read.js        # API loopback de leitura — 127.0.0.1:3073 (node:sqlite, zero deps)
+npm run dev                # SPA Vite — http://127.0.0.1:5273  (Vite 7 + React 18 + Tailwind + shadcn/ui)
+```
+
+**3 telas:**
+- **Overview** — System Pulse (frescor + nº de nós), stat-cards (máquinas/projetos/checks), Releases-SOAK (`aguardando segundo ator` até ≥2 máquinas + span ≥1d) e o **Flight Recorder** (fita de dois níveis do pin `gsd` em `versions.lock`, com nós de reversão em âmbar).
+- **Frota** — heartbeat por máquina + **version-drift por igualdade-de-string** (nunca semver — `1.1.0 redux > 1.36.0` é uma armadilha de semver que aqui não existe).
+- **Cofre-Espelho** — matriz `var × project` **metadata-only**: nome, presença, idade e classe de risco. **O valor de um segredo jamais transita por aqui** (doutrina `credential-isolation`).
+
+**⌘K — paleta de comandos (allowlist fechada B1–B6, default-deny):** `pause_autosync` (B1) · `resume_autosync` (B2) · `reseal_security` (B3) · `force_sync` (B4) · `kickstart_daemon` (B5) · `run_doctor` (B6). Verbos `arm` (B1/B3) exigem **armar-antes-de-disparar** (`Confirmar?`). **Nenhum verbo de mutação-de-produção** (rotate/deploy/revoke/`git push`/`gh pr`) está no allowlist — `agent-authority` continua valendo.
+
+**Segurança do canal `POST /command`** (único endpoint de mutação, fail-closed): bind loopback `127.0.0.1`; **Origin + Host** validados server-side (anti-CSRF/DNS-rebinding — CORS não é a defesa); **token efêmero por-boot** em `X-Cockpit-Token` (obtido via `GET /command-token`, Origin-gated); body com cap 4KB + `JSON.parse` guardado; **preflight CORS** (`OPTIONS /command` → 204 só p/ origem confiável, 403 caso contrário); **stdout varrido pelo Zero-Leak** antes de voltar à UI.
+
+**Gates (exit-code é lei):** `npm run test:zeroleak` (A3 — 7 superfícies + veneno triplo) · `npm run test:recorder` (A12 — re-deriva a fita do git) · `bash scripts/check-cockpit.sh` (agentd + ref + frescor) · `bash scripts/ttt-median.sh --mode=bridge` (A2 — Time-to-Truth <10s) · `idea-doctor §15` (read-model real).
+
+---
+
 ### 🧭 Alinhar antes de executar (camada v9)
 
 - **`/grelha`** (alias `/grill`) — use **antes de planejar** uma feature ambígua ou arriscada: a IA te entrevista 1 pergunta por vez (com resposta recomendada), lê o código quando dá, e monta o **glossário de linguagem ubíqua** (`CONTEXT.md`). A Deia oferece o `/grelha` no **Passo 1.5** quando detecta um pedido que merece alinhamento antes do plano.

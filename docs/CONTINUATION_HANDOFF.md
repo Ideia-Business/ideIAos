@@ -176,7 +176,14 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 
 ## Próximo passo
 
-> **▶ RETOMAR AQUI (2026-06-22 — v14.1 MVP Bridge EXECUTADO/code-complete; próximo = CLOSEOUT) — leia primeiro:**
+> **▶ RETOMAR AQUI (2026-06-22 — v14.1 MVP Bridge CLOSEOUT CONCLUÍDO; próximo = 2ª máquina p/ tag, ou v14.2) — leia primeiro:**
+> O **closeout da v14.1 está completo** (detalhes em `STATE.md` § "Sessão 2026-06-22"). Feito: **8/8 planos, A1–A12 9/9 exit-code** + **passe visual A7/A10** (frontend-visual-loop: Overview/Frota/Cofre + ⌘K com verbos **inline** `run_doctor→exit 0` / `pause_autosync` arm→Confirmar?→exit 0) + **🔴 bug CORS-preflight S-05 achado NO visual-loop e corrigido** (`read.js` `OPTIONS /command`→404 fazia o `POST` falhar no browser; curl mascarava — [[learning-curl-masks-cors-preflight-verify-browser]]) + **re-selo `@security-reviewer` PASS** (review full + re-review focada do delta S-05, 0 findings) + **README** (seção console) + **vault** (Changelog+Learning) + **memória nativa** + **STATE** + **SOAK v14.1 heartbeat** (1 máq/0d).
+> - **PENDENTE (só isto):** o **push** do commit de closeout p/ `origin/work` está sendo apresentado ao usuário p/ confirmação (`AIOX_ACTIVE_AGENT=devops git push`); após o push, **religar o autosync** (`bash scripts/autosync-pause.sh off`). Enquanto não pushar, **autosync segue PAUSADO**.
+> - **Tag `v14.1` DEFERIDA** (1 máq/span 0d, igual v11–v14.0): precisa **≥2 máquinas + span ≥1d** sobre epochs em `.planning/soak/v14.1.log`. Rodar `bash scripts/check-soak.sh v14.1 --record` numa 2ª máquina (MacBook-Air-2) + re-record após 1 dia → `git tag v14.1`.
+> - **Próximo milestone:** **v14.2** (a planejar, espelhando o método v14.0). Aberto 🔴: origin-auth v14.4 (gate de toda escrita cross-máquina).
+> - **Follow-ups não-bloqueantes (debt):** (a) stdout inline da ⌘K mostra ANSI literal (cosmético, strip); (b) `/fleet` pollado agressivamente pelo SPA (throttle); (c) idea-doctor §15 check-(d) WARN por MID local (`ioreg|shasum`) ≠ MID do `collect.js`.
+
+> **▶ (histórico — fase + closeout JÁ CONCLUÍDOS acima) RETOMAR AQUI (2026-06-22 — v14.1 MVP Bridge EXECUTADO/code-complete; próximo = CLOSEOUT) — leia primeiro:**
 > Os **8 planos da v14.1 foram EXECUTADOS** sequencialmente (gate por wave, espelhando o método v14.0 — escolha do usuário). **22 commits locais em `work` (ahead 22, NÃO pushados; autosync PAUSADO)** — range `7673478..cd5a062`. **Suite A1–A12 exit-code = 9/9 verde** (A1,A2,A3,A4,A5,A6,A8,A9,A12); cada plano com `14.1-0N-SUMMARY.md` + verificação independente do orquestrador. Waves: W1 {01 data-access, 05 flight-recorder, 07 ttt-harness} · W2 {02 overview+shell} · W3 {03 frota-cofre, 04 ⌘K} · W4 {06 zero-leak, 08 closeout/exit-code}. ⌘K (04) rodado em **opus**, S-01..S-04 provados por HTTP-code (403/412/400); Zero-Leak (06) limpo→exit 0 + 3 venenos→exit≠0 (regex/entropia/runtime), sem FP.
 > - **FALTA só o CLOSEOUT (Task 3 = `checkpoint:human-action`) — tudo do orquestrador, NÃO feito ainda:**
 >   1. **A7/A10 visual** via `frontend-visual-loop` (Chrome DevTools): Overview/Frota/Cofre + ⌘K com ≥3 verbos inline. ⚠️ **NUNCA disparar B2 `resume_autosync` nem B4 `force_sync`** (des-pausam o autosync) — usar **B6 `run_doctor`** (read-only) + **B1 `pause_autosync`** (arm-confirm, idempotente).
@@ -419,7 +426,7 @@ _Histórico v7 abaixo:_
 
 > **Lição de segurança:** nfideia É Lovable (`lovable-tagger` + `componentTagger` no vite.config) — cuidar só dos projetos Lovable; IdeiaOS não é Lovable (commit livre). Memória: `feedback-lovable-projects-branch-commit`.
 
-## Ultima sessao automatica (2026-06-21)
+## Ultima sessao automatica (2026-06-22)
 
-- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-21-ideiaos-a4d02833-e267-4d59-b3c4-4ce2940c.tmp`
+- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-22-ideiaos-0252a118-7307-44d0-9330-f58e1189.tmp`
 - Próximo passo: (definir antes de retomar)
