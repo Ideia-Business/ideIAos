@@ -50,7 +50,11 @@ function repoRoot() {
 }
 
 const ROOT = repoRoot();
-const OUT_PATH = join(__dirname, '..', 'src', 'flight-recorder.json');
+// Default: src/flight-recorder.json (o render). O gate test-recorder.sh
+// redireciona para um /tmp sandbox via FLIGHT_RECORDER_OUT — assim a
+// re-derivação nunca toca o working tree (verify-guards-in-sandbox-not-live-repo).
+const OUT_PATH =
+  process.env.FLIGHT_RECORDER_OUT || join(__dirname, '..', 'src', 'flight-recorder.json');
 
 // ---------------------------------------------------------------------------
 // classifyActor — VERBATIM de source/console/ingest.js:72-79 (não re-inventar)
