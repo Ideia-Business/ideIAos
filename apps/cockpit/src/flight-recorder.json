@@ -1,0 +1,119 @@
+[
+  {
+    "hash8": "ffb08a2e",
+    "iso": "2026-06-02T20:45:41-03:00",
+    "gsd": "1.36.0",
+    "actor": "autosync",
+    "host": "Mac-mini-de-Gustavo",
+    "subject": "wip: autosync 2026-06-02 20:45 (Mac-mini-de-Gustavo)",
+    "reversal": false
+  },
+  {
+    "hash8": "67588c37",
+    "iso": "2026-06-04T02:40:00-03:00",
+    "gsd": "1.36.0",
+    "actor": "autosync",
+    "host": null,
+    "subject": "feat(setup): MCPs no Cursor + AIOX alinhado ao mais atual (pin pela instalacao real)",
+    "reversal": false
+  },
+  {
+    "hash8": "12298033",
+    "iso": "2026-06-05T11:34:55-03:00",
+    "gsd": "1.1.0",
+    "actor": "human",
+    "host": null,
+    "subject": "chore(versions.lock): gsd 1.36.0 → 1.1.0 (migração para get-shit-done-redux)",
+    "reversal": false
+  },
+  {
+    "hash8": "c7fc1842",
+    "iso": "2026-06-08T09:02:29-03:00",
+    "gsd": "1.36.0",
+    "actor": "autosync",
+    "host": "Mac-mini-de-Gustavo",
+    "subject": "wip: autosync 2026-06-08 09:02 (Mac-mini-de-Gustavo)",
+    "reversal": true
+  },
+  {
+    "hash8": "915f345f",
+    "iso": "2026-06-08T23:36:37-03:00",
+    "gsd": "1.1.0",
+    "actor": "human",
+    "host": null,
+    "subject": "fix(versions.lock): re-pin gsd 1.36.0 → 1.1.0 (autosync Mac-mini reverteu)",
+    "reversal": false
+  },
+  {
+    "hash8": "3724ee9a",
+    "iso": "2026-06-11T11:38:27-03:00",
+    "gsd": "1.36.0",
+    "actor": "autosync",
+    "host": null,
+    "subject": "fix(versions.lock): re-pin gsd doctor version",
+    "reversal": true
+  },
+  {
+    "hash8": "5171cd96",
+    "iso": "2026-06-12T00:30:57-03:00",
+    "gsd": "1.36.0",
+    "actor": "autosync",
+    "host": null,
+    "subject": "feat(06): IdeiaOS como plugin/marketplace + remoção dirs-fallback",
+    "reversal": false
+  },
+  {
+    "hash8": "7a4f54ba",
+    "iso": "2026-06-12T11:51:27-03:00",
+    "gsd": "1.1.0",
+    "actor": "autosync",
+    "host": "MacBook-Air-2",
+    "subject": "wip: autosync 2026-06-12 11:51 (MacBook-Air-2)",
+    "reversal": true
+  },
+  {
+    "hash8": "6a93a395",
+    "iso": "2026-06-12T16:44:17-03:00",
+    "gsd": "1.1.0",
+    "actor": "human",
+    "host": null,
+    "subject": "feat(16-01): marketplace-ready v3.0.0 — R4-08 validado + R4-09 versões alinhadas",
+    "reversal": false
+  },
+  {
+    "hash8": "65c3e6c8",
+    "iso": "2026-06-16T10:52:23-03:00",
+    "gsd": "1.1.0",
+    "actor": "human",
+    "host": null,
+    "subject": "docs(28-01): expandir nota de linhagem no versions.lock",
+    "reversal": false
+  },
+  {
+    "hash8": "ccb3ff01",
+    "iso": "2026-06-19T14:22:10-03:00",
+    "gsd": "1.1.0",
+    "actor": "human",
+    "host": null,
+    "subject": "feat(ci+provenance): repo-self-consistency gates + skill SOURCE guard [v11 W2]",
+    "reversal": false
+  },
+  {
+    "hash8": "f1c4e53f",
+    "iso": "2026-06-20T22:11:35-03:00",
+    "gsd": "1.1.0",
+    "actor": "human",
+    "host": null,
+    "subject": "chore(design-suite): re-ancora pin à proveniência real b7e3af80 (verificado por content-match)",
+    "reversal": false
+  },
+  {
+    "hash8": "4ab4e9a7",
+    "iso": "2026-06-20T22:38:54-03:00",
+    "gsd": "1.1.0",
+    "actor": "human",
+    "host": null,
+    "subject": "fix(design-suite): documenta a causa real (symlinks) + script seguro",
+    "reversal": false
+  }
+]
