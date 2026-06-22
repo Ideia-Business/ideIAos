@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v10
 milestone_name: Camada de Integração Lovable MCP
 status: partial
-last_updated: "2026-06-22T00:03:07.874Z"
+last_updated: "2026-06-22T00:10:10.900Z"
 progress:
   total_phases: 4
   completed_phases: 2
@@ -100,8 +100,14 @@ revisão adversarial e corrigidos (verificados por exit-code, 0 violações anti
   - infra/launchd/com.ideiaos.cockpit.plist: 4º LaunchAgent, StartInterval 900, NÃO carregado (passo manual)
   - A4: git status --porcelain vazio após gravação; zero campo "value" no snapshot; DoD #2 read-only confirmado
   - Decisão: MID Node canonical = c706ac77d577 (sha256 puro, ≠ shasum shell que adiciona '  -')
+- ✅ `14.0-06` (console-ingest): commits `5c35ab0`, `8e58edb`, SUMMARY `.planning/milestones/v14-phases/14.0-substrate-spine/14.0-06-SUMMARY.md`
+  - source/console/schema.sql: 8 tabelas v14.0; api_key SEM coluna value (guard estrutural DoD #1); risk_tier CHECK
+  - source/console/ingest.js: ETL node:sqlite DatabaseSync (built-in Node 24, zero npm install); UPSERT idempotente; A5 exit 0
+  - source/console/machine-aliases.json: dedup 192->Mac-mini-de-Gustavo; 9 heartbeats colapsos corretos
+  - Decisões: node:sqlite nativo (sem better-sqlite3); security-ledger carry-forward v14.2+; actor_class em payload_json (commit_log é v14.2+)
+  - Gates: schema=0, guard=PASS, A5=0, N1==N2, OBJECT_STORE=PASS, bad_actor=0, raw_192=0
 
-**Próximo:** `14.0-06` (console-ingest) ou `14.0-07` (spa-readmodel-gates) — waves 2/3.
+**Próximo:** `14.0-07` (spa-readmodel-gates) — wave 3.
 
 ## Compact Snapshot
 
