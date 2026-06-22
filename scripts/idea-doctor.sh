@@ -711,9 +711,18 @@ else
     fail "refs/heads/cockpit ausente — rode: cockpit_write_snapshot (source/lib/cockpit.sh)"
   fi
   # (c) snapshot local fresco (<2 ciclos)
-  _CC_MID=$(ioreg -rd1 -c IOPlatformExpertDevice 2>/dev/null \
-    | awk -F'"' '/IOPlatformUUID/{print $4}' \
-    | shasum -a 256 | cut -c1-12 2>/dev/null || true)
+  # machine_id DEVE casar a derivação canônica do collect.js: sha256(IOPlatformUUID)[:12]
+  # sobre o UUID SEM newline. Pipar `awk | shasum` direto hasheia o '\n' do `awk print`
+  # → MID divergente (131fd55c… vs c706ac77…). Captura o UUID ($() trima o \n) e usa
+  # `printf '%s'` p/ não reintroduzir newline. Guarda o caso UUID-vazio (não-macOS) p/
+  # manter _CC_MID="" (senão printf '' | shasum daria o hash da string vazia).
+  _CC_UUID=$(ioreg -rd1 -c IOPlatformExpertDevice 2>/dev/null \
+    | awk -F'"' '/IOPlatformUUID/{print $4}')
+  if [ -n "$_CC_UUID" ]; then
+    _CC_MID=$(printf '%s' "$_CC_UUID" | shasum -a 256 | cut -c1-12 2>/dev/null || true)
+  else
+    _CC_MID=""
+  fi
   if [ -z "$_CC_MID" ]; then
     warn "machine_id indisponível — IOPlatformUUID ausente (não-macOS?)"
   else

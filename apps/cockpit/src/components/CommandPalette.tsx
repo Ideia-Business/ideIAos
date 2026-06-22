@@ -157,6 +157,11 @@ export function CommandPalette() {
     [armed, fire],
   );
 
+  // Remove códigos de escape ANSI (cor de terminal) do stdout p/ render limpo no
+  // <pre> — idea-doctor & co. emitem \x1b[..m; sem strip apareciam literais ([0;36m).
+  // eslint-disable-next-line no-control-regex
+  const stripAnsi = (s: string) => s.replace(/\x1b\[[0-9;]*m/g, "");
+
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
       <CommandInput placeholder="Comando local (autosync, segurança, doctor)…" />
@@ -197,7 +202,7 @@ export function CommandPalette() {
               <span className={result.exitCode === 0 ? "text-emerald-400" : "text-red-400"}>
                 {result.verb} → exit {result.exitCode} ({result.zeroleak})
               </span>
-              {result.stdout ? "\n" + result.stdout : ""}
+              {result.stdout ? "\n" + stripAnsi(result.stdout) : ""}
             </pre>
           )}
         </div>
