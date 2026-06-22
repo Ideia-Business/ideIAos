@@ -34,7 +34,7 @@ Retomada pós-`/compact`. Execução dos **8 planos** em **modo SEQUENCIAL com g
 4. **README** — nova seção "Cockpit — console web local-first v14.1" (3 telas, ⌘K B1–B6, Flight Recorder, Zero-Leak, TtT, segurança do canal). **Vault Obsidian** — Changelog + Learning. **Memória nativa** — learning CORS-preflight + v14 milestone atualizado.
 5. **SOAK v14.1** 1º heartbeat (1 máq/0d) → **tag DEFERIDA** (≥2 máq + span≥1d, igual v11–v14.0).
 
-**Observações honestas (debt, não-bloqueante):** (a) stdout inline da ⌘K mostra códigos ANSI literais (`[0;36m`) — cosmético, merece strip; (b) `/fleet` é pollado agressivamente pelo SPA (100+ req/min) — candidato a throttle. Marcados como follow-up, fora do escopo do closeout.
+**Follow-ups de debt — RESOLVIDOS na mesma sessão (commit `b960daf`):** (a) stdout inline da ⌘K mostrava códigos ANSI literais (`[0;36m`) → helper `stripAnsi` no render, verificado no browser (stdout do `run_doctor` limpo); (c) idea-doctor §15 dava WARN espúrio porque derivava o MID por `awk | shasum` (hasheava o `\n` do `awk print`) → `131fd55c…` ≠ `c706ac77…` canônico do `collect.js`; fix captura o UUID + `printf '%s' | shasum` → §15 resolve o MID correto, idea-doctor exit 0 (76 OK/0 FAIL). (b) `/fleet` "agressivo" **reavaliado: NÃO é bug** — poll de 3s do heartbeat local na Overview (~20 req/min), design legítimo; não alterado. Re-selo de segurança no HEAD pós-polish (`b57d1a2`, delta não-security) = PASS.
 
 ---
 
