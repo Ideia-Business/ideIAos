@@ -16,10 +16,10 @@ O IdeiaOS já se auto-telemetra cross-máquina (SOAK, security-freshness, idea-d
 | ID | Requisito | Fase | Status |
 |----|-----------|------|--------|
 | R14-00 | Contrato de comportamento `cockpit` vivo (`specs/cockpit/spec.md`, 9 req SHALL/DEVE) — fonte-de-verdade que os gates `spec-validate`/`spec-analyze` protegem | transversal | ✅ DONE (este turno) |
-| R14-01 | `idea-doctor.sh --json` — flag nova (14 seções → JSON) **+ fallback ANSI testado** antes de qualquer consumidor depender do JSON | v14.0 | 🟡 PLANEJADO |
-| R14-02 | `ideiaos-agentd` coletor read-only → `snapshots/<machine_id>.json` no ref `cockpit` via git-plumbing (working tree limpo) + `com.ideiaos.cockpit.plist` (4º LaunchAgent, 900s) + push do ref pelo autosync (nunca `main`) | v14.0 | 🟡 PLANEJADO |
-| R14-03 | `console-ingest` → read-model SQLite descartável (`~/.ideiaos/console/read-model.db`, `rm && rebuild` reconstrói dos refs) | v14.0 | 🟡 PLANEJADO |
-| R14-04 | Scaffold Vite/React/TS/Tailwind/shadcn black-gold OKLCH (reuso nfideia) + `check-cockpit.sh` + `idea-doctor §15` (dogfooding: agentd ativo? ref existe? snapshot fresco?) | v14.0 | 🟡 PLANEJADO |
+| R14-01 | `idea-doctor.sh --json` — flag nova (14 seções → JSON) **+ fallback ANSI testado** antes de qualquer consumidor depender do JSON | v14.0 | ✅ DONE 2026-06-21 (24/24 verif) |
+| R14-02 | `ideiaos-agentd` coletor read-only → `snapshots/<machine_id>.json` no ref `cockpit` via git-plumbing (working tree limpo) + `com.ideiaos.cockpit.plist` (4º LaunchAgent, 900s) + push do ref pelo autosync (nunca `main`) | v14.0 | ✅ DONE 2026-06-21 (24/24 verif) |
+| R14-03 | `console-ingest` → read-model SQLite descartável (`~/.ideiaos/console/read-model.db`, `rm && rebuild` reconstrói dos refs) | v14.0 | ✅ DONE 2026-06-21 (24/24 verif) |
+| R14-04 | Scaffold Vite/React/TS/Tailwind/shadcn black-gold OKLCH (reuso nfideia) + `check-cockpit.sh` + `idea-doctor §15` (dogfooding: agentd ativo? ref existe? snapshot fresco?) | v14.0 | ✅ DONE 2026-06-21 (24/24 verif) |
 | R14-05 | MVP Bridge read-only (loopback, sem login): Overview (System Pulse local-vivo) + Frota + Cofre-Espelho (metadata-only, zero botão de mutação) + Command Palette ⌘K (allowlist fixo) + **Flight Recorder v0** (naco de wow estrutural — replay determinístico do flip-flop real do pin `gsd` no `versions.lock`, via `git show <sha>:versions.lock`; o card Releases cede o countdown decorativo — doc 71) | v14.1 | 🔵 PROPOSTO |
 | R14-06 | Gate **Zero-Leak** (`test:zeroleak`, exit-code binário, bloqueia release) + harness de medição de **Time-to-Truth** (baseline terminal N≥5 J1/J4/J2 → meta <10s) | v14.1 | 🔵 PROPOSTO |
 | R14-07 | Pilares completos (ainda read-only): Constelação (produtos) + Sinapse (IAs & MCP + deny-list watch **que grava LEDGER ESTRUTURADO append-only de contenção: `epoch\|iso\|produto\|deny_count\|total\|commit`** — pré-requisito do momento-prêmio da v14.3, doc 71) + Pulso honesto (4 KPIs entrega-verificada) + Atalaia (alertas/drift) | v14.2 | 🔵 PROPOSTO |
@@ -48,9 +48,9 @@ O IdeiaOS já se auto-telemetra cross-máquina (SOAK, security-freshness, idea-d
 1. v13 fechar (tag `v13.0` via SOAK — em andamento, agendado).
 2. ✅ `/gsd-plan-phase v14.0` EXECUTADO (2026-06-21) → 7 `PLAN.md` (20 tasks, 3 waves) em `.planning/milestones/v14-phases/14.0-substrate-spine/`, verificados por 3 lentes adversariais. Ver "## v14.0 — PLANEJADO" abaixo.
 3. ✅ ADR `docs/decisions/v14-cockpit-local-first-git-as-bus.md` criado (decisão arquitetural irreversível: git-as-bus por ref + agentd; teto de poder gated).
-4. **Próximo:** `/gsd-execute-phase 14.0` — **só após o v13 tagar** (não entrelaçar milestones ativos) e com contexto fresco (`/clear`).
+4. ✅ **`/gsd-execute-phase 14.0` EXECUTADO (2026-06-21)** — 7/7 planos DONE, verificação goal-backward **24/24 gates por exit-code** (`14.0-VERIFICATION.md` status=passed). Ref `cockpit` pushed (`cockpit@{u}=30edb3e`); SPA renderiza card real (screenshot). Tag v14.0 deferida (SOAK ≥2 máq + span≥1d). **Próximo:** v14.1 (MVP Bridge).
 
-## v14.0 — PLANEJADO (2026-06-21)
+## v14.0 — ✅ EXECUTADO/COMPLETO (2026-06-21)
 
 **Planos** (`.planning/milestones/v14-phases/14.0-substrate-spine/`), consomem `docs/ideiaos-console/72` (37 tarefas N.M, exit-code-gated) + `specs/cockpit/spec.md` (9 req):
 
