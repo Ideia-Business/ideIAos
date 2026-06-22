@@ -1,6 +1,6 @@
 ---
 name: project-milestone-v14-cockpit
-description: v14 "IdeiaOS Cockpit" — console web CTO local-first sobre o substrato auto-telemetrado; blueprint multi-agente + contrato /spec (capability cockpit, 9 req) + plano GSD formalizados em 2026-06-20 como PROPOSTO (zero código). Aguarda v13 fechar (tag) + /gsd-plan-phase v14.0.
+description: v14 "IdeiaOS Cockpit" — console web CTO local-first. v14.0 (Substrato+Espinha) EXECUTADO/COMPLETO 2026-06-21 (7/7 planos, verificação 24/24 por exit-code, no-tag — SOAK deferida; ref cockpit pushed; SPA renderiza card real). Próximo = v14.1 (MVP Bridge).
 metadata:
   node_type: memory
   type: project
@@ -50,11 +50,9 @@ tautológico; regex JWT fraca p/ service_role; falta gate bind-loopback; falta d
 re-verificados por exit-code, 0 violações antifragile. `14.0-CONTEXT.md` + `14.0-PATTERNS.md` +
 seção "v14.0 PLANEJADO" no `v14-cockpit-PLAN.md`.
 
-**⚠️ Gate de execução (NÃO entrelaçar):** `/gsd-execute-phase 14.0` só **depois do v13 tagar**.
-Razão concreta (não só disciplina): o plano `14.0-01` edita `scripts/idea-doctor.sh`, que o SOAK
-pendente do v13 RE-EXECUTA na re-gravação (`idea_doctor=PASS|regression=PASS`) — editar agora
-arriscaria a tag do v13. Ver [[learning-active-milestone-gate-couples-via-shared-file]]. Se forçar
-antes, rodar só Wave 1 **menos o 14.0-01**.
+**✅ Gate de execução LIBERADO (2026-06-21):** o v13 **tagou** (`v13.0`, SOAK fechado manualmente na Mac mini) → o acoplamento via `scripts/idea-doctor.sh` (que o SOAK do v13 RE-EXECUTAVA) está resolvido, não há mais milestone ativo em SOAK tocando o arquivo. Ver [[learning-active-milestone-gate-couples-via-shared-file]].
+
+**✅ Planos v14.0 CORRIGIDOS + VERIFICADOS (2026-06-21, pré-execução):** rodada de prontidão (`wf_98a657c0`) achou **GO_WITH_FIXES** — ambiente PASS mas **5/7 planos com defeitos** (ACs insatisfazíveis/gate-teatro + 1 gate de segurança OCO). Corrigidos (`wf_00f74ad3`: 7 fixers disjuntos + verify adversarial **13/13 sondas exit-code** → **CLEAR_TO_EXECUTE**), commit `ac68817`. As 3 estruturais: (a) `cockpit_write_snapshot` `git mktree` em 2 níveis (subárvore flat + topo `040000 tree`) — o slash em `snapshots/<MID>.json` dava `fatal: contains slash` exit 128 e impedia o ref; (b) gate credential-isolation **discriminante** (`! sqlite3 … | cut -d'|' -f2 | grep -qiw value` — o `grep -qiv '|value|'` antigo era OCO, passava com e sem coluna); (c) **`node:sqlite`** built-in (Node 24) no lugar de `better-sqlite3` (dep nativa órfã, não resolvia em wave order). As correções cruzaram doc 72 + 14.0-PATTERNS.md. **Próximo: `/gsd-execute-phase 14.0` em contexto fresco** (config: worktree-paralelo, executor sonnet, branching none/commita em `work`; ⚠️ autosync PAUSADO — religar ao fim). Lição: rodar a revisão de prontidão ANTES de `execute-phase` pegou um build que teria quebrado no happy-path.
 
 **Gotchas honestos (do blueprint):** P1/P2 multi-usuário = vaporware (tudo é `gustavo@`);
 idea-doctor `n/a` nos Lovable (health-score por produto com sub-sinal honesto).
@@ -75,5 +73,7 @@ de produtividade — KPI-âncora = milestones SOAK (ininflável), multi-usuário
 (doc 77); estratégia de testes Zero-Leak + dogfood de veneno `sk-ant-FAKE` (doc 78); glossário 22
 termos + **REGISTRO MESTRE de 39 questões/riscos (doc 79 = índice canônico)**. Topo aberto 🔴 = Q1
 autenticação de origem cross-máquina (`sha256≠assinatura`) — faz a v14.4 ser gate, não milestone.
+**✅ v14.0 EXECUTADO/COMPLETO (2026-06-21, `/gsd-execute-phase 14.0`, sessão noturna):** modo **SEQUENCIAL** (escolha do usuário — fase auto-modificante: o OS edita o próprio autosync + empurra ref novo) dos 7 planos via subagentes `gsd-executor`. **7/7 DONE**; verificação goal-backward **24/24 gates por exit-code** (`14.0-VERIFICATION.md` status=passed — feita INLINE pelo orquestrador porque o `gsd-verifier` bateu 529 2×; exit-code é mais robusto que NL). Entregue: `idea-doctor --json` (§0-§15, ANSI byte-idêntico) · `source/lib/cockpit.sh` ref-federation (git-plumbing, A4) + **`push_cockpit_ref` no `~/.local/bin/git-autosync` + `git push -u origin cockpit` (user-aprovado, @devops) → `cockpit@{u}=30edb3e`** · `source/agentd/` (Zero-Leak=0, snapshot metadata-only, plist 4º LaunchAgent NÃO-bootstrapped) · `source/console/` (read-model SQLite, api_key sem `value`, A5, 7 proj/121 keys/0 value) · TtT harness · `apps/cockpit/` SPA black-gold loopback → **frontend-visual-loop PASSED** (screenshot: card `c706ac77d577`/`doctor:unknown`). SOAK v14.0 1 máq/0d; security re-selo PASS. **Tag DEFERIDA** (≥2 máq + span≥1d, igual v11-13). **Incidente:** autosync ignorou o pause-file (binário deployado sem guard) → **hard-stop via `launchctl bootout`** durante o build, restaurado ao fim → [[learning-autosync-pause-file-guard-not-deployed]]. **`phase.complete` CLI falhou** (milestone sem `v14-ROADMAP.md`) → completude marcada manualmente. Commits limpos `24290e6`→`85de7dd` (origin/work 0/0).
+
 Cross-link:
-[[project-milestone-v13-security-freshness]], [[project-aiox-core-pristine-overlay]].
+[[project-milestone-v13-security-freshness]], [[project-aiox-core-pristine-overlay]], [[learning-autosync-pause-file-guard-not-deployed]].
