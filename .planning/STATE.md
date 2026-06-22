@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v10
 milestone_name: Camada de Integração Lovable MCP
 status: partial
-last_updated: "2026-06-21T23:28:08.017Z"
+last_updated: "2026-06-22T00:03:07.874Z"
 progress:
   total_phases: 4
   completed_phases: 2
@@ -84,7 +84,7 @@ revisão adversarial e corrigidos (verificados por exit-code, 0 violações anti
 **Planos executados:**
 
 - ✅ `14.0-01` (idea-doctor --json): commit `24290e6`
-- ✅ `14.0-02` (cockpit.sh ref plumbing): commit `2b3122a`
+- ✅ `14.0-02` (cockpit.sh ref plumbing + push_cockpit_ref + cockpit@{u}): commits `2b3122a`, SUMMARY `a575cbd`
 - ✅ `14.0-03` (ttt-baseline.sh + ttt-median.sh): commits `4de6360`, `02d5d90`
   - Harness TTT: N>=5 por jornada J1/J4/J2 registrado; medianas J1=0.002s J4=0.001s J2=0.002s
   - Decisões: modo interativo via `[ -t 0 ]`; mediana N par = linha inferior N/2 (determinista)
