@@ -1,6 +1,6 @@
 # ADR — v15: Cockpit split-plane (autoridade local + Plano de View web), sucede o local-first/git-as-bus
 
-**Status:** **PROPOSTO (DRAFT — saída de spike, NÃO ratificado pelo operador).** Recomendação de síntese de um painel de 4 propostas + 3 julgamentos (arquitetura, segurança, operabilidade). Reversível por edição. **Ratificar NÃO abre o gate R-WP10** nem cria tabela alguma — este ADR é *pure design*.
+**Status:** **PROPOSTO (DRAFT — saída de spike, NÃO ratificado pelo operador).** Recomendação de síntese de um painel de 4 propostas + 3 julgamentos (arquitetura, segurança, operabilidade); **`@security-reviewer` = NEEDS_REVISION** (invariante zero-trust sustenta-se; 4 must-fix listados em "Pendências de segurança" antes de ratificar). Reversível por edição. **Ratificar NÃO abre o gate R-WP10** nem cria tabela alguma — este ADR é *pure design*.
 **Sucede:** `docs/decisions/v14-cockpit-local-first-git-as-bus.md` no eixo de **leitura/federação**; **preserva-o intacto** no eixo de autoridade/segredo/write-path.
 **Design completo:** `docs/ideiaos-console/80-split-plane-control-plane-DESIGN.md`.
 **Não revoga:** O2 (`v14.4-origin-auth-signing-mechanism.md`), step-up HYBRID (`v14.4-step-up-without-relying-party.md`), Q5 (`v14.4-command-ref-origin-exposure.md`), R-WP1..R-WP11 (`specs/cockpit/spec.md`).
@@ -65,6 +65,17 @@ O precedente já é load-bearing: o ADR de step-up HYBRID **já** reintroduziu u
 - **Risco de drift de doutrina:** pressão de produto para "deixar P3 mais esperto" empurraria segredo/assinatura para o cloud. Mitigado por **vetos-de-design auditáveis** (§8 do design): P3 segura segredo? assina? pina? abre verbo? — qualquer SIM é veto.
 
 **Irreversível-ish:** "existe agora um backend remoto que reflete metadata do ecossistema" é uma superfície de ataque permanente nova — daí este ADR. Mitigado por ser metadata-only + sem autoridade + faseável (Fase 1 reversível). A Fase 2 (mailbox de comando por terceiro) é genuinamente mais irreversível e fica gated por Q5 + R-WP10.
+
+## Pendências de segurança (NEEDS_REVISION — bloqueiam ratificação)
+
+Varredura adversarial do **`@security-reviewer`**: invariante zero-trust **SUSTENTA-SE**, write-path **preservado**, **zero** violações de `credential-isolation`. Veredito **NEEDS_REVISION** — 4 must-fix antes de ratificar, com a direção de resolução já apontada pelo painel:
+
+1. **[ALTO] Mecanismo de ingestão de P3 não-especificado.** Como uma Edge Function Supabase "autenticada-O2" verifica a assinatura sem ter a lista pinada (local-0600; replicá-la no cloud **viola a FRONTEIRA-DE-PIN**)? → **Resolução: P3 NUNCA verifica O2.** A verificação O2 fica 100% local (agentd, antes do push). A ingestão = o agentd escreve com uma **credencial Supabase de menor-privilégio própria** (NÃO `SERVICE_ROLE`), com RLS que só permite UPSERT da **própria `machine_id`**. A fronteira-de-pin nunca vai ao cloud.
+2. **[ALTO] RLS por-campo + "acessível de fora" vs "CORS só-loopback".** Sem granularidade por campo, um `dev` (ou `cto` com sessão web roubada) lê nomes de chave `critical`, topologia e cadência — o recon mais valioso. → **Resolução: (i)** hosting default = UI servida local com data-source remoto (mitiga anon-key no bundle público); **(ii)** RLS **mascara campos sensíveis de recon** por papel (nomes `risk_tier=critical` agregados/mascarados fora do escopo do subject; cadência de rotação não-exposta a `dev`) — não basta deny-all + escopo binário. **Ressalva honesta:** ir web-acessível **troca** a propriedade de mínimo-recon que o loopback dava (perda consciente, não-total: não vaza segredo nem forja comando).
+3. **[MÉDIO] R-WP12 como prosa é fraco demais.** Um PR futuro com coluna `value` ou policy de INSERT-da-UI passaria por "ainda é metadata". → **Resolução: R-WP12 vira cláusulas SHALL enumeradas e verificáveis** (sem coluna de valor; não assina; não muta a lista pinada [`process-supabase-revocation` = exit 9, espelhando `process-ref-*`]; sem policy de INSERT/UPDATE para a UI; P3 ≠ P4 projetos distintos), cada uma um cenário QUANDO/ENTÃO no `/spec`.
+4. **[MÉDIO] Step-up (S-08 CORS-loopback) vs UI servida de P3.** A UI que dispara `send-otp` não pode ser a remota se P4 exige CORS-loopback. → **Resolução:** o step-up (`send-otp`/`verify-otp`) só é disparado da **UI LOCAL (loopback)** e o O2-sign acontece na **origem-local**; a UI remota P3 é **read-only** e NUNCA inicia write-path. S-08 fica intacto. (Reconciliado com o hosting default da #2.)
+
+> Estas 4 resoluções são aplicadas ao texto da Decisão **quando o operador ratificar a direção** (ou no início da construção de P3/Fase 1, o que vier primeiro). P4 (step-up, o primeiro tijolo) **não** depende delas.
 
 ## Rastreabilidade
 
