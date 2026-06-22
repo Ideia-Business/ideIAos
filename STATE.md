@@ -32,7 +32,10 @@ Execução **sequencial** (escolha do usuário — fase auto-modificante: o OS e
 3. **Verificação:** `gsd-verifier` bateu em 529 (API overload 2×) → fiz a verificação goal-backward **inline por exit-code** (mais robusta, não NL): **24/24 PASS** → `14.0-VERIFICATION.md` status=passed.
 4. **Fechamento:** SOAK heartbeat v14.0 gravado (idea-doctor+regressão PASS, 1 máq/0d) · security re-selo **PASS** (`@security-reviewer(inline-v14.0)`, credential-isolation materializada em `collect.js`) · README script-sync ✅. Tag v14.0 **deferida** (≥2 máq + span≥1d). `phase.complete` CLI falhou (milestone sem `v14-ROADMAP.md`) → completude marcada manualmente.
 
-**Próximo:** restaurar autosync; v14.1 (MVP Bridge read-only).
+**Próximo:** v14.1 (MVP Bridge read-only).
+
+### Follow-up FECHADO na mesma sessão — guard de pause do autosync DEPLOYADO
+Investigação multi-agente (`wf_1ece3f22`) achou que o guard de pause **já existia nas fontes** (`setup-dev-machine.sh` heredoc + `scripts/ideiaos-update.sh` step 2d patcher) mas o binário deployado estava em **drift de 2 vias**: tinha `push_cockpit_ref` (meu edit ad-hoc do v14.0, nunca propagado ao heredoc) e **faltava** os 2 guards (pause-file + conflict-marker). Fix simétrico: (a) **patcher idempotente** (`ideiaos-update.sh` step 2d) grafou os 2 guards no binário vivo **preservando** `push_cockpit_ref`; (b) adicionei `push_cockpit_ref` ao heredoc do `setup-dev-machine.sh`. **Convergência provada:** heredoc body ≡ binário vivo (diff de código vazio) → os 2 caminhos de deploy não divergem mais. **Teste determinístico PASSOU:** pause-file global E por-repo fazem o binário logar `pausado (pause-file) — pulado` e sair 0 sem commitar/pushar. Agora `autosync-pause.sh on` funciona de verdade (não precisa mais de `launchctl bootout`). Memória [[learning-autosync-pause-file-guard-not-deployed]] atualizada p/ FIXED.
 
 ## Sessão 2026-06-21 (noite, Mac mini) — fechamento manual SOAK v12.0 + v13.0 (tasks agendadas não completaram)
 

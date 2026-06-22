@@ -154,6 +154,19 @@ push_planning_ref() {
   git push --quiet origin planning 2>>"$LOG" && log "$NAME" "push planning OK ($PAHEAD)" \
     || log "$NAME" "push planning FALHOU"
 }
+# Propaga o branch `cockpit` (telemetria federada v14) — espelho de push_planning_ref.
+# O cockpit_write_snapshot commita no `cockpit` LOCAL via git plumbing; o autosync o
+# empurra para origin. NUNCA faz checkout do cockpit nem toca sua árvore — só
+# sincroniza o ref se houver upstream e estiver à frente. Offline-safe.
+push_cockpit_ref() {
+  local NAME="$1"
+  git rev-parse --verify --quiet cockpit >/dev/null 2>&1 || return 0
+  git rev-parse --verify --quiet cockpit@{u} >/dev/null 2>&1 || return 0
+  local PAHEAD; PAHEAD="$(git rev-list --count 'cockpit@{u}..cockpit' 2>/dev/null || echo 0)"
+  [ "$PAHEAD" -gt 0 ] || return 0
+  git push --quiet origin cockpit 2>>"$LOG" && log "$NAME" "push cockpit OK ($PAHEAD)" \
+    || log "$NAME" "push cockpit FALHOU"
+}
 # maybe_propagate_ideiaos — após pull com commits novos no IdeiaOS, propaga
 # setup global + projetos-alvo em ~/dev/ (scripts/propagate-if-changed.sh).
 maybe_propagate_ideiaos() {
@@ -206,6 +219,7 @@ sync_one() {
       # Mesmo em main (protegido), propaga o ref `planning` (memória v5) se
       # estiver à frente do upstream. Nunca escreve no main; só empurra planning.
       push_planning_ref "$NAME"
+      push_cockpit_ref "$NAME"
       exit 0 ;;
   esac
   if [ "$DIRTY" -eq 1 ]; then
@@ -256,6 +270,7 @@ sync_one() {
     git push --quiet -u origin "$BRANCH" 2>>"$LOG" && log "$NAME" "push inicial OK em $BRANCH" || { log "$NAME" "push inicial FALHOU $BRANCH"; notify "Git sync — push falhou" "$NAME ($BRANCH)."; }
   fi
   push_planning_ref "$NAME"
+  push_cockpit_ref "$NAME"
   exit 0
 }
 if [ "${1:-}" = "--all" ] || [ "$#" -eq 0 ]; then
