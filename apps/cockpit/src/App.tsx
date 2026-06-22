@@ -1,11 +1,43 @@
 // SOURCE: IdeiaOS v14 | kind: spa-shell | targets: apps/cockpit
-// Shell mínimo da Espinha — sem UI de valor ainda (plano 07, Wave 3).
-// Estrutura Card/CardHeader/CardTitle/CardContent espelhada do nfideia
-// (NotaGatewayHealthCard.tsx) — padrão shadcn confirmado em 14.0-PATTERNS.md.
-// NÃO lê o read-model SQLite aqui; isso é o plano 07.
+// App.tsx — Espinha conecta substrato->UI.
+// Plano 07 (Wave 3): lê o read-model SQLite via server local (read.js em 127.0.0.1:3073)
+// e renderiza >=1 MachineCard com machine_id + last_doctor.
+// Loopback 127.0.0.1, sem login — local-first por design (ADR v14).
+import { useEffect, useState } from "react";
 import { Activity } from "lucide-react";
+import { MachineCard, MachineData } from "@/components/MachineCard";
+
+// Porta do read.js server (env VITE_READ_PORT override; default 3073)
+const READ_PORT = (import.meta as { env?: Record<string, string> }).env?.VITE_READ_PORT ?? "3073";
+const API_BASE  = `http://127.0.0.1:${READ_PORT}`;
 
 export default function App() {
+  const [machines, setMachines]   = useState<MachineData[]>([]);
+  const [loading, setLoading]     = useState(true);
+  const [error, setError]         = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchMachines() {
+      try {
+        const res  = await fetch(`${API_BASE}/machines`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = (await res.json()) as MachineData[];
+        if (!cancelled) {
+          setMachines(data);
+          setLoading(false);
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setError(e instanceof Error ? e.message : String(e));
+          setLoading(false);
+        }
+      }
+    }
+    fetchMachines();
+    return () => { cancelled = true; };
+  }, []);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
@@ -23,19 +55,35 @@ export default function App() {
 
       {/* Main */}
       <main className="container mx-auto px-6 py-8">
-        {/* Scaffold placeholder — card de máquina vem no plano 07 (Wave 3) */}
-        <div className="rounded-lg border border-border bg-card p-6 text-card-foreground shadow-sm">
-          <div className="flex items-center gap-2 mb-2">
-            <Activity className="h-4 w-4 text-[oklch(var(--brand))]" />
-            <span className="text-sm font-medium">Espinha pronta</span>
-            <span className="ml-auto inline-flex items-center rounded-full border border-[oklch(var(--brand)/0.4)] bg-[oklch(var(--brand)/0.15)] px-2.5 py-0.5 text-xs font-medium text-[oklch(var(--brand))]">
-              scaffold
+        {loading && (
+          <p className="text-sm text-muted-foreground">
+            Carregando máquinas...
+          </p>
+        )}
+
+        {error && (
+          <div className="rounded-lg border border-red-700/40 bg-red-900/20 p-4 text-sm text-red-400">
+            Erro ao carregar read-model: {error}
+            <br />
+            <span className="text-xs text-muted-foreground">
+              Certifique-se que read.js está rodando:{" "}
+              <code>node apps/cockpit/server/read.js</code>
             </span>
           </div>
+        )}
+
+        {!loading && !error && machines.length === 0 && (
           <p className="text-sm text-muted-foreground">
-            SPA do Cockpit servida em loopback 127.0.0.1:5273 sem login.
-            Card de máquina (leitura do read-model SQLite) disponível no plano 07.
+            Nenhuma máquina no read-model. Rode:{" "}
+            <code className="text-xs">node source/console/ingest.js</code>
           </p>
+        )}
+
+        {/* Grid de MachineCards — >=1 card com machine_id e last_doctor */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {machines.map((m) => (
+            <MachineCard key={m.machine_id} machine={m} />
+          ))}
         </div>
       </main>
     </div>
