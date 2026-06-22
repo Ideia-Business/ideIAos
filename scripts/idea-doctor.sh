@@ -685,12 +685,14 @@ else
   esac
 fi
 
-# ── 15) Cockpit (v14.0) ──────────────────────────────────────────────────────
-step "15) Cockpit (v14.0)"
-# Três checks por exit-code — mesma lógica do check-cockpit.sh:
+# ── 15) Cockpit (v14.1) ──────────────────────────────────────────────────────
+step "15) Cockpit (v14.1)"
+# Quatro checks por exit-code — mesma lógica do check-cockpit.sh + frescor do read-model:
 #   (a) agentd com.ideiaos.cockpit ativo no launchctl
 #   (b) refs/heads/cockpit existe neste repo
-#   (c) snapshot local fresco (<2 ciclos de 900s)
+#   (c) snapshot local fresco no ref cockpit (<2 ciclos de 900s)
+#   (d) frescor do read-model real (~/.ideiaos/console/read-model.db taken_epoch <2 ciclos)
+#       — o estado REAL que a Bridge serve, não só o ref de origem (v14.1).
 _CC_SH="$SETUP_DIR/scripts/check-cockpit.sh"
 if [ ! -f "$_CC_SH" ]; then
   info "check-cockpit.sh ausente (Cockpit v14 não instalado)"
@@ -733,6 +735,35 @@ else
         else
           warn "snapshot defasado (age=${_CC_AGE}s > ${_CC_MAX}s) — aguardar próximo ciclo agentd"
         fi
+      fi
+    fi
+  fi
+  # (d) frescor do READ-MODEL real (v14.1): o estado que a Bridge serve.
+  #     ~/.ideiaos/console/read-model.db é um CACHE reconstrutível (invariante A5);
+  #     aqui checamos só o taken_epoch do machine_snapshot desta máquina (<2 ciclos).
+  #     Sem sqlite3 / sem DB / sem linha desta máquina → warn (degradação graciosa,
+  #     nunca fail: o read-model é descartável e pode não ter rodado nesta máquina).
+  _CC_RM_DB="$HOME/.ideiaos/console/read-model.db"
+  if ! command -v sqlite3 >/dev/null 2>&1; then
+    info "sqlite3 ausente — frescor do read-model não verificável (cache descartável)"
+  elif [ ! -s "$_CC_RM_DB" ]; then
+    warn "read-model.db ausente — rode: node source/console/ingest.js (cache reconstrutível, A5)"
+  elif [ -z "$_CC_MID" ]; then
+    info "machine_id indisponível — frescor do read-model não verificável nesta máquina"
+  else
+    _CC_RM_EPOCH=$(sqlite3 "$_CC_RM_DB" \
+      "SELECT MAX(taken_epoch) FROM machine_snapshot WHERE machine_id='${_CC_MID}';" \
+      2>/dev/null || echo "")
+    if [ -z "$_CC_RM_EPOCH" ] || [ "$_CC_RM_EPOCH" = "" ]; then
+      warn "read-model sem snapshot de ${_CC_MID} — rode ingest após o próximo ciclo agentd"
+    else
+      _CC_RM_NOW="$(date +%s)"
+      _CC_RM_AGE=$(( _CC_RM_NOW - _CC_RM_EPOCH ))
+      _CC_RM_MAX=1800   # 2 ciclos × 900s
+      if [ "$_CC_RM_AGE" -le "$_CC_RM_MAX" ]; then
+        pass "read-model fresco (${_CC_MID}: age=${_CC_RM_AGE}s ≤ ${_CC_RM_MAX}s)"
+      else
+        warn "read-model defasado (${_CC_MID}: age=${_CC_RM_AGE}s > ${_CC_RM_MAX}s) — re-ingest"
       fi
     fi
   fi
