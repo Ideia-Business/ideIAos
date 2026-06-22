@@ -993,6 +993,36 @@ O `versions.lock` traz nota expandida que documenta a distinção `gsd-redux 1.1
 
 ---
 
+## 🆕 Novidades v14.0 — IdeiaOS Cockpit (Substrato + Espinha)
+
+O **IdeiaOS Cockpit** é um console **local-first** de visão CTO/Tech-Lead sobre o substrato auto-telemetrado. A fase **v14.0 (Substrato + Espinha)** torna o substrato **federável** e faz nascer a SPA — sem UI de valor ainda (fase de canalização). Verificada por **24/24 gates por exit-code**.
+
+**Novas capacidades:**
+
+- **`idea-doctor.sh --json`** — o diagnóstico (14 seções + nova **§15 Cockpit**) agora emite JSON estruturado `ideiaos-doctor/v1` (`sections[]` + `summary{ok,warn,fail,exit}`), com a saída ANSI humana **byte-idêntica** (fallback intocado). Consumível por máquina:
+  ```bash
+  bash scripts/idea-doctor.sh --json | python3 -c 'import json,sys; print(json.load(sys.stdin)["summary"])'
+  ```
+- **Federação por ref `cockpit`** (`source/lib/cockpit.sh`) — cada máquina grava `snapshots/<machine_id>.json` em `refs/heads/cockpit` via **git-plumbing puro** (working tree nunca tocado; o `git add -A` do autosync nunca captura). O autosync empurra o ref `cockpit` (nunca `main`).
+- **`ideiaos-agentd`** (`source/agentd/`) — coletor **read-only** (4º LaunchAgent `com.ideiaos.cockpit`, 900s) que normaliza só **metadata** (`var_name/present/risk_tier/mtime` — **nunca o valor** de um segredo). Gate **Zero-Leak=0** estrutural por exit-code. Instalar o daemon recorrente é passo manual (`infra/launchd/com.ideiaos.cockpit.plist`):
+  ```bash
+  node source/agentd/agentd.js --once     # uma coleta → grava no ref cockpit
+  ```
+- **`console-ingest`** (`source/console/`) — read-model **SQLite descartável** (`~/.ideiaos/console/read-model.db`); `rm && rebuild` reconstrói dos refs. `api_key` **sem coluna `value`** (isolamento de credencial materializado no schema).
+  ```bash
+  node source/console/ingest.js           # (re)constrói o read-model
+  ```
+- **SPA do Cockpit** (`apps/cockpit/`) — Vite + React + TS + Tailwind + shadcn, tema **black-gold OKLCH**, em **loopback (127.0.0.1) sem login**. Renderiza ≥1 card de máquina (`machine_id` + `last_doctor`).
+  ```bash
+  node apps/cockpit/server/read.js        # server local loopback (porta 3073)
+  cd apps/cockpit && npm run dev           # SPA em http://127.0.0.1:5273/
+  ```
+- **`check-cockpit.sh`** — gate de saúde (agentd vivo? ref existe? snapshot fresco?) + harness **Time-to-Truth** (`scripts/ttt-baseline.sh`/`ttt-median.sh`).
+
+> **Fora de escopo (gated p/ v14.4):** qualquer verbo de mutação de produção/cross-máquina (`rotate`/`revoke`/`deploy`/`git push`/`gh pr`). Esta fase é **read-only** quanto a produção.
+
+---
+
 ## 🆘 Troubleshooting
 
 ### "Rodei o setup mas o hook não dispara no Claude Code"
