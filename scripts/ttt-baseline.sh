@@ -58,21 +58,77 @@ case "$JORNADA" in
   *) echo "jornada invalida: $JORNADA (use J1, J4 ou J2)" >&2; exit 2 ;;
 esac
 
-# ── modo bridge (estrutura para v14.1) ────────────────────────────────────────
+# ── modo bridge (medicao REAL v14.1 — R14-06, A2) ─────────────────────────────
+# Cronometra a jornada RESPONDIDA VIA A BRIDGE: o read-model SQLite que a Bridge
+# (read.js loopback /fleet /vault) serve — nao o terminal. node:sqlite (built-in,
+# zero dep) le ~/.ideiaos/console/read-model.db, a MESMA fonte dos endpoints 14.1-01.
+#
+# As 3 jornadas (NUNCA expoem valor de chave — credential-isolation):
+#   J1 frota-saudavel  → COUNT machine + daemon_status (fonte de /fleet)
+#   J4 chave-existe+idade → api_key METADATA-ONLY (present, risk_tier, file_mtime_epoch
+#                            → idade = now - mtime); NUNCA o valor (schema sem coluna value)
+#   J2 pronto-pra-tag  → soak_satisfied: >=2 hosts distintos com PASS E span>=86400s
+#                         entre EPOCHS GRAVADOS no ledger (delta, nao wall-clock —
+#                         learning soak-span-is-record-delta-not-wallclock)
 if [ "$MODE" = "bridge" ]; then
-  info "modo bridge: estrutura reservada para v14.1"
-  info "a Bridge nao esta disponivel nesta versao (v14.0 = baseline terminal)"
   if [ "$DRY_RUN" = "1" ]; then
-    ok "bridge --dry-run: exit 0 sem exigir Bridge"
+    info "bridge --dry-run: valida estrutura, NAO grava medicao bridge"
+    ok "bridge --dry-run: exit 0 sem gravar linha bridge"
     exit 0
   fi
-  # modo bridge sem dry-run: registra placeholder e exit 0
+
   TSV_DIR="$HOME/.ideiaos/console"
   mkdir -p "$TSV_DIR"
   TSV="$TSV_DIR/ttt-baseline.tsv"
+  DB_PATH="$TSV_DIR/read-model.db"
+
+  if [ ! -s "$DB_PATH" ]; then
+    err "read-model.db ausente/vazio: $DB_PATH"
+    err "rode: node source/console/ingest.js (reconstroi do ref cockpit)"
+    exit 1
+  fi
+
+  # query da jornada via node:sqlite (a Bridge data-path). Cronometra do disco no
+  # instante da pergunta — a mesma SELECT que /fleet e /vault servem.
+  case "$JORNADA" in
+    J1) BRIDGE_QUERY="SELECT (SELECT COUNT(*) FROM machine) AS machines, (SELECT COUNT(*) FROM daemon_status) AS daemons;" ;;
+    J4) BRIDGE_QUERY="SELECT COUNT(*) AS keys, SUM(present) AS present, MAX(file_mtime_epoch) AS newest_mtime FROM api_key;" ;;
+    J2) BRIDGE_QUERY="SELECT milestone, COUNT(DISTINCT host) AS pass_hosts, (MAX(epoch)-MIN(epoch)) AS span_s, (CASE WHEN COUNT(DISTINCT host)>=2 AND (MAX(epoch)-MIN(epoch))>=86400 THEN 1 ELSE 0 END) AS soak_satisfied FROM soak_heartbeat WHERE idea_doctor LIKE '%PASS%' AND regression LIKE '%PASS%' GROUP BY milestone;" ;;
+  esac
+
+  T_START="$(date +%s%N)"
+  # node:sqlite read-only — a Bridge responde a jornada a partir do read-model.
+  # J4: seleciona SO metadata (count/present/mtime); o valor NUNCA e lido (schema sem value).
+  BRIDGE_OUT="$(IDEIA_Q="$BRIDGE_QUERY" node --input-type=module -e '
+    import { DatabaseSync } from "node:sqlite";
+    import os from "node:os";
+    import path from "node:path";
+    const db = new DatabaseSync(path.join(os.homedir(), ".ideiaos", "console", "read-model.db"), { readOnly: true });
+    const rows = db.prepare(process.env.IDEIA_Q).all();
+    db.close();
+    // imprime so contagens/flags derivadas — NUNCA um valor de chave (J4 e metadata-only)
+    process.stdout.write(JSON.stringify(rows));
+  ' 2>/dev/null)"
+  RC=$?
+  T_END="$(date +%s%N)"
+
+  if [ "$RC" -ne 0 ] || [ -z "$BRIDGE_OUT" ]; then
+    err "jornada $JORNADA via Bridge falhou (node:sqlite rc=$RC)"
+    exit 1
+  fi
+
+  NANOSEC_ELAPSED=$(( T_END - T_START ))
+  SECONDS_ELAPSED="$(awk "BEGIN {printf \"%.3f\", $NANOSEC_ELAPSED / 1000000000}")"
   NOW_EPOCH="$(date +%s)"
-  printf '%s\t%s\t%s\t%s\n' "$JORNADA" "bridge-placeholder" "0.000" "$NOW_EPOCH" >> "$TSV"
-  ok "bridge registrado (placeholder) em $TSV"
+
+  # append ao TSV com modo LITERAL `bridge` (nao placeholder); mesmo formato 4-col
+  printf '%s\t%s\t%s\t%s\n' "$JORNADA" "bridge" "$SECONDS_ELAPSED" "$NOW_EPOCH" >> "$TSV"
+
+  # feedback so em tty (stdout limpo em pipe/script — o gate le o TSV, nao o stdout)
+  if [ -t 1 ]; then
+    ok "bridge $JORNADA respondida em ${SECONDS_ELAPSED}s (via read-model)"
+    info "jornada=$JORNADA  modo=bridge  segundos=$SECONDS_ELAPSED  epoch=$NOW_EPOCH"
+  fi
   exit 0
 fi
 

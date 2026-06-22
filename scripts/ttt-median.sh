@@ -19,9 +19,19 @@
 #   J4   <mediana>
 #   J2   <mediana>
 #
+# Modos (R14-06, A2):
+#   terminal (default) — exclui linhas bridge-placeholder/bridge-dry-run; calcula
+#                        sobre o baseline terminal (14.0-03 — NAO regride)
+#   bridge             — SELECIONA SOMENTE linhas $2=="bridge" (medicao real v14.1);
+#                        gate A2: `... --mode=bridge | awk '$2>=10{f=1} END{exit f}'`
+#                        sai 0 ⇔ todas as jornadas tem mediana Bridge < 10s
+#
 # USO:
-#   bash scripts/ttt-median.sh
+#   bash scripts/ttt-median.sh                          # mediana terminal (default)
+#   bash scripts/ttt-median.sh --mode=bridge            # mediana Bridge (linhas bridge)
+#   bash scripts/ttt-median.sh --mode=terminal          # explicito terminal
 #   bash scripts/ttt-median.sh ~/.ideiaos/console/ttt-baseline.tsv  # TSV customizado
+#   bash scripts/ttt-median.sh --mode=bridge /tmp/custom.tsv        # flag + TSV custom
 #
 # Exit: 0 = sucesso (mesmo que N/A) · 1 = erro de gate (TSV ausente/vazio)
 # =============================================================================
@@ -35,8 +45,19 @@ warn() { echo -e "${YELLOW}  ⚠${NC}  $*"; }
 err()  { echo -e "${RED}  ✗${NC} $*"; }
 info() { echo -e "${CYAN}  ℹ${NC} $*"; }
 
-# ── arg opcional: caminho do TSV ──────────────────────────────────────────────
-TSV="${1:-$HOME/.ideiaos/console/ttt-baseline.tsv}"
+# ── args: flag --mode=bridge|terminal (default terminal) + caminho TSV opcional ─
+MODE="terminal"
+TSV_ARG=""
+for arg in "$@"; do
+  case "$arg" in
+    --mode=bridge)   MODE="bridge" ;;
+    --mode=terminal) MODE="terminal" ;;
+    --mode=*)        echo "modo invalido: $arg (use --mode=bridge ou --mode=terminal)" >&2; exit 2 ;;
+    -*)              echo "flag desconhecida: $arg" >&2; exit 2 ;;
+    *)               TSV_ARG="$arg" ;;   # arg posicional = caminho do TSV custom
+  esac
+done
+TSV="${TSV_ARG:-$HOME/.ideiaos/console/ttt-baseline.tsv}"
 
 # ── source gates.sh (forma guardada + fallback inline — antifragile-gates.md) ─
 [ -n "${IDEIAOS_DIR:-}" ] && [ -f "$IDEIAOS_DIR/source/lib/gates.sh" ] && . "$IDEIAOS_DIR/source/lib/gates.sh" 2>/dev/null || true
@@ -52,12 +73,19 @@ assert_nonempty "$TSV" "ttt-baseline.tsv" || { err "TSV ausente ou vazio: $TSV";
 median_for_journey() {
   local journey="$1"
 
-  # extrai segundos da jornada (campo 3, separado por TAB) excluindo placeholders bridge
-  # exclui linhas onde modo contém "placeholder" ou "dry-run"
+  # extrai segundos da jornada (campo 3, TAB-sep) com filtro dependente do MODO:
+  #   bridge   → SELECIONA somente $2=="bridge" (medicao real v14.1)
+  #   terminal → EXCLUI placeholders bridge (comportamento 14.0-03 — nao regride)
   local values
-  values="$(awk -F'\t' -v J="$journey" '
-    $1==J && $2!="bridge-placeholder" && $2!="bridge-dry-run" { print $3 }
-  ' "$TSV" | sort -n)"
+  if [ "$MODE" = "bridge" ]; then
+    values="$(awk -F'\t' -v J="$journey" '
+      $1==J && $2=="bridge" { print $3 }
+    ' "$TSV" | sort -n)"
+  else
+    values="$(awk -F'\t' -v J="$journey" '
+      $1==J && $2!="bridge-placeholder" && $2!="bridge-dry-run" && $2!="bridge" { print $3 }
+    ' "$TSV" | sort -n)"
+  fi
 
   local n
   n="$(echo "$values" | grep -c '[0-9]' 2>/dev/null || echo 0)"
