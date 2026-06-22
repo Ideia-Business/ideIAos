@@ -29,7 +29,7 @@ O IdeiaOS já se auto-telemetra cross-máquina (SOAK, security-freshness, idea-d
 ## Ondas (ordem integridade-antes-de-capacidade)
 
 - **v14.0 — Substrato + Espinha** (R14-01..04): tornar o substrato federável e nascer a SPA, sem UI de valor. `idea-doctor --json` + fallback · ref `cockpit` · agentd coletor (4º LaunchAgent) · ingest→SQLite · scaffold. **Consome** `specs/_archive/2026-06-20-v14-cockpit-foundation/tasks.md`.
-- **v14.1 — MVP Bridge** (R14-05, R14-06): vertical slice read-only + comando local; Overview/Frota/Cofre + ⌘K; gate Zero-Leak; medição de TtT.
+- **v14.1 — MVP Bridge** (R14-05, R14-06): vertical slice read-only + comando local; Overview/Frota/Cofre + ⌘K; gate Zero-Leak; medição de TtT. ✅ **PLANEJADO 2026-06-21** → 8 `PLAN.md` (17 tasks, 4 waves) em `.planning/milestones/v14-phases/14.1-mvp-bridge/`. Ver "## v14.1 — PLANEJADO" abaixo.
 - **v14.2 — Pilares completos** (R14-07): Constelação + Sinapse + Pulso + Atalaia, ainda read-only.
 - **v14.3 — Inteligência** (R14-08): Time-Travel, Copiloto (args fixos), Token-Cost, Atlas — médio risco, sem mutação cross-máquina.
 - **v14.4 — Comando cross-máquina** (R14-09): **GATED** por `/spec` + threat-model. Só aqui nasce RBAC/rotação/deploy, junto do canal de confiança.
@@ -49,6 +49,23 @@ O IdeiaOS já se auto-telemetra cross-máquina (SOAK, security-freshness, idea-d
 2. ✅ `/gsd-plan-phase v14.0` EXECUTADO (2026-06-21) → 7 `PLAN.md` (20 tasks, 3 waves) em `.planning/milestones/v14-phases/14.0-substrate-spine/`, verificados por 3 lentes adversariais. Ver "## v14.0 — PLANEJADO" abaixo.
 3. ✅ ADR `docs/decisions/v14-cockpit-local-first-git-as-bus.md` criado (decisão arquitetural irreversível: git-as-bus por ref + agentd; teto de poder gated).
 4. ✅ **`/gsd-execute-phase 14.0` EXECUTADO (2026-06-21)** — 7/7 planos DONE, verificação goal-backward **24/24 gates por exit-code** (`14.0-VERIFICATION.md` status=passed). Ref `cockpit` pushed (`cockpit@{u}=30edb3e`); SPA renderiza card real (screenshot). Tag v14.0 deferida (SOAK ≥2 máq + span≥1d). **Próximo:** v14.1 (MVP Bridge).
+
+## v14.1 — ✅ PLANEJADO (2026-06-21)
+
+**Planos** (`.planning/milestones/v14-phases/14.1-mvp-bridge/`) — vertical slices read-only sobre a Espinha v14.0; cada `<task>` por exit-code (A1–A12). Naming = `cockpit` (nunca mission-control); data access = `node:sqlite` (nunca better-sqlite3); Zero-Leak = regex+entropia; Flight Recorder = git vivo.
+
+| Plano | Slice | Wave | depends_on | Requisito | Gate-âncora |
+|-------|-------|------|------------|-----------|-------------|
+| `14.1-01` data-access foundation (read.js +/overview//fleet//vault//verify + tokens --status-*) | fundação | 1 | — | R14-05, R14-06 | /vault metadata-only (sem `value`) + bind 127.0.0.1 |
+| `14.1-05` Flight Recorder v0 (git→flight-recorder.json + FlightRecorder.tsx + test:recorder) | wow estrutural | 1 | — | R14-05 | A12 SET-to-SET git==render + ≥1 nó amber |
+| `14.1-07` TtT Bridge harness (ttt-baseline/median `--mode=bridge`) | gate TtT | 1 | — | R14-06 | A2 mediana Bridge <10s |
+| `14.1-02` Overview + App shell/nav (seam ⌘K) + System Pulse | tela Overview | 2 | 01,05 | R14-05 | frescor honesto + Releases-SOAK lean (sem countdown) |
+| `14.1-03` Frota + Cofre-Espelho | telas Frota/Cofre | 3 | 01,02 | R14-05 | Cofre metadata-only (sem controle de valor) + drift string-equality |
+| `14.1-04` Command Palette ⌘K (cmdk + POST /command enum) | comando local | 3 | 01,02 | R14-05 | default-deny 403 + armar-antes-de-disparar + A8 forever-OUT |
+| `14.1-06` Zero-Leak gate (7 superfícies + entropia + dogfood duplo) | gate P0 | 4 | 01,02,03,04 | R14-06 | A3 Zero-Leak=0 + veneno duplo (sk- + alta-entropia) |
+| `14.1-08` Phase closeout (idea-doctor §15 + suite A1–A12 + SOAK + re-selo) | fechamento | 4 | todos | R14-05, R14-06 | A1–A12 verde + A9 §15 sem regressão ANSI + SOAK/re-selo |
+
+**Cobertura:** R14-05 (01,02,03,04,05,08) + R14-06 (01,06,07,08); todo requisito em ≥1 plano. **Threat-model** em cada PLAN (ASVS L1; foco no ⌘K POST /command e nos gates Zero-Leak/Cofre). **Próximo:** `/gsd-execute-phase 14.1` (contexto fresco, autosync pausado).
 
 ## v14.0 — ✅ EXECUTADO/COMPLETO (2026-06-21)
 
