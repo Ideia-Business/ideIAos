@@ -605,6 +605,31 @@ const server = http.createServer((req, res) => {
   if (req.method === 'GET' && req.url === '/command-token') {
     return handleCommandToken(req, res);
   }
+  // ── Preflight CORS do canal (FIX S-05) — o POST /command é "non-simple"
+  // (Content-Type JSON + header X-Cockpit-Token) ⇒ o browser dispara um OPTIONS
+  // preflight ANTES do POST. Sem este handler o preflight cai no 404 e o browser
+  // BLOQUEIA o POST (net::ERR_FAILED): o ⌘K não funciona via SPA. (curl não faz
+  // preflight, por isso o canal passava só no curl/exit-code e quebrava no browser.)
+  // SEGURANÇA: o preflight só AUTORIZA o browser a enviar; a auth real
+  // (Origin+Host+token, fail-closed) permanece intacta em handleCommand. Echo de
+  // Allow-Origin SÓ p/ origem confiável (nunca '*'); origem não-confiável recebe
+  // 403 sem Allow-* ⇒ o browser bloqueia mesmo assim.
+  if (req.method === 'OPTIONS' && req.url === '/command') {
+    if (!isTrustedOrigin(req)) {
+      res.writeHead(403, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'origin/host não confiável (preflight)' }));
+      return;
+    }
+    res.writeHead(204, {
+      'Access-Control-Allow-Origin':  ALLOWED_ORIGIN,
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, X-Cockpit-Token',
+      'Access-Control-Max-Age':       '600',
+      'Vary':                         'Origin',
+    });
+    res.end();
+    return;
+  }
   if (req.method === 'POST' && req.url === '/command') {
     return handleCommand(req, res);
   }
