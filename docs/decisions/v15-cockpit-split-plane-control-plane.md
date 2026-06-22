@@ -87,11 +87,19 @@ A conta GitHub compartilhada (`desenvolvimento@ideiabusiness`) **quebra 2 das 5 
 - **Reversão fica FURADA** — revogar uma estação (re-pin local) **não** revoga o token OAuth compartilhado no keychain do dev revogado; ele mantém push/PR/workflow na org até a **rotação global** do token (que afeta TODOS).
 - **Blast-radius org-wide** — 1 token (`repo`+`workflow`+`read:org`) idêntico em N keychains → comprometer **qualquer** estação = push em **toda** a org, inclusive projetos **fora** do escopo de Autorização daquele dev.
 
-**Recomendação (push back):** **contas GitHub PESSOAIS por dev** (a org concede acesso por-repo). Restaura atribuição real (não-repúdio), branch-protection por-ator, e torna a Reversão **efetiva** (remover o membro da org). Se a conta compartilhada for inegociável: declarar o blast-radius, derivar a atribuição da **telemetria assinada-O2 da estação** (não do git author email, que vira só *hint* cosmético), e adicionar detecção de push anômalo por-estação. **É o fork que mais muda o design — decisão do operador.**
+**DECIDIDO (2026-06-22) — MANTER a conta compartilhada + mitigações.** O operador escolheu a simplicidade operacional (a conta já funciona; Lovable/CI a usam). Para que "manter compartilhada" **não** custe o controle, a mitigação vai além do default e fecha a maior parte do gap **sem** contas pessoais — a chave é separar "conta compartilhada" de "token compartilhado":
 
-### 4 BLOCKERS (bloqueiam F1+)
-1. **[BLOCKER] Atribuição forjável** (acima) → declarar advisory + atribuir por telemetria assinada-O2, OU contas pessoais.
-2. **[BLOCKER] Reversão incompleta no GitHub** (acima) → contas pessoais (remove-member), OU rotação-global do token + detecção de anomalia.
+- **Token POR-ESTAÇÃO (fine-grained PAT), não token único.** A conta compartilhada **emite N fine-grained PATs distintos** — um por estação —, cada um **escopado aos repos autorizados daquele dev** e com expiração. Cada estação guarda o SEU PAT no keychain (Pilar B; o cockpit guarda só o binding `{pat_id, machine_id, repos}`, **nunca** o valor). *"Conta compartilhada" ≠ "token compartilhado".*
+  - **Reversão volta a ser EFETIVA e isolada:** revogar a estação = revogar **aquele** PAT → corta só aquele dev, sem tocar os outros nem exigir rotação global.
+  - **Blast-radius ISOLADO:** comprometer uma estação expõe só o PAT dela, escopado aos repos dela — **não** org-wide.
+- **Atribuição por telemetria assinada-O2 da estação** (autoritativa, não-forjável — a estação assina com a chave pinada do dev), correlacionada ao `pat_id`; o git author email vira **hint cosmético** (forjável, declarado).
+- **Detecção de anomalia** de push (estação revogada / PAT fora de escopo) + declaração honesta dos residuais.
+
+**Residuais honestos:** (i) o git COMMIT author segue forjável (atribuição autoritativa = telemetria assinada, não o commit); (ii) a org precisa **habilitar fine-grained PATs** para repos da org (config do owner — pré-condição operacional a confirmar); (iii) no audit-log do GitHub o *actor* é a conta compartilhada (a distinção fina é cockpit-side, via `pat_id`+telemetria).
+
+### BLOCKERS (bloqueiam F1+)
+1. **[MITIGADO] Atribuição forjável** → autoritativa = telemetria assinada-O2 da estação (não o git author email, que é hint cosmético). Proof-gate F2: verificação rejeita atribuição não-assinada.
+2. **[MITIGADO] Reversão incompleta no GitHub** → token por-estação (fine-grained PAT) torna a revogação isolada e efetiva, sem rotação global. Proof-gate F2: revogar o PAT de uma estação corta só ela; PAT vazado só alcança os repos escopados.
 3. **[BLOCKER] RLS por-campo ainda em prosa** (agora ×N devs) → cláusulas SHALL + teste de RLS por-campo (mascarar nomes `risk_tier=critical` e cadência de rotação fora do escopo do subject). Bloqueia F1.
 4. **[BLOCKER] Step-up só-loopback não proof-gated** — é a ÚNICA barreira entre "sessão admin web roubada = recon" e "= deploy-prod/rotate"; provar por exit-code que origem ≠ loopback é **RECUSADA** no `send-otp`/`verify-otp`/O2-sign.
 

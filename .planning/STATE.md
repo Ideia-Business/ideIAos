@@ -111,7 +111,7 @@ revisão adversarial e corrigidos (verificados por exit-code, 0 violações anti
 
 ## Compact Snapshot
 
-**Auto-saved:** 2026-06-22 17:50 (PreCompact hook, trigger: manual)
+**Auto-saved:** 2026-06-22 20:21 (PreCompact hook, trigger: manual)
 
 - Snapshot automático antes do /compact.
 - Detalhes da sessão em ~/.claude/sessions/ (session-summary hook).
