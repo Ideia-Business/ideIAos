@@ -2,7 +2,7 @@
 
 > **Documento:** `81-team-platform-control-DESIGN.md`
 > **Persona:** Arquiteto-chefe (síntese de re-escopo — expande o split-plane v15 de read-fan-out para plataforma de time)
-> **Status:** PROPOSTO (design completo — NÃO ratificado pelo operador)
+> **Status:** PROPOSTO (design completo — NÃO ratificado pelo operador). **Revisado 2026-06-22 pelo review adversarial `wf_8432e800-818`:** reconciliadas as contradições PAT e Pilar A; corrigida a invariante de Reversão (dupla-teardown); aplicados os cortes de MVP (3 tabelas em F1, papel binário, vínculo por snapshot, F2/F3 gated-por-dev-real); nomeado o vetor DNS-rebinding/CSRF-loopback (§10.10).
 > **Data:** 2026-06-22
 > **Estende:** `80-split-plane-control-plane-DESIGN.md` (planos P0..P5) no eixo **multi-dev controlado**; preserva-o intacto.
 > **Tece os requisitos de:** `82-team-coordination-onboarding-requirements.md` (R-COORD1..R-COORD5).
@@ -17,7 +17,7 @@ O rig de 1 operador (2 máquinas, contas Cursor/Claude/Lovable + GitHub comparti
 
 A plataforma é hospedada em `cockpit.ideiabusiness.com.br`, acessível **só por usuários validados**. Ela **NÃO move a autoridade**: continua valendo o invariante zero-trust do v15 — os **três ativos de poder total** (chave de assinatura **O2**, **lista pinada autoritativa-local**, **valor de segredo**) nunca vão ao cloud. O que se torna remoto é exatamente o que o split-plane (doc 80) já autorizou: **a VIEW (leitura de metadata + identidade de quem-olha) + a coordenação**. A AUTORIDADE permanece local e intocada.
 
-O coração do design são **5 alavancas de controle** (todas na mão dos admins) e **2 pilares** (onde a visão encosta na regra-piso de segurança). Tudo reusa o que já foi construído.
+O coração do design são **5 alavancas de controle** (todas na mão dos admins) e o **Pilar B** (vínculo vs valor — onde a visão encosta na regra-piso `credential-isolation`). O antigo "Pilar A" (atribuição) foi **rebaixado** pelo review a uma propriedade da **Visão** (telemetria assinada-O2), não um pilar separado. Tudo reusa o que já foi construído.
 
 ### As 5 alavancas (resumo)
 
@@ -26,13 +26,13 @@ O coração do design são **5 alavancas de controle** (todas na mão dos admins
 | 1 | **Admissão** | máquina gera hash → PENDENTE → admin aprova (o "pin" O2) | `pinned-keys.sh` + enrollment TOFU+pin-out-of-band do **ADR O2** |
 | 2 | **Autorização** | admin define escopo "user X nos projetos A,B,C" (RBAC-de-leitura/escopo) | `user_project_scope` (doc 80 §5) + RBAC-de-leitura `30-security` §5.2 |
 | 3 | **Reserva de poder** | rotacionar segredo / revogar máquina / deploy-prod atrás do step-up E privilégio de admin | step-up **HYBRID** (ADR Q3) + R-WP10/R-WP11 (verbos gated/fronteira-permanente) |
-| 4 | **Visão** | cada estação reporta; commits/pushes/acessos por usuário agregados → **Vault** | read-fan-out (P3) + `commit_log.actor_class` + Pilar A (autor-do-commit) |
+| 4 | **Visão** | cada estação reporta; atividade por usuário agregada → **Vault** | read-fan-out (P3) + `commit_log.actor_class` + **telemetria assinada-O2** (autor-do-commit = hint cosmético) |
 | 5 | **Reversão** | admin revoga máquina/usuário (re-pin out-of-band local) sem quebrar os outros | FRONTEIRA-DE-PIN do ADR O2 (`process-*-revocation` = exit 9) |
 
-### Os 2 pilares (resumo)
+### Os pilares (Pilar B + a atribuição ex-Pilar A, rebaixada — resumo)
 
-- **Pilar A — atribuição por AUTOR-DO-COMMIT, não por conta GitHub.** GitHub é compartilhado → atribuição per-usuário NÃO pode vir do GitHub. Vem de: (i) o cockpit configura o git local de cada estação com a identidade-cockpit do dev (`joao@ideiabusiness`) como **autor** do commit; (ii) cada estação reporta "estação-do-João empurrou branch X" via telemetria. Auditoria = cockpit + autor-do-commit → Vault.
-- **Pilar B — cockpit guarda VÍNCULO, máquina guarda VALOR.** O cockpit hospedado guarda **vínculo+autorização** ("user X tem Cursor ligado, expira Y; pode em A,B,C"). O **VALOR** do token fica no keychain LOCAL da máquina do dev (depositado no fluxo OAuth direto no agente local), NUNCA no banco hospedado. O cockpit sabe **QUEM PODE**; a máquina é quem **TEM**. `credential-isolation` intacta.
+- **Pilar A — atribuição AUTORITATIVA por TELEMETRIA ASSINADA-O2 da estação; o autor-do-commit é hint cosmético.** GitHub é compartilhado → atribuição per-usuário NÃO pode vir do GitHub. A fonte **autoritativa** é a **telemetria assinada com a chave pinada da estação** (não-forjável: "a estação-do-João assinou esta afirmação"). O `git user.email = joao@ideiabusiness` LOCAL é mantido só como **chave de join por-commit e conveniência de leitura humana** — é **forjável** (`git -c user.email=outro commit` falsifica; commit-signing foi rejeitado no ADR O2) e **NÃO é alavanca de controle**. (Rebaixamento do review `wf_8432e800-818`: Pilar A deixa de ser pilar de 1ª classe e colapsa na **Visão** alimentada pela identidade O2-pinada da **Admissão** — ver §3 Alavanca 4.) Residual honesto: o COMMIT em si não é assinado; a atribuição é não-repúdio da TELEMETRIA, não do push.
+- **Pilar B — cockpit guarda VÍNCULO, máquina guarda VALOR.** O cockpit hospedado guarda **vínculo+autorização** ("user X tem Cursor ligado, expira Y; pode em A,B,C"). O **VALOR** do token fica no keychain LOCAL da máquina do dev, NUNCA no banco hospedado. O cockpit sabe **QUEM PODE**; a máquina é quem **TEM**. `credential-isolation` intacta. (Para GitHub, o ALVO é **fine-grained PAT por-estação** — binding `{pat_id, machine_id, repos}` sem valor; **condicionado** à org habilitar FG-PAT, ver §5 e o BLOCKER-CONDICIONAL #2 do ADR v15.)
 
 ---
 
@@ -60,7 +60,7 @@ Nenhum plano novo de autoridade. A plataforma de time **adiciona conteúdo às t
 | **P0 — Substrato local** (por estação) | disco vivo da estação do dev: ledgers, `.env`(nomes), git, **keychain do dev** (onde os tokens OAuth de Cursor/Claude/Lovable/GitHub são depositados — Pilar B). | +N instâncias (1 por estação de dev). Inalterado em natureza. |
 | **P1 — Autoridade Local** (`ideiaos-agentd`, por estação) | assina O2 COMO a estação; verifica comando contra o pin local; **executa o fluxo OAuth do dev e deposita o token no keychain local** (Pilar B); grava ledger; configura `git user.email`=identidade-cockpit (Pilar A). | +N instâncias. Ganha a sub-tarefa de enrollment/OAuth-local. |
 | **P2 — Bus Git** (ref `cockpit` + ref de comando selado) | espinha de transporte durável; carrega snapshots por `machine_id`. **Fonte dos claims** (R-COORD5) que P3 espelha. | Inalterado. |
-| **P3 — Plano de View** (Supabase `xdikjgpkiqzgebcjgqmu`) | read-fan-out de metadata **+ vínculo + autorização + claims + identidade**. **Aqui mora a coordenação remota.** Continua: NÃO assina, NÃO verifica comando, NÃO pina, NÃO segura valor de segredo. | **Expande**: ganha `console_user`/`user_project_scope`/`station_enrollment`/`provider_link`/`task_claim`/`file_claim` (todas metadata). |
+| **P3 — Plano de View** (Supabase `xdikjgpkiqzgebcjgqmu`) | read-fan-out de metadata **+ vínculo + autorização + claims + identidade**. **Aqui mora a coordenação remota.** Continua: NÃO assina, NÃO verifica comando, NÃO pina, NÃO segura valor de segredo. | **Expande (faseado):** F1 cria só **3 tabelas** (`console_user`/`user_project_scope`/`station_enrollment`); `provider_link` entra em F2, `task_claim`/`file_claim` em F3 — todas metadata. |
 | **P4 — Step-up** (Supabase `ideiaos-cockpit-stepup`, SEPARADO) | sensor de presença-humana na origem (email-OTP HYBRID) para os verbos de Reserva-de-poder. | Inalterado. Projeto distinto de P3 (S-04). |
 | **P5 — UI web** (SPA, `cockpit.ideiabusiness.com.br`) | duas faces: **cockpit-admin** (CTO/TechLead) e **cockpit-operador** (dev — R-COORD2). Lê P3; emite **intenção**, nunca a ação. | **Expande**: ganha onboarding dinâmico (R-COORD1), quadro de claims (R-COORD3/4/5). |
 
@@ -97,7 +97,7 @@ RBAC-de-**leitura/escopo**. O admin define, em `user_project_scope` (P3), quais 
 - **default-deny:** capacidade/projeto não-listado = negado.
 - **fronteira com RBAC-de-AÇÃO:** Autorização governa **o que o dev VÊ e onde trabalha** (control plane). A **autorização de COMANDO** (rotate/deploy) é re-provada no alvo pela assinatura+pin (R-WP2 default-deny no agentd) — Autorização-de-leitura **não** dá poder de mutação. FRONTEIRA-DE-IDENTIDADE-vs-POSSE (doc 80 §3.5).
 
-> **Suporte existente:** `console_user.role ∈ {cto, dev}` + `user_project_scope` (doc 80 §5). **Expansão:** `role` ganha `techlead` (admin) — ver §11 fork.
+> **Suporte existente:** `user_project_scope` (doc 80 §5). **Modelo de papel (MVP, resolvido §11 #1):** `role IN ('admin','dev')` — CTO **e** TechLead = `admin` (sem 3º papel; restrição por-verbo é evolução).
 
 ### Alavanca 3 — RESERVA DE PODER (verbos irreversíveis = step-up + admin)
 
@@ -110,18 +110,20 @@ Rotacionar segredo / revogar máquina / deploy-prod ficam atrás do **step-up E 
 
 ### Alavanca 4 — VISÃO (telemetria por-usuário → Vault)
 
-Cada estação reporta; commits/pushes/acessos **por usuário** são agregados e fluem ao **Vault Obsidian**. É o Pilar A operacionalizado: como o autor-do-commit carrega a identidade-cockpit, o read-model atribui atividade ao dev certo mesmo com GitHub compartilhado.
+Cada estação reporta; atividade **por usuário** é agregada e flui ao **Vault Obsidian**.
 
-- **fonte:** `commit_log` (doc 40 §2.8) com `author_email`=identidade-cockpit + `actor_class` (human/bot/autosync — regra determinística doc 40 §6) + telemetria de estação (snapshot, `MachineSnapshot`).
-- **destino:** relatório por-usuário → Vault (alavanca Visão + concern #2 do brief).
-- **honestidade (R-WP3/Frescor honesto):** "verificado há Xs"; nunca anima fluxo contínuo sobre lote; só sinal real entra (doc 40 §6 — `human-feat-commits`, `sessões meaningful`), nunca vaidade (autosync, bots).
+- **fonte AUTORITATIVA:** a **telemetria assinada-O2 da estação** (chave pinada do dev — não-forjável), correlacionada ao `pat_id`. É o que atribui atividade ao dev certo mesmo com GitHub compartilhado.
+- **fonte de leitura (cosmética):** `commit_log` (doc 40 §2.8) com `author_email`=identidade-cockpit é só **chave de join por-commit + conveniência humana** (forjável — não confere autoridade; o commit não é assinado). `actor_class` (human/bot/autosync, doc 40 §6) separa sinal de vaidade.
+- **cross-check detective (review):** importar o **audit-log do GitHub read-only** (`gh api`) e CRUZAR com a telemetria assinada — divergência (push no audit-log sem telemetria correspondente assinada, ou vice-versa) = **ALERTA** (espelha "divergência view↔disco = alerta"). Sem o cruzamento, a atribuição é não-repúdio da TELEMETRIA, não do PUSH (BLOCKER #1 DESLOCADO, não fechado). Detective/aditivo (F2/F5), não bloqueia F0.
+- **destino:** relatório por-usuário → Vault (concern #2). **honestidade:** "verificado há Xs"; nunca anima fluxo contínuo sobre lote.
 
 ### Alavanca 5 — REVERSÃO (revogar máquina/usuário sem quebrar os outros)
 
-O admin revoga uma estação/usuário; isso é um **re-pin out-of-band LOCAL** na lista pinada (o admin remove a entrada `{machine_id,...}` na máquina sobrevivente). Não quebra os outros: cada estação tem seu par e seu pin; não há chave-mestra central.
+O admin revoga uma estação/usuário. **A Reversão é uma DUPLA-TEARDOWN** (correção do review `wf_8432e800-818`): **(a)** **re-pin out-of-band LOCAL** na lista pinada (remove `{machine_id,...}` na máquina sobrevivente) — corta a autoridade de COMANDO O2; **E (b)** **revoke do FG-PAT da estação via API GitHub** — corta push/PR/workflow. Re-pin sozinho NÃO corta push. Não há chave-mestra central; cada estação tem seu par e seu pin.
 
-- **FRONTEIRA-DE-PIN (ADR O2):** revogação **via ref/P3 é detectiva/advisória apenas** — `process-supabase-revocation`/`process-ref-revocation` = **exit 9 ALERT**, nunca remove pin. A revogação AUTORITATIVA é o re-pin local out-of-band. Isso fecha o DoS de **revogação-forjada** (uma estação comprometida NÃO pode assinar a revogação da chave boa de outra).
-- **blast-radius (doc 80 §7):** comprometer 1 estação = posse de segredo **daquela** máquina + assinar como ela até o re-pin. NÃO ganha as chaves das outras. Por-estação, não global.
+- **FRONTEIRA-DE-PIN (ADR O2):** revogação **via ref/P3 é detectiva/advisória apenas** — `process-supabase-revocation`/`process-ref-revocation` = **exit 9 ALERT**, nunca remove pin. A revogação AUTORITATIVA de COMANDO é o re-pin local out-of-band. Isso fecha o DoS de **revogação-forjada** (uma estação comprometida NÃO pode assinar a revogação da chave boa de outra).
+- **revoke-PAT é eixo ortogonal (posse-de-credencial):** revogar o PAT chamando o emissor (GitHub) é legítimo — NÃO viola a doutrina "revogação local", que governa a chave O2. Mas reintroduz dependência de disponibilidade do GitHub + **janela working-copy** (PAT no keychain do dev revogado vale até propagar). O fechamento da revogação-de-estação só passa quando **ambos** os teardowns forem verificados por exit-code.
+- **blast-radius (doc 80 §7):** **chaves O2** — comprometer 1 estação = posse de segredo **daquela** máquina + assinar como ela até o re-pin; NÃO ganha as chaves das outras (por-estação). **Token GitHub** — sob o ALVO FG-PAT-por-estação, igualmente isolado (só os repos escopados); MAS **enquanto a org usar o token clássico org-wide (estado atual, probe §5), o blast-radius do GitHub é org-wide** — comprometer qualquer estação = push em toda a org. É o BLOCKER-CONDICIONAL #2.
 
 ---
 
@@ -157,11 +159,12 @@ Materializa R-COORD1 (onboarding dinâmico, idempotente, re-entrante).
 └───────────────────────────────────────────────────────────────────────┘
             │
             ▼
-┌─ DEV — VÍNCULO OAUTH (PILAR B — guia continua, idempotente) ──────────┐
-│ 9. p/ cada provedor (GitHub compartilhado / Cursor / Claude / Lovable):│
-│    o agentd LOCAL roda o fluxo OAuth; o VALOR do token → keychain LOCAL │
-│    o cockpit grava só o VÍNCULO {provider, status:✅, expira:T, escopo} │
-│    em provider_link (P3). NUNCA o token. Guia mostra ✅/⏳/❌ ao vivo.   │
+┌─ DEV — VÍNCULO (PILAR B — guia continua, idempotente) ────────────────┐
+│ 9. p/ cada provedor (GitHub FG-PAT / Cursor / Claude / Lovable):       │
+│    o DEV roda o LOGIN NATIVO; o VALOR do token → keychain LOCAL.       │
+│    o cockpit DETECTA por snapshot (NÃO conduz OAuth) e grava só o      │
+│    VÍNCULO {provider, status:✅, expira:T, escopo} em provider_link    │
+│    (P3). NUNCA o token. Guia mostra ✅/⏳/❌.                           │
 └───────────────────────────────────────────────────────────────────────┘
             │
             ▼
@@ -182,14 +185,16 @@ Materializa R-COORD1 (onboarding dinâmico, idempotente, re-entrante).
 
 | Provedor | O que o CLOUD (P3) guarda — VÍNCULO | O que a MÁQUINA (keychain local) guarda — VALOR | Mecanismo de depósito |
 |----------|-------------------------------------|--------------------------------------------------|------------------------|
-| **GitHub (conta compartilhada `desenvolvimento@ideiabusiness.com.br`)** | `{provider:github, identifier:DevIdeiaBusiness, status:✅, scopes:[repo,workflow,read:org], bound_machine_id, last_verified}` — metadata do `gh auth status` | o **OAuth token** já vive no **macOS keyring** (`gh auth status → (keyring)`, verificado `30-security` §2.3); 0 `oauth_token` em plaintext | `gh auth login` (CLI keychain-nativa — agentd NUNCA lê o valor, R-WP6) |
+| **GitHub (conta compartilhada `desenvolvimento@ideiabusiness.com.br`, org `Ideia-Business`)** | **ALVO:** `{provider:github, pat_id, bound_machine_id, scoped_repos:[…], expires_at, status:✅}` — binding do **fine-grained PAT POR-ESTAÇÃO**, escopado só aos repos do dev; **sem** o valor | o **fine-grained PAT** (um por estação) vive no **keychain local**; 0 token em plaintext | dev cria o FG-PAT escopado e faz `gh auth login --with-token` (CLI keychain-nativa — agentd NUNCA lê o valor, R-WP6) |
 | **Cursor** | `{provider:cursor, status:✅, expira:T, escopo}` — presença de auth OAuth, nunca o token | `~/.cursor/projects/*/mcp_auth.json` (OAuth do plugin) — local | fluxo OAuth do Cursor na estação; cockpit conta a **existência**, não lê o token (doc 40 §2.2) |
 | **Claude** | `{provider:anthropic, identifier (email), mechanism:oauth, status:✅}` | `~/.claude.json` `oauthAccount` — local | login do Claude Code na estação; cockpit lê só `oauthAccount.emailAddress` (metadata) |
 | **Lovable** | `{provider:lovable, mcp_uuid:6f530143-…, enabled-por-projeto, lovable_deny_count:19}` | OAuth do MCP Lovable — local (`~/.cursor/mcp.json`); **deny-list de 19 tools mutantes** auditada | conexão MCP na estação; cockpit audita o deny-count (regride sozinho — `30-security` §6.4) |
 
+> **Estado da pré-condição GitHub (probe `gh` 2026-06-22):** a org `Ideia-Business` é **FREE** e o credencial em uso AGORA é o **token OAuth clássico** (`repo,workflow,read:org`) → **org-wide**. Gestão centralizada de FG-PAT **não provisionada** (endpoint owner-level = 404). Logo a linha GitHub acima é o **ALVO**, não o estado atual; até a org habilitar+emitir FG-PATs, o blast-radius é org-wide (BLOCKER-CONDICIONAL #2 do ADR v15). Os demais provedores (Cursor/Claude/Lovable) não têm essa dependência.
+
 **Invariantes do Pilar B:**
-- **OAuth roda LOCAL, valor fica LOCAL.** O agentd da estação conduz o handshake e deposita no keychain. O cockpit hospedado **nunca** vê o token (FRONTEIRA-PISO, doc 80 §3.1).
-- **Vínculo é metadata + expiração + escopo.** "QUEM PODE" (cloud) ≠ "QUEM TEM" (máquina). Revogar o vínculo no cockpit **não** apaga o token local — apenas marca o dev como sem-autorização (e a Reversão/re-pin é o que efetivamente corta a autoridade da estação).
+- **Login roda LOCAL, valor fica LOCAL; no MVP o agentd NÃO conduz OAuth.** O dev executa o login nativo de cada provedor (`gh auth login`, login do Cursor/Claude, conexão MCP Lovable) e o valor fica no keychain local. O cockpit **DETECTA o vínculo por snapshot read-only** (`gh auth status`, `~/.cursor/.../mcp_auth.json`, `~/.claude.json oauthAccount`, deny-count do MCP Lovable) — **não orquestra o handshake** (corta a Excessive Agency da §10.4; OAuth-conduzido-pelo-agentd só se o atrito virar dor medida). O cockpit hospedado **nunca** vê o token (FRONTEIRA-PISO, doc 80 §3.1).
+- **Vínculo é metadata + expiração + escopo.** "QUEM PODE" (cloud) ≠ "QUEM TEM" (máquina). Revogar o vínculo no cockpit **não** apaga o token local. **Reversão é DUPLA-TEARDOWN** (correção do review): cortar a autoridade exige (a) **re-pin out-of-band local** (corta a autoridade de COMANDO O2, exit 9) **E** (b) **revoke do FG-PAT da estação via API GitHub** (corta push/PR/workflow). **Re-pin sozinho NÃO corta push** — o PAT no keychain do dev revogado continua válido até o revoke propagar (residual: janela working-copy + dependência de disponibilidade da API GitHub). Ambos os teardowns DEVEM disparar; o fechamento da revogação-de-estação só passa se ambos forem verificados por exit-code.
 - **Provider sem keychain-nativo (R-WP6):** onde a CLI exige o valor via env (não-`gh`), o valor vive só no env de um **processo-filho efêmero** na estação, documentado como risco residual aceito, nunca em log/arquivo durável.
 
 ---
@@ -258,7 +263,7 @@ E há um agravante estrutural comum: **`main` NÃO tem branch protection enforç
   │  • cockpit-OPERADOR (dev): onboarding dinâmico,│    write-path só da UI LOCAL)
   │    saúde da estação, quadro de claims          │
   └────────────────────────────────────────────────┘
-       │ telemetria por-usuário (PILAR A: autor-do-commit)
+       │ telemetria por-usuário (ASSINADA-O2; autor-do-commit = hint)
        ▼
   ┌──────────────────────┐
   │ VAULT OBSIDIAN        │  ← alavanca VISÃO + concern #2 (relatório por-usuário)
@@ -276,8 +281,8 @@ E há um agravante estrutural comum: **`main` NÃO tem branch protection enforç
 | Reserva de poder | step-up HYBRID (ADR Q3), R-WP10/R-WP11, `sign/verify-payload.sh` | gate do clique Publish (interceptação) |
 | Visão → Vault | `commit_log.actor_class` (doc 40 §6), read-fan-out (doc 80), snapshot | relatório por-usuário; sink Vault |
 | Reversão | FRONTEIRA-DE-PIN (exit 9), re-pin local | UI de revogação (espelho P3) |
-| Pilar A (autor-do-commit) | `git user.email` config; `commit_log` | passo de enrollment grava identidade-cockpit no git local |
-| Pilar B (vínculo vs valor) | keychain local, `gh`/Cursor/Claude OAuth-local, `provider_link` s/ value | fluxo de vínculo idempotente no agentd |
+| Visão/atribuição (telemetria assinada-O2; ~~Pilar A~~ rebaixado) | `sign/verify-payload.sh` + telemetria assinada; `git user.email` = só hint de leitura | cross-check telemetria↔audit-log (detective) |
+| Pilar B (vínculo vs valor) | keychain local, `gh`/Cursor/Claude OAuth-local, `provider_link` s/ value | **detecção de vínculo por snapshot** (agentd NÃO conduz OAuth no MVP) |
 | Concern #1 (branch/deploy) | ref `cockpit`, P2 bus, `file_claim`/`task_claim` (R-COORD5) | fila de Publish; claims espelhados em P3 |
 | Onboarding dinâmico | snapshot de saúde (R-COORD2), `read.js` local | guia idempotente re-entrante (P5) |
 
@@ -287,16 +292,18 @@ E há um agravante estrutural comum: **`main` NÃO tem branch protection enforç
 
 ## 9. Faseamento gated
 
+> **Cortes de MVP aplicados (review `wf_8432e800-818`, lente simplicity):** o gatilho de F2/F3 muda de **tempo** ("F1 estável") para **necessidade comprovada** ("1º dev não-admin real admitido" / "dor de colisão medida ≥1×"). O tripé **Admissão + Autorização + Reversão** (reusa `pinned-keys.sh` 19/19) é o 80% do controle; Visão→Vault e a coordenação são as caras e esperam.
+
 | Fase | Entrega | Gated por |
 |------|---------|-----------|
-| **F0 — Step-up (P4)** | bootstrap B3-HYBRID do `ideiaos-cockpit-stepup` (send-otp/verify-otp + binding payload_hash + as 8 condições) | é o **primeiro tijolo** (doc 80 §6); não depende dos must-fix do v15 |
-| **F1 — View + Autorização + Admissão (read)** | P3 read-fan-out + `console_user`/`user_project_scope`/`station_enrollment`; cockpit-admin (fila de admissão, escopo) e cockpit-operador (saúde R-COORD2). Estreia ADVISORY (P3 ao lado do `read.js` local, 1 ciclo SOAK) | **4 must-fix do v15 ADR** aplicados (ingestão menor-privilégio, RLS por-campo, R-WP12 SHALL, step-up só-loopback) |
-| **F2 — Pilar A + Pilar B (enrollment completo)** | agentd grava identidade-cockpit no git local; fluxo de vínculo OAuth idempotente; `provider_link`; onboarding dinâmico R-COORD1 | F1 estável; Pilar B verificado por exit-code (OAuth-local não vaza valor a P3) |
-| **F3 — Coordenação (claims)** | `task_claim`/`file_claim` (R-COORD3/4/5); quadro de claims; soft-lock advisory com alerta de sobreposição | F2; fonte-no-projeto + espelho-P3 |
-| **F4 — Reserva de poder (write gated)** | fila de Publish (verbo `deploy` interceptado, admin+step-up+O4); rotate same-machine; reversão | **R-WP10**: ADR O2 + step-up + Q5 cravados E bootstrap verificado por exit-code. Cross-máquina só após Q1-Q3. |
-| **F5 — Visão → Vault + DEV Tasks (futuro)** | relatório por-usuário ao Vault; orquestrador DEV consome claims p/ paralelizar sem colidir (doc 82 §"DEV Tasks") | F3+F4; `enforce-simplicity` (medir antes de automatizar) |
+| **F0 — Step-up (P4)** | **F0a (scaffold autônomo, ZERO segredo):** send-otp/verify-otp/schema/`stepup-token.sh` em disco + proof-gates locais (binding + **autenticidade do comprovante**). **F0b (ação humana gated):** operador provisiona `ideiaos-cockpit-stepup`, seta chaves por NOME, deploya | **primeiro tijolo**; não depende dos must-fix do v15. **Pré-req novo:** `v14.4-stepup-comprovante-key-scheme.md` (esquema de chave do comprovante) cravado ANTES de codar B3 |
+| **F1 — View + Autorização + Admissão (read), MAGRA** | P3 read-fan-out + **só 3 tabelas: `console_user` + `user_project_scope` + `station_enrollment`**; cockpit-admin (fila de admissão, escopo) e cockpit-operador (saúde R-COORD2); **onboarding = checklist estático**. RLS começa **por papel binário** (`role IN ('admin','dev')`, CTO+TechLead = admin); mascaramento **por-campo** entra no PR que admite o 1º `dev` não-admin. Estreia ADVISORY (1 ciclo SOAK) | **4 must-fix do read-fan-out** + os **F1-blockers do ADR v15** materializados em `/spec`: **R-WP12 SHALL** + **RLS-por-campo SHALL** merjados (verificável por grep/exit-code) + reclassificação do **BLOCKER-CONDICIONAL #2** (FG-PAT) |
+| **F2 — Pilar B (vínculo) + enrollment** | **vínculo DETECTADO por snapshot** (agentd NÃO conduz OAuth); `provider_link` s/ value; FG-PAT-por-estação + binding `{pat_id,…}` (após org habilitar FG-PAT); onboarding dinâmico R-COORD1 **só se** o atrito virar dor | **1º dev não-admin real**; Pilar B verificado por exit-code (`zeroleak` + gate do env efêmero); BLOCKER-CONDICIONAL #2 resolvido por teste-negativo de PAT |
+| **F3 — Coordenação (claims)** | começa por **`task_claim` de handoff (R-COORD4, barato/visível)**; `file_claim` (R-COORD5, caro) só depois; soft-lock advisory | **2º dev real + dor de colisão medida ≥1×** (substituto MVP: STATE.md/handoff/`.planning`); fonte-no-projeto + espelho-P3 |
+| **F4 — Reserva de poder (write gated)** | fila de Publish (verbo `deploy` interceptado, admin+step-up+O4); rotate same-machine; reversão dupla-teardown | **R-WP10**: ADR O2 + step-up + Q5 cravados E bootstrap verificado por exit-code. Cross-máquina só após Q1-Q3. |
+| **F5 — Visão → Vault + DEV Tasks (futuro)** | relatório por-usuário ao Vault (telemetria assinada + cross-check audit-log); orquestrador DEV consome claims (doc 82 §"DEV Tasks") | F3+F4; `enforce-simplicity` (medir antes de automatizar; não construir relatório-por-usuário com 1 usuário) |
 
-**Espírito SOAK:** aditivo, faseável, reversível. F1 é reversível (remover P3 = git-as-bus puro). A irreversibilidade real está em F4 (write-path cross-máquina) e fica gated por R-WP10.
+**Espírito SOAK:** aditivo, faseável, reversível. F1-magra é reversível (remover P3 = git-as-bus puro). A irreversibilidade real está em F4 (write-path cross-máquina) e fica gated por R-WP10.
 
 ---
 
@@ -313,12 +320,13 @@ A plataforma de time **agrava** superfícies do v15 e **introduz** novas. Para o
 7. **`main` sem branch protection (os 4 repos, 403 Pro) é superfície herdada.** O cockpit serializa advisory, mas não há required-PR-review/required-checks no servidor. Declarar: a não-colisão de deploy depende de disciplina + serialização do cockpit, **não** de garantia técnica do GitHub. **STRIDE-T.**
 8. **`claim` em P3 não pode virar autoridade.** Soft-lock advisory; um claim NUNCA bloqueia o git nem vira gate de execução (seria a UI/P3 tomando decisão de autoridade — veto doc 80 §8). **STRIDE-E.**
 9. **Backend Supabase compartilhado (ideiapartner/cfoai, 1 project_id cada).** Migrations/edge de 2 devs no MESMO banco de produção sem ambiente por-branch — colisão de schema é risco real; claim de `migrations`/`functions` é mitigação parcial, não isolamento. **STRIDE-T/D.**
+10. **DNS-rebinding / CSRF-contra-loopback / deep-link pré-preenchido** (novo, do review — antes não-nomeado). A UI web-acessível (P5 remoto) coexiste com a UI loopback local; o "loopback" prova PROXIMIDADE de rede, não AUSÊNCIA de indução remota. O caminho-feliz de deploy induzido por link **está fechado** (O4 out-of-band + binding `payload_hash` que mostra o ALVO ao dev + token-por-boot), mas o vetor precisa ser nomeado e endurecido por exit-code: (a) servidor loopback do agentd valida `Host` literal == 127.0.0.1/localhost (anti-rebinding); (b) toda entrada do write-path gated amarrada ao **token-por-boot + arming-nonce** que a UI remota P3 não conhece. **STRIDE-S/E.** (Cross-link: BLOCKER #5 do ADR v15; learning `curl-masks-cors-preflight`.)
 
 ---
 
 ## 11. Forks abertos (do operador) — para `/grelha`
 
-1. **Papel `techlead`:** admin pleno (= CTO) ou admin-restrito (aprova estação/escopo mas NÃO rotaciona `critical`/deploy sem CTO)? Recomendação: **admin pleno no MVP**, restrição por-verbo como evolução (enforce-simplicity).
+1. **Papel `techlead`:** ~~fork~~ **RESOLVIDO (review): sem 3º papel.** Modelar `role IN ('admin','dev')` com CTO **e** TechLead = `admin`. Evita a dimensão RBAC extra + o teste de RLS que ela puxa. Restrição admin-restrito-por-verbo é evolução, não MVP.
 2. **Granularidade do soft-lock (R-COORD5 / doc 82 §3):** por arquivo · por módulo/área · por ambos. Recomendação: **ambos, com alerta** (arquivo pega o caso Lovable; área pega `migrations`/`functions`).
 3. **Hard-lock vs soft-lock:** bloquear de fato vs só alertar. Recomendação: **soft/advisory** — visibilidade, não burocracia (e hard-lock no git é inviável sem branch protection servidor de qualquer modo).
 4. **Onde mora o quadro de claims:** P3 vs projeto-alvo espelhado em P3. Recomendação: **fonte no projeto-alvo (`.planning`/handoff) + espelho em P3**.
@@ -332,7 +340,7 @@ A plataforma de time **agrava** superfícies do v15 e **introduz** novas. Para o
 
 - **Estende:** `docs/ideiaos-console/80-split-plane-control-plane-DESIGN.md` (planos P0..P5, vetos, blast-radius).
 - **Tece:** `docs/ideiaos-console/82-team-coordination-onboarding-requirements.md` (R-COORD1..R-COORD5).
-- **Preserva intacto:** `v14.4-origin-auth-signing-mechanism.md` (O2/Admissão/Reversão), `v14.4-step-up-without-relying-party.md` (step-up HYBRID/Reserva-de-poder), `v14.4-command-ref-origin-exposure.md` (Q5/selo).
+- **Preserva intacto:** `v14.4-origin-auth-signing-mechanism.md` (O2/Admissão/Reversão), `v14.4-step-up-without-relying-party.md` (step-up HYBRID/Reserva-de-poder), `v14.4-stepup-comprovante-key-scheme.md` (esquema de chave do comprovante — pré-req de F0), `v14.4-command-ref-origin-exposure.md` (Q5/selo).
 - **Design existente:** `30-security-credential-isolation.md` (RLS/RBAC, Pilar B), `40-data-model-telemetry-mesh.md` (read-model, `commit_log.actor_class`, Pilar A).
 - **Contrato vivo:** `specs/cockpit/spec.md` (R-WP1..R-WP11 preservados; R-WP12 do v15; a plataforma de time pede novos requisitos de Admissão/Autorização/Vínculo/Claim — a registrar em `/spec`).
 - **ADR-sucessor a expandir:** `docs/decisions/v15-cockpit-split-plane-control-plane.md` (DRAFT) — ver guidance de escopo.
