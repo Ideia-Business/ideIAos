@@ -40,8 +40,10 @@ Provisionamento parcial executado 2026-06-23:
 - ✅ **FLUXO OTP-POR-E-MAIL REAL PROVADO (2026-06-23):** `send-otp`→Resend entregou o e-mail; o código recebido
   na caixa → `verify-otp`→comprovante assinado→agentd verifica pubkey pinada **exit 0**; re-uso → 400. Cadeia
   e-mail→Deno→Node fechada.
-- 🔒 **Hardening recomendado:** a `RESEND_API_KEY` setada é uma key **Full access** (usada p/ destravar). Troque por
-  uma **Sending-only** restrita a `updates.ideiabusiness.com.br` (least-privilege): `supabase secrets set RESEND_API_KEY='re_SENDING_ONLY' --project-ref xdikjgpkiqzgebcjgqmu` e revogue a Full access no Resend.
+- ✅ **Hardening FEITO (2026-06-23):** `RESEND_API_KEY` trocada por uma key **Sending-only** restrita a
+  `updates.ideiabusiness.com.br` (validado: envio 200 · `GET /domains`→401 escopo-restrito · `send-otp`→200).
+  A Full-access saiu do secret (blast-radius isolado: comprometer o step-up = só enviar de 1 domínio, não
+  controlar o Resend de 8 produtos). Full-access continua no Resend (decisão do owner guardar/revogar).
 - 🔒 Pin por-máquina: a **cerimônia N=2** exige re-pin out-of-band num 2º host físico. **Q5** (ref ao origin) segue aberta.
 
 ## F0b — passos do operador (gated; abre a feature cross-máquina só com N=2 real)
