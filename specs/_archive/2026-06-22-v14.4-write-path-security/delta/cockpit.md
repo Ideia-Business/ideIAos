@@ -1,130 +1,19 @@
-# Spec: cockpit
+# SOURCE: OpenSpec MIT Fission-AI/OpenSpec | adapted: IdeiaOS v6
 
-## Propósito
+# Delta: cockpit — v14.4-write-path-security
 
-Spec criada via delta-spec em 2026-06-20.
+**Capability alvo:** cockpit
+**Change slug:** v14.4-write-path-security
+**Data do delta:** 2026-06-22
 
-## Requisitos
+Rastreabilidade: todo requisito abaixo deriva de `docs/ideiaos-console/70-security-v14_4-threat-model-precursor.md`
+(§2 STRIDE, §2-bis assinatura O1–O6, §3 emissor-como-commit, §4 RBAC, §5 janela-teardown,
+§6 fronteira, §7 least-privilege, §8 Q1–Q9, §9 veredito) e `77-atalaia-alerts-command-allowlist.md` §B.2.
+Nenhum comportamento inventado — cada DEVE traça a uma seção do precursor.
 
+---
 
-### Requisito: Isolamento absoluto de credenciais (Zero-Leak)
-
-O Cockpit DEVE tratar o browser e o contexto do LLM como ambientes não-confiáveis e NUNCA
-permitir que o valor de um segredo (API key, token, senha, `service_role`) transite por
-qualquer superfície — estado de UI, DOM, rede, log, snapshot ou ledger. A representação de uma
-credencial DEVE conter apenas referência (nome, presença, idade, escopo, classe de risco),
-nunca o valor.
-
-#### Cenário: render de uma credencial conhecida
-
-- **QUANDO** o Cockpit exibe uma credencial existente (ex.: `SUPABASE_SERVICE_ROLE_KEY`)
-- **ENTÃO** mostra nome, presença, idade e classe de risco, e NUNCA o valor — nem parcial, nem mascarado a partir do valor real
-
-#### Cenário: invariante de release
-
-- **QUANDO** o build de release é avaliado pelo gate Zero-Leak
-- **ENTÃO** qualquer ocorrência de um valor de segredo em qualquer artefato do Cockpit reprova o build (incidente P0, bloqueia merge)
-
-
-### Requisito: Coleta read-only sem mutar o working tree
-
-O agente coletor (`ideiaos-agentd`) DEVE derivar todo o estado por leitura do substrato
-existente (ledgers, `git log`, `launchctl`, nomes de variáveis) e NÃO DEVE escrever nenhum
-arquivo no working tree dos repositórios durante a coleta.
-
-#### Cenário: ciclo de coleta
-
-- **QUANDO** o coletor executa um ciclo de telemetria
-- **ENTÃO** grava o snapshot diretamente no ref de federação via git-plumbing e o working tree dos repositórios permanece inalterado (`git status` limpo)
-
-
-### Requisito: Federação por ref dedicado fora do alcance do autosync
-
-Os snapshots de telemetria DEVEM ser propagados entre máquinas por um ref git dedicado
-(`cockpit`), de modo que o `git add -A` cego do git-autosync não consiga capturá-los, e a
-proteção pull-only do branch `main` permaneça intacta.
-
-#### Cenário: propagação cross-máquina
-
-- **QUANDO** uma máquina produz um novo snapshot
-- **ENTÃO** o autosync apenas faz push do ref `cockpit` (nunca de `main`), e nenhum arquivo de snapshot aparece no working tree de qualquer branch
-
-
-### Requisito: Frescor honesto (vivo local, eventual cross-máquina)
-
-O Cockpit DEVE distinguir visivelmente sinal local-vivo (file-watch de baixa latência) de
-sinal cross-máquina-eventual (propagado por ciclo de autosync), e NÃO DEVE animar fluxo
-contínuo sobre dado que chega em lote.
-
-#### Cenário: máquina remota atrasada
-
-- **QUANDO** o último snapshot de uma máquina remota tem idade maior que um ciclo de propagação
-- **ENTÃO** o Cockpit exibe a idade real do último sinal ("há X min") em vez de simular atividade contínua
-
-
-### Requisito: Comando local reversível com allowlist fixo
-
-O Cockpit DEVE executar apenas verbos de um allowlist fixo de ações locais e reversíveis
-(ex.: pausar/retomar autosync, rodar idea-doctor, re-selar frescor de segurança). Qualquer
-verbo fora do allowlist DEVE ser recusado.
-
-#### Cenário: ação fora do allowlist
-
-- **QUANDO** uma ação de mutação de produção (deploy, rotação de chave) ou de comando cross-máquina é solicitada na superfície de comando local
-- **ENTÃO** o Cockpit recusa a execução e indica que a capacidade exige o gate de v14.4
-
-#### Cenário: ação reversível confirmada
-
-- **QUANDO** o operador dispara um verbo destrutivo-mas-reversível (ex.: pausar autosync)
-- **ENTÃO** o Cockpit exige uma confirmação explícita ("armar antes de disparar") antes de executar
-
-
-### Requisito: Respeito à autoridade exclusiva de @devops
-
-O Cockpit NÃO DEVE executar operações exclusivas de @devops (`git push`, `gh pr`,
-adicionar/remover/configurar MCP). Quando tais operações forem pertinentes, o Cockpit DEVE no
-máximo gerar o comando para o @devops executar.
-
-#### Cenário: operação exclusiva solicitada
-
-- **QUANDO** o operador pede push ou alteração de MCP a partir do Cockpit
-- **ENTÃO** o Cockpit não executa a operação e apresenta o comando correspondente para execução por @devops
-
-
-### Requisito: Saúde por produto com sub-sinal honesto
-
-O Cockpit DEVE computar um indicador de saúde por produto e DEVE rotular explicitamente
-qualquer sub-sinal indisponível (ex.: idea-doctor não roda em produtos Lovable) como `n/a`,
-sem inventar nota.
-
-#### Cenário: produto sem idea-doctor
-
-- **QUANDO** um produto não suporta a verificação idea-doctor
-- **ENTÃO** o card de saúde mostra o sub-sinal correspondente como `n/a` e o score agregado não conta esse sub-sinal como falha nem como sucesso fabricado
-
-
-### Requisito: Verdade verificável contra o disco (Time-to-Truth)
-
-Quando o Cockpit afirma um estado do ecossistema, DEVE ser possível verificar essa afirmação
-contra a fonte no disco no instante da pergunta, e o Cockpit DEVE expor há quanto tempo o dado
-foi verificado.
-
-#### Cenário: verificação on-demand
-
-- **QUANDO** o operador solicita verificação de uma afirmação exibida
-- **ENTÃO** o Cockpit recomputa do disco no momento e exibe o resultado com o carimbo "verificado há Xs"
-
-
-### Requisito: Comando cross-máquina e mutação de produção gated
-
-O Cockpit NÃO DEVE habilitar comando cross-máquina nem mutação de produção (rotação/revogação
-de chave, deploy) antes de um contrato `/spec` de segurança com threat-model (STRIDE +
-OWASP-LLM) aprovado. Até lá, essas capacidades permanecem fora do allowlist.
-
-#### Cenário: tentativa antes do gate
-
-- **QUANDO** uma ação cross-máquina é solicitada sem o contrato de segurança aprovado
-- **ENTÃO** o Cockpit a recusa e referencia o gate de v14.4 como pré-condição
+## ADICIONADO Requisitos
 
 ### Requisito: Autenticação de origem do comando cross-máquina (fail-closed)
 
@@ -153,7 +42,6 @@ verificar a assinatura NÃO basta se a chave foi pinada por canal não-confiáve
 - **ENTÃO** o `agentd`-alvo recusa — checksum de integridade não é prova de autenticidade
 
 
-
 ### Requisito: Papel (RBAC) provado por assinatura, nunca auto-declarado
 
 O papel do emissor (`cto`/`dev`) que autoriza uma ação DEVE ser **provado pela assinatura** da
@@ -170,7 +58,6 @@ falsificável): qualquer capacidade não-listada para o papel é negada.
 
 - **QUANDO** a UI do Cockpit oferece uma ação que o papel provado por assinatura não autoriza
 - **ENTÃO** o `agentd`-alvo recusa (a decisão é do enforcement server-side, não da UI)
-
 
 
 ### Requisito: Aprovação humana como token de capability assinado de uso único
@@ -195,7 +82,6 @@ token expirado, `nonce` reusado, ou binding que não case com o comando.
 
 - **QUANDO** o binding do token (`action`/`ref`/`scope`) não corresponde ao comando recebido
 - **ENTÃO** o `agentd`-alvo recusa (aprovação não vale para esta ação)
-
 
 
 ### Requisito: Nenhum valor de segredo trafega no canal de comando
@@ -224,7 +110,6 @@ janela curta) é decisão **gated** registrada em ADR (Q5) antes da habilitaçã
 - **ENTÃO** a exposição do nome+escopo das credenciais mutadas é minimizada conforme a decisão Q5 (ADR), nunca propagada por padrão sem essa decisão
 
 
-
 ### Requisito: Janela de privilégio com grants de teardown enumerados na abertura
 
 Toda janela de privilégio para uma ação irreversível (`rotate`/`revoke`/`deploy`) DEVE enumerar,
@@ -246,7 +131,6 @@ janela em runtime continua verificado por exit-code (`antifragile-gates`).
 - **ENTÃO** a revisão do `/spec` recusa o desenho (teardown é pré-condição de aprovação)
 
 
-
 ### Requisito: Least-privilege de posse — o agentd nunca retém valor de segredo
 
 O `agentd` NÃO DEVE manter valores de segredo em memória ou estado durável. Cada ação DEVE resolver
@@ -264,7 +148,6 @@ documentado por provedor**, nunca ignorado nem persistido em log/arquivo/variáv
 
 - **QUANDO** a CLI do provedor exige o token via env
 - **ENTÃO** o valor vive apenas no env de um processo-filho efêmero (resolvido na borda da invocação), é documentado como risco residual aceito, e NUNCA aparece em log, arquivo ou variável durável do `agentd`
-
 
 
 ### Requisito: Fronteira permanente — verbos que nunca entram no allowlist
@@ -291,7 +174,6 @@ capacidades ficam fora por risco **estrutural**, não por falta de autenticaçã
 - **ENTÃO** o Cockpit no máximo gera o comando para `@devops`, nunca o executa (cross-máquina não cria exceção à `agent-authority`)
 
 
-
 ### Requisito: Comando assíncrono idempotente com ACK do alvo
 
 Como o canal é um bus **eventual** (git, ~1 ciclo de autosync), todo comando cross-máquina DEVE ser
@@ -314,7 +196,6 @@ no ledger; NUNCA "FEITO" sem ACK. Um comando reentregue NÃO DEVE produzir efeit
 - **ENTÃO** o alvo o reconhece como já-aplicado e o efeito permanece único (idempotência)
 
 
-
 ### Requisito: Não-repúdio por ledger encadeado por hash
 
 Toda ação do write-path DEVE ser registrada num ledger **append-only encadeado por hash**
@@ -332,7 +213,6 @@ prevenção** — uma ação já executada não é desfeita pela detecção — 
 
 - **QUANDO** alguém reescreve ou remove uma entrada do ledger
 - **ENTÃO** a cadeia de hash quebra e o verificador acusa a adulteração (sem, contudo, desfazer a ação já executada — risco residual declarado)
-
 
 
 ### Requisito: Habilitação incremental gated nas questões críticas Q1–Q3
@@ -369,7 +249,6 @@ SOAK); cross-máquina só **depois** de Q1–Q3 cravadas; `deploy` e `revoke cri
 
 - **QUANDO** um `deploy` de produção ou `revoke` de credencial `crítica` é solicitado sem a confirmação out-of-band
 - **ENTÃO** o Cockpit recusa (esses verbos exigem o segundo fator fora do git)
-
 
 
 ### Requisito: Rate-limit determinístico contra flood de comandos de mutação
