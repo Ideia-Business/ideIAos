@@ -56,18 +56,29 @@ publicável → o botão fica cinza.
 ## 5. SEMPRE confirmar no bundle real (nunca confiar em "sincronizei")
 
 ```bash
-SITE="https://SEU-DOMINIO"   # domínio publicado deste projeto
-curl -s "$SITE/?cb=$(date +%s)" | grep -oE 'assets/index-[A-Za-z0-9_-]+\.js'   # o hash muda ao rebuildar
+SITE="https://SEU-DOMINIO"        # domínio publicado deste projeto
+NEEDLE="substring ASCII do código novo"
+ENTRY=$(curl -s "$SITE/?cb=$(date +%s%N)" | grep -oE 'assets/index-[A-Za-z0-9_-]+\.js' | head -1)
+# extrai a lista de chunks do entry e grepa a string nova em cada um:
+for c in $(curl -s "$SITE/$ENTRY" | grep -oE 'assets/[A-Za-z0-9_.-]+\.js' | sort -u); do
+  curl -s "$SITE/$c" | grep -qF "$NEEDLE" && { echo "LIVE_OK em $c"; break; }
+done
 ```
 Strings novas ficam nos **chunks lazy** (`<Pagina>-<hash>.js`), **não** no `index`. Acentos podem
 estar **escapados** → buscar **substrings ASCII**. Passo a passo: `docs/lovable/publicacao-frontend.md`.
 
 **O build leva minutos** (observado ~8 min) — NÃO reconferir à mão nem perguntar ao operador.
-Rodar um **poller em background** e seguir o resto do processo sozinho quando o código novo subir:
-a cada ~30s pegar o `index-*.js`; quando o **hash mudar**, baixar o chunk lazy alvo e `grep` da
-substring ASCII nova. Achou → LIVE_OK. Hash mudou mas string ausente → o editor não tinha
-sincronizado o commit antes do Publish (ver §3). Fecha o ciclo "deploy → verificado por evidência
-de bundle", não por "a Lovable disse que sincronizou".
+Rodar um **poller em background** e seguir o resto do processo sozinho quando o código novo subir.
+
+⚠️ **NÃO ancore o poller no hash do entry `index-*.js`** (erro observado 2026-06): uma mudança
+confinada a um **chunk lazy de rota** re-hasheia só aquele chunk e **pode deixar o `index-*.js` com
+o mesmo hash** — gatear no entry nunca dispara (timeout). Sinais autoritativos:
+- **a string no chunk** — a cada ~30s, extrair a lista de chunks do entry e `grep -F` da substring
+  ASCII nova (código acima); achou → **LIVE_OK**;
+- **e/ou o short-hash do commit publicado** em `get_project().latest_screenshot_url`
+  (`id-preview-<shorthash>--…`): quando vira o seu commit, o Publish concluiu.
+
+Fecha o ciclo "deploy → verificado por evidência de bundle", não por "a Lovable disse que sincronizou".
 
 ## 6. Backend (migrations/edges): política POR PROJETO — ver `CLAUDE.md`
 
