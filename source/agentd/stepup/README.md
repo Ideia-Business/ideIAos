@@ -29,9 +29,15 @@ Provisionamento parcial executado 2026-06-23:
   (privada gerada local, isolada, **nunca exibida**; só o digest no Supabase).
 - ✅ **Pubkey do comprovante PINADA** no agentd (`~/.ideiaos/cockpit/stepup-backend-pubkey`, out-of-band, kid `eb502ee5408cb7c1`).
 - ✅ **Transporte real** `transport-curl.sh` (este dir) — integração real client→transporte→backend provada (fail-closed).
-- ⏳ **FALTA (você):** (1) aplicar `schema.sql`; (2) `RESEND_API_KEY` (p/ o e-mail do OTP chegar). Sem os dois,
-  o fluxo OTP end-to-end não fecha (sem schema → 500; sem Resend → código não é enviado, e o DB guarda só o digest).
-- 🔒 Pin por-máquina: a **cerimônia N=2** exige re-pin out-of-band num 2º host físico.
+- ✅ **`schema.sql` aplicado** (otp_codes/otp_attempts/trusted_devices + RLS deny-all; via dashboard SQL Editor).
+- ✅ **PROVA END-TO-END NO BACKEND REAL (2026-06-23) — PASSOU:** `verify-otp` real devolveu um **comprovante
+  ASSINADO** (`[payload_hash,sub,iat,exp,jti,kid]`+sig, kid `eb502ee5408cb7c1`, **não-booleano**); o agentd
+  (`stepup-verify-comprovante.mjs`) **verificou contra a pubkey pinada → exit 0** (Deno assinou ↔ Node verificou,
+  canonicalização byte-idêntica — *o* risco não coberto pelo gate, agora fechado); **binding A≠B → exit 7**;
+  **single-use → 400** ao re-usar. A cadeia cripto do HYBRID está provada contra o Supabase real.
+- ⏳ **FALTA só (você):** `RESEND_API_KEY` — é **entrega de e-mail de produção**, NÃO cripto (o DB guarda só o
+  digest; o e-mail é o canal do código). `supabase secrets set RESEND_API_KEY='re_…' STEPUP_MAIL_FROM='…' --project-ref xdikjgpkiqzgebcjgqmu`.
+- 🔒 Pin por-máquina: a **cerimônia N=2** exige re-pin out-of-band num 2º host físico. **Q5** (ref ao origin) segue aberta.
 
 ## F0b — passos do operador (gated; abre a feature cross-máquina só com N=2 real)
 
