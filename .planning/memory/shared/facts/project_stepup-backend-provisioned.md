@@ -25,8 +25,8 @@ O backend dedicado de step-up do Cockpit (v14.4 F0b) está **provisionado e prov
 - **Transporte real:** `source/agentd/stepup/transport-curl.sh` (fora de `source/agentd/*.sh`); envs
   `STEPUP_BACKEND_URL=https://xdikjgpkiqzgebcjgqmu.supabase.co/functions/v1`, `STEPUP_ORIGIN`, `STEPUP_ANON_KEY`.
 
-**Pendências (gated, owner):** (1) hardening — a `RESEND_API_KEY` setada é **Full-access** (usada p/ destravar);
-trocar por **Sending-only** restrita a `updates.ideiabusiness.com.br` + revogar a Full-access. (2) **cerimônia
-N=2** (re-pin out-of-band 2º host) + **Q5** (ref ao origin). **R-WP10 segue FECHADO** até N=2 (mono-máquina não
-discharge). Cross-link [[project-milestone-v14-cockpit]], [[learning-credential-isolation]] não-aplicável (signing
+**Hardening FEITO (2026-06-23):** `RESEND_API_KEY` é **sending-only** restrita a `updates.ideiabusiness.com.br`
+(decisão "separar": Full-access guardada à parte p/ uso-futuro do IdeiaOS, NÃO no secret do step-up — blast-radius
+isolado). **Pendências (gated, owner):** **cerimônia N=2** (re-pin out-of-band 2º host) + **Q5** (ref ao origin).
+**R-WP10 segue FECHADO** até N=2 (mono-máquina não discharge). Cross-link [[project-milestone-v14-cockpit]], [[learning-credential-isolation]] não-aplicável (signing
 key foi gerada local, isolada em /tmp 0600, setada por referência — nunca no contexto).
