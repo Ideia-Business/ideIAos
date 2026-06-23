@@ -35,8 +35,13 @@ Provisionamento parcial executado 2026-06-23:
   (`stepup-verify-comprovante.mjs`) **verificou contra a pubkey pinada → exit 0** (Deno assinou ↔ Node verificou,
   canonicalização byte-idêntica — *o* risco não coberto pelo gate, agora fechado); **binding A≠B → exit 7**;
   **single-use → 400** ao re-usar. A cadeia cripto do HYBRID está provada contra o Supabase real.
-- ⏳ **FALTA só (você):** `RESEND_API_KEY` — é **entrega de e-mail de produção**, NÃO cripto (o DB guarda só o
-  digest; o e-mail é o canal do código). `supabase secrets set RESEND_API_KEY='re_…' STEPUP_MAIL_FROM='…' --project-ref xdikjgpkiqzgebcjgqmu`.
+- ✅ **`RESEND_API_KEY` + `STEPUP_MAIL_FROM` configurados** — remetente `cockpit@updates.ideiabusiness.com.br`
+  (domínio verificado no Resend; é `updates.`, **não** `atualizações.`; ASCII, sem Punycode).
+- ✅ **FLUXO OTP-POR-E-MAIL REAL PROVADO (2026-06-23):** `send-otp`→Resend entregou o e-mail; o código recebido
+  na caixa → `verify-otp`→comprovante assinado→agentd verifica pubkey pinada **exit 0**; re-uso → 400. Cadeia
+  e-mail→Deno→Node fechada.
+- 🔒 **Hardening recomendado:** a `RESEND_API_KEY` setada é uma key **Full access** (usada p/ destravar). Troque por
+  uma **Sending-only** restrita a `updates.ideiabusiness.com.br` (least-privilege): `supabase secrets set RESEND_API_KEY='re_SENDING_ONLY' --project-ref xdikjgpkiqzgebcjgqmu` e revogue a Full access no Resend.
 - 🔒 Pin por-máquina: a **cerimônia N=2** exige re-pin out-of-band num 2º host físico. **Q5** (ref ao origin) segue aberta.
 
 ## F0b — passos do operador (gated; abre a feature cross-máquina só com N=2 real)
