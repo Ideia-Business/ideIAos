@@ -61,4 +61,5 @@
 - [Obsidian Second Brain — vault completamente populado em 2026-06-08 com todos os projetos, referências, gotchas e changelogs](facts/project_obsidian_vault_completo.md) — project_obsidian_vault_completo
 - [Plano maior ECC 100% concluído em 2026-06-12 (v2.0+v3+v4, tags); máquinas liberadas para update; pendências = decisões do usuário](facts/project_plano_maior_concluido.md) — project-plano-maior-concluido
 - [RESOLVIDO (2026-06-16, commit 66598c1): propagate-if-changed.sh ganhou source/rules/ em PROJECT_PATHS + setup.sh --project-only deploya .claude/rules via build-adapters. Prova viva: lapidai tem 8 rules ideiaos-common. Resíduo = housekeeping (re-rodar --project-only nos 3 produtos restantes)](facts/project_propagate-rules-gap.md) — propagate-rules-gap
+- [Backend step-up v14.4 (Cockpit) PROVISIONADO no Supabase ref xdikjgpkiqzgebcjgqmu — fatos duráveis p/ retomar N=2/feature + gotcha do domínio Resend](facts/project_stepup-backend-provisioned.md) — stepup-backend-provisioned
 - [Diagnóstico de falhas de CI em massa na org Ideia-Business — billing vs bug real](facts/reference_github_actions_billing_diag.md) — reference-github-actions-billing-diag
