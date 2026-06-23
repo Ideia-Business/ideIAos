@@ -19,6 +19,20 @@ ZERO chamada a provedor**. **F0b** (abaixo) é a parte do operador — provision
   binding-divergente→7); gate agregado anti-teatro (manifesto fixo + exit-code/REASON específicos +
   canário + gate-negativo de zero-chamada-a-provedor).
 
+## F0b — STATUS (projeto `IdeiaOS - Cockpit` · ref `xdikjgpkiqzgebcjgqmu`)
+
+Provisionamento parcial executado 2026-06-23:
+
+- ✅ **4 edge functions deployadas** (`--no-verify-jwt`) — ACTIVE; conectividade + CORS loopback provados
+  (Origin loopback → 500 sem-schema; Origin estranho → 403).
+- ✅ **Secrets setados** `STEPUP_SIGNING_KEY` / `STEPUP_SIGNING_KID` (`eb502ee5408cb7c1`) / `STEPUP_ALLOWED_SUBJECTS`
+  (privada gerada local, isolada, **nunca exibida**; só o digest no Supabase).
+- ✅ **Pubkey do comprovante PINADA** no agentd (`~/.ideiaos/cockpit/stepup-backend-pubkey`, out-of-band, kid `eb502ee5408cb7c1`).
+- ✅ **Transporte real** `transport-curl.sh` (este dir) — integração real client→transporte→backend provada (fail-closed).
+- ⏳ **FALTA (você):** (1) aplicar `schema.sql`; (2) `RESEND_API_KEY` (p/ o e-mail do OTP chegar). Sem os dois,
+  o fluxo OTP end-to-end não fecha (sem schema → 500; sem Resend → código não é enviado, e o DB guarda só o digest).
+- 🔒 Pin por-máquina: a **cerimônia N=2** exige re-pin out-of-band num 2º host físico.
+
 ## F0b — passos do operador (gated; abre a feature cross-máquina só com N=2 real)
 
 1. **Provisionar projeto Supabase DEDICADO** `ideiaos-cockpit-stepup` (SERVICE_ROLE isolada, **zero dado
