@@ -20,16 +20,22 @@
 set -euo pipefail
 
 # PATH hardening — o LaunchAgent (autosync) roda via launchd, que NÃO herda o
-# PATH do shell interativo. node/npx podem vir de Homebrew (/opt/homebrew/bin),
-# nvm (~/.nvm/versions/node/*/bin) ou ~/.local/bin — cobrimos as três origens
-# previsíveis p/ que setup.sh ache node/npx sob o autosync (mesmo espírito de
-# build-adapters.sh:4 e build-plugins.sh:18). Idempotente.
+# PATH do shell interativo. Cobre as origens previsíveis de node/npx: Homebrew,
+# ~/.local/bin e os version-managers comuns (nvm/fnm/volta/asdf). No nvm escolhe a
+# MAIOR versão (sort -V) — o glob simples elegeria a menor lexicográfica (v9 > v20).
+# Mesmo espírito de build-adapters.sh:4 / build-plugins.sh:18. Idempotente.
 export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/.local/bin:$PATH"
-for _nvmbin in "$HOME"/.nvm/versions/node/*/bin; do
-  if [ -d "$_nvmbin" ]; then PATH="$_nvmbin:$PATH"; fi
-done
-export PATH
-unset _nvmbin
+_ideiaos_add_node_path() {
+  local d
+  d="$(ls -d "$HOME"/.nvm/versions/node/*/bin 2>/dev/null | sort -V | tail -1 || true)"
+  if [ -n "$d" ] && [ -d "$d" ]; then PATH="$d:$PATH"; fi
+  for d in "$HOME"/.local/state/fnm_multishells/*/bin "$HOME/.volta/bin" "$HOME/.asdf/shims"; do
+    if [ -d "$d" ]; then PATH="$d:$PATH"; fi
+  done
+  export PATH
+}
+_ideiaos_add_node_path
+unset -f _ideiaos_add_node_path
 
 SETUP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$PWD"

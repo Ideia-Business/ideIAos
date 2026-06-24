@@ -272,6 +272,17 @@ fi
 # ── 6) Autosync ───────────────────────────────────────────────────────────────
 step "6) Autosync (LaunchAgent)"
 if launchctl list 2>/dev/null | grep -qi gitautosync; then pass "git-autosync ativo (launchd)"; else warn "git-autosync não carregado — rode setup-dev-machine.sh"; fi
+# Drift de CONTEÚDO do daemon vs fonte canônica (antes o doctor só via "carregado",
+# nunca a lógica — máquina rodando daemon velho passava verde). cmp = determinístico.
+_AS_SRC="$SETUP_DIR/source/autosync/git-autosync.sh"
+_AS_DST="$HOME/.local/bin/git-autosync"
+if [ -f "$_AS_SRC" ] && [ -f "$_AS_DST" ]; then
+  if cmp -s "$_AS_SRC" "$_AS_DST"; then
+    pass "git-autosync na versão canônica (sem drift de conteúdo)"
+  else
+    warn "git-autosync DEFASADO vs source/autosync/git-autosync.sh — rode: bash \"$SETUP_DIR/scripts/propagate-if-changed.sh\" --force"
+  fi
+fi
 # Label antigo (com.gustavo) → migre para o genérico com.ideiaos (este check some sozinho após migrar)
 if launchctl list 2>/dev/null | grep -q "com.gustavo.gitautosync" || [ -f "$HOME/Library/LaunchAgents/com.gustavo.gitautosync.plist" ]; then
   warn "Autosync com label ANTIGO 'com.gustavo' — migre p/ 'com.ideiaos':"

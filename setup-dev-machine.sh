@@ -129,163 +129,20 @@ done
 # ── 4) Instalar o agente git-autosync (multi-repo) ────────────────────────────
 say "Instalando git-autosync em $SCRIPT_PATH"
 mkdir -p "$BIN_DIR" "$STATE_DIR"
-cat > "$SCRIPT_PATH" <<'AUTOSYNC_EOF'
-#!/usr/bin/env bash
-# git-autosync — sincroniza repositórios git em segundo plano.
-# Uso: git-autosync --all   (lê ~/.local/state/git-autosync-repos.txt)
-#      git-autosync <repo>
-# work/feature: auto-commit + pull --rebase + push.  main/master: só puxa, nunca escreve.
-set -uo pipefail
-LIST="${HOME}/.local/state/git-autosync-repos.txt"
-LOG="${HOME}/.local/state/git-autosync.log"
-mkdir -p "$(dirname "$LOG")"
-log()    { echo "$(date '+%Y-%m-%d %H:%M:%S') [$1] ${*:2}" >> "$LOG"; }
-notify() { /usr/bin/osascript -e "display notification \"$2\" with title \"$1\"" >/dev/null 2>&1 || true; }
-# push_planning_ref — propaga o branch `planning` (transporte de memória v5).
-# O memory-export commita no `planning` LOCAL via git plumbing; o autosync o
-# empurra para origin. NUNCA faz checkout do planning nem toca sua árvore — só
-# sincroniza o ref se houver upstream e estiver à frente. Offline-safe.
-push_planning_ref() {
-  local NAME="$1"
-  git rev-parse --verify --quiet planning >/dev/null 2>&1 || return 0
-  git rev-parse --verify --quiet planning@{u} >/dev/null 2>&1 || return 0
-  local PAHEAD; PAHEAD="$(git rev-list --count 'planning@{u}..planning' 2>/dev/null || echo 0)"
-  [ "$PAHEAD" -gt 0 ] || return 0
-  git push --quiet origin planning 2>>"$LOG" && log "$NAME" "push planning OK ($PAHEAD)" \
-    || log "$NAME" "push planning FALHOU"
-}
-# Propaga o branch `cockpit` (telemetria federada v14) — espelho de push_planning_ref.
-# O cockpit_write_snapshot commita no `cockpit` LOCAL via git plumbing; o autosync o
-# empurra para origin. NUNCA faz checkout do cockpit nem toca sua árvore — só
-# sincroniza o ref se houver upstream e estiver à frente. Offline-safe.
-push_cockpit_ref() {
-  local NAME="$1"
-  git rev-parse --verify --quiet cockpit >/dev/null 2>&1 || return 0
-  git rev-parse --verify --quiet cockpit@{u} >/dev/null 2>&1 || return 0
-  local PAHEAD; PAHEAD="$(git rev-list --count 'cockpit@{u}..cockpit' 2>/dev/null || echo 0)"
-  [ "$PAHEAD" -gt 0 ] || return 0
-  git push --quiet origin cockpit 2>>"$LOG" && log "$NAME" "push cockpit OK ($PAHEAD)" \
-    || log "$NAME" "push cockpit FALHOU"
-}
-# maybe_propagate_ideiaos — após pull com commits novos no IdeiaOS, propaga
-# setup global + projetos-alvo em ~/dev/ (scripts/propagate-if-changed.sh).
-maybe_propagate_ideiaos() {
-  local NAME="$1" OLD_HEAD="$2"
-  case "$NAME" in IdeiaOS|ideIAos) ;; *) return 0 ;; esac
-  [ -n "$OLD_HEAD" ] || return 0
-  local NEW_HEAD; NEW_HEAD="$(git rev-parse HEAD 2>/dev/null || true)"
-  [ -n "$NEW_HEAD" ] && [ "$OLD_HEAD" != "$NEW_HEAD" ] || return 0
-  local PROP; PROP="$(pwd)/scripts/propagate-if-changed.sh"
-  [ -f "$PROP" ] || { log "$NAME" "propagate-if-changed: script ausente"; return 0; }
-  if bash "$PROP" >>"$LOG" 2>&1; then
-    log "$NAME" "propagate-if-changed OK (${OLD_HEAD:0:8}→${NEW_HEAD:0:8})"
+# Fonte canônica versionada: $DEV/IdeiaOS/source/autosync/git-autosync.sh.
+# Instala por cópia ATÔMICA (.tmp + mv) — sem heredoc duplicado, evitando o
+# drift binário↔molde (o daemon antes vivia num heredoc aqui E deployado).
+# O IdeiaOS é clonado no Passo 3, então a fonte já existe neste ponto.
+AUTOSYNC_SRC="$DEV/IdeiaOS/source/autosync/git-autosync.sh"
+if [ -f "$AUTOSYNC_SRC" ]; then
+  if cp "$AUTOSYNC_SRC" "$SCRIPT_PATH.tmp" && chmod 0755 "$SCRIPT_PATH.tmp" && mv -f "$SCRIPT_PATH.tmp" "$SCRIPT_PATH"; then
+    ok "git-autosync instalado (de source/autosync/ — auto-cura de planning/cockpit)"
   else
-    log "$NAME" "propagate-if-changed FALHOU"
-    notify "IdeiaOS propagate" "Falha ao propagar setup para ~/dev/*"
+    die "falha ao instalar git-autosync de $AUTOSYNC_SRC"
   fi
-}
-sync_one() {
-  local REPO="$1"; local NAME; NAME="$(basename "$REPO")"
-  cd "$REPO" 2>/dev/null || { log "$NAME" "ERRO: repo não encontrado em $REPO"; exit 1; }
-  git rev-parse --is-inside-work-tree >/dev/null 2>&1 || { log "$NAME" "ERRO: não é repo git"; exit 1; }
-  local BRANCH; BRANCH="$(git branch --show-current)"
-  [ -z "$BRANCH" ] && { log "$NAME" "detached HEAD — pulado"; exit 0; }
-  local DIRTY=0; [ -n "$(git status --porcelain)" ] && DIRTY=1
-  # Guard de pause (cirurgia git/infra de IA): pause-file global ou por-repo faz
-  # este repo ser pulado por inteiro. Codifica o bootout manual — quem pausa é
-  # responsavel por remover (ver scripts/autosync-pause.sh). Restauracao garantida.
-  if [ -f "${HOME}/.local/state/git-autosync.pause" ] || [ -f "$REPO/.git/autosync-pause" ]; then
-    log "$NAME" "pausado (pause-file) — pulado"; exit 0
-  fi
-  case "$BRANCH" in
-    main|master)
-      if [ "$DIRTY" -eq 1 ]; then log "$NAME" "$BRANCH (protegida) com alterações — pulado"; exit 0; fi
-      git fetch --quiet origin 2>>"$LOG" || { log "$NAME" "fetch falhou — pulado"; exit 0; }
-      if git rev-parse "@{u}" >/dev/null 2>&1; then
-        if [ "$(git rev-parse @)" != "$(git rev-parse '@{u}')" ]; then
-          local PRE_PULL; PRE_PULL="$(git rev-parse HEAD 2>/dev/null || true)"
-          if git pull --rebase --quiet 2>>"$LOG"; then
-            log "$NAME" "pull OK em $BRANCH"
-            maybe_propagate_ideiaos "$NAME" "$PRE_PULL"
-          else
-            git rebase --abort 2>/dev/null
-            log "$NAME" "CONFLITO pull $BRANCH"
-            notify "Git sync — conflito" "$NAME (main): conflito."
-          fi
-        fi
-        local AHEAD; AHEAD="$(git rev-list --count '@{u}..@' 2>/dev/null || echo 0)"
-        [ "$AHEAD" -gt 0 ] && { log "$NAME" "$AHEAD commit(s) no $BRANCH — push MANUAL"; notify "Git sync — main protegido" "$NAME: $AHEAD commit(s) aguardando push manual."; }
-      fi
-      # Mesmo em main (protegido), propaga o ref `planning` (memória v5) se
-      # estiver à frente do upstream. Nunca escreve no main; só empurra planning.
-      push_planning_ref "$NAME"
-      push_cockpit_ref "$NAME"
-      exit 0 ;;
-  esac
-  if [ "$DIRTY" -eq 1 ]; then
-    local HOST; HOST="$(hostname -s 2>/dev/null || echo mac)"
-    # versions.lock fora do autosync: pin de frota só muda em commit deliberado
-    # (update-upstream.sh --bump). Evita que árvore stale reverta o pin (2026-06).
-    #
-    # Memória fora do autosync (v5): .planning/memory/local e a ponte Cursor
-    # .cursor/rules/memory-bridge.mdc nunca entram no auto-commit. O store
-    # canônico é escrito no branch `planning` via git plumbing (memory-export /
-    # /memory-sync), não pela árvore do branch corrente. Guard de branch extra:
-    # se por algum motivo o branch corrente for `main`, NUNCA stage memória —
-    # main é lido pela Lovable Cloud (incidente .lovable_mem_tmp.md em nfideia).
-    local MEM_EXCLUDES=(":(exclude)versions.lock" ":(exclude).planning/memory/local" ":(exclude).cursor/rules/memory-bridge.mdc")
-    if [ "$BRANCH" = "main" ] || [ "$BRANCH" = "master" ]; then
-      # Defesa em profundidade: além de versions.lock e memória local, o store
-      # shared também jamais pode ser staged no main.
-      MEM_EXCLUDES+=(":(exclude).planning/memory" ":(exclude).lovable_mem_tmp.md")
-    fi
-    # Guard anti-contaminacao: nunca auto-commitar arvore com conflict markers
-    # (incidente 2026-06: autosync varreu <<<<<<< /======= />>>>>>> p/ uma branch
-    # e pushou). git diff --check reporta "leftover conflict marker" — deterministico.
-    if git diff --check 2>>"$LOG" | grep -q 'leftover conflict marker'; then
-      log "$NAME" "CONFLICT MARKERS — auto-commit ABORTADO em $BRANCH"
-      notify "Git sync — conflict markers" "$NAME ($BRANCH): marcadores de conflito; auto-commit pulado."
-      exit 0
-    fi
-    git add -A -- . "${MEM_EXCLUDES[@]}" 2>>"$LOG"
-    git commit -q -m "wip: autosync $(date '+%Y-%m-%d %H:%M') ($HOST)" 2>>"$LOG" && log "$NAME" "auto-commit em $BRANCH" || log "$NAME" "nada para commitar em $BRANCH"
-  fi
-  git fetch --quiet origin 2>>"$LOG" || { log "$NAME" "fetch falhou — push adiado"; exit 0; }
-  if git rev-parse "@{u}" >/dev/null 2>&1; then
-    if [ "$(git rev-parse @)" != "$(git rev-parse '@{u}')" ]; then
-      local PRE_PULL; PRE_PULL="$(git rev-parse HEAD 2>/dev/null || true)"
-      if git pull --rebase --autostash --quiet 2>>"$LOG"; then
-        log "$NAME" "pull/rebase OK em $BRANCH"
-        maybe_propagate_ideiaos "$NAME" "$PRE_PULL"
-      else
-        git rebase --abort 2>/dev/null
-        log "$NAME" "CONFLITO pull $BRANCH — push pulado"
-        notify "Git sync — conflito" "$NAME ($BRANCH): conflito."
-        exit 1
-      fi
-    fi
-    local AHEAD; AHEAD="$(git rev-list --count '@{u}..@' 2>/dev/null || echo 0)"
-    [ "$AHEAD" -gt 0 ] && { git push --quiet 2>>"$LOG" && log "$NAME" "push OK ($AHEAD) em $BRANCH" || { log "$NAME" "push FALHOU $BRANCH"; notify "Git sync — push falhou" "$NAME ($BRANCH)."; }; }
-  else
-    git push --quiet -u origin "$BRANCH" 2>>"$LOG" && log "$NAME" "push inicial OK em $BRANCH" || { log "$NAME" "push inicial FALHOU $BRANCH"; notify "Git sync — push falhou" "$NAME ($BRANCH)."; }
-  fi
-  push_planning_ref "$NAME"
-  push_cockpit_ref "$NAME"
-  exit 0
-}
-if [ "${1:-}" = "--all" ] || [ "$#" -eq 0 ]; then
-  [ -f "$LIST" ] || { log "*" "lista $LIST não encontrada"; exit 0; }
-  while IFS= read -r repo; do
-    repo="${repo%%#*}"; repo="$(echo "$repo" | xargs)"
-    [ -z "$repo" ] && continue
-    ( sync_one "$repo" )
-  done < "$LIST"
 else
-  ( sync_one "$1" )
+  die "fonte do git-autosync ausente ($AUTOSYNC_SRC) — o clone do IdeiaOS (Passo 3) falhou?"
 fi
-AUTOSYNC_EOF
-chmod +x "$SCRIPT_PATH"
-ok "git-autosync instalado"
 
 # ── 5) Lista de repos sincronizados ───────────────────────────────────────────
 say "Escrevendo lista de repos"
@@ -301,6 +158,13 @@ ok "lista em $LIST"
 # ── 6) LaunchAgent consolidado ────────────────────────────────────────────────
 say "Criando + carregando o LaunchAgent $LABEL"
 mkdir -p "$HOME/Library/LaunchAgents"
+# PATH do LaunchAgent: launchd não herda o PATH interativo. Resolve o bin do node
+# (nvm maior versão / Homebrew) p/ injetar — defesa de borda caso algum
+# ProgramArgument futuro chame node direto (os filhos do propagate já se
+# auto-injetam via setup.sh). Inclui ~/.local/bin (timeout shim, git-autosync).
+NODE_BIN_DIR="$(ls -d "$HOME"/.nvm/versions/node/*/bin 2>/dev/null | sort -V | tail -1 || true)"
+[ -n "$NODE_BIN_DIR" ] || NODE_BIN_DIR="$(dirname "$(command -v node 2>/dev/null || echo /usr/local/bin/node)")"
+PLIST_PATH_ENV="$BIN_DIR:$NODE_BIN_DIR:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 cat > "$PLIST" <<PLIST_EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -314,7 +178,7 @@ cat > "$PLIST" <<PLIST_EOF
     <key>StandardOutPath</key><string>$STATE_DIR/git-autosync.out.log</string>
     <key>StandardErrorPath</key><string>$STATE_DIR/git-autosync.err.log</string>
     <key>EnvironmentVariables</key>
-    <dict><key>PATH</key><string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string></dict>
+    <dict><key>PATH</key><string>$PLIST_PATH_ENV</string></dict>
     <key>AbandonProcessGroup</key><false/>
 </dict>
 </plist>

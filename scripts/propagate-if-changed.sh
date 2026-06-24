@@ -23,15 +23,21 @@
 set -uo pipefail
 
 # PATH hardening — disparado pelo autosync via launchd (PATH pelado). Cobre as
-# origens previsíveis de node/npx (Homebrew, nvm, ~/.local/bin) p/ que os filhos
-# (setup.sh, install-global-patches.sh, apply-to-all-projects.sh) as achem.
-# Ver build-adapters.sh:4 e o mesmo bloco em setup.sh.
+# origens previsíveis de node/npx (Homebrew, ~/.local/bin, nvm/fnm/volta/asdf) p/
+# que os filhos (setup.sh, install-global-patches.sh, apply-to-all-projects.sh) as
+# achem. No nvm escolhe a MAIOR versão (sort -V). Ver o mesmo bloco em setup.sh.
 export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/.local/bin:$PATH"
-for _nvmbin in "$HOME"/.nvm/versions/node/*/bin; do
-  if [ -d "$_nvmbin" ]; then PATH="$_nvmbin:$PATH"; fi
-done
-export PATH
-unset _nvmbin
+_ideiaos_add_node_path() {
+  local d
+  d="$(ls -d "$HOME"/.nvm/versions/node/*/bin 2>/dev/null | sort -V | tail -1 || true)"
+  if [ -n "$d" ] && [ -d "$d" ]; then PATH="$d:$PATH"; fi
+  for d in "$HOME"/.local/state/fnm_multishells/*/bin "$HOME/.volta/bin" "$HOME/.asdf/shims"; do
+    if [ -d "$d" ]; then PATH="$d:$PATH"; fi
+  done
+  export PATH
+}
+_ideiaos_add_node_path
+unset -f _ideiaos_add_node_path
 
 SETUP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 STATE_DIR="${IDEIAOS_STATE_DIR:-$HOME/.ideiaos/state}"
@@ -79,6 +85,7 @@ GLOBAL_PATHS=(
   'scripts/install-global-patches.sh'
   'source/contexts/'
   'source/statusline/'
+  'source/autosync/'
 )
 
 # Paths cujo diff dispara apply-to-all-projects --apply
@@ -205,6 +212,22 @@ if [ "$NEED_GLOBAL" -eq 1 ]; then
   else
     warn "install-global-patches falhou"
     ERRORS=$((ERRORS + 1))
+  fi
+  # Deploy do daemon git-autosync a partir da fonte canônica versionada.
+  # Distribui correções do daemon pela frota AUTOMATICAMENTE (antes só chegavam
+  # re-rodando setup-dev-machine.sh à mão). Atômico (.tmp+mv: o tick em execução
+  # mantém o inode antigo; o novo vale no próximo tick). Idempotente via cmp.
+  AUTOSYNC_SRC="$SETUP_DIR/source/autosync/git-autosync.sh"
+  AUTOSYNC_DST="$HOME/.local/bin/git-autosync"
+  if [ -f "$AUTOSYNC_SRC" ] && [ -d "$(dirname "$AUTOSYNC_DST")" ]; then
+    if cmp -s "$AUTOSYNC_SRC" "$AUTOSYNC_DST" 2>/dev/null; then
+      skip "git-autosync daemon já na versão canônica"
+    elif cp "$AUTOSYNC_SRC" "$AUTOSYNC_DST.tmp" && chmod 0755 "$AUTOSYNC_DST.tmp" && mv -f "$AUTOSYNC_DST.tmp" "$AUTOSYNC_DST"; then
+      ok "git-autosync daemon atualizado (source/autosync → ~/.local/bin)"
+    else
+      warn "falha ao atualizar git-autosync daemon"
+      ERRORS=$((ERRORS + 1))
+    fi
   fi
 fi
 

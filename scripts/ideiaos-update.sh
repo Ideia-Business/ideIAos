@@ -151,6 +151,24 @@ PYEOF
   fi
 fi
 
+# ── 2e. git-autosync atualizado a partir da fonte canônica (source/autosync) ──
+# Os patchers 2/2b/2c/2d acima são in-place (deixam o binário híbrido). A partir
+# da fase de distribuição, a fonte-de-verdade é source/autosync/git-autosync.sh;
+# aqui sincronizamos o deployado com ela por cópia atômica. Idempotente via cmp.
+step "2e/6: git-autosync sincronizado com a fonte canônica (source/autosync)"
+AS_SRC="$SETUP_DIR/source/autosync/git-autosync.sh"
+if [ ! -f "$AS_SRC" ]; then
+  skip "fonte canônica do daemon ausente (IdeiaOS antigo?)"
+elif [ ! -f "$AUTOSYNC" ]; then
+  skip "git-autosync não instalado — rode setup-dev-machine.sh"
+elif cmp -s "$AS_SRC" "$AUTOSYNC"; then
+  skip "git-autosync já é a versão canônica"
+elif cp "$AS_SRC" "$AUTOSYNC.tmp" && chmod 0755 "$AUTOSYNC.tmp" && mv -f "$AUTOSYNC.tmp" "$AUTOSYNC"; then
+  ok "git-autosync atualizado da fonte canônica (auto-cura planning/cockpit incluída)"
+else
+  warn "falha ao atualizar git-autosync — rode setup-dev-machine.sh"
+fi
+
 # ── 3. Registro de hooks IdeiaOS faltantes no settings.json ──────────────────
 # O setup.sh instala os ARQUIVOS dos hooks mas (decisão T-01-10) só imprime o
 # snippet de registro. Este passo registra o que faltar, usando o hooks.json
