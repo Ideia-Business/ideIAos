@@ -28,7 +28,7 @@ TESTS="$ROOT/tests/writepath"
 AGENTD="$ROOT/source/agentd"
 
 PASS=0; FAIL=0; GATES_RUN=0
-EXPECTED_GATES=4     # MANIFESTO: tem que bater com os run_gate abaixo (anti-teatro (a))
+EXPECTED_GATES=5     # MANIFESTO: tem que bater com os run_gate abaixo (anti-teatro (a))
 declare -a FAILED_NAMES=()
 
 c_green(){ printf '\033[0;32m%s\033[0m\n' "$1"; }
@@ -51,6 +51,7 @@ run_gate "B5 cmd-ref"    "$TESTS/test-cmd-ref.sh"
 run_gate "B6 ledger"     "$TESTS/test-ledger.sh"
 run_gate "B7 ack"        "$TESTS/test-ack.sh"
 run_gate "B8 rate-limit" "$TESTS/test-rate-limit.sh"
+run_gate "SEAL X25519"   "$TESTS/test-seal.sh"
 
 # ───────────────────────── (c) META-CANÁRIO ─────────────────────────
 # Prova que o runner DETECTA um sub-gate quebrado (sai !=0). Sem isto, "rodar 4 testes e checar 0"
@@ -71,10 +72,13 @@ fi
 code_only() { grep -hEv '^[[:space:]]*(//|#|\*|/\*)' "$@" 2>/dev/null; }
 neg_hits=$(code_only "$AGENTD/ledger.sh" "$AGENTD/ack.sh" "$AGENTD/rate-limit.sh" "$AGENTD/cmd-ref.sh" \
   | grep -En 'curl|wget|fetch *\(|vercel|railway|supabase|\bdeno\b|\bnc\b|\bscp\b|ssh +[^ ]*@|gh +(api|pr|push)|git +push|api\.' || true)
-if [ -z "$neg_hits" ]; then
-  c_green "  ✓ GATE-NEGATIVO: zero egress/provider em CÓDIGO nas 4 libs do substrato"
+# seal/unseal são .mjs (Node): cripto SÓ via node:crypto local — zero egress/child_process/rede.
+mjs_hits=$(code_only "$AGENTD/seal.mjs" "$AGENTD/unseal.mjs" \
+  | grep -En 'fetch *\(|require\(.child_process|from .child_process|https?\.|\bnet\b|dgram|\.connect\(|XMLHttpRequest|curl|wget' || true)
+if [ -z "$neg_hits" ] && [ -z "$mjs_hits" ]; then
+  c_green "  ✓ GATE-NEGATIVO: zero egress/provider em CÓDIGO nas 4 libs (.sh) + seal/unseal (.mjs)"
 else
-  c_red   "  ✗ GATE-NEGATIVO: egress/provider numa lib do substrato: $neg_hits"; FAIL=$((FAIL+1))
+  c_red   "  ✗ GATE-NEGATIVO: egress/provider no substrato: ${neg_hits}${mjs_hits}"; FAIL=$((FAIL+1))
 fi
 
 echo "─────────────────────────────────────────────"
