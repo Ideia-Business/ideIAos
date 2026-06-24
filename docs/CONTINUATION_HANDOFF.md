@@ -13,6 +13,29 @@ Proibido editar gsd= no versions.lock manualmente.
 
 ---
 
+## Sessão 2026-06-24 — endurecimento de durabilidade do autosync (manutenção, não muda milestone)
+
+Disparada por falha do LaunchAgent autosync na **MacBook-Air-2**. Diagnóstico cross-host (Mac mini ↔ MacBook)
+achou DOIS problemas e uma auditoria de durabilidade (`wf_ab41764e`) achou mais gaps. Tudo fechado — commits
+`a485588 → 5af6864 → dbfb017 → ac37eb3` (branch `work`):
+
+1. **Incidente node/PATH (MacBook):** launchd não herda o PATH interativo; o node vem do **nvm**
+   (`~/.nvm/versions/node/<v>/bin`, invisível ao launchd) → `setup.sh` falhava ("Node.js 18+ ausente") → propagate
+   falhava nos 4 produtos. Fix: PATH-hardening no topo de `setup.sh` + `propagate-if-changed.sh` cobrindo
+   Homebrew + `~/.local/bin` + nvm (`sort -V|tail -1`, corrige eleger a MENOR versão) + fnm/volta/asdf; gate Node≥18.
+2. **Divergência `planning`/`cockpit` (causa-raiz):** `push_*_ref` fazia `git push` ingênuo sem reconciliar non-FF →
+   loop crônico de "FALHOU" até reconciliar à mão. Substituído por **`_push_state_ref`** (auto-cura: FF-local/push/
+   notify-once+flag; bootstrap de tracking; nunca `--force`). Provado em sandbox `/tmp` 11/11.
+3. **Distribuição:** o daemon agora é **fonte-de-verdade versionada** em `source/autosync/git-autosync.sh`
+   (heredoc removido do `setup-dev-machine.sh`); `propagate-if-changed.sh` o re-deploya (atômico) quando muda →
+   correções chegam à frota sozinhas. `idea-doctor §6` detecta drift de conteúdo do daemon.
+
+**Veredito:** a MacBook (e qualquer máquina nova) se auto-cura no próximo `git pull` do autosync — **sem passo
+manual**. Detalhe durável na memória [[autosync-durability-hardening]]. **Q5 do v14.4 + fase de feature cross-máquina
+seguem as pendências reais** (ver "## Próximo passo" abaixo).
+
+---
+
 ## Sessão 2026-06-18 — remediação doctor + incidente autosync + housekeeping produtos
 
 **Manutenção, NÃO muda o milestone v10.** A seção `## Próximo passo` (v10, abaixo) segue válida.
