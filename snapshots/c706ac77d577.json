@@ -3,12 +3,17 @@
   "machine_id": "c706ac77d577",
   "agentd_version": "1.0.0",
   "os_version": "26.6",
-  "taken_epoch": 1782326091,
+  "taken_epoch": 1782326160,
   "daemons": [
     {
       "pid": null,
       "status": "0",
       "label": "com.ideiaos.envsync"
+    },
+    {
+      "pid": 71843,
+      "status": "-15",
+      "label": "com.ideiaos.cockpit"
     },
     {
       "pid": null,
@@ -28,16 +33,7 @@
     "exit": -1,
     "sections": []
   },
-  "installed_versions": {
-    "aiox-core": "5.2.9",
-    "gsd": "1.1.0",
-    "design-suite-ref": "b7e3af80f6e331f6fb456667b82b12cade7c9d35",
-    "design-suite-commit": "b7e3af80f6e331f6fb456667b82b12cade7c9d35",
-    "mcp-chrome-devtools": "chrome-devtools-mcp@latest",
-    "mcp-context7": "@upstash/context7-mcp@latest",
-    "ideiaos-plugin": "3.0.0",
-    "updated": "2026-06-19"
-  },
+  "installed_versions": {},
   "accounts": [
     {
       "host": "github.com",
