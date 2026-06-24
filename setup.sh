@@ -20,10 +20,16 @@
 set -euo pipefail
 
 # PATH hardening — o LaunchAgent (autosync) roda via launchd, que NÃO herda o
-# PATH do shell interativo; em Apple Silicon node/npx/python3 vivem em
-# /opt/homebrew/bin. Sem isto, setup.sh falha sob propagate-if-changed com PATH
-# pelado (mesmo padrão de build-adapters.sh:4 e build-plugins.sh:18). Idempotente.
-export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+# PATH do shell interativo. node/npx podem vir de Homebrew (/opt/homebrew/bin),
+# nvm (~/.nvm/versions/node/*/bin) ou ~/.local/bin — cobrimos as três origens
+# previsíveis p/ que setup.sh ache node/npx sob o autosync (mesmo espírito de
+# build-adapters.sh:4 e build-plugins.sh:18). Idempotente.
+export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/.local/bin:$PATH"
+for _nvmbin in "$HOME"/.nvm/versions/node/*/bin; do
+  if [ -d "$_nvmbin" ]; then PATH="$_nvmbin:$PATH"; fi
+done
+export PATH
+unset _nvmbin
 
 SETUP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$PWD"
