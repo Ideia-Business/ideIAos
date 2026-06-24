@@ -560,6 +560,15 @@ MISSING=()
 command -v node &>/dev/null || MISSING+=("Node.js 18+  →  https://nodejs.org")
 command -v npx  &>/dev/null || MISSING+=("npx (vem com Node.js)")
 command -v git  &>/dev/null || MISSING+=("git  →  https://git-scm.com")
+# Versão mínima do Node (≥18): presença não basta — uma versão antiga (ex.: glob
+# nvm elegendo v9, ou node de sistema) passaria no command -v mas quebraria adiante.
+if command -v node &>/dev/null; then
+  _NODE_MAJOR="$(node --version 2>/dev/null | sed 's/^v//; s/\..*//')"
+  case "$_NODE_MAJOR" in
+    ''|*[!0-9]*) MISSING+=("Node.js 18+ (versão ilegível: $(node --version 2>/dev/null))") ;;
+    *) [ "$_NODE_MAJOR" -ge 18 ] || MISSING+=("Node.js 18+ (atual: $(node --version), aquém do mínimo)") ;;
+  esac
+fi
 
 if [ ${#MISSING[@]} -gt 0 ]; then
   err "Ferramentas obrigatórias ausentes:"
