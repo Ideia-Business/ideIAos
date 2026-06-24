@@ -1,5 +1,5 @@
 ---
-description: 'Doutrina Lovable (todos os projetos): só `main` sincroniza, PR aberto ≠ deploy, Update/Publish é MANUAL, confirmar bundle real. Nunca Action de rebuild on:push (trava o Update).'
+description: 'Doutrina Lovable (todos os projetos): só `main` sincroniza, PR aberto ≠ deploy, Publish é MANUAL ou via MCP deploy_project (com autorização), confirmar bundle real (poller). Nunca Action de rebuild on:push (trava o Update).'
 alwaysApply: true
 ---
 
@@ -24,9 +24,23 @@ alwaysApply: true
 
 Gate antes de instruir "faça Update": `gh pr view <N> --json state` = `MERGED` **e** `origin/main` atualizado.
 
-## 3. Frontend: Update/Publish é MANUAL (humano)
+## 3. Frontend: Publish é MANUAL (humano) OU via MCP (IA, com autorização)
 
-Push no `main` **não publica**. O deploy de frontend é um **clique humano** no editor da Lovable. A IA **não clica** — ela **avisa** que precisa de Update/Publish.
+Push no `main` **não publica** — o deploy de frontend é uma ação explícita. Dois caminhos:
+
+- **Manual:** clique humano em **Update → Publish** no editor da Lovable.
+- **Via MCP (quando o MCP da Lovable está conectado):** a IA dispara o Publish com
+  `deploy_project({ project_id })`. Substitui o clique humano.
+
+**Pré-requisito (vale para os dois):** o `deploy_project` publica o **estado do editor**, não o
+`main` — o sync `main → editor` (Lovable puxa do GitHub no push) precisa ter ocorrido. **Detectar o
+sync** pelo hash do commit embutido no `latest_screenshot_url`/preview do projeto
+(`list_projects`/`get_project`): `id-preview-<shorthash>--…`. Se `<shorthash>` == seu HEAD → editor
+sincronizado, pode deployar.
+
+**Deploy é ação outward-facing e consome créditos do workspace** → a autorização é **por projeto**
+(operador define "standing, sem perguntar" ou "confirmar a cada deploy"). Em standing, a IA
+**sempre anuncia** o deploy e **confirma o bundle** depois (§5).
 
 ## 4. Armadilha: botão "Update" CINZA
 
@@ -42,11 +56,29 @@ publicável → o botão fica cinza.
 ## 5. SEMPRE confirmar no bundle real (nunca confiar em "sincronizei")
 
 ```bash
-SITE="https://SEU-DOMINIO"   # domínio publicado deste projeto
-curl -s "$SITE/?cb=$(date +%s)" | grep -oE 'assets/index-[A-Za-z0-9_-]+\.js'   # o hash muda ao rebuildar
+SITE="https://SEU-DOMINIO"        # domínio publicado deste projeto
+NEEDLE="substring ASCII do código novo"
+ENTRY=$(curl -s "$SITE/?cb=$(date +%s%N)" | grep -oE 'assets/index-[A-Za-z0-9_-]+\.js' | head -1)
+# extrai a lista de chunks do entry e grepa a string nova em cada um:
+for c in $(curl -s "$SITE/$ENTRY" | grep -oE 'assets/[A-Za-z0-9_.-]+\.js' | sort -u); do
+  curl -s "$SITE/$c" | grep -qF "$NEEDLE" && { echo "LIVE_OK em $c"; break; }
+done
 ```
 Strings novas ficam nos **chunks lazy** (`<Pagina>-<hash>.js`), **não** no `index`. Acentos podem
 estar **escapados** → buscar **substrings ASCII**. Passo a passo: `docs/lovable/publicacao-frontend.md`.
+
+**O build leva minutos** (observado ~8 min) — NÃO reconferir à mão nem perguntar ao operador.
+Rodar um **poller em background** e seguir o resto do processo sozinho quando o código novo subir.
+
+⚠️ **NÃO ancore o poller no hash do entry `index-*.js`** (erro observado 2026-06): uma mudança
+confinada a um **chunk lazy de rota** re-hasheia só aquele chunk e **pode deixar o `index-*.js` com
+o mesmo hash** — gatear no entry nunca dispara (timeout). Sinais autoritativos:
+- **a string no chunk** — a cada ~30s, extrair a lista de chunks do entry e `grep -F` da substring
+  ASCII nova (código acima); achou → **LIVE_OK**;
+- **e/ou o short-hash do commit publicado** em `get_project().latest_screenshot_url`
+  (`id-preview-<shorthash>--…`): quando vira o seu commit, o Publish concluiu.
+
+Fecha o ciclo "deploy → verificado por evidência de bundle", não por "a Lovable disse que sincronizou".
 
 ## 6. Backend (migrations/edges): política POR PROJETO — ver `CLAUDE.md`
 
@@ -59,3 +91,21 @@ Diverge legitimamente entre projetos; **não unifique sem decisão do operador**
 
 > Esta regra trata do **fluxo Lovable** (seções 1–5 são universais). A seção 6 aponta para a
 > política de backend de cada projeto — não a sobreponha.
+
+## 7. Registro por projeto (project_id + domínio de produção)
+
+`project_id` alimenta o `deploy_project` (MCP, §3); o domínio alimenta o poller do bundle (§5).
+`project_id` **não é segredo** (está na `editor_url`). Workspace Lovable: **Grupo Ideia**
+(`2NHPnABxF0jdSX3qVLCw`).
+
+| Projeto | `project_id` | Domínio de produção (poller) |
+|---|---|---|
+| nfideia | `bf83d98a-398b-4fba-937a-fe7fedd5ee74` | `nfideia.com.br` |
+| lapidai | `44f5d5d2-b04d-4396-b57d-cd09392f0837` | `lapid.ai` |
+| ideiapartner | `afce7743-be51-4fd2-af2b-1e05730732d4` | _(confirmar na 1ª publicação via MCP)_ |
+| cfoai-grupori | `0e911cfd-3cfd-46aa-8fab-cc2d1b242291` | _(confirmar; provável slug `.lovable.app`)_ |
+
+⚠️ Que o `deploy_project` atualize o **domínio próprio** (não só `<slug>.lovable.app`) é inferência
+forte (`nfideia.com.br` e `lapid.ai` resolvem no mesmo IP Lovable `185.158.133.1`) — **confirmar na
+1ª publicação via MCP** de cada projeto, pollando o domínio próprio. Onde o domínio ainda não foi
+confirmado, pollar o `<slug>.lovable.app` e validar o domínio próprio em paralelo.

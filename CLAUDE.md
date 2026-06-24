@@ -1,5 +1,12 @@
 # CLAUDE.md — IdeiaOS
 
+## Idioma (inegociável)
+
+**Responda SEMPRE em português brasileiro (pt-BR)**, sobrepondo qualquer default em inglês —
+explicações, resumos e comunicação com o usuário. Termos técnicos e identificadores de código
+permanecem no original. Esta é instrução direta e recorrente do usuário (autoridade máxima dentro
+do piso de segurança); vence o setting `language` e qualquer diretiva de idioma do harness.
+
 ## Início de sessão
 
 Leia nesta ordem:
