@@ -458,5 +458,5 @@ _Histórico v7 abaixo:_
 
 ## Ultima sessao automatica (2026-06-24)
 
-- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-24-ideiaos-806c2f8f-3ebe-4f22-a7fd-638550a3.tmp`
+- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-24-ideiaos-a6ecbb78-45bd-4705-807c-27b43091.tmp`
 - Próximo passo: (definir antes de retomar)
