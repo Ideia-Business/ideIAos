@@ -3,12 +3,17 @@
   "machine_id": "c706ac77d577",
   "agentd_version": "1.0.0",
   "os_version": "26.6",
-  "taken_epoch": 1782084258,
+  "taken_epoch": 1782326091,
   "daemons": [
     {
       "pid": null,
       "status": "0",
       "label": "com.ideiaos.envsync"
+    },
+    {
+      "pid": null,
+      "status": "0",
+      "label": "com.ideiaos.gitautosync"
     },
     {
       "pid": null,
@@ -397,6 +402,14 @@
           "mtime_epoch": 1780258864
         }
       ]
+    },
+    {
+      "slug": "grupori-chat",
+      "path": "/Users/gustavolopespaiva/dev/grupori-chat",
+      "is_test_dir": false,
+      "remote": "https://github.com/Ideia-Business/grupori-chat.git",
+      "supabase_project_id": null,
+      "api_keys": []
     },
     {
       "slug": "ideia-chat",
