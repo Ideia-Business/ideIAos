@@ -19,6 +19,12 @@
 # =============================================================================
 set -euo pipefail
 
+# PATH hardening — o LaunchAgent (autosync) roda via launchd, que NÃO herda o
+# PATH do shell interativo; em Apple Silicon node/npx/python3 vivem em
+# /opt/homebrew/bin. Sem isto, setup.sh falha sob propagate-if-changed com PATH
+# pelado (mesmo padrão de build-adapters.sh:4 e build-plugins.sh:18). Idempotente.
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+
 SETUP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$PWD"
 PROJECT_ONLY=0

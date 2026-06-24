@@ -22,6 +22,11 @@
 # =============================================================================
 set -uo pipefail
 
+# PATH hardening — disparado pelo autosync via launchd (PATH pelado). Garante que
+# os filhos (setup.sh, install-global-patches.sh, apply-to-all-projects.sh) achem
+# node/npx/python3 em /opt/homebrew/bin numa Apple Silicon. Ver build-adapters.sh:4.
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+
 SETUP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 STATE_DIR="${IDEIAOS_STATE_DIR:-$HOME/.ideiaos/state}"
 HASH_FILE="$STATE_DIR/last-propagate.hash"
