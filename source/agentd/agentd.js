@@ -183,6 +183,18 @@ async function main() {
     const snapshot   = await collectSnapshot();
     const machine_id = writeSnapshot(snapshot);
     process.stdout.write('[agentd] snapshot gravado: cockpit:snapshots/' + machine_id + '.json\n');
+    // Re-ingest do read-model no MESMO ciclo: coletar→snapshot→ingest. Sem isto o
+    // read-model (~/.ideiaos/console/read-model.db) só atualizava por ingest manual e
+    // defasava (cache descartável A5, mas o console mostraria dado velho — foi o que
+    // deixou o idea-doctor §15 em WARN por ~2.8 dias). Isolado e fail-silent: erro de
+    // ingest nunca derruba o snapshot já gravado. Usa process.execPath (mesmo node).
+    try {
+      const ingestJs = path.join(IDEIAOS_ROOT, 'source', 'console', 'ingest.js');
+      execSync(`"${process.execPath}" "${ingestJs}"`, { cwd: IDEIAOS_ROOT, timeout: 30000, stdio: 'ignore' });
+      process.stdout.write('[agentd] read-model re-ingerido\n');
+    } catch (e2) {
+      process.stderr.write('[agentd] ingest falhou (fail-silent): ' + e2.message + '\n');
+    }
   } catch (e) {
     // Fail-silent: daemon nunca derruba nada (hook-contract)
     process.stderr.write('[agentd] ERRO (fail-silent): ' + e.message + '\n');
