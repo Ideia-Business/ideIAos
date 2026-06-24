@@ -27,7 +27,7 @@ trap '[ "${BASHPID:-$$}" = "$$" ] && rm -rf "$WORK"' EXIT
 export IDEIAOS_LEDGER_STORE="$WORK/ledger"
 
 PASS=0; FAIL=0; CASES_RUN=0
-EXPECTED_CASES=9     # MANIFESTO — TEM que bater com os assert_case abaixo
+EXPECTED_CASES=13    # MANIFESTO — TEM que bater com os assert_case abaixo
 FAILED_NAMES=""
 
 c_green(){ printf '\033[0;32m%s\033[0m\n' "$1"; }
@@ -124,6 +124,51 @@ c_tamper_prevhash() {
 }
 assert_case "tamper-stored-prev_hash→3" 3 "chain-broken" -- c_tamper_prevhash
 
+# ───────────────────── (cauda) âncora-de-cauda: editar/truncar/append-forjar a ÚLTIMA → 3 ─────────────────────
+# A hash-chain sozinha era CEGA na cauda (a última entrada não tem "seguinte" que a cheque) — achado
+# CRITICAL da verificação adversarial wf_35d229e3-d24. A âncora HEAD (contagem + sha da última) fecha isso.
+# 7) editar a ÚLTIMA entrada (sem mexer no HEAD) → verify 3 (sha da cauda != HEAD.sha)
+c_edit_last() {
+  local s="$WORK/editlast"; fresh_chain "$s"
+  sed -i.bak '3s/deploy_prod/EVIL_TAIL/' "$s"; rm -f "$s.bak"
+  IDEIAOS_LEDGER_STORE="$s" bash "$LEDGER" verify
+}
+assert_case "edit-LAST-entry→3 (tail anchor)" 3 "chain-broken" -- c_edit_last
+
+# 8) TRUNCAR a última entrada → verify 3 (contagem != HEAD.count)
+c_truncate_last() {
+  local s="$WORK/trunc"; fresh_chain "$s"
+  sed -i.bak '3d' "$s"; rm -f "$s.bak"
+  IDEIAOS_LEDGER_STORE="$s" bash "$LEDGER" verify
+}
+assert_case "truncate-last-entry→3 (tail anchor)" 3 "chain-broken" -- c_truncate_last
+
+# 9) APPEND FORJADO no fim (cadeia "fecha" via prev_hash real, mas HEAD não foi atualizado) → verify 3
+c_append_forged() {
+  local s="$WORK/forge"; fresh_chain "$s"
+  local last ph; last=$(tail -n1 "$s"); ph=$(printf '%s' "$last" | shasum -a 256 | awk '{print $1}')
+  printf '%s|%s|cto|EVIL_INJECT|cockpit|deploy|ok|\n' "$ph" "$SUBJ" >> "$s"
+  IDEIAOS_LEDGER_STORE="$s" bash "$LEDGER" verify
+}
+assert_case "append-forged-at-end→3 (tail anchor)" 3 "chain-broken" -- c_append_forged
+
+# ───────────────────── (concorrência) N appends paralelos → todas preservadas + verify 0 ─────────────────────
+# Read-modify-write de arquivo INTEIRO PERDIA entradas sob concorrência (achado HIGH). Lock-por-dir +
+# O_APPEND fecham: N paralelos → store com exatamente N linhas E cadeia íntegra.
+c_concurrent() {
+  local s="$WORK/conc"; : > "$s"; rm -f "$s.head"
+  local N=20 i
+  for i in $(seq 1 "$N"); do
+    IDEIAOS_LEDGER_STORE="$s" bash "$LEDGER" append "$SUBJ" cto "act$i" cockpit scope ok "sig$i" >/dev/null 2>&1 &
+  done
+  wait
+  local n; n=$(wc -l < "$s" | tr -d ' ')
+  [ "$n" = "$N" ] || { echo "REASON=concurrent-lost n=$n (want $N)" >&2; return 1; }
+  IDEIAOS_LEDGER_STORE="$s" bash "$LEDGER" verify || { echo "REASON=concurrent-chain-broken" >&2; return 1; }
+  return 0
+}
+assert_case "concurrent-append-preserves-all(20)→0" 0 "" -- c_concurrent
+
 # ───────────────────────── bad-field (sanitização) ─────────────────────────
 # 7) append com '|' embutido num campo → exit 2 bad-field
 c_bad_pipe() { bash "$LEDGER" append "ev|il" cto x cockpit y ok; }
@@ -178,12 +223,30 @@ mutation_proof() {
 }
 # (não conta como assert_case do manifesto: é meta-prova do próprio teste; reportada à parte)
 echo "─────────────────────────────────────────────"
-if mutation_proof; then c_green "✓ MUTAÇÃO: lib sabotada → falso-verde (rc=0); lib restaurada → vermelho (rc=3) — o teste detecta a QUEBRA"; \
-  else c_red "✗ MUTAÇÃO falhou — o teste NÃO prova detecção da quebra"; fi
+if mutation_proof; then c_green "✓ MUTAÇÃO (interior): lib sabotada → falso-verde (rc=0); restaurada → vermelho (rc=3) — detecta a QUEBRA"; \
+  else c_red "✗ MUTAÇÃO (interior) falhou — o teste NÃO prova detecção da quebra"; fi
+
+# 2ª MUTAÇÃO — prova que a ÂNCORA-DE-CAUDA (HEAD.sha) é load-bearing, não decorativa: sabota SÓ a
+# checagem de sha da cauda → editar a ÚLTIMA entrada deixa de ser pego (falso-verde); restaura → vermelho.
+MUT2_OK=0
+mutation_proof_tail() {
+  local mlib="$WORK/ledger.mut2.sh"; cp "$LEDGER" "$mlib"
+  # neutraliza SÓ a linha da checagem de sha da cauda (única com 'HEAD.sha' + 'exit 3' — anchor ASCII robusto)
+  sed -i.bak 's/.*HEAD\.sha.*exit 3/: ignora-cauda/' "$mlib"; rm -f "$mlib.bak"
+  local s="$WORK/mut2-store"; fresh_chain "$s"
+  sed -i.bak '3s/deploy_prod/EVIL_TAIL2/' "$s"; rm -f "$s.bak"   # edita a ÚLTIMA entrada
+  IDEIAOS_LEDGER_STORE="$s" bash "$mlib" verify >/dev/null 2>&1; local rc_mut=$?
+  [ "$rc_mut" = "0" ] || { echo "REASON=tail-mutation-not-effective (rc=$rc_mut)" >&2; return 1; }
+  IDEIAOS_LEDGER_STORE="$s" bash "$LEDGER" verify >/dev/null 2>&1; local rc_real=$?
+  [ "$rc_real" = "3" ] || { echo "REASON=tail-restore-not-green (rc=$rc_real)" >&2; return 1; }
+  MUT2_OK=1; return 0
+}
+if mutation_proof_tail; then c_green "✓ MUTAÇÃO (cauda): âncora HEAD.sha sabotada → editar-última falso-verde; restaurada → vermelho"; \
+  else c_red "✗ MUTAÇÃO (cauda) falhou — o teste NÃO prova que a âncora-de-cauda é load-bearing"; fi
 
 # ───────────────────────── veredito ─────────────────────────
 echo "─────────────────────────────────────────────"
-echo "casos: run=$CASES_RUN  pass=$PASS  fail=$FAIL  (manifesto EXPECTED_CASES=$EXPECTED_CASES)  mutação_ok=$MUT_OK"
+echo "casos: run=$CASES_RUN  pass=$PASS  fail=$FAIL  (manifesto EXPECTED_CASES=$EXPECTED_CASES)  mut_interior=$MUT_OK  mut_cauda=$MUT2_OK"
 
 rc=0
 if [ "$CASES_RUN" -ne "$EXPECTED_CASES" ]; then
@@ -193,7 +256,10 @@ if [ "$FAIL" -ne 0 ]; then
   c_red "✗ $FAIL caso(s) falharam:$FAILED_NAMES"; rc=1
 fi
 if [ "$MUT_OK" -ne 1 ]; then
-  c_red "✗ MUTAÇÃO não provou detecção da quebra"; rc=1
+  c_red "✗ MUTAÇÃO (interior) não provou detecção da quebra"; rc=1
+fi
+if [ "$MUT2_OK" -ne 1 ]; then
+  c_red "✗ MUTAÇÃO (cauda) não provou que a âncora-de-cauda é load-bearing"; rc=1
 fi
 if [ "$rc" -eq 0 ]; then
   c_green "OK ledger $PASS/$EXPECTED_CASES"

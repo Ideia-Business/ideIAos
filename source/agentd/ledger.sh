@@ -4,10 +4,28 @@
 # Decisão ACEITA (docs/decisions/v14.4-command-ref-origin-exposure.md, Q5):
 #   • a auditoria autoritativa do "quem-o-quê-quando(-para-quem)" vive SÓ no ledger LOCAL —
 #     NUNCA no `origin`/GitHub (o ref é espelho efêmero de transporte, não registro de auditoria);
-#   • não-repúdio com DETECÇÃO DE REESCRITA: cada entrada carrega prev_hash = sha256 da
-#     LINHA-ENTRADA anterior INTEIRA (incluindo o prev_hash dela) → editar/remover/reordenar
-#     QUALQUER entrada, ou adulterar um prev_hash gravado, quebra a cadeia em `verify`.
-#   • a genesis usa prev_hash = 64 zeros (âncora determinística da cadeia).
+#   • não-repúdio com DETECÇÃO DE REESCRITA. DUAS defesas COMPLEMENTARES:
+#       (1) hash-chain: cada entrada carrega prev_hash = sha256 da LINHA-ENTRADA anterior INTEIRA
+#           → editar/remover/reordenar uma entrada do INTERIOR quebra o elo na entrada SEGUINTE;
+#       (2) ÂNCORA-DE-CAUDA: HEAD-file 0600 (`$STORE.head` = "<contagem>|sha256(última-linha)",
+#           atualizado atomicamente a cada append) → detecta adulteração da ÚLTIMA entrada
+#           (editar/substituir), TRUNCAMENTO e APPEND-FORJADO-NO-FIM — que a hash-chain sozinha
+#           NÃO pega (a última entrada não tem "entrada seguinte" que a cheque). Sem a âncora,
+#           `verify` era CEGO NA CAUDA (achado CRITICAL da verificação adversarial wf_35d229e3-d24).
+#   • a genesis usa prev_hash = 64 zeros (âncora determinística do INÍCIO da cadeia).
+#
+# Concorrência: append serializa via LOCK-POR-DIRETÓRIO (`mkdir` é atômico no FS local — nativo,
+#   sem dep nova; macOS não tem flock(1)) e grava 1 linha via O_APPEND (`>>`), em vez do
+#   read-modify-write de arquivo INTEIRO (que sob concorrência PERDIA entradas e quebrava a cadeia
+#   — achado HIGH da mesma verificação). N appends paralelos preservam N entradas e mantêm verify=0.
+#
+# LIMITE HONESTO (threat model): cadeia + âncora NÃO-assinadas detectam adulteração ACIDENTAL/PARCIAL
+#   e trazem a CAUDA à PARIDADE com o interior. Tamper-evidência contra um adversário com ACESSO DE
+#   ESCRITA ao store (que reescreveria cadeia + HEAD de forma coordenada, ou apagaria o ledger inteiro)
+#   exige ASSINAR o HEAD com a chave de máquina (sign-payload.sh / B0).
+#   debt: assinar o HEAD (não-repúdio forte contra store-writer) — diferido para a Wave de wiring do
+#   ledger ao daemon-loop/bundle (ADR Q5), que traz o contexto de chave/role da máquina. Hoje é LATENTE
+#   (sem call-site de produção); estes fixes DEVEM preceder esse wiring.
 #
 # Formato de LINHA (determinístico, campos separados por '|', sem newline interno):
 #   prev_hash|subject|role|action|ref|scope|result|signature
@@ -27,26 +45,41 @@
 #
 # Exit-codes:
 #   0  sucesso (append gravado / cadeia íntegra / print)
-#   2  erro de invocação OU campo inválido ('|'/control-char) — REASON=usage | REASON=bad-field
-#   3  cadeia quebrada (entrada editada/removida/reordenada ou prev_hash adulterado) — REASON=chain-broken
+#   2  erro de invocação / campo inválido ('|'/control-char) / falha operacional de escrita
+#      (REASON=usage | bad-field | write-failed | lock-timeout)
+#   3  cadeia quebrada — interior (prev_hash) OU cauda (HEAD: contagem/sha) — REASON=chain-broken
 set -uo pipefail
 umask 077   # entradas de auditoria nunca legíveis por outros (defesa-em-profundidade)
 
 GENESIS="0000000000000000000000000000000000000000000000000000000000000000"
 STORE="${IDEIAOS_LEDGER_STORE:-$HOME/.ideiaos/cockpit/ledger}"
+HEAD="$STORE.head"
+LOCKD="$STORE.lock.d"
 
 _ensure_store() { mkdir -p "$(dirname "$STORE")" 2>/dev/null || true; [ -f "$STORE" ] || : > "$STORE"; chmod 600 "$STORE" 2>/dev/null || true; }
 
 # sha256 dos BYTES exatos passados em $1 (sem newline final — printf '%s'). Determinístico.
 _sha() { printf '%s' "$1" | shasum -a 256 | awk '{print $1}'; }
 
-# _reject_bad_field <valor> — exit 2 REASON=bad-field se contém '|' ou QUALQUER control-char
-# (newline, tab, CR, etc.). Mantém o invariante "1 entrada = 1 linha, N colunas".
+# lock EXCLUSIVO por diretório (mkdir é atômico no FS local). Bounded retry → fail-closed (exit 2)
+# se não conseguir em ~10s. trap libera no EXIT (cobre saídas normais e a maioria dos sinais; um
+# SIGKILL com lock segurado é o único resíduo aceito — raro, mesmo regime do append durável).
+_lock() {
+  local tries=0
+  while ! mkdir "$LOCKD" 2>/dev/null; do
+    tries=$((tries+1))
+    [ "$tries" -gt 500 ] && { echo "REASON=lock-timeout" >&2; exit 2; }
+    sleep 0.02 2>/dev/null || sleep 1
+  done
+  trap '_unlock' EXIT
+}
+_unlock() { rmdir "$LOCKD" 2>/dev/null || true; }
+
+# _reject_bad_field <valor> — exit 2 REASON=bad-field se contém '|' ou QUALQUER control-char.
 _reject_bad_field() {
   case "$1" in
     *'|'*) echo "REASON=bad-field (separador '|' embutido)" >&2; exit 2 ;;
   esac
-  # control-chars: remove tudo que NÃO seja printável; se sobrou diferença, havia control-char.
   local stripped; stripped=$(printf '%s' "$1" | LC_ALL=C tr -d '[:cntrl:]')
   if [ "$stripped" != "$1" ]; then
     echo "REASON=bad-field (control-char embutido)" >&2; exit 2
@@ -62,32 +95,50 @@ case "$cmd" in
     _reject_bad_field "$ref";     _reject_bad_field "$scope"; _reject_bad_field "$result"
     _reject_bad_field "$signature"
     _ensure_store
+    _lock   # serializa: ler-tail + computar-prev + O_APPEND da linha + atualizar HEAD (atômico cross-processo)
     # prev_hash = sha256 da ÚLTIMA linha-entrada INTEIRA; genesis (store vazio) → 64 zeros.
     last=$(tail -n 1 "$STORE" 2>/dev/null)
     if [ -z "$last" ]; then prev="$GENESIS"; else prev=$(_sha "$last"); fi
     line="$prev|$subject|$role|$action|$ref|$scope|$result|$signature"
-    # escrita atômica: monta o novo conteúdo em .tmp e promove com mv -f (append durável).
-    tmp="$STORE.tmp.$$"
-    { cat "$STORE" 2>/dev/null; printf '%s\n' "$line"; } > "$tmp" || { rm -f "$tmp"; echo "REASON=write-failed" >&2; exit 2; }
-    mv -f "$tmp" "$STORE" || { rm -f "$tmp"; echo "REASON=write-failed" >&2; exit 2; }
-    chmod 600 "$STORE" 2>/dev/null || true
+    # O_APPEND de 1 linha: escrita atômica (<PIPE_BUF), descarta o read-modify-write de arquivo inteiro.
+    printf '%s\n' "$line" >> "$STORE" || { echo "REASON=write-failed" >&2; exit 2; }
+    # ÂNCORA-DE-CAUDA: contagem de entradas + sha256 da ÚLTIMA linha (a recém-gravada), atômico.
+    cnt=$(wc -l < "$STORE" | tr -d ' ')
+    htmp="$HEAD.tmp.$$"
+    printf '%s|%s\n' "$cnt" "$(_sha "$line")" > "$htmp" && mv -f "$htmp" "$HEAD" \
+      || { rm -f "$htmp"; echo "REASON=write-failed" >&2; exit 2; }
+    chmod 600 "$STORE" "$HEAD" 2>/dev/null || true
     exit 0
     ;;
 
-  verify) # re-encadeia do início: o prev_hash gravado em cada linha DEVE casar o sha256 da anterior.
+  verify) # re-encadeia do início + confere a ÂNCORA-DE-CAUDA (contagem + sha da última) contra o HEAD.
     _ensure_store
+    _lock   # snapshot consistente: nenhum append em curso pode deixar HEAD/store em estado intermediário
     expected="$GENESIS"
-    n=0
+    n=0; lastline=""
     # lê linha-a-linha PRESERVANDO bytes (IFS vazio + read -r); não pula linha final sem \n.
     while IFS= read -r line || [ -n "$line" ]; do
-      n=$((n+1))
+      n=$((n+1)); lastline="$line"
       got=$(printf '%s' "$line" | cut -d'|' -f1)
       if [ "$got" != "$expected" ]; then
         echo "REASON=chain-broken (entrada #$n: prev_hash gravado != sha256 da anterior)" >&2; exit 3
       fi
-      # próximo elo esperado = sha256 desta linha-entrada INTEIRA
-      expected=$(_sha "$line")
+      expected=$(_sha "$line")   # próximo elo esperado = sha256 desta linha-entrada INTEIRA
     done < "$STORE"
+    # ── ÂNCORA-DE-CAUDA (fecha a cegueira da cauda: edição/substituição da última, truncamento, append forjado) ──
+    if [ "$n" -eq 0 ]; then
+      # ledger vazio é aceitável SÓ sem HEAD (ledger novo); HEAD presente c/ store vazio = truncamento.
+      if [ -s "$HEAD" ]; then echo "REASON=chain-broken (HEAD presente mas ledger vazio — truncado)" >&2; exit 3; fi
+      exit 0
+    fi
+    if [ ! -s "$HEAD" ]; then echo "REASON=chain-broken (HEAD ausente — âncora de cauda removida)" >&2; exit 3; fi
+    hc=$(cut -d'|' -f1 "$HEAD"); hs=$(cut -d'|' -f2 "$HEAD")
+    if [ "$n" != "$hc" ]; then
+      echo "REASON=chain-broken (HEAD: contagem N=$n != HEAD.count=$hc — truncamento/append forjado)" >&2; exit 3
+    fi
+    if [ "$(_sha "$lastline")" != "$hs" ]; then
+      echo "REASON=chain-broken (HEAD: sha da última entrada != HEAD.sha — cauda adulterada)" >&2; exit 3
+    fi
     exit 0
     ;;
 
