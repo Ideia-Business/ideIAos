@@ -44,7 +44,20 @@ Provisionamento parcial executado 2026-06-23:
   `updates.ideiabusiness.com.br` (validado: envio 200 · `GET /domains`→401 escopo-restrito · `send-otp`→200).
   A Full-access saiu do secret (blast-radius isolado: comprometer o step-up = só enviar de 1 domínio, não
   controlar o Resend de 8 produtos). Full-access continua no Resend (decisão do owner guardar/revogar).
-- 🔒 Pin por-máquina: a **cerimônia N=2** exige re-pin out-of-band num 2º host físico. **Q5** (ref ao origin) segue aberta.
+- ✅ **CERIMÔNIA N=2 FEITA (2026-06-24)** — 2º host físico = MacBook-Air-2. Provada nos 2 eixos: (1) **comprovante** —
+  a MacBook pinou a pubkey do backend out-of-band (FP `f933d155…` MATCH) e verificou um `verify-otp` real → exit 0 +
+  binding exit 7; (2) **O2** — a MacBook gerou chave de máquina Ed25519 (FP `SHA256:pEOUnDWm5…`), assinou um payload,
+  e a Mac mini pinou `macbook-air-2`(role dev) + **verificou → exit 0** (tamper → exit 3). **R-WP10 SATISFEITO no regime
+  N=2 real.** Enrollment bidirecional estabelecido. **Q5** (ref ao origin, ADR `v14.4-command-ref-origin-exposure.md`)
+  segue aberta + a **fase de feature cross-máquina** (transporte do comando via ref) ainda a construir.
+
+### Runbook da cerimônia N=2 (reproduzir num novo host B)
+
+Host A (já enrolled) fornece: kid+SPKI do backend + seu fingerprint; e pina a chave de máquina de B.
+1. **B:** `git pull` no IdeiaOS · pinar o backend: `stepup-pin-backend.sh add <kid> '<spki>'` · confirmar o FP (`printf '%s' '<spki>' | shasum -a 256` == o de A).
+2. **B (prova comprovante):** A planta um OTP de teste (INSERT em `otp_codes`); B faz `verify-otp` → `stepup-verify-comprovante.mjs verify <comp> <hash>` → exit 0; binding com hash errado → exit 7.
+3. **B (O2):** `ssh-keygen -t ed25519 -f ~/.ideiaos/cockpit/machine-key` · assina um payload (`sign-payload.sh`, `IDEIAOS_SIGN_KEY=…/machine-key`) · envia a A (base64): pubkey + FP + payload + sig.
+4. **A:** confirma o FP de B out-of-band · `pinned-keys.sh add <B-id> <role> <B.pub>` · `verify-payload.sh <payload> <sig> <B-id>` → exit 0 (tamper → exit 3). Repetir simétrico (A assina, B verifica) p/ enrollment completo bidirecional.
 
 ## F0b — passos do operador (gated; abre a feature cross-máquina só com N=2 real)
 
