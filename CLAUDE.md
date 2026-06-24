@@ -27,3 +27,7 @@ git show planning:.planning/ROADMAP.md
 1. Atualizar `STATE.md`.
 2. Atualizar `docs/CONTINUATION_HANDOFF.md` com pendências e próximo passo.
 3. Se houve decisão estratégica, sincronizar `.planning/*` no branch `planning` (quando aplicável).
+4. **Mergear `work → main` (fast-forward).** O autosync só escreve em `work`, então a `main` só
+   avança aqui — sem este passo, o delta `work↔main` (e o PR `work→main`) fica pendente acumulando
+   entre sessões. Padrão IdeiaOS = ff-merge direto: `git push origin work:main` (FF, sem merge commit,
+   SHAs preservados). Se houver PR `work→main` aberto, feche-o (o FF não auto-fecha).
