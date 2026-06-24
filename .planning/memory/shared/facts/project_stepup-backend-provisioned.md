@@ -27,6 +27,10 @@ O backend dedicado de step-up do Cockpit (v14.4 F0b) está **provisionado e prov
 
 **Hardening FEITO (2026-06-23):** `RESEND_API_KEY` é **sending-only** restrita a `updates.ideiabusiness.com.br`
 (decisão "separar": Full-access guardada à parte p/ uso-futuro do IdeiaOS, NÃO no secret do step-up — blast-radius
-isolado). **Pendências (gated, owner):** **cerimônia N=2** (re-pin out-of-band 2º host) + **Q5** (ref ao origin).
-**R-WP10 segue FECHADO** até N=2 (mono-máquina não discharge). Cross-link [[project-milestone-v14-cockpit]], [[learning-credential-isolation]] não-aplicável (signing
+isolado). **CERIMÔNIA N=2 FEITA (2026-06-24):** 2º host = MacBook-Air-2; eixo comprovante (MacBook pina backend
+out-of-band, FP `f933d155…` match, verifica `verify-otp` real exit 0) + eixo O2 (MacBook gera chave de máquina FP
+`SHA256:pEOUnDWm5…`, assina; Mac mini pina `macbook-air-2` role dev + verifica exit 0, tamper exit 3). **R-WP10
+SATISFEITO no regime N=2 real.** Pin permanente: Mac mini confia em `macbook-air-2` (reverter = `pinned-keys.sh
+revoke-local macbook-air-2`). **Pendências (gated, owner):** **Q5** (ratificar ADR `v14.4-command-ref-origin-exposure.md`)
++ **construir a fase de FEATURE cross-máquina** (transporte do comando via ref). Runbook N=2 em `source/agentd/stepup/README.md`. Cross-link [[project-milestone-v14-cockpit]], [[learning-credential-isolation]] não-aplicável (signing
 key foi gerada local, isolada em /tmp 0600, setada por referência — nunca no contexto).
