@@ -392,6 +392,7 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | **`scripts/sync-all.sh`** | Orquestrador — `git pull` → `update-upstream` → `setup.sh --global-only` → overlay → `idea-doctor` |
 | **`scripts/apply-to-all-projects.sh`** | Propaga `setup.sh --project-only` a todos os repos `~/dev/*`. Dry-run por padrão; use `--apply` para executar. `--only proj1,proj2` para filtrar. |
 | **`scripts/export-env-dev.sh`** | Extrai o `.env` **mínimo de dev** (least-privilege) por projeto, para entregar a um dev novo por **canal seguro**. Omite `SERVICE_ROLE_KEY` + tokens de deploy. `--list`/`--keys-only` não tocam valores. Read-only. Ver `docs/guides/env-setup-dev.md`. |
+| **`scripts/check-env-not-tracked.sh`** | Gate anti-segredo-no-git: detecta `.env` **versionado** em repos-produto (agora ou no histórico). Read-only, **nunca lê valores**. Exit 1 se tracked. Varre `~/dev/*` ou repos passados como arg. |
 | **`scripts/propagate-if-changed.sh`** | Propagação **automática** — após pull no IdeiaOS, detecta diff em templates/skills/setup e roda global + `apply-to-all --apply`. Gatilhos: `git-autosync`, `post-merge` hook, `sync-all.sh`. Log: `~/.local/state/propagate-projects.log`. |
 | **`scripts/ideiaos-update.sh`** | **Atualização de máquina em 1 comando** — sync-all + guardas do git-autosync (versions.lock fora do add -A; **pause-file + conflict-marker**, step 2d) + funções claude-dev/review/research no shell + statusline no settings.json (idempotente, com backup; edita config do usuário por consentimento explícito — diferente do setup.sh/T-01-10) |
 | **`scripts/autosync-pause.sh`** | **Pausa/retoma o git-autosync de forma codificada** (`on`/`off`/`status`) — substitui o `launchctl bootout`/`bootstrap` manual por um pause-file que o autosync respeita; usar durante cirurgia git/infra de IA. O autosync também aborta auto-commit de árvore com conflict markers (`git diff --check`). |
@@ -888,6 +889,7 @@ ideIAos/
 │   ├── update-design-suite.sh              ← Atualização controlada da Suíte (re-vendoriza do upstream)
 │   ├── apply-to-all-projects.sh            ← Propaga setup --project-only a ~/dev/*
 │   ├── export-env-dev.sh                   ← Extrai .env mínimo de dev (least-privilege) p/ entregar a dev novo
+│   ├── check-env-not-tracked.sh            ← Gate anti-segredo: detecta .env versionado em repo-produto (read-only)
 │   ├── propagate-if-changed.sh             ← Auto-propagação pós-pull (autosync + post-merge + sync-all)
 │   ├── sync-all.sh                         ← Orquestrador (pull → upstream → setup --global-only → overlay → propagate → doctor)
 │   ├── ideiaos-update.sh                   ← Atualização de máquina em 1 comando (sync-all + shell + statusline)
