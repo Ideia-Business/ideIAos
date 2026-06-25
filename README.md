@@ -133,13 +133,17 @@ claude plugin install ideiaos-design-suite@ideiaos
 
 # Instalar a camada Lovable (projetos Lovable)
 claude plugin install ideiaos-lovable@ideiaos
+
+# Instalar a camada de Marketing (produção de conteúdo)
+claude plugin install ideiaos-marketing@ideiaos
 ```
 
 | Plugin | Versão | Conteúdo | Quando instalar |
 |--------|--------|----------|-----------------|
-| `ideiaos-core` | 3.0.0 | 15 agents + 13 hooks + 24 skills (idea, tdd, evolve, instincts, memory-sync…) | Sempre — núcleo do sistema |
+| `ideiaos-core` | 3.0.0 | 15 agents + 11 hooks + 31 skills (idea, tdd, evolve, instincts, memory-sync, spec, doubt, grelha, tool-output-compressor…) | Sempre — núcleo do sistema |
 | `ideiaos-design-suite` | 3.0.0 | 10 skills de design (ui-ux-pro-max, design-system, brand…) | Quem faz UI/design |
 | `ideiaos-lovable` | 3.0.0 | Skills `/lovable-handoff` + `/lovable-mcp` (verificação read-only via MCP) + doutrina de deploy + templates | Projetos Lovable |
+| `ideiaos-marketing` | 3.0.0 | 2 skills (`/marketing` + `/marketing-research`) + 4 agents (mkt-estrategista/copywriter/designer/revisor) + 22 best-practices (OpenSquad MIT) | Quem produz conteúdo de marketing |
 
 > **Plugin e setup.sh são complementares** — não excludentes. O plugin entrega skills/agents/hooks versionados com atualização nativa (`claude plugin update`). O `setup.sh` entrega o ambiente de máquina completo: working-dirs, autosync (LaunchAgent), vault Obsidian, git hooks e config de projeto. Para uma máquina nova do zero, use o setup.sh (ou o bootstrap `setup-dev-machine.sh`) — ele faz tudo em sequência.
 
@@ -148,6 +152,11 @@ claude plugin install ideiaos-lovable@ideiaos
 ## 🍎 Instalação em máquina nova (completa)
 
 Fluxo de ponta a ponta pra um Mac do zero. O bootstrap faz o grosso; só GSD fica manual.
+
+> 👋 **Dev novo no time?** Há um runbook cirúrgico passo a passo (acessos, autenticação,
+> bootstrap, 1ª sessão, branches/autosync, troubleshooting) em
+> **[`docs/guides/onboarding-novo-dev.md`](docs/guides/onboarding-novo-dev.md)** — siga por lá.
+> A seção abaixo é o resumo técnico do mesmo fluxo.
 
 ### 1. Pré-requisitos (uma vez — não são auto-instalados)
 ```bash
@@ -616,7 +625,7 @@ O IdeiaOS v2 separa **fonte de verdade** de **artefatos de harness**. Nunca edit
 
 ```
 source/                         manifests/modules.json
-├── skills/                     (catálogo — 77 módulos)
+├── skills/                     (catálogo — 101 módulos)
 ├── agents/        ──────────────────────┐
 ├── hooks/                               │
 ├── templates/                           ▼
@@ -847,11 +856,12 @@ ideIAos/
 ├── setup-dev-machine.sh                    ← bootstrap de máquina nova (clona repos + autosync + setup global)
 ├── versions.lock                           ← pin de versões (aiox-core/gsd/Suíte/MCPs/plugins)
 ├── .claude-plugin/
-│   └── marketplace.json                    ← marketplace 'ideiaos' (3 plugins: core/design-suite/lovable)
+│   └── marketplace.json                    ← marketplace 'ideiaos' (4 plugins: core/design-suite/lovable/marketing)
 ├── plugins/                                ← GERADO por scripts/build-plugins.sh — não editar à mão (edite source/)
-│   ├── ideiaos-core/                       ← 15 agents + 13 hooks + 24 skills de workflow
+│   ├── ideiaos-core/                       ← 15 agents + 11 hooks + 31 skills de workflow
 │   ├── ideiaos-design-suite/               ← 10 skills de design (ui-ux-pro-max, design-system, brand…)
-│   └── ideiaos-lovable/                    ← skills /lovable-handoff + /lovable-mcp + doutrina + templates
+│   ├── ideiaos-lovable/                    ← skills /lovable-handoff + /lovable-mcp + doutrina + templates
+│   └── ideiaos-marketing/                  ← 2 skills (/marketing + /marketing-research) + 4 agents mkt-* + 22 best-practices
 ├── scripts/
 │   ├── install-alias.sh                    ← Instala alias idea-setup
 │   ├── install-git-hooks.sh                ← Pre-commit + post-merge (propagação) + pre-merge-commit
@@ -889,6 +899,9 @@ ideIAos/
 │   ├── templates/                          ← templates de projeto (hybrid/ideiaos/lovable/learnings/memory/global-patches) + skill/SKILL.md.tmpl (v8 — convenção de autoria)
 │   ├── contexts/                           ← contexts de modo (dev.md / review.md / research.md)
 │   ├── statusline/                         ← ideiaos-statusline.sh
+│   ├── agentd/                             ← coletor read-only + step-up híbrido (v14 Cockpit): sign/verify/seal/ledger/cmd-ref (write-path security)
+│   ├── console/                            ← read-model do Cockpit (v14): ingest.js + schema.sql → SQLite descartável
+│   ├── autosync/                           ← git-autosync.sh versionado (daemon LaunchAgent — fonte canônica, auto-cura planning/cockpit)
 │   └── rules/
 │       ├── common/                         ← token-economy, mcp-hygiene, orchestration, antifragile-gates, context-packet-handoffs, delta-spec (v6), operating-discipline (v8)
 │       ├── marketing/                      ← 22 rules de marketing (copywriting, blog-seo, data-analysis, posts…) (v6 Fase 26)
@@ -899,8 +912,13 @@ ideIAos/
 │           ├── typescript/                 ← typescript strict rules
 │           └── react/                      ← hooks rules, component patterns
 ├── manifests/
-│   ├── modules.json                        ← catálogo de 77 módulos (hooks/agents/skills/templates/contexts/statusline/lsp/script) + campo plugin
+│   ├── modules.json                        ← catálogo de 101 módulos (hooks/agents/skills/templates/contexts/statusline/lsp/script) + campo plugin
 │   └── plugin-membership.md               ← mapeamento módulo → plugin (fonte de verdade legível)
+├── apps/                                   ← apps de produto do ideIAos
+│   └── cockpit/                            ← SPA do Cockpit (v14 — Vite+React+TS, console CTO local-first black-gold)
+├── specs/                                  ← contratos de comportamento vivos (/spec delta-spec): cockpit/ + tool-output-compressor/ + _changes/ + _archive/
+├── infra/                                  ← infraestrutura local
+│   └── launchd/                            ← plists (com.ideiaos.cockpit + com.ideiaos.refresh-ai-security)
 ├── adapters/                               ← artefatos compilados por harness (gerados por build-adapters.sh)
 │   ├── _scaffold/                          ← template para novos harnesses (codex, gemini, zed)
 │   │   ├── README.md                       ← como criar um novo adapter
@@ -1047,6 +1065,28 @@ O **IdeiaOS Cockpit** é um console **local-first** de visão CTO/Tech-Lead sobr
 - **`check-cockpit.sh`** — gate de saúde (agentd vivo? ref existe? snapshot fresco?) + harness **Time-to-Truth** (`scripts/ttt-baseline.sh`/`ttt-median.sh`).
 
 > **Fora de escopo (gated p/ v14.4):** qualquer verbo de mutação de produção/cross-máquina (`rotate`/`revoke`/`deploy`/`git push`/`gh pr`). Esta fase é **read-only** quanto a produção.
+
+---
+
+## 🆕 Novidades v14.1 — Cockpit MVP Bridge (read-path de valor)
+
+A v14.1 transforma a Espinha em um console **navegável e útil**, ainda **100% read-only** quanto a produção. Tag `v14.1` SHIPPED (2026-06-23).
+
+- **API read** (`apps/cockpit/server/read.js`) — endpoints `/overview`, `/fleet`, `/vault`, `/verify`, `/command-token` + `POST /command` (allowlist **default-deny**).
+- **3 telas** — Overview, Frota, Cofre (metadata-only; nunca o valor de um segredo).
+- **⌘K command palette** (cmdk) — verbos seguros via allowlist B1–B6 (ex.: `run_doctor`, `pause_autosync` com confirmação).
+- **Flight Recorder v0** — trilha de nós/reversões para auditoria local.
+- **Zero-Leak** — 7 superfícies + veneno triplo, gate por exit-code.
+- Lição absorvida: **`curl` mascara preflight CORS** — o bug `POST /command` só apareceu no browser (visual-loop), não no `curl` ([[learning-curl-masks-cors-preflight-verify-browser]]).
+
+## 🔒 Em andamento — v14.4 Write-Path Security (gated)
+
+Antes de o Cockpit poder **mutar** algo (rotacionar segredo, deploy, push), o write-path precisa de prova criptográfica de origem. Em construção (não habilitado em produção):
+
+- **Step-up híbrido** (`source/agentd/stepup/`) — autorização por **OTP-por-e-mail** com comprovante assinado (Ed25519), backend Supabase dedicado, binding por `payload_hash`. Provado end-to-end no backend real + cerimônia N=2 (2 hosts físicos).
+- **Substrato local B5–B8** — `cmd-ref` / `ledger` (hash-chained + tail-anchor) / `ack` / `rate-limit`, gate `test-writepath-substrate.sh`.
+- **Seal nativo** — sealed-box **X25519 nativo do Node** (`age` dispensado, native-first), `enc_pubkey` no pin.
+- Status: substrato **LOCAL** fechado e adversarialmente verificado; a **feature cross-máquina** (executor + UI) segue **gated** em 2º host físico real + ação humana (FG-PAT admin). Contrato vivo em [`specs/cockpit/spec.md`](specs/cockpit/spec.md).
 
 ---
 
@@ -1245,8 +1285,9 @@ Versões expandidas em `docs/learnings/` de qualquer projeto Lovable do setup. E
 
 ---
 
-*ideIAos v1.1 · Última atualização: 2026-05-30*
+*ideIAos · Última atualização: 2026-06-25 · Milestone atual: **v14.1 SHIPPED** (tags v2.0 … v14.1; v14.4 write-path em andamento)*
 *Mantido por: equipe Ideia Business + IAs (Claude Code, Cursor)*
+*Novo no time? Comece por [`docs/guides/onboarding-novo-dev.md`](docs/guides/onboarding-novo-dev.md).*
 
 **Mudanças v1.1 (2026-05-30):** Caminho C — composição AIOX × GSD.
 - Deia agora aplica decisão única (2 exceções + 5 critérios) em vez de matriz por categoria.
