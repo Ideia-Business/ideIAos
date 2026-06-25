@@ -74,7 +74,7 @@ claude                   # login na Anthropic; depois digite /exit
 ```
 Confirme o **write** nos repos (`push:true` nos cinco):
 ```bash
-for r in cfoai-grupori IdeiaOS lapidai nfideia ideiapartner; do
+for r in IdeiaOS lapidai nfideia ideiapartner; do
   echo -n "$r → "; gh api repos/Ideia-Business/$r --jq '.permissions'
 done
 ```
@@ -89,7 +89,7 @@ git -C ~/dev/IdeiaOS checkout work 2>/dev/null || git -C ~/dev/IdeiaOS checkout 
 
 bash ~/dev/IdeiaOS/setup.sh --global-only        # skills, MCPs, hooks, agentes Cursor
 
-for r in cfoai-grupori lapidai nfideia ideiapartner; do
+for r in lapidai nfideia ideiapartner; do
   git clone https://github.com/Ideia-Business/$r.git ~/dev/$r
   git -C ~/dev/$r checkout work 2>/dev/null || git -C ~/dev/$r checkout -b work
   ( cd ~/dev/$r && npm install )                        # node_modules (pode demorar)
@@ -119,7 +119,7 @@ Pode **pular no 1º dia** e usar `git push` manual. Para ativar o sync automáti
 mkdir -p ~/.local/bin ~/.local/state
 cp ~/dev/IdeiaOS/source/autosync/git-autosync.sh ~/.local/bin/git-autosync
 chmod +x ~/.local/bin/git-autosync
-printf '%s\n' ~/dev/cfoai-grupori ~/dev/IdeiaOS ~/dev/lapidai ~/dev/nfideia ~/dev/ideiapartner \
+printf '%s\n' ~/dev/IdeiaOS ~/dev/lapidai ~/dev/nfideia ~/dev/ideiapartner \
   > ~/.local/state/git-autosync-repos.txt
 
 ( crontab -l 2>/dev/null; \

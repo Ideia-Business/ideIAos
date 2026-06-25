@@ -29,7 +29,21 @@ gateway do ideiapartner, adicione `OPS_DB_GATEWAY_TOKEN`.
 
 ---
 
-## Templates (preencha os valores)
+## Atalho — gerar os blocos automaticamente (com valores)
+
+Em vez de abrir cada `.env` à mão, rode **na sua máquina** (Mac/Linux) o script que extrai só as
+chaves mínimas de cada projeto, já com os valores:
+
+```bash
+bash ~/dev/IdeiaOS/scripts/export-env-dev.sh              # todos os projetos
+bash ~/dev/IdeiaOS/scripts/export-env-dev.sh nfideia      # só um projeto
+bash ~/dev/IdeiaOS/scripts/export-env-dev.sh --keys-only  # só os nomes (sem valores)
+bash ~/dev/IdeiaOS/scripts/export-env-dev.sh --list       # projetos configurados
+```
+> ⚠️ O output contém **segredos reais** — copie e entregue por **canal seguro**; **nunca** cole em
+> chat/e-mail/IA. **Estender** (novo projeto): edite o array `PROJECTS` no topo do script (1 linha).
+
+## Templates manuais (se preferir montar à mão — preencha os valores)
 
 ### lapidai — `.env` (só Supabase, tudo público)
 ```dotenv
@@ -52,7 +66,7 @@ SUPABASE_ANON_KEY=
 # OMITIDO: OPS_DB_GATEWAY_TOKEN (só se for usar o gateway)
 ```
 
-### cfoai-grupori e nfideia — `.env` (mesmo conjunto)
+### nfideia — `.env`
 ```dotenv
 NODE_ENV=development
 AIOX_VERSION=                 # não é segredo (versão) — copie do .env.example
