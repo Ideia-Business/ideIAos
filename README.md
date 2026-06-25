@@ -158,11 +158,12 @@ Fluxo de ponta a ponta pra um Mac do zero. O bootstrap faz o grosso; só GSD fic
 > **[`docs/guides/onboarding-novo-dev.md`](docs/guides/onboarding-novo-dev.md)** — siga por lá.
 > A seção abaixo é o resumo técnico do mesmo fluxo.
 >
-> 🪟🐧 **Windows ou Linux?** Esta seção (e o `setup-dev-machine.sh`) é o caminho **macOS**.
-> O ideIAos é bash-based; no **Windows** ele roda dentro do **WSL2** — guia dedicado em
-> **[`docs/guides/windows-wsl.md`](docs/guides/windows-wsl.md)**. No **Linux**, siga o mesmo
-> guia a partir do Passo 1. (Autosync via **cron**, não `launchd`; `setup.sh --global-only`
-> no lugar do bootstrap.)
+> 🪟🐧 **Windows ou Linux?** Esta seção (e o `setup-dev-machine.sh`) é o caminho **macOS/mantenedor**.
+> Um **dev-consumidor** (trabalha nos projetos, não no próprio ideIAos) precisa de muito pouco —
+> **Claude Code + git + Node + os plugins** (`claude plugin install ideiaos-core@ideiaos`); a config
+> dos projetos já vem no `git clone`. No **Windows** há **2 caminhos** — nativo + Git Bash (⚗️
+> consumidor) ou **WSL2** (✅ garantido) — em **[`docs/guides/windows-wsl.md`](docs/guides/windows-wsl.md)**.
+> No **Linux**, o Caminho B a partir do Passo 1. (Autosync via cron/Task Scheduler, não `launchd`.)
 
 ### 1. Pré-requisitos (uma vez — não são auto-instalados)
 ```bash

@@ -4,6 +4,23 @@
 
 ---
 
+## ▶ RETOMAR AQUI — Multi-SO (2026-06-25)
+
+**Próximo passo executável:** o **Lucas (dev novo, Windows)** roda o **teste de 5 min** em
+`docs/guides/windows-wsl.md` §A.0 (instalar `ideiaos-core@ideiaos` com Git for Windows e ver se um
+hook `.sh` EXECUTA ao editar arquivo). O resultado decide:
+- **PASS** → Windows nativo+Git Bash vira caminho de consumidor; **executar o milestone
+  "multi-OS hardening"** (`docs/process/multi-os-hardening-plan.md` — 7 fixes; começar pelo #1
+  `/usr/bin/python3`→lookup, com os 4 caveats do red-team).
+- **FAIL** → WSL2 (Caminho B) segue único caminho Windows; o nativo fica fora.
+
+**Entregue nesta sessão (commit pendente de push manual ou já na `work`):** guias
+`onboarding-novo-dev.md` + `windows-wsl.md` (2 caminhos), README sincronizado, plano de hardening,
+memória `project-multi-os-install-architecture`. Exame: `wf_0f029597-a31` (sound-with-caveats).
+**Decisão do usuário:** doc + teste primeiro; código de hardening só pós-teste. NÃO portar p/ PowerShell.
+
+---
+
 ## Linhagem GSD — VERDADE CANONICA
 
 GSD neste projeto = @opengsd/get-shit-done-redux 1.1.0 (org opengsd).

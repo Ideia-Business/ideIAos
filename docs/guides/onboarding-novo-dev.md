@@ -13,11 +13,25 @@ O ideIAos é bash-based; o caminho muda no **Passo 1–6** conforme o SO:
 | SO | Trilha | Autosync |
 |----|--------|----------|
 | **macOS** | **este guia** — bootstrap `setup-dev-machine.sh` faz quase tudo em 1 comando | LaunchAgent (`launchd`) |
-| **Windows** | → **[`windows-wsl.md`](windows-wsl.md)** (roda dentro do **WSL2/Ubuntu**) | cron no WSL |
-| **Linux** | siga o **[`windows-wsl.md`](windows-wsl.md)** a partir do *Passo 1* (pule o Passo 0 do WSL) | cron / systemd |
+| **Windows** | → **[`windows-wsl.md`](windows-wsl.md)** — 2 caminhos: **nativo + Git Bash** (⚗️ consumidor) ou **WSL2** (✅ garantido) | Task Scheduler ou cron |
+| **Linux** | siga o **[`windows-wsl.md`](windows-wsl.md)** (Caminho B) a partir do *Passo 1* (pule o Passo 0 do WSL) | cron / systemd |
 
 A **seção 0** (acessos) e as **seções 7–10** (primeira sessão, branches/autosync, manutenção,
 troubleshooting) valem para **todos os SO** — só os passos de instalação 1–6 divergem.
+
+## 👤 Você é consumidor ou mantenedor?
+
+A distinção que mais simplifica a instalação:
+
+- **Consumidor** (a maioria) — trabalha **nos projetos** (cfoai, nfideia, lapidai, ideiapartner).
+  Precisa de **muito pouco**: **Claude Code + git + Node + os plugins** (`claude plugin install
+  ideiaos-core@ideiaos`). A config dos projetos (AGENTS.md, `.claude/`, `.cursor/rules`) **já vem
+  no `git clone`** — não roda `setup.sh`. No Windows, pode tentar o caminho **nativo** (sem WSL).
+- **Mantenedor** — mexe **no próprio ideIAos** (skills, hooks, build, autosync). Aí sim roda o
+  bootstrap completo abaixo (e, no Windows, usa **WSL2** para paridade total).
+
+Este guia detalha o caminho **completo/mantenedor** (macOS). Um consumidor pode parar após
+instalar os plugins + clonar os projetos na branch `work`.
 
 ---
 
@@ -231,8 +245,9 @@ Implicações práticas:
   # … sua operação git …
   bash ~/dev/IdeiaOS/scripts/autosync-pause.sh off   # retoma (SEMPRE retome)
   ```
-- A `main` **protege** contra auto-push (só recebe pull). Trabalho "local-only" de verdade
-  exige estar numa branch que o autosync **não** empurra — ou na `main`.
+- A `main` **só recebe pull** pelo autosync. Se você commitar na `main`, o autosync **não
+  empurra automaticamente** — mas **avisa** (notificação "push MANUAL: N commit(s) no main").
+  Ou seja, commits na `main` não "somem" sem aviso; só exigem `git push` manual.
 
 ---
 
