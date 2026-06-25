@@ -1,0 +1,965 @@
+{
+  "schema": "ideiaos-cockpit-snapshot/v1",
+  "machine_id": "52ae4ab0681a",
+  "agentd_version": "1.0.0",
+  "os_version": "26.6",
+  "taken_epoch": 1782354665,
+  "daemons": [
+    {
+      "pid": null,
+      "status": "0",
+      "label": "com.ideiaos.envsync"
+    },
+    {
+      "pid": 49178,
+      "status": "0",
+      "label": "com.ideiaos.cockpit"
+    },
+    {
+      "pid": 49180,
+      "status": "0",
+      "label": "com.ideiaos.gitautosync"
+    },
+    {
+      "pid": null,
+      "status": "0",
+      "label": "com.ideiaos.refresh-ai-security"
+    }
+  ],
+  "doctor": {
+    "ok": 0,
+    "warn": 0,
+    "fail": 0,
+    "exit": -1,
+    "sections": []
+  },
+  "installed_versions": {},
+  "accounts": [
+    {
+      "host": "github.com",
+      "user": "gustavolpaiva",
+      "protocol": "https",
+      "active": false
+    }
+  ],
+  "projects": [
+    {
+      "slug": "IdeiaOS",
+      "path": "/Users/gustavolopespaiva/dev/IdeiaOS",
+      "is_test_dir": false,
+      "remote": "https://github.com/Ideia-Business/ideIAos.git",
+      "supabase_project_id": null,
+      "api_keys": [
+        {
+          "var_name": "DEEPSEEK_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781650861
+        },
+        {
+          "var_name": "OPENROUTER_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781650861
+        },
+        {
+          "var_name": "ANTHROPIC_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781650861
+        },
+        {
+          "var_name": "OPENAI_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781650861
+        },
+        {
+          "var_name": "EXA_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781650861
+        },
+        {
+          "var_name": "CONTEXT7_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781650861
+        },
+        {
+          "var_name": "SUPABASE_URL",
+          "present": true,
+          "expected": true,
+          "risk_tier": "low",
+          "mtime_epoch": 1781650861
+        },
+        {
+          "var_name": "SUPABASE_ANON_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781650861
+        },
+        {
+          "var_name": "SUPABASE_SERVICE_ROLE_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "critical",
+          "mtime_epoch": 1781650861
+        },
+        {
+          "var_name": "GITHUB_TOKEN",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781650861
+        },
+        {
+          "var_name": "CLICKUP_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781650861
+        },
+        {
+          "var_name": "N8N_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781650861
+        },
+        {
+          "var_name": "N8N_WEBHOOK_URL",
+          "present": true,
+          "expected": true,
+          "risk_tier": "low",
+          "mtime_epoch": 1781650861
+        },
+        {
+          "var_name": "SENTRY_DSN",
+          "present": true,
+          "expected": true,
+          "risk_tier": "none",
+          "mtime_epoch": 1781650861
+        },
+        {
+          "var_name": "RAILWAY_TOKEN",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781650861
+        },
+        {
+          "var_name": "VERCEL_TOKEN",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781650861
+        },
+        {
+          "var_name": "NODE_ENV",
+          "present": true,
+          "expected": true,
+          "risk_tier": "none",
+          "mtime_epoch": 1781650861
+        },
+        {
+          "var_name": "AIOX_VERSION",
+          "present": true,
+          "expected": true,
+          "risk_tier": "none",
+          "mtime_epoch": 1781650861
+        }
+      ]
+    },
+    {
+      "slug": "Jarvis",
+      "path": "/Users/gustavolopespaiva/dev/Jarvis",
+      "is_test_dir": false,
+      "remote": "git@github-personal:gustavolpaiva/Jarvis-Gustavo.git",
+      "supabase_project_id": null,
+      "api_keys": [
+        {
+          "var_name": "OPENAI_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1780941182
+        },
+        {
+          "var_name": "PORT",
+          "present": true,
+          "expected": true,
+          "risk_tier": "none",
+          "mtime_epoch": 1780941182
+        },
+        {
+          "var_name": "PYTHON_CMD",
+          "present": true,
+          "expected": true,
+          "risk_tier": "none",
+          "mtime_epoch": 1780941182
+        },
+        {
+          "var_name": "USER_NAME",
+          "present": true,
+          "expected": true,
+          "risk_tier": "none",
+          "mtime_epoch": 1780941182
+        },
+        {
+          "var_name": "OBSIDIAN_VAULT_PATH",
+          "present": true,
+          "expected": true,
+          "risk_tier": "low",
+          "mtime_epoch": 1780941182
+        },
+        {
+          "var_name": "AUTO_OPEN_BROWSER",
+          "present": true,
+          "expected": true,
+          "risk_tier": "none",
+          "mtime_epoch": 1780941182
+        },
+        {
+          "var_name": "WEATHER_CITY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "none",
+          "mtime_epoch": 1780941182
+        },
+        {
+          "var_name": "TZ",
+          "present": true,
+          "expected": true,
+          "risk_tier": "none",
+          "mtime_epoch": 1780941182
+        },
+        {
+          "var_name": "MEMORY_SYNC_DIR",
+          "present": true,
+          "expected": true,
+          "risk_tier": "none",
+          "mtime_epoch": 1780941182
+        }
+      ]
+    },
+    {
+      "slug": "cfoai-grupori",
+      "path": "/Users/gustavolopespaiva/dev/cfoai-grupori",
+      "is_test_dir": false,
+      "remote": "https://github.com/Ideia-Business/cfoai-grupori.git",
+      "supabase_project_id": "ajvlqsdmjczkenzejznn",
+      "api_keys": [
+        {
+          "var_name": "DEEPSEEK_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1780258864
+        },
+        {
+          "var_name": "OPENROUTER_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1780258864
+        },
+        {
+          "var_name": "ANTHROPIC_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1780258864
+        },
+        {
+          "var_name": "OPENAI_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1780258864
+        },
+        {
+          "var_name": "EXA_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1780258864
+        },
+        {
+          "var_name": "CONTEXT7_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1780258864
+        },
+        {
+          "var_name": "SUPABASE_URL",
+          "present": true,
+          "expected": true,
+          "risk_tier": "low",
+          "mtime_epoch": 1780258864
+        },
+        {
+          "var_name": "SUPABASE_ANON_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1780258864
+        },
+        {
+          "var_name": "SUPABASE_SERVICE_ROLE_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "critical",
+          "mtime_epoch": 1780258864
+        },
+        {
+          "var_name": "GITHUB_TOKEN",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1780258864
+        },
+        {
+          "var_name": "CLICKUP_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1780258864
+        },
+        {
+          "var_name": "N8N_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1780258864
+        },
+        {
+          "var_name": "N8N_WEBHOOK_URL",
+          "present": true,
+          "expected": true,
+          "risk_tier": "low",
+          "mtime_epoch": 1780258864
+        },
+        {
+          "var_name": "SENTRY_DSN",
+          "present": true,
+          "expected": true,
+          "risk_tier": "none",
+          "mtime_epoch": 1780258864
+        },
+        {
+          "var_name": "RAILWAY_TOKEN",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1780258864
+        },
+        {
+          "var_name": "VERCEL_TOKEN",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1780258864
+        },
+        {
+          "var_name": "NODE_ENV",
+          "present": true,
+          "expected": true,
+          "risk_tier": "none",
+          "mtime_epoch": 1780258864
+        },
+        {
+          "var_name": "AIOX_VERSION",
+          "present": true,
+          "expected": true,
+          "risk_tier": "none",
+          "mtime_epoch": 1780258864
+        },
+        {
+          "var_name": "NOTAGATEWAY_EMAIL",
+          "present": true,
+          "expected": true,
+          "risk_tier": "none",
+          "mtime_epoch": 1780258864
+        },
+        {
+          "var_name": "NOTAGATEWAY_PASSWORD",
+          "present": true,
+          "expected": true,
+          "risk_tier": "none",
+          "mtime_epoch": 1780258864
+        }
+      ]
+    },
+    {
+      "slug": "grupori-chat",
+      "path": "/Users/gustavolopespaiva/dev/grupori-chat",
+      "is_test_dir": false,
+      "remote": "https://github.com/Ideia-Business/grupori-chat.git",
+      "supabase_project_id": null,
+      "api_keys": []
+    },
+    {
+      "slug": "ideia-chat",
+      "path": "/Users/gustavolopespaiva/dev/ideia-chat",
+      "is_test_dir": true,
+      "remote": "https://github.com/Ideia-Business/ideia-chat.git",
+      "supabase_project_id": null,
+      "api_keys": [
+        {
+          "var_name": "NEXT_PUBLIC_API_BASE_URL",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781566573
+        },
+        {
+          "var_name": "JWT_SECRET",
+          "present": true,
+          "expected": true,
+          "risk_tier": "critical",
+          "mtime_epoch": 1781566573
+        }
+      ]
+    },
+    {
+      "slug": "ideiapartner",
+      "path": "/Users/gustavolopespaiva/dev/ideiapartner",
+      "is_test_dir": false,
+      "remote": "https://github.com/Ideia-Business/ideiapartner.git",
+      "supabase_project_id": "jtsevyeoymefkcrydhcg",
+      "api_keys": [
+        {
+          "var_name": "VITE_SUPABASE_PROJECT_ID",
+          "present": true,
+          "expected": true,
+          "risk_tier": "low",
+          "mtime_epoch": 1781369066
+        },
+        {
+          "var_name": "VITE_SUPABASE_PUBLISHABLE_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781369066
+        },
+        {
+          "var_name": "VITE_SUPABASE_URL",
+          "present": true,
+          "expected": true,
+          "risk_tier": "low",
+          "mtime_epoch": 1781369066
+        },
+        {
+          "var_name": "SUPABASE_URL",
+          "present": true,
+          "expected": true,
+          "risk_tier": "low",
+          "mtime_epoch": 1781324594
+        },
+        {
+          "var_name": "SUPABASE_ANON_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781324594
+        },
+        {
+          "var_name": "SUPABASE_SERVICE_ROLE_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "critical",
+          "mtime_epoch": 1781324594
+        },
+        {
+          "var_name": "OPS_DB_GATEWAY_TOKEN",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781324594
+        },
+        {
+          "var_name": "SUPABASE_PUBLISHABLE_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781368972
+        },
+        {
+          "var_name": "IDEIA_CHAT_BASE_URL",
+          "present": true,
+          "expected": true,
+          "risk_tier": "low",
+          "mtime_epoch": 1781368972
+        },
+        {
+          "var_name": "IDEIA_CHAT_SYSADMIN_EMAIL",
+          "present": true,
+          "expected": true,
+          "risk_tier": "low",
+          "mtime_epoch": 1781368972
+        },
+        {
+          "var_name": "IDEIA_CHAT_SYSADMIN_PASSWORD",
+          "present": true,
+          "expected": true,
+          "risk_tier": "low",
+          "mtime_epoch": 1781368972
+        },
+        {
+          "var_name": "FEATURE_IDEIA_CHAT_PROVISIONING_ENABLED",
+          "present": true,
+          "expected": true,
+          "risk_tier": "low",
+          "mtime_epoch": 1781368972
+        },
+        {
+          "var_name": "FEATURE_IDEIA_CHAT_PROVISIONING_DRY_RUN",
+          "present": true,
+          "expected": true,
+          "risk_tier": "low",
+          "mtime_epoch": 1781368972
+        },
+        {
+          "var_name": "DEEPSEEK_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781368972
+        },
+        {
+          "var_name": "OPENROUTER_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781368972
+        },
+        {
+          "var_name": "ANTHROPIC_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781368972
+        },
+        {
+          "var_name": "OPENAI_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781368972
+        },
+        {
+          "var_name": "EXA_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781368972
+        },
+        {
+          "var_name": "CONTEXT7_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781368972
+        },
+        {
+          "var_name": "GITHUB_TOKEN",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781368972
+        },
+        {
+          "var_name": "CLICKUP_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781368972
+        },
+        {
+          "var_name": "N8N_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781368972
+        },
+        {
+          "var_name": "N8N_WEBHOOK_URL",
+          "present": true,
+          "expected": true,
+          "risk_tier": "low",
+          "mtime_epoch": 1781368972
+        },
+        {
+          "var_name": "SENTRY_DSN",
+          "present": true,
+          "expected": true,
+          "risk_tier": "none",
+          "mtime_epoch": 1781368972
+        },
+        {
+          "var_name": "RAILWAY_TOKEN",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781368972
+        },
+        {
+          "var_name": "VERCEL_TOKEN",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781368972
+        },
+        {
+          "var_name": "NODE_ENV",
+          "present": true,
+          "expected": true,
+          "risk_tier": "none",
+          "mtime_epoch": 1781368972
+        },
+        {
+          "var_name": "AIOX_VERSION",
+          "present": true,
+          "expected": true,
+          "risk_tier": "none",
+          "mtime_epoch": 1781368972
+        }
+      ]
+    },
+    {
+      "slug": "lapidai",
+      "path": "/Users/gustavolopespaiva/dev/lapidai",
+      "is_test_dir": false,
+      "remote": "https://github.com/Ideia-Business/lapidai.git",
+      "supabase_project_id": "suzztzorxqurzqgquptc",
+      "api_keys": [
+        {
+          "var_name": "VITE_SUPABASE_PROJECT_ID",
+          "present": true,
+          "expected": true,
+          "risk_tier": "low",
+          "mtime_epoch": 1780968200
+        },
+        {
+          "var_name": "VITE_SUPABASE_PUBLISHABLE_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1780968200
+        },
+        {
+          "var_name": "VITE_SUPABASE_URL",
+          "present": true,
+          "expected": true,
+          "risk_tier": "low",
+          "mtime_epoch": 1780968200
+        },
+        {
+          "var_name": "DEEPSEEK_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1780968200
+        },
+        {
+          "var_name": "OPENROUTER_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1780968200
+        },
+        {
+          "var_name": "ANTHROPIC_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1780968200
+        },
+        {
+          "var_name": "OPENAI_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1780968200
+        },
+        {
+          "var_name": "EXA_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1780968200
+        },
+        {
+          "var_name": "CONTEXT7_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1780968200
+        },
+        {
+          "var_name": "SUPABASE_URL",
+          "present": true,
+          "expected": true,
+          "risk_tier": "low",
+          "mtime_epoch": 1780968200
+        },
+        {
+          "var_name": "SUPABASE_ANON_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1780968200
+        },
+        {
+          "var_name": "SUPABASE_SERVICE_ROLE_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "critical",
+          "mtime_epoch": 1780968200
+        },
+        {
+          "var_name": "GITHUB_TOKEN",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1780968200
+        },
+        {
+          "var_name": "CLICKUP_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1780968200
+        },
+        {
+          "var_name": "N8N_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1780968200
+        },
+        {
+          "var_name": "N8N_WEBHOOK_URL",
+          "present": true,
+          "expected": true,
+          "risk_tier": "low",
+          "mtime_epoch": 1780968200
+        },
+        {
+          "var_name": "SENTRY_DSN",
+          "present": true,
+          "expected": true,
+          "risk_tier": "none",
+          "mtime_epoch": 1780968200
+        },
+        {
+          "var_name": "RAILWAY_TOKEN",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1780968200
+        },
+        {
+          "var_name": "VERCEL_TOKEN",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1780968200
+        },
+        {
+          "var_name": "NODE_ENV",
+          "present": true,
+          "expected": true,
+          "risk_tier": "none",
+          "mtime_epoch": 1780968200
+        },
+        {
+          "var_name": "AIOX_VERSION",
+          "present": true,
+          "expected": true,
+          "risk_tier": "none",
+          "mtime_epoch": 1780968200
+        }
+      ]
+    },
+    {
+      "slug": "nfideia",
+      "path": "/Users/gustavolopespaiva/dev/nfideia",
+      "is_test_dir": false,
+      "remote": "https://github.com/Ideia-Business/nfideia.git",
+      "supabase_project_id": "pdljyfyyxufkqejncccv",
+      "api_keys": [
+        {
+          "var_name": "SUPABASE_PUBLISHABLE_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781324822
+        },
+        {
+          "var_name": "SUPABASE_URL",
+          "present": true,
+          "expected": true,
+          "risk_tier": "low",
+          "mtime_epoch": 1781324822
+        },
+        {
+          "var_name": "VITE_NFIDEIA_PHONE_DISPLAY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "low",
+          "mtime_epoch": 1781324822
+        },
+        {
+          "var_name": "VITE_SUPABASE_PROJECT_ID",
+          "present": true,
+          "expected": true,
+          "risk_tier": "low",
+          "mtime_epoch": 1781324822
+        },
+        {
+          "var_name": "VITE_SUPABASE_PUBLISHABLE_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781324822
+        },
+        {
+          "var_name": "VITE_SUPABASE_URL",
+          "present": true,
+          "expected": true,
+          "risk_tier": "low",
+          "mtime_epoch": 1781324822
+        },
+        {
+          "var_name": "DEEPSEEK_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781985387
+        },
+        {
+          "var_name": "OPENROUTER_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781985387
+        },
+        {
+          "var_name": "ANTHROPIC_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781985387
+        },
+        {
+          "var_name": "OPENAI_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781985387
+        },
+        {
+          "var_name": "EXA_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781985387
+        },
+        {
+          "var_name": "CONTEXT7_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781985387
+        },
+        {
+          "var_name": "SUPABASE_ANON_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781985387
+        },
+        {
+          "var_name": "SUPABASE_SERVICE_ROLE_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "critical",
+          "mtime_epoch": 1781985387
+        },
+        {
+          "var_name": "GITHUB_TOKEN",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781985387
+        },
+        {
+          "var_name": "CLICKUP_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781985387
+        },
+        {
+          "var_name": "N8N_API_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781985387
+        },
+        {
+          "var_name": "N8N_WEBHOOK_URL",
+          "present": true,
+          "expected": true,
+          "risk_tier": "low",
+          "mtime_epoch": 1781985387
+        },
+        {
+          "var_name": "SENTRY_DSN",
+          "present": true,
+          "expected": true,
+          "risk_tier": "none",
+          "mtime_epoch": 1781985387
+        },
+        {
+          "var_name": "RAILWAY_TOKEN",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781985387
+        },
+        {
+          "var_name": "VERCEL_TOKEN",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1781985387
+        },
+        {
+          "var_name": "NODE_ENV",
+          "present": true,
+          "expected": true,
+          "risk_tier": "none",
+          "mtime_epoch": 1781985387
+        },
+        {
+          "var_name": "AIOX_VERSION",
+          "present": true,
+          "expected": true,
+          "risk_tier": "none",
+          "mtime_epoch": 1781985387
+        }
+      ]
+    }
+  ]
+}
