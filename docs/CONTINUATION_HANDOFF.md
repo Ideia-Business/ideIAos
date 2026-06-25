@@ -4,20 +4,29 @@
 
 ---
 
-## ▶ RETOMAR AQUI — Multi-SO (2026-06-25)
+## ▶ RETOMAR AQUI — v15/v16 FORMALIZADOS (2026-06-25)
 
-**Próximo passo executável:** o **Lucas (dev novo, Windows)** roda o **teste de 5 min** em
-`docs/guides/windows-wsl.md` §A.0 (instalar `ideiaos-core@ideiaos` com Git for Windows e ver se um
-hook `.sh` EXECUTA ao editar arquivo). O resultado decide:
-- **PASS** → Windows nativo+Git Bash vira caminho de consumidor; **executar o milestone
-  "multi-OS hardening"** (`docs/process/multi-os-hardening-plan.md` — 7 fixes; começar pelo #1
-  `/usr/bin/python3`→lookup, com os 4 caveats do red-team).
-- **FAIL** → WSL2 (Caminho B) segue único caminho Windows; o nativo fica fora.
+**O que aconteceu:** análise estratégica Ultracode (`wf_d2ae9a6d-235` — 43 agentes, 5 subsistemas
+mapeados → 32 propostas → 28 sobreviveram à verificação adversarial → síntese + crítico de completude)
+respondeu às 2 perguntas do dono (plataforma fácil de instalar/gerenciar + evoluir o Cockpit). Resultado
+**formalizado em 2 milestones**, decisão de numeração do dono:
+- **v15 = DX & Frota** — `.planning/milestones/v15-REQUIREMENTS.md` + `v15-ROADMAP.md` (23 reqs, 3 ondas A/B/C).
+- **v16 = Plataforma de Time** — `.planning/milestones/v16-REQUIREMENTS.md` (**renumeração do ex-"v15"** split-plane; aviso no topo do ADR `docs/decisions/v15-cockpit-split-plane-control-plane.md`).
+- Índice `.planning/ROADMAP.md` atualizado (v14/v15/v16); decisão "repo PRIVADO" marcada SUPERADA (repo é PÚBLICO).
 
-**Entregue nesta sessão (commit pendente de push manual ou já na `work`):** guias
-`onboarding-novo-dev.md` + `windows-wsl.md` (2 caminhos), README sincronizado, plano de hardening,
-memória `project-multi-os-install-architecture`. Exame: `wf_0f029597-a31` (sound-with-caveats).
-**Decisão do usuário:** doc + teste primeiro; código de hardening só pós-teste. NÃO portar p/ PowerShell.
+**Próximo passo executável:** `/gsd-plan-phase v15-A` (ou método-espelho v14) consumindo o `v15-ROADMAP.md` →
+gerar `PLAN.md` da Onda 1. O **movimento-âncora é R15-01** (fix `/usr/bin/python3` nos 12 hooks de produto +
+re-build dos plugins) — **cirúrgico, validável no macOS por exit-code, independe do teste do Lucas**.
+
+**Decisões do dono que gateiam fases (não o milestone):**
+1. **R15-06** — cfoai Lovable-MCP `deny=0`: remediar 19 deny [recomendado] OU allowlist por-nome no `idea-doctor §7e`.
+2. **R15-17** — cerimônia das **enc-keys (B0-bis)**: a N=2 anterior provou só signing, não as enc-keys do selo (gate do write-path own-fleet).
+3. **Tensão SOAK↔cfoai (crítico §3):** reconciliar se o `idea_doctor=PASS` do SOAK do v14.1 e o FAIL ao-vivo do cfoai medem o mesmo escopo.
+
+**Teste do Lucas (Windows) — ainda válido, mas DESACOPLADO de R15-01:** o teste de 5 min de
+`docs/guides/windows-wsl.md` §A.0 decide se o Windows **nativo+Git Bash** vira caminho de consumidor
+(PASS) ou se fica só WSL2 (FAIL). Os demais fixes de `docs/process/multi-os-hardening-plan.md` foram
+**absorvidos pela Onda 1 do v15** (R15-01/02/03). NÃO portar p/ PowerShell.
 
 ---
 
