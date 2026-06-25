@@ -1,11 +1,23 @@
 # Onboarding — Novo Dev no ideIAos
 
-> Passo a passo **cirúrgico** para um dev novo, em máquina nova (macOS), sair do zero
-> e começar a trabalhar nos projetos da Ideia Business com o ideIAos rodando.
+> Passo a passo **cirúrgico** para um dev novo, em máquina nova, sair do zero e começar a
+> trabalhar nos projetos da Ideia Business com o ideIAos rodando.
 >
 > Tempo total: ~20–40 min (a maior parte é download/`npm install` rodando sozinho).
-> O bootstrap (`setup-dev-machine.sh`) faz **quase tudo** — os passos manuais estão
-> marcados com 🖐️.
+> Os passos manuais estão marcados com 🖐️.
+
+## 🖥️ Qual é o seu sistema operacional?
+
+O ideIAos é bash-based; o caminho muda no **Passo 1–6** conforme o SO:
+
+| SO | Trilha | Autosync |
+|----|--------|----------|
+| **macOS** | **este guia** — bootstrap `setup-dev-machine.sh` faz quase tudo em 1 comando | LaunchAgent (`launchd`) |
+| **Windows** | → **[`windows-wsl.md`](windows-wsl.md)** (roda dentro do **WSL2/Ubuntu**) | cron no WSL |
+| **Linux** | siga o **[`windows-wsl.md`](windows-wsl.md)** a partir do *Passo 1* (pule o Passo 0 do WSL) | cron / systemd |
+
+A **seção 0** (acessos) e as **seções 7–10** (primeira sessão, branches/autosync, manutenção,
+troubleshooting) valem para **todos os SO** — só os passos de instalação 1–6 divergem.
 
 ---
 
@@ -39,7 +51,10 @@ Três acessos precisam existir **antes** — não são auto-instaláveis:
 
 ---
 
-## 1. Pré-requisitos da máquina (uma vez — **não** são auto-instalados)
+## 1. Pré-requisitos da máquina — **macOS** (uma vez — **não** são auto-instalados)
+
+> 🪟🐧 **Windows/Linux:** as seções **1–6** abaixo são o caminho **macOS**. No Windows/Linux,
+> siga **[`windows-wsl.md`](windows-wsl.md)** e volte aqui na **seção 7**.
 
 ```bash
 # Homebrew (se não tiver)

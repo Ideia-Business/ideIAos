@@ -157,6 +157,12 @@ Fluxo de ponta a ponta pra um Mac do zero. O bootstrap faz o grosso; só GSD fic
 > bootstrap, 1ª sessão, branches/autosync, troubleshooting) em
 > **[`docs/guides/onboarding-novo-dev.md`](docs/guides/onboarding-novo-dev.md)** — siga por lá.
 > A seção abaixo é o resumo técnico do mesmo fluxo.
+>
+> 🪟🐧 **Windows ou Linux?** Esta seção (e o `setup-dev-machine.sh`) é o caminho **macOS**.
+> O ideIAos é bash-based; no **Windows** ele roda dentro do **WSL2** — guia dedicado em
+> **[`docs/guides/windows-wsl.md`](docs/guides/windows-wsl.md)**. No **Linux**, siga o mesmo
+> guia a partir do Passo 1. (Autosync via **cron**, não `launchd`; `setup.sh --global-only`
+> no lugar do bootstrap.)
 
 ### 1. Pré-requisitos (uma vez — não são auto-instalados)
 ```bash
