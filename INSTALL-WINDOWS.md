@@ -104,7 +104,11 @@ done
 
 ## Passo 4 — Plugin GSD + `.env`
 - **GSD:** dentro do Claude Code, digite `/plugin` → adicionar o plugin **get-shit-done**. Confira com `/gsd-help`.
-- **`.env`:** peça ao Gustavo por canal seguro → coloque em `~/dev/<projeto>/.env` (nunca por chat em texto plano).
+- **`.env`:** cada projeto tem o seu (é gitignored — não vem no clone). Peça ao Gustavo o **`.env` mínimo de dev** por **canal seguro** (1Password/Bitwarden ou onetimesecret — **nunca** chat/e-mail em texto plano). Crie **dentro do WSL**:
+  ```bash
+  cd ~/dev/nfideia && nano .env    # cola o conteúdo recebido, Ctrl+O salva, Ctrl+X sai
+  ```
+  Quais chaves cada projeto precisa (template mínimo): [`docs/guides/env-setup-dev.md`](docs/guides/env-setup-dev.md).
 
 ---
 

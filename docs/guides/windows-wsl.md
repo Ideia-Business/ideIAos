@@ -205,8 +205,11 @@ done
 ## Passo 4 — Plugin GSD + `.env`
 
 - **GSD:** dentro do Claude Code, `/plugin` → adicionar o plugin GSD (get-shit-done). Confira: `/gsd-help`.
-- **`.env`:** peça ao Gustavo por canal seguro → `~/dev/<projeto>/.env`. O `setup.sh --project-only`
-  avisa `.env ausente` e `OPENROUTER_API_KEY` — esperado em máquina nova.
+- **`.env`:** cada projeto tem o seu (gitignored). Peça ao Gustavo o **`.env` mínimo de dev** por
+  **canal seguro** (1Password/Bitwarden ou onetimesecret — nunca chat em texto plano) e crie
+  **dentro do WSL** (`cd ~/dev/<projeto> && nano .env`). O `setup.sh --project-only` avisa `.env
+  ausente`/`OPENROUTER_API_KEY` — esperado em máquina nova. Chaves por projeto:
+  [`env-setup-dev.md`](env-setup-dev.md).
 
 ## Passo 5 — Autosync via cron (substituto do launchd)
 

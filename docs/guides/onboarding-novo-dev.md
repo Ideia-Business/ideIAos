@@ -163,12 +163,15 @@ Verifique depois: dentro do Claude Code, `/gsd-help` deve listar os comandos.
 
 ## 5. Segredos (`.env`) 🖐️
 
-Os arquivos `.env` (chaves de API, tokens) são **gitignored** — não vêm pelo clone.
-Para os projetos que precisam rodar localmente:
+Os arquivos `.env` (chaves de API, tokens) são **gitignored** — não vêm pelo clone. Cada projeto
+tem o seu.
 
-- Peça ao Gustavo o `.env` de cada projeto (via AirDrop / cofre de senhas), **nunca por
-  chat/e-mail em texto plano**.
-- Copie para a raiz do projeto: `~/dev/<projeto>/.env`.
+- Peça ao Gustavo o **`.env` mínimo de dev** de cada projeto por **canal seguro** (1Password /
+  Bitwarden ou onetimesecret), **nunca** por chat/e-mail em texto plano.
+- Coloque na raiz do projeto: `~/dev/<projeto>/.env` (no WSL, crie com `nano .env`).
+- **Least-privilege:** o `.env` de dev **não** inclui `SERVICE_ROLE_KEY` nem tokens de deploy
+  (Vercel/Railway/GitHub/N8N) — só o necessário para rodar o app + IA. Quais chaves por projeto:
+  [`env-setup-dev.md`](env-setup-dev.md).
 - O bootstrap avisa `⚠ .env ausente em <projeto>` quando falta — é esperado em máquina nova.
 
 > Regra-piso de segurança do ideIAos: **segredo nunca transita pelo contexto do LLM**.
