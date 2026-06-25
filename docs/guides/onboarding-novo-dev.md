@@ -15,12 +15,27 @@ Três acessos precisam existir **antes** — não são auto-instaláveis:
 
 | Acesso | Como obter | Quem provê |
 |--------|-----------|------------|
-| **Org GitHub `Ideia-Business`** | convite por e-mail para entrar na organização | 🖐️ Gustavo (admin) convida |
+| **Org GitHub `Ideia-Business`** (com **write**) | membro da org **+ push** nos 5 repos | 🖐️ Gustavo (admin) — ver nota abaixo |
 | **Claude Code** (Anthropic) | conta/assinatura ativa para logar no CLI | 🖐️ Gustavo libera no plano do time |
 | **Cursor IDE** (opcional) | conta Cursor — só se o dev for usar o Cursor além do Claude Code | o próprio dev |
 
-> Sem o convite ao org GitHub, o `git clone` dos repos privados falha. Esse é o
-> gargalo nº 1 de um dev novo — confirme primeiro.
+> ⚠️ **Ser "membro" da org não basta — precisa de dois níveis de acesso:**
+> - **Read** nos 5 repos → permite `git clone` e trabalhar localmente (geralmente vem do
+>   *base permission* da org).
+> - **Write / push** nos repos → **essencial**, porque o autosync empurra a branch `work`
+>   a cada 15 min e os commits do dev precisam subir. Write costuma vir por **team** ou
+>   **por repo**, não automaticamente por ser membro. Sem ele, o autosync **falha no push
+>   silenciosamente** (erro em `~/.local/state/git-autosync.err.log`).
+>
+> **Confirme o write (rode após `gh auth login`) — `push` tem que ser `true` nos cinco:**
+> ```bash
+> for r in cfoai-grupori IdeiaOS lapidai nfideia ideiapartner; do
+>   echo -n "$r → "; gh api repos/Ideia-Business/$r --jq '.permissions'
+> done
+> ```
+> Se algum vier `"push":false`, o admin adiciona o dev a um **team com write** (ou concede
+> push por repo). **Gotcha SAML/SSO:** se a org tiver SSO, o token do `gh` precisa ser
+> **autorizado para a org**, senão o clone HTTPS de repo privado nega mesmo sendo membro.
 
 ---
 
@@ -225,7 +240,8 @@ Implicações práticas:
 
 | Sintoma | Causa provável | Correção |
 |---------|----------------|----------|
-| `clone falhou` nos repos | sem acesso ao org GitHub | confirmar convite (`gh api user/memberships/orgs/Ideia-Business`) |
+| `clone falhou` nos repos | sem read no repo, ou token SSO não autorizado | confirmar membership/SSO (`gh api user/memberships/orgs/Ideia-Business`) |
+| autosync não empurra (commita local mas não sobe) | falta **write/push** nos repos | checar `gh api repos/Ideia-Business/<repo> --jq '.permissions'` → `push:true`; admin concede write |
 | `timeout: command not found` | shim ausente / PATH | re-rodar `setup-dev-machine.sh` (passo 4) |
 | skills `/idea` não aparecem | setup global não rodou | `bash ~/dev/IdeiaOS/setup.sh --global-only` |
 | GSD `/gsd-*` ausente | plugin não instalado | `/plugin` no Claude Code (seção 4) |
