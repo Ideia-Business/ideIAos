@@ -4,7 +4,23 @@
 
 ---
 
-## ▶ RETOMAR AQUI — v15 Onda 3 (Fase C) COMPLETA (6/6 não-gated); falta SOAK 2ª máquina + R15-17 GATED p/ tag v15 (2026-06-26)
+## ▶ RETOMAR AQUI — v15 AUDITADO SHIP + LOW corrigido; só falta SOAK span ≥1d (re-record 2026-06-27 15:11) p/ tag (2026-06-26)
+
+**Sessão "conclua 100% do cockpit" pós-/compact.** Autosync pausado na cirurgia; daemon re-deployado (HEALED) e religado ao fim; `work→main` ff-merge feito.
+
+> **🎯 Auditoria adversarial multi-agente pré-tag (`wf_6d5aef84-56b`) = veredito SHIP.** Baseline GREEN por exit-code (idea-doctor exit 0 · OK:80/WARN:1/FAIL:0 · tests/v15 6/6). 7 achados brutos → 6 refutados → 1 LOW confirmado (AR-02) **e remediado na mesma sessão**. Doc: `.planning/v15-MILESTONE-AUDIT.md`.
+
+- **✅ Fix AR-02 (`17ec199`)** — o stale-guard do surgery-lock (`surgery_active` + cópia inline `_autosync_surgery_active`) abortava o subshell sob `set -uo pipefail` se a sentinela tivesse `started=`/`pid=` não-numérico (corrupção out-of-band). Sanitização numérica `case "${x:-}" in *[!0-9]*|'') x= ;;` nos 2 sites → valor corrompido cai no path de stale (falha-segura). Reproduzido por exit-code (corrompido+pid-morto → STALE; não-aborta); daemon re-deployado canônico (HEALED, binário verificado por grep == fonte); tests/v15 6/6; idea-doctor §6 sem drift.
+- **✅ SOAK 2ª máquina FECHADA** — ledger tem **Mac-mini-de-Gustavo + MacBook-Air-2** (2 distintas). **Span 0d** (delta ~1,4h) é o único pendente.
+
+**🚦 Falta SÓ para tagear v15 (temporizado, não-código):**
+1. **SOAK span ≥1d** — re-record a partir de **2026-06-27 15:11** (24h após o heartbeat mais antigo): `bash scripts/check-soak.sh v15 --record` → span ≥1d → `check-soak.sh v15` exit 0.
+2. Tag via `TAG-READY-v15.md` (ff-merge + `AIOX_ACTIVE_AGENT=devops git tag -a v15.0` + push). **R15-17 GATED** = exclusão de escopo declarada (não bloqueia), igual v10/v14.
+3. Housekeeping: branch stale remota `sec/lovable-mcp-deny` em cfoai/nfideia.
+
+---
+
+## ▶ RETOMAR (anterior) — v15 Onda 3 (Fase C) COMPLETA (6/6 não-gated); falta SOAK 2ª máquina + R15-17 GATED p/ tag v15 (2026-06-26)
 
 **Sessão "siga" pós-/compact — Onda 3 inteira (R15-18..23, exceto R15-17 GATED) construída e provada por exit-code.**
 Autosync pausado nas cirurgias, daemon re-deployado (HEALED) e **religado ao fim**; `work→main` ff-merge feito.
