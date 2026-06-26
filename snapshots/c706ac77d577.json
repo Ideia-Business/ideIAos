@@ -3,7 +3,7 @@
   "machine_id": "c706ac77d577",
   "agentd_version": "1.0.0",
   "os_version": "26.6",
-  "taken_epoch": 1782434204,
+  "taken_epoch": 1782435115,
   "daemons": [
     {
       "pid": null,
@@ -11,7 +11,7 @@
       "label": "com.ideiaos.envsync"
     },
     {
-      "pid": 82427,
+      "pid": 16114,
       "status": "0",
       "label": "com.ideiaos.cockpit"
     },
@@ -34,14 +34,7 @@
     "sections": []
   },
   "installed_versions": {},
-  "accounts": [
-    {
-      "host": "github.com",
-      "user": "gustavolpaiva",
-      "protocol": "https",
-      "active": false
-    }
-  ],
+  "accounts": [],
   "projects": [
     {
       "slug": "IdeiaOS",
