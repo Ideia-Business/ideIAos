@@ -15,15 +15,19 @@
 # Exit: 0 se sem FAIL; 1 se houver FAIL (componente crítico ausente/quebrado).
 # WARN não falha (drift, opcionais). Cada achado vem com a remediação.
 #
-# Uso:  bash scripts/idea-doctor.sh [--json]
-#       --json  Emite JSON ideiaos-doctor/v1 em vez de saída ANSI (sem output colorido).
+# Uso:  bash scripts/idea-doctor.sh [--json|--fleet]
+#       --json   Emite JSON ideiaos-doctor/v1 em vez de saída ANSI (sem output colorido).
+#       --fleet  Agrega os snapshots do ref cockpit (frota cross-máquina): nome (alias-map),
+#                idade do snapshot (anti-falso-verde) e status; "sem sinal" (>1d) ≠ FAIL.
 # =============================================================================
 set -uo pipefail
 
 # ── Flag --json ──────────────────────────────────────────────────────────────
 JSON_MODE=0
+FLEET_MODE=0
 for _arg in "$@"; do
   [ "$_arg" = "--json" ] && JSON_MODE=1
+  [ "$_arg" = "--fleet" ] && FLEET_MODE=1
 done
 
 SETUP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -141,6 +145,81 @@ find_aiox_core() {
   done
   return 1
 }
+
+# ── Modo --fleet (R15-09): agrega snapshots do ref cockpit ───────────────────
+# Read-only sobre o ref `cockpit`. O snapshot já carrega doctor:{ok,warn,fail} e
+# taken_epoch (idade) — zero coleta nova. SEMPRE renderiza a idade (anti-falso-verde);
+# distingue "sem sinal" (DORMANT, >1d sem reportar — NÃO é falha) de FAIL. Sem declare -A.
+run_fleet() {
+  local repo="$SETUP_DIR"
+  echo -e "\n${CYAN}${BOLD}━━━ Frota IdeiaOS (--fleet) ━━━${NC}"
+  if ! git -C "$repo" rev-parse --verify --quiet refs/heads/cockpit >/dev/null 2>&1; then
+    echo -e "  ${YELLOW}⚠${NC}  ref cockpit ausente neste repo — nenhuma frota para agregar."
+    echo -e "  ${CYAN}ℹ${NC}  publique snapshots com o Cockpit (source/lib/cockpit.sh) primeiro."
+    return 0
+  fi
+  local snaps
+  snaps="$(git -C "$repo" ls-tree --name-only cockpit snapshots/ 2>/dev/null | grep '\.json$' || true)"
+  if [ -z "$snaps" ]; then
+    echo -e "  ${YELLOW}⚠${NC}  ref cockpit existe, mas sem snapshots ainda."
+    return 0
+  fi
+  local now af count dormant failc vazio
+  now="$(date +%s)"
+  af="$repo/source/console/machine-aliases.json"
+  count=0; dormant=0; failc=0; vazio=0
+  printf "  ${BOLD}%-22s %-11s %-8s %s${NC}\n" "MÁQUINA" "IDADE" "STATUS" "DETALHE"
+  local snap mid line st name age det color
+  while IFS= read -r snap; do
+    [ -z "$snap" ] && continue
+    mid="$(basename "$snap" .json)"
+    line="$(git -C "$repo" show "cockpit:$snap" 2>/dev/null | node -e '
+      const fs=require("fs");
+      const mid=process.argv[1], now=parseInt(process.argv[2],10), af=process.argv[3];
+      let j={}; try { j=JSON.parse(fs.readFileSync(0,"utf8")); } catch(e) {}
+      let al={}; try { al=JSON.parse(fs.readFileSync(af,"utf8")); } catch(e) {}
+      const name=al[mid]||mid.slice(0,12);
+      const d=j.doctor||{};
+      const ep=j.taken_epoch;
+      const DORMANT=86400;
+      function fmtAge(s){ s=Math.max(0,s); if(s<60)return s+"s"; const m=Math.floor(s/60); if(m<60)return m+"m"; const h=Math.floor(m/60); if(h<24)return h+"h "+(m%60)+"m"; const dd=Math.floor(h/24); return dd+"d "+(h%24)+"h"; }
+      const ex=(typeof d.exit==="number")?d.exit:null;
+      const tot=(d.ok||0)+(d.warn||0)+(d.fail||0);
+      let st, age;
+      if(typeof ep!=="number"||!isFinite(ep)){ st="DORMANT"; age="?"; }
+      else { const a=now-ep; age=fmtAge(a);
+        if(a>DORMANT) st="DORMANT";
+        else if(ex===null||ex<0||tot===0) st="VAZIO";
+        else if((d.fail||0)>0||ex===1) st="FAIL";
+        else if((d.warn||0)>0) st="WARN";
+        else st="OK"; }
+      const det="exit="+(ex===null?"?":ex)+" ok="+(d.ok||0)+" warn="+(d.warn||0)+" fail="+(d.fail||0)+" · agentd "+(j.agentd_version||"?")+" · "+(j.os_version||"?");
+      process.stdout.write(st+"\t"+name+"\t"+age+"\t"+det+"\n");
+    ' "$mid" "$now" "$af" || true)"
+    [ -z "$line" ] && continue
+    IFS=$'\t' read -r st name age det <<<"$line"
+    case "$st" in
+      OK)      color="$GREEN" ;;
+      WARN)    color="$YELLOW" ;;
+      FAIL)    color="$RED";    failc=$((failc+1)) ;;
+      DORMANT) color="$CYAN";   dormant=$((dormant+1)) ;;
+      VAZIO)   color="$YELLOW"; vazio=$((vazio+1)) ;;
+      *)       color="$NC" ;;
+    esac
+    printf "  ${BOLD}%-22s${NC} %-11s ${color}%-8s${NC} %s\n" "$name" "$age" "$st" "$det"
+    count=$((count+1))
+  done <<EOF
+$snaps
+EOF
+  echo ""
+  echo -e "  ${BOLD}${count} máquina(s)${NC} · ${CYAN}${dormant} sem sinal${NC} · ${YELLOW}${vazio} sem veredito${NC} · ${RED}${failc} com falha${NC}"
+  echo -e "  ${CYAN}ℹ${NC}  idade = tempo desde o snapshot (anti-falso-verde); \"sem sinal\" = >1d sem reportar;"
+  echo -e "      \"VAZIO\" = snapshot sem veredito do doctor (coleta incompleta, exit=-1) — nenhum é falha."
+}
+if [ "$FLEET_MODE" -eq 1 ]; then
+  run_fleet
+  exit 0
+fi
 
 if [ "$JSON_MODE" -eq 0 ]; then
   echo -e "\n${CYAN}${BOLD}╔══════════════════════════════════════════════════════════╗"
