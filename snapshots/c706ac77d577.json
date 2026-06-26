@@ -3,7 +3,7 @@
   "machine_id": "c706ac77d577",
   "agentd_version": "1.0.0",
   "os_version": "26.6",
-  "taken_epoch": 1782476493,
+  "taken_epoch": 1782477395,
   "daemons": [
     {
       "pid": null,
@@ -11,7 +11,7 @@
       "label": "com.ideiaos.envsync"
     },
     {
-      "pid": 64599,
+      "pid": 86631,
       "status": "0",
       "label": "com.ideiaos.cockpit"
     },
@@ -33,7 +33,42 @@
     "exit": -1,
     "sections": []
   },
-  "installed_versions": {},
+  "installed_versions": {
+    "aiox-core": "5.2.9",
+    "gsd": "1.1.0",
+    "design-suite-ref": "b7e3af80f6e331f6fb456667b82b12cade7c9d35",
+    "design-suite-commit": "b7e3af80f6e331f6fb456667b82b12cade7c9d35",
+    "mcp-chrome-devtools": "chrome-devtools-mcp@latest",
+    "mcp-context7": "@upstash/context7-mcp@latest",
+    "ideiaos-plugin": "3.0.0",
+    "updated": "2026-06-19"
+  },
+  "mcp_connections": [
+    {
+      "source": ".claude.json",
+      "name": "chrome-devtools"
+    },
+    {
+      "source": ".claude.json",
+      "name": "context7"
+    },
+    {
+      "source": "mcp.json",
+      "name": "chrome-devtools"
+    },
+    {
+      "source": "mcp.json",
+      "name": "lovable"
+    },
+    {
+      "source": "mcp.json",
+      "name": "context7"
+    },
+    {
+      "source": "mcp.json",
+      "name": "resend"
+    }
+  ],
   "accounts": [
     {
       "host": "github.com",
