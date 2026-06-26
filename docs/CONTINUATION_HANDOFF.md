@@ -19,7 +19,7 @@
 
 **⏳ PENDENTE (decisão do dono):** abrir/mergear **PR `sec→main`** em cfoai/nfideia. Enquanto não mergear, `idea-doctor` mostra **2 FAILs** (cfoai/nfideia "SEM contenção" em main, deny=0) — o §7e audita o working-tree da branch em checkout (main), e o fix vive em `sec/`. **NÃO é regressão** (estava mascarado pelo `--json` quebrado, agora consertado). O DoD do v15 exige `idea_doctor=PASS` p/ SOAK → fechar via merge controlado OU `settings.local.json`. Ver [[learning-gate-audits-current-branch-not-other-branch]].
 
-**Próximo passo:** (1) PR `sec→main` cfoai/nfideia (fecha os 2 FAILs); (2) seguir Fase B — R15-10 (CI 4 gates repo-puros) · R15-11 (lembrete selos+ff-merge, desbloqueado por R15-06) · R15-12 (dados ricos + resto da coleta incompleta `installed_versions={}`/`readMcp()`) · R15-13/14/15/16. Fase C: R15-17 GATED na cerimônia enc-keys.
+**Próximo passo:** (1) PR `sec→main` cfoai/nfideia (fecha os 2 FAILs); (2) Fase B EM ANDAMENTO (**3/8**) — ✅ R15-09 (`--fleet`) · ✅ **R15-10** (`governance.yml` — CI dos 2 gates repo-puros faltantes; `1100f3f`) · ✅ **R15-11** (`remind-closeout-gates.sh` + LaunchAgent — notifica ff-merge/SOAK/frescor, nunca carimba; `01dc378`); **próximo = R15-12** (dados ricos + resto da coleta `installed_versions={}`/`readMcp()`) · R15-13/14/15/16. Fase C: R15-17 GATED na cerimônia enc-keys. (R15-10 prova no Actions no próximo ff-merge p/ main.)
 
 **Learnings desta sessão (memória nativa):** [[learning-aggregator-status-from-verdict-not-absence]] · [[learning-gate-audits-current-branch-not-other-branch]] · [[learning-stale-autosync-branch-off-main]].
 
