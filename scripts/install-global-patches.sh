@@ -34,6 +34,12 @@ set -uo pipefail
 SETUP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PATCHES_DIR="$SETUP_DIR/source/templates/global-patches"
 
+# Pre-op guard anti-autosync-race (R15-22): marca cirurgia (escreve patches globais)
+# para o autosync sair cedo automaticamente. Sentinela com stale-guard; trap remove no EXIT.
+IDEIAOS_DIR="${IDEIAOS_DIR:-$SETUP_DIR}"
+[ -f "$IDEIAOS_DIR/source/lib/surgery-lock.sh" ] && . "$IDEIAOS_DIR/source/lib/surgery-lock.sh" || surgery_begin() { return 0; }
+surgery_begin "install-global-patches"
+
 # ── Cores ────────────────────────────────────────────────────────────────────
 GREEN='\033[0;32m'; YELLOW='\033[1;33m'; RED='\033[0;31m'; CYAN='\033[0;36m'
 BOLD='\033[1m'; NC='\033[0m'

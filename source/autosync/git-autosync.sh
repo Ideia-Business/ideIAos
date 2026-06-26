@@ -13,6 +13,22 @@ LOG="${HOME}/.local/state/git-autosync.log"
 mkdir -p "$(dirname "$LOG")"
 log()    { echo "$(date '+%Y-%m-%d %H:%M:%S') [$1] ${*:2}" >> "$LOG"; }
 notify() { /usr/bin/osascript -e "display notification \"$2\" with title \"$1\"" >/dev/null 2>&1 || true; }
+# _autosync_file_epoch / _autosync_surgery_active (R15-22) — consumo INLINE da
+# sentinela de cirurgia git (source/lib/surgery-lock.sh é o produtor). Daemon
+# auto-contido: o contrato é o FORMATO do arquivo (pid=/started=), não o código.
+# Stale-guard falha-segura: cirurgia "viva" só se PID vivo E TTL não-expirado —
+# um script de cirurgia que crashar sem limpar NUNCA trava o autosync para sempre.
+_autosync_file_epoch() { stat -f %m "$1" 2>/dev/null || stat -c %Y "$1" 2>/dev/null || echo 0; }
+_autosync_surgery_active() {
+  local S="${HOME}/.local/state/git-autosync.surgery"; [ -f "$S" ] || return 1
+  local pid started now ttl=1800
+  pid="$(sed -n 's/^pid=//p' "$S" 2>/dev/null | head -1)"
+  started="$(sed -n 's/^started=//p' "$S" 2>/dev/null | head -1)"
+  now="$(date +%s)"
+  [ -n "${started:-}" ] && [ $((now - started)) -ge "$ttl" ] && return 1   # TTL → stale
+  [ -n "${pid:-}" ] && ! kill -0 "$pid" 2>/dev/null && return 1            # PID morto → stale
+  return 0
+}
 # _push_state_ref — empurra um branch de transporte (planning=memória v5,
 # cockpit=telemetria v14) com AUTO-CURA de divergência. Nunca faz checkout nem
 # toca a árvore desses branches; NUNCA usa --force (falha-segura). Casos:
@@ -84,6 +100,19 @@ sync_one() {
   # responsavel por remover (ver scripts/autosync-pause.sh). Restauracao garantida.
   if [ -f "${HOME}/.local/state/git-autosync.pause" ] || [ -f "$REPO/.git/autosync-pause" ]; then
     log "$NAME" "pausado (pause-file) — pulado"; exit 0
+  fi
+  # Pre-op guard anti-race (R15-22): sentinela AUTOMÁTICA de cirurgia git multi-arquivo
+  # (posta por propagate/apply-to-all/install-global-patches via surgery-lock.sh). Reduz
+  # a dependência do "lembre de pausar" manual que já falhou 3× (autosync-races-ai-git-surgery).
+  if _autosync_surgery_active; then
+    log "$NAME" "cirurgia git em andamento (sentinela) — pulado (R15-22)"; exit 0
+  fi
+  # Defesa adicional: index.lock recente (<120s) = operação git atômica em curso neste repo.
+  if [ -f "$REPO/.git/index.lock" ]; then
+    local LKAGE; LKAGE=$(( $(date +%s) - $(_autosync_file_epoch "$REPO/.git/index.lock") ))
+    if [ "$LKAGE" -ge 0 ] && [ "$LKAGE" -lt 120 ]; then
+      log "$NAME" "git index.lock recente (${LKAGE}s) — operação git em curso, pulado (R15-22)"; exit 0
+    fi
   fi
   case "$BRANCH" in
     main|master)

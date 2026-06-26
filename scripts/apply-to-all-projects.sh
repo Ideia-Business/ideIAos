@@ -56,6 +56,11 @@ done
 
 COUNT="${#REPOS[@]}"
 
+# Pre-op guard anti-autosync-race (R15-22) — só no modo de escrita real (--apply).
+IDEIAOS_DIR="${IDEIAOS_DIR:-$SETUP_DIR}"
+[ -f "$IDEIAOS_DIR/source/lib/surgery-lock.sh" ] && . "$IDEIAOS_DIR/source/lib/surgery-lock.sh" || surgery_begin() { return 0; }
+[ "$DRY_RUN" -eq 0 ] && surgery_begin "apply-to-all-projects"
+
 if [ "$DRY_RUN" -eq 1 ]; then
   echo -e "\n${CYAN}${BOLD}Projetos detectados em $DEV_DIR (dry-run — use --apply para executar):${NC}"
   for d in "${REPOS[@]}"; do

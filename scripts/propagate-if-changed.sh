@@ -64,6 +64,13 @@ done
 
 mkdir -p "$STATE_DIR" "$(dirname "$LOG")"
 
+# Pre-op guard anti-autosync-race (R15-22): marca cirurgia git multi-arquivo para o
+# autosync sair cedo automaticamente (sentinela com stale-guard; trap remove no EXIT).
+# Só no modo de escrita real — dry-run não é cirurgia.
+IDEIAOS_DIR="${IDEIAOS_DIR:-$SETUP_DIR}"
+[ -f "$IDEIAOS_DIR/source/lib/surgery-lock.sh" ] && . "$IDEIAOS_DIR/source/lib/surgery-lock.sh" || surgery_begin() { return 0; }
+[ "$DRY_RUN" -eq 0 ] && surgery_begin "propagate-if-changed"
+
 log_msg() {
   echo "$(date '+%Y-%m-%d %H:%M:%S') $*" >> "$LOG"
 }
