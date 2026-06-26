@@ -72,6 +72,12 @@ async function collectSnapshot() {
   let installed_versions = {};
   try { installed_versions = collect.readVersions(); } catch (e) { process.stderr.write('[agentd] versions: ' + e.message + '\n'); }
 
+  // mcp_connections[] — R15-12: readMcp() existe e o ingest já consome
+  // snapshot.mcp_connections (tabela mcp_connection), mas collectSnapshot nunca
+  // a chamava → pilar Sinapse vazio. Credential-safe ({source,name}, sem value).
+  let mcp_connections = [];
+  try { mcp_connections = collect.readMcp(); } catch (e) { process.stderr.write('[agentd] mcp: ' + e.message + '\n'); }
+
   // accounts[]
   let accounts = [];
   try { accounts = collect.readAccounts(); } catch (e) { process.stderr.write('[agentd] accounts: ' + e.message + '\n'); }
@@ -111,6 +117,7 @@ async function collectSnapshot() {
     daemons,
     doctor,
     installed_versions,
+    mcp_connections,
     accounts,
     projects
     // INVARIANTE: sem campo "value" em nenhum ponto do snapshot
@@ -128,6 +135,7 @@ function buildMinimalSnapshot() {
     daemons:            [],
     doctor:             { ok: 0, warn: 0, fail: 0, exit: -1, sections: [] },
     installed_versions: {},
+    mcp_connections:    [],
     accounts:           [],
     projects:           []
   };

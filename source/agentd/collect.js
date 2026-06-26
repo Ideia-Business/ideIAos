@@ -261,7 +261,11 @@ function readSupabase(repoPath) {
 // ---------------------------------------------------------------------------
 function readVersions() {
   try {
-    const lockPath = path.join(process.cwd(), 'versions.lock');
+    // R15-12: ancorado em __dirname (collect.js vive em <repo>/source/agentd/), NÃO
+    // process.cwd() — sob launchd o cwd NÃO é o repo (plist do cockpit sem
+    // WorkingDirectory), então versions.lock não era achado e installed_versions
+    // ficava {} silenciosamente. Anti-padrão: depender de cwd num daemon.
+    const lockPath = path.join(__dirname, '..', '..', 'versions.lock');
     if (!fs.existsSync(lockPath)) return {};
     const lines = fs.readFileSync(lockPath, 'utf8').split('\n');
     const versions = {};
