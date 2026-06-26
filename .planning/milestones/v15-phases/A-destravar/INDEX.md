@@ -18,7 +18,7 @@ Um dev novo (inclusive Windows nativo) instala, vê por **exit-code** que funcio
 | A-05 | R15-07 | 1 | — | ✅ pass | `A-05-alias-map-frota-PLAN.md` |
 | A-06 | R15-08 | 1 | — | ✅ pass | `A-06-botao-verificar-PLAN.md` |
 | A-07 | R15-02 | 2 | A-01, A-02 | ✅ pass* | `A-07-registro-hooks-bootstrap-PLAN.md` |
-| A-08 | R15-06 | 2 | — (gated decisão dono) | ✅ pass | `A-08-resolver-fail-cfoai-PLAN.md` |
+| A-08 | R15-06 | 2 | — (decisão dono = **A**) | ✅ pass | `A-08-resolver-fail-cfoai-PLAN.md` |
 
 `*` A-04 e A-07 fecharam após fix cirúrgico pós-revisão (verificado por exit-code).
 
@@ -26,7 +26,7 @@ Um dev novo (inclusive Windows nativo) instala, vê por **exit-code** que funcio
 
 - **Wave 1 (paralelo, independentes):** A-01, A-02, A-03, A-04, A-05, A-06.
 - **Wave 2:** A-07 (depende de A-01 hooks corrigidos + A-02 smoke confirma o registro por exit-code).
-- **A-08** (cfoai) é **gated na decisão do dono** (branch A remediar 19 deny / branch B allowlist §7e) — pode rodar em qualquer wave após a escolha; o fix prefix-aware do §7e (instrumento de medição) é **incondicional** nas duas branches.
+- **A-08** (cfoai) — **decisão do dono = A (remediar os 19 deny no prefixo correto), 2026-06-25.** Branch B descartada. O fix prefix-aware do §7e (instrumento de medição) é **incondicional** nos 4 produtos. Pode rodar em qualquer wave.
 
 ## Movimento-âncora
 
@@ -46,4 +46,4 @@ Um dev novo (inclusive Windows nativo) instala, vê por **exit-code** que funcio
 
 ## Próximo passo
 
-`/gsd-execute-phase v15-A` (método-espelho) OU executar plano-a-plano começando por A-01 (Wave 1). Antes de A-08, **decisão do dono**: remediar 19 deny (A) ou allowlist por-nome no §7e (B).
+`/gsd-execute-phase v15-A` (método-espelho) OU executar plano-a-plano começando por A-01 (Wave 1). **A-08: decisão do dono = A** (remediar os 19 deny) — sem blocker pendente.

@@ -5,7 +5,8 @@ type: execute
 wave: 2
 depends_on: []
 requirements: [R15-06]
-gated_on_owner_decision: true
+gated_on_owner_decision: false   # RESOLVIDO 2026-06-25
+owner_decision: "A — remediar os 19 deny no prefixo do server ATIVO (claude_ai_Lovable) no cfoai. Branch B (allowlist §7e INFO-datado) DESCARTADA. O fix §7e prefix-aware (Task 3) permanece INCONDICIONAL nos 4 produtos."
 must_haves:
   truths:
     - "O §7e do idea-doctor (scripts/idea-doctor.sh:418-503) conta um PREFIXO FIXO `6f530143` (linha 427, arg do python3 embutido) — não o prefixo do server Lovable ATUALMENTE ATIVO (`claude.ai Lovable - gustavolpaiva`, tools `mcp__claude_ai_Lovable_-_gustavolpaiva__*`). VERIFICADO por exit-code: deny_OLD(6f530143)=19 e deny_NEW(claude_ai_Lovable)=0 nos QUATRO produtos (cfoai, ideiapartner, nfideia, lapidai). Logo o §7e dá PASS pelos 19 deny do id-velho enquanto deploy/remix/query_database do server ATIVO permanecem NÃO-denegados — verde-falso."
