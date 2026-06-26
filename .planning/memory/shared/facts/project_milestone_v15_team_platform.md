@@ -7,6 +7,8 @@ metadata:
   originSessionId: 4ccbd936-70a0-46eb-ba25-4466087d60d1
 ---
 
+> ⚠️ **RENUMERADO v15 → v16 (2026-06-25).** Este milestone (plataforma de time) é agora **v16**. Por decisão do dono, o número **v15 foi reatribuído ao milestone "DX & Frota"** (instalação fácil + gerência da frota + consolidação do Cockpit single-operator — `.planning/milestones/v15-{REQUIREMENTS,ROADMAP}.md`), que shipa primeiro. Todo o DESIGN abaixo permanece válido — só o número mudou. Requisitos em `.planning/milestones/v16-REQUIREMENTS.md`; aviso no topo do ADR `v15-cockpit-split-plane-control-plane.md` (arquivo mantém o nome). Fronteira: **v15 = 1 operador / N máquinas dele** (write-path own-fleet R15-17); **v16 = N devs** (RBAC/admissão/claims, gated por blockers + necessidade comprovada). Análise: `wf_d2ae9a6d-235`.
+
 **v15 "IdeiaOS Cockpit → Plataforma de Time Controlada"** — re-escopo decidido 2026-06-22 (sessão de design multi-agente). O Cockpit deixa de ser console local-first de 1 operador e vira **plataforma de time multi-dev hospedada em `cockpit.ideiabusiness.com.br`**, sem o CTO/TechLead perderem controle. Princípio-âncora do operador: **"delegar o TRABALHO sem delegar o CONTROLE."**
 
 **Arquitetura (split-plane preservado):** autoridade+segredo LOCAIS (planos P0-P2: chave O2, lista pinada autoritativa-local, valor de segredo NUNCA vão ao cloud); só VIEW+identidade+coordenação remotas (P3 Supabase dedicado `xdikjgpkiqzgebcjgqmu` "IdeiaOS - Cockpit"; P4 step-up dedicado SEPARADO; P5 UI web). O painel rejeitou o "control plane pleno" como super-construção; venceu read-fan-out (Operability-first), agora APLICADO a multi-dev.
