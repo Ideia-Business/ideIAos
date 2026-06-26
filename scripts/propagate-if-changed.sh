@@ -75,6 +75,21 @@ log_msg() {
   echo "$(date '+%Y-%m-%d %H:%M:%S') $*" >> "$LOG"
 }
 
+# Ledger de auto-cura/propagação (R15-20) — telemetria LOCAL-ONLY (~/.local/state,
+# fora do git: não polui a frota). Append atômico de 1 linha curta (< PIPE_BUF) via
+# `>>`; SEM hash-chain/tail-anchor (é telemetria, não não-repúdio — molde check-soak).
+# Formato: epoch|iso|host|verdict|old..new|errors|note. O idea-doctor §16 lê a última
+# linha e WARN se foi FAIL → torna VISÍVEL o drift silencioso do daemon (R15-20 origem).
+PROP_LEDGER="${IDEIAOS_PROPAGATE_LEDGER:-$HOME/.local/state/propagate-ledger.log}"
+propagate_ledger_append() {
+  local verdict="$1" note="${2:-}" oh="${OLD_HASH:-}" nh="${HEAD:-}"
+  mkdir -p "$(dirname "$PROP_LEDGER")" 2>/dev/null || return 0
+  printf '%s|%s|%s|%s|%s..%s|%s|%s\n' \
+    "$(date +%s)" "$(date '+%Y-%m-%dT%H:%M:%S')" "$(hostname -s 2>/dev/null || echo host)" \
+    "$verdict" "${oh:0:8}" "${nh:0:8}" "${ERRORS:-0}" "$note" \
+    >> "$PROP_LEDGER" 2>/dev/null || true
+}
+
 GREEN='\033[0;32m'; YELLOW='\033[1;33m'; CYAN='\033[0;36m'
 BOLD='\033[1m'; NC='\033[0m'
 ok()   { echo -e "${GREEN}  ✓${NC} $*"; log_msg "OK $*"; }
@@ -182,6 +197,7 @@ if [ "$NEED_GLOBAL" -eq 0 ] && [ "$NEED_PROJECT" -eq 0 ]; then
   if [ "$DRY_RUN" -eq 0 ]; then
     echo "$HEAD" > "$HASH_FILE"
     date +%s > "$TS_FILE"
+    propagate_ledger_append NOOP "diff sem paths propagaveis"
   fi
   exit 0
 fi
@@ -250,10 +266,12 @@ fi
 
 if [ "$ERRORS" -gt 0 ]; then
   warn "Propagação terminou com $ERRORS erro(s) — baseline mantido em ${OLD_HASH:0:8}"
+  propagate_ledger_append FAIL "$ERRORS erro(s)"
   exit 1
 fi
 
 echo "$HEAD" > "$HASH_FILE"
 date +%s > "$TS_FILE"
+propagate_ledger_append OK "global=$NEED_GLOBAL project=$NEED_PROJECT"
 ok "Propagação concluída — baseline ${HEAD:0:8}"
 exit 0

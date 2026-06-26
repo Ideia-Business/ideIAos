@@ -884,6 +884,31 @@ else
   fi
 fi
 
+# ── 16) Auto-cura / propagação (v15 · R15-20) ────────────────────────────────
+# Heartbeat do ledger de propagação (local-only). Torna VISÍVEL o drift silencioso
+# do daemon: quando o re-deploy do git-autosync (ou o overlay) falhou, antes era
+# caixa-preta. WARN (nunca FAIL — igual §14: FAIL bloquearia o SOAK por um drift
+# possivelmente transitório). Lê só a ÚLTIMA linha (heartbeat), não audita a cadeia.
+step "16) Auto-cura / propagação (v15)"
+PROP_LEDGER_DOC="${IDEIAOS_PROPAGATE_LEDGER:-$HOME/.local/state/propagate-ledger.log}"
+if [ ! -s "$PROP_LEDGER_DOC" ]; then
+  info "sem ledger de propagação ($PROP_LEDGER_DOC) — nenhum ciclo registrado (máquina nova ou sem mudança propagável)"
+else
+  _PL_LAST="$(tail -1 "$PROP_LEDGER_DOC" 2>/dev/null)"
+  _PL_EPOCH="$(printf '%s' "$_PL_LAST" | cut -d'|' -f1)"
+  _PL_HOST="$(printf '%s' "$_PL_LAST" | cut -d'|' -f3)"
+  _PL_VERDICT="$(printf '%s' "$_PL_LAST" | cut -d'|' -f4)"
+  _PL_RANGE="$(printf '%s' "$_PL_LAST" | cut -d'|' -f5)"
+  case "$_PL_EPOCH" in *[!0-9]*|'') _PL_EPOCH=0 ;; esac   # sanitiza: ledger malformado não aborta o $(( ))
+  _PL_AGED=$(( ( $(date +%s) - _PL_EPOCH ) / 86400 ))
+  case "$_PL_VERDICT" in
+    OK)   pass "última propagação OK ($_PL_HOST · $_PL_RANGE · há ${_PL_AGED}d)" ;;
+    NOOP) pass "última propagação sem-ação ($_PL_HOST · há ${_PL_AGED}d) — nada propagável no diff" ;;
+    FAIL) warn "última propagação FALHOU ($_PL_HOST · $_PL_RANGE · há ${_PL_AGED}d) — drift do daemon? rode: bash scripts/propagate-if-changed.sh --force" ;;
+    *)    info "ledger de propagação: verdict desconhecido '${_PL_VERDICT}' (última linha malformada?)" ;;
+  esac
+fi
+
 # ── Resumo ────────────────────────────────────────────────────────────────────
 if [ "$JSON_MODE" -eq 0 ]; then
   echo -e "\n${CYAN}${BOLD}━━━ Resumo ━━━${NC}"
