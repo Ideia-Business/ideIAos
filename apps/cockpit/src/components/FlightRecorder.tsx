@@ -138,13 +138,28 @@ export function FlightRecorder() {
           .fr-node { animation: none; opacity: 1; transform: none; }
         }
       `}</style>
-      <header className="mb-3 flex items-baseline gap-2">
-        <h2 className="text-sm font-semibold tracking-tight text-[oklch(var(--brand))]">
-          Flight Recorder
-        </h2>
-        <span className="font-mono text-xs text-muted-foreground">
-          gsd · versions.lock · {NODES.length} commits · {reversalCount} reversões
-        </span>
+      {/* 1ª-classe (R15-13): título proeminente + microcopy que torna LAW vs
+          INTERPRETED VISÍVEL ao usuário (antes vivia só em comentário de código). */}
+      <header className="mb-3">
+        <div className="flex items-baseline gap-2">
+          <h2 className="text-base font-semibold tracking-tight text-[oklch(var(--brand))]">
+            Flight Recorder
+          </h2>
+          <span className="font-mono text-xs text-muted-foreground">
+            gsd · versions.lock · {NODES.length} commits · {reversalCount} reversões
+          </span>
+        </div>
+        <p className="mt-1 max-w-prose text-xs leading-relaxed text-muted-foreground">
+          Replay determinístico do pin <code className="font-mono">gsd</code>. A fita desenha só o
+          que o git <strong className="font-semibold text-foreground">prova</strong> —{" "}
+          <span className="font-semibold text-foreground">LAW</span> (valor do pin, ordem e reversão,
+          por exit-code). A leitura narrativa ("o daemon reverteu o humano") aparece apenas no nó
+          selecionado, rotulada{" "}
+          <span className="rounded bg-[oklch(var(--status-warning)/0.18)] px-1 font-semibold uppercase tracking-wide text-[oklch(var(--status-warning))]">
+            interpretação
+          </span>{" "}
+          — nunca asserida como fato.
+        </p>
       </header>
 
       {/* Rótulos dos dois níveis (texto do pin — sinal textual, não só posição) */}

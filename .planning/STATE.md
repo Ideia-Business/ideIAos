@@ -6,10 +6,10 @@ status: in_progress
 last_updated: "2026-06-26"
 progress:
   total_phases: 3
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 23
-  completed_plans: 14
-  percent: 61
+  completed_plans: 16
+  percent: 70
 ---
 
 # State — IdeiaOS
@@ -18,7 +18,7 @@ progress:
 
 ## Milestone atual — v15: DX & Frota (instalação fácil + gerência da frota)
 
-**Status:** 🔵 EM ANDAMENTO. **Fase A (Onda 1)** ✅ COMPLETA (8/8, R15-01..08). **Fase B (Onda 2)** 🔵 **6/8** — ✅ R15-09 `--fleet` (+bugfix `f80e9c5` do `--json`) · R15-10 CI governance · R15-11 lembrete selos · R15-12 exposição Cockpit (`461fd7e` — GET `/projects` `/soak` `/doctor` + `accounts` no `/fleet`) · R15-15 runbook (eliminar dup + índice + gate de cobertura, anti-teatro provado) · R15-16 hello-world. **Restam só R15-13/R15-14** (par de UI no Overview.tsx, consomem os GET do R15-12, exigem frontend-visual-loop, regime-R). **Fase C (Onda 3)** R15-17..23 — R15-17 GATED na cerimônia enc-keys (decisão do dono).
+**Status:** 🔵 EM ANDAMENTO. **Fase A (Onda 1)** ✅ COMPLETA (8/8, R15-01..08). **Fase B (Onda 2)** ✅ **COMPLETA (8/8)** — ✅ R15-09 `--fleet` (+bugfix `f80e9c5` do `--json`) · R15-10 CI governance · R15-11 lembrete selos · R15-12 exposição Cockpit (`461fd7e` — GET `/projects` `/soak` `/doctor` + `accounts` no `/fleet`) · R15-13 Flight Recorder 1ª-classe + microcopy · R15-14 card Saúde & Governança (consome `/soak` real; frescor-tier diferido) · R15-15 runbook (eliminar dup + índice + gate de cobertura, anti-teatro) · R15-16 hello-world. Verificado regime-R (render+screenshot) + exit-code (tsc/build/test-recorder). **Fase C (Onda 3)** R15-17..23 — R15-17 GATED na cerimônia enc-keys (decisão do dono). **Resíduo p/ tag:** PR `sec→main` cfoai/nfideia (2 FAILs doctor) + re-coleta do agentd.
 
 **Pendência aberta (resíduo do item 1 / R15-06):** o fix de contenção Lovable-MCP (deny=19 das tools mutantes) está nas branches `sec/lovable-mcp-deny` de cfoai/nfideia (pushadas) + `work` de lapidai — mas **NÃO em `main`** de cfoai/nfideia → `idea-doctor` mostra **2 FAILs** ali (working-tree de main, deny=0). Fecham via **PR `sec→main` mergeado** (merge controlado vs. `settings.local.json`; decisão do dono pendente). O DoD do v15 exige `idea_doctor=PASS` para o SOAK. Ver [[learning-gate-audits-current-branch-not-other-branch]].
 

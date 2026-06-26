@@ -3,18 +3,25 @@
 // Overview.tsx — a primeira tela de valor (R14-05; spec). Bento grid + banda
 // Flight Recorder.
 //
-// Compõe:
+// Compõe (ordem 1ª-classe — R15-13):
 //   - System Pulse hero (heartbeat LOCAL-vivo; remoto = idade honesta).
+//   - Banda Flight Recorder (<FlightRecorder/>) ELEVADA logo após o hero — é a
+//     peça narrativa central (replay determinístico LAW vs INTERPRETED), não um
+//     rodapé. R15-13: 1ª-classe + microcopy visível; filtro por máquina DIFERIDO.
 //   - StatCards: MÁQUINAS / PROJETOS / CHECKS OK (de GET /overview).
-//   - Card Frota (resumo), card Segurança, card Releases-SOAK LEAN, card Atenção-Agora.
-//   - Banda Flight Recorder (<FlightRecorder/> de 14.1-05).
+//   - Card "Saúde & Governança" (R15-14): servido por GET read-only
+//     (/overview = saúde do doctor · /soak = governança-SOAK real). NUNCA
+//     POST /command, NUNCA spawnSync idea-doctor por load, NUNCA --record.
+//   - Cards Frota (resumo) e Atenção-Agora.
 //
 // HONESTIDADE (spec):
-//   - Releases-SOAK é LEAN: "PRONTO PARA TAG" + `v## n/2 ✓ span x/1d`, sem o
-//     relógio decorativo (doc 71 — cede o slot ao Flight Recorder).
+//   - Releases-SOAK usa o /soak REAL (span gravado = MAX-MIN epoch), não o proxy
+//     `machines>=2`. span_ge_1d é o gate de verdade.
 //   - Saúde-por-produto onde idea-doctor não roda (Lovable) => `n/a`, nunca nota
 //     fabricada. checks.unknown NÃO conta como falha.
-//   - Monousuário (sem 2º nó) => "aguardando segundo ator", nunca card-fantasma.
+//   - Frescor de segurança (tier): net-new de coleta DIFERIDO — slot honesto
+//     "aguardando coleta", nunca um tier fabricado (mesma disciplina do R15-12
+//     com doctor.sections=[]). Preenche quando o collect.js coletar o tier.
 // =============================================================================
 import { useEffect, useState } from "react";
 import {
@@ -24,6 +31,7 @@ import {
   Boxes,
   Tag,
   Bell,
+  Lock,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -44,6 +52,16 @@ interface OverviewData {
   checks: OverviewChecks;
 }
 
+// Forma de uma linha de GET /soak (espelha read.js handleSoak).
+interface SoakRow {
+  milestone: string;
+  heartbeats: number;
+  hosts: number;
+  span_seconds: number;
+  span_ge_1d: boolean;
+  last_idea_doctor: string;
+}
+
 export interface OverviewProps {
   /** Base loopback do read.js (http://127.0.0.1:3073). */
   apiBase: string;
@@ -51,13 +69,16 @@ export interface OverviewProps {
 
 export default function Overview({ apiBase }: OverviewProps) {
   const [data, setData] = useState<OverviewData | null>(null);
+  const [soak, setSoak] = useState<SoakRow[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Mesmo padrão useEffect/cancelled do App.tsx (loopback fetch canônico).
+  // /overview é obrigatório (bloqueia a tela); /soak é best-effort (o card
+  // degrada honestamente se faltar — nunca derruba o Overview).
   useEffect(() => {
     let cancelled = false;
-    async function fetchOverview() {
+    async function fetchAll() {
       try {
         const res = await fetch(`${apiBase}/overview`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -72,8 +93,18 @@ export default function Overview({ apiBase }: OverviewProps) {
           setLoading(false);
         }
       }
+      // /soak — best-effort, independente do overview (governança real).
+      try {
+        const r = await fetch(`${apiBase}/soak`);
+        if (r.ok) {
+          const rows = (await r.json()) as SoakRow[];
+          if (!cancelled && Array.isArray(rows)) setSoak(rows);
+        }
+      } catch {
+        /* /soak indisponível → card mostra "sem heartbeats", nunca inventa */
+      }
     }
-    fetchOverview();
+    fetchAll();
     return () => {
       cancelled = true;
     };
@@ -104,18 +135,26 @@ export default function Overview({ apiBase }: OverviewProps) {
   const checksAccent =
     checks.fail > 0 || checks.warn > 0 ? "warning" : checks.ok > 0 ? "success" : "neutral";
 
-  // SOAK lean (honesto): precisa de ≥2 máquinas para haver "segundo ator". Sem
-  // isso, não há tag possível e o card diz a verdade — nunca um relógio fake.
-  const soakReady = machines >= 2;
-
   // Saúde-por-produto honesta: `unknown` (idea-doctor n/a, ex.: Lovable) é
   // renderizado como n/a, jamais somado como falha.
   const naCount = checks.unknown;
+  const healthVariant = checks.fail > 0 ? "fail" : checks.warn > 0 ? "warn" : "ok";
+
+  // Governança-SOAK do /soak REAL (não o proxy machines>=2): quantos milestones,
+  // quantos com span≥1d gravado, e o pico de hosts observado.
+  const soakRows = soak ?? [];
+  const soakLoaded = soakRows.length > 0;
+  const span1dCount = soakRows.filter((s) => s.span_ge_1d).length;
+  const maxHosts = soakRows.reduce((m, s) => Math.max(m, s.hosts), 0);
 
   return (
     <div className="space-y-6">
       {/* ── Hero: System Pulse (local-vivo; remoto idade honesta) ── */}
       <SystemPulse apiBase={apiBase} />
+
+      {/* ── Flight Recorder ELEVADO a 1ª-classe (R15-13): logo após o hero, não
+            no rodapé. É a peça narrativa central (replay determinístico). ── */}
+      <FlightRecorder />
 
       {/* ── Bento: StatCards de métrica ── */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -148,54 +187,75 @@ export default function Overview({ apiBase }: OverviewProps) {
           </CardContent>
         </Card>
 
-        {/* Segurança */}
-        <Card>
+        {/* ── Saúde & Governança (R15-14) — card consolidado servido por GET
+              read-only: /overview (saúde do doctor) + /soak (governança-SOAK
+              real). Sem spawnSync, sem POST /command, sem --record. ── */}
+        <Card className="sm:col-span-2">
           <CardHeader className="pb-2">
             <div className="flex items-center gap-2">
               <ShieldCheck className="h-4 w-4 text-[oklch(var(--brand))]" aria-hidden />
-              <CardTitle>Segurança</CardTitle>
+              <CardTitle>Saúde &amp; Governança</CardTitle>
+              <span className="ml-auto font-mono text-[10px] uppercase tracking-wide text-muted-foreground">
+                GET read-only
+              </span>
             </div>
           </CardHeader>
-          <CardContent className="space-y-1">
-            <div className="flex items-center gap-2">
-              <Badge variant={checks.fail > 0 ? "fail" : checks.warn > 0 ? "warn" : "ok"}>
-                {checks.fail > 0 ? "fail" : checks.warn > 0 ? "warn" : "ok"}
-              </Badge>
-              <span className="text-xs text-muted-foreground">doctor agregado</span>
-            </div>
-            {naCount > 0 && (
-              <p className="text-xs text-muted-foreground">
-                {naCount} produto(s) <span className="font-mono">n/a</span>
-              </p>
-            )}
-          </CardContent>
-        </Card>
+          <CardContent>
+            <div className="grid gap-4 sm:grid-cols-3">
+              {/* Pilar 1 — Saúde (doctor agregado, de /overview) */}
+              <div className="space-y-1">
+                <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                  <ShieldCheck className="h-3.5 w-3.5" aria-hidden />
+                  Saúde · idea-doctor
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant={healthVariant}>{healthVariant}</Badge>
+                  <span className="font-mono text-xs">
+                    {checksTotal > 0 ? `${checks.ok}/${checksTotal}` : "n/a"}
+                  </span>
+                </div>
+                {naCount > 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    {naCount} <span className="font-mono">n/a</span> (não roda em Lovable)
+                  </p>
+                )}
+              </div>
 
-        {/* Releases-SOAK — LEAN: sem o relógio decorativo (doc 71) */}
-        <Card>
-          <CardHeader className="pb-2">
-            <div className="flex items-center gap-2">
-              <Tag className="h-4 w-4 text-[oklch(var(--brand))]" aria-hidden />
-              <CardTitle>Releases-SOAK</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-1">
-            {soakReady ? (
-              <>
-                <Badge variant="ok">PRONTO PARA TAG</Badge>
-                {/* forma lean: v## n/2 ✓ span x/1d — só o estado, sem relógio */}
-                <p className="font-mono text-xs text-muted-foreground">
-                  {machines}/2 ✓ · span —/1d
-                </p>
-              </>
-            ) : (
-              <>
-                <Badge variant="warn">aguardando segundo ator</Badge>
+              {/* Pilar 2 — Releases-SOAK (do /soak REAL: span gravado, não wall-clock) */}
+              <div className="space-y-1">
+                <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                  <Tag className="h-3.5 w-3.5" aria-hidden />
+                  Releases-SOAK
+                </div>
+                {soakLoaded ? (
+                  <>
+                    <p className="font-mono text-sm">
+                      {span1dCount}/{soakRows.length}{" "}
+                      <span className="text-xs text-muted-foreground">com span≥1d</span>
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {maxHosts} {maxHosts === 1 ? "host" : "hosts"} · gate real (span gravado)
+                    </p>
+                  </>
+                ) : (
+                  <p className="text-xs text-muted-foreground">sem heartbeats de SOAK</p>
+                )}
+              </div>
+
+              {/* Pilar 3 — Frescor de segurança (tier): net-new DIFERIDO, slot
+                  honesto. Nunca um tier fabricado (cf. R15-12 doctor.sections=[]). */}
+              <div className="space-y-1">
+                <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                  <Lock className="h-3.5 w-3.5" aria-hidden />
+                  Frescor de segurança
+                </div>
+                <Badge variant="warn">aguardando coleta</Badge>
                 <p className="text-xs text-muted-foreground">
-                  SOAK exige ≥2 máquinas + span ≥1d
+                  tier do <span className="font-mono">check-security-freshness</span> — próximo ciclo
+                  do agentd
                 </p>
-              </>
-            )}
+              </div>
+            </div>
           </CardContent>
         </Card>
 
@@ -218,9 +278,6 @@ export default function Overview({ apiBase }: OverviewProps) {
           </CardContent>
         </Card>
       </div>
-
-      {/* ── Banda Flight Recorder (de 14.1-05) ── */}
-      <FlightRecorder />
     </div>
   );
 }

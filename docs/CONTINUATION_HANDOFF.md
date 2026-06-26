@@ -4,34 +4,38 @@
 
 ---
 
-## ▶ RETOMAR AQUI — v15 Fase B 6/8 (R15-15 runbook DONE); restam SÓ R15-13/R15-14 (par de UI) (2026-06-26)
+## ▶ RETOMAR AQUI — v15 Fase B COMPLETA (8/8); próximo = Fase C (GATED) ou tag (2026-06-26)
 
-**Onde estamos:** **Fase B (Onda 2) = 6/8.** Sessão "continuar pós-compact". Autosync pausado na
-cirurgia de docs, **religado ao fim**.
+**Onde estamos:** **Fase B (Onda 2) ✅ COMPLETA (8/8).** Sessão "continuar pós-compact" → R15-15 +
+par de UI R15-13/R15-14. Autosync pausado nas cirurgias, **religado ao fim**.
 
-- **✅ R15-15 (runbook único — eliminar duplicação + índice) DONE** (interpretação do dono, NÃO
-  fusão monolítica). Entregue:
-  1. `INSTALL-WINDOWS.md` (raiz) era **54% verbatim** do Caminho B → **stub-ponteiro fino (163→22
-     linhas)**; corpo eliminado (0 gotchas/âncoras residuais).
-  2. `docs/guides/README.md` (**novo**) = índice de instalação por SO/assunto (NÃO funde
-     onboarding/env-setup heterogêneos).
-  3. `docs/guides/windows-wsl.md` confirmado como **runbook único** (6/2/2 dos gotchas).
-  4. `scripts/check-readme-sync.sh` **estendido** (não-novo) com **gate de cobertura** — gotcha ≥1
-     no runbook + âncora de corpo ausente no stub. **Anti-teatro PROVADO** por exit-code: stub que
-     re-duplica → exit 1; runbook sem gotcha → exit 1; caso bom → exit 0. README sync **140/140**.
-  - `+README.md` ponteiro ao índice. SUMMARY: `.planning/.../B-governanca/R15-15-runbook-SUMMARY.md`.
+- **✅ R15-13 + R15-14 (par de UI — fecha a Fase B) DONE** (regime-R: render+screenshot+network +
+  exit-code tsc/build/test-recorder):
+  - **R15-13** Flight Recorder **1ª-classe** (movido do rodapé p/ após o hero) + **microcopy LAW vs
+    INTERPRETED visível** ao usuário (antes só em comentário). Filtro DIFERIDO. `test-recorder.sh`
+    exit 0 (gate lê o JSON, não o `.tsx`).
+  - **R15-14** card **"Saúde & Governança"** servido por **GET read-only** (sem `POST /command`/
+    spawn/`--record`): 3 pilares — Saúde (`/overview`), **Releases-SOAK consumindo o `/soak` REAL**
+    (que NENHUMA tela usava), Frescor-tier **DIFERIDO** honesto (`aguardando coleta`).
+  - Arquivos: `apps/cockpit/src/pages/Overview.tsx`, `…/components/FlightRecorder.tsx`. SUMMARY:
+    `.planning/.../B-governanca/R15-13-14-ui-pair-SUMMARY.md`. Render provado ao vivo (machines=2,
+    5 milestones span≥1d, 2 hosts; `/overview` `/soak` `/fleet` 200; só favicon 404 benigno).
+- **✅ R15-15 (runbook único)** DONE no mesmo dia (stub 163→22 linhas + índice `docs/guides/README.md`
+  + gate de cobertura em `check-readme-sync.sh`, anti-teatro provado). SUMMARY: `R15-15-runbook-SUMMARY.md`.
 
-- **Placar Fase B = 6/8:** ✅ R15-09 `--fleet` · R15-10 CI governance · R15-11 lembrete selos ·
-  R15-12 exposição Cockpit · R15-15 runbook · R15-16 hello-world.
+- **Placar Fase B = 8/8:** ✅ R15-09 `--fleet` · R15-10 CI governance · R15-11 lembrete selos ·
+  R15-12 exposição Cockpit · R15-13 Flight Recorder 1ª-classe · R15-14 card Saúde & Governança ·
+  R15-15 runbook · R15-16 hello-world.
 
-**🚦 Próximo passo = R15-13 + R15-14 (o PAR DE UI — fecha a Fase B):**
-- **R15-13** (Flight Recorder 1ª-classe / drill-down) + **R15-14** (card Saúde & Governança) — ambos
-  no `apps/cockpit/` (Overview.tsx) e **consomem os GET do R15-12(a)** (`/soak`, `/projects`,
-  `/doctor?cell`, `accounts` no `/fleet`). **Exigem `frontend-visual-loop` (regime-R: render +
-  screenshot, NÃO exit-code)** → melhor numa sessão dedicada de UI. Dependência ✅ já satisfeita.
-- **Resíduo não-bloqueante p/ a fase, mas bloqueante p/ tag:** PR `sec→main` cfoai/nfideia (fecha os
-  2 FAILs do doctor; decisão do dono — cfoai é PARTICULAR). DoD do v15 exige `idea_doctor=PASS` p/ SOAK.
-- **Fase C (Onda 3):** R15-17 GATED na cerimônia enc-keys (decisão do dono).
+**🚦 Próximo passo — escolha do dono:**
+- **(a) Fase C (Onda 3) R15-17..23** — começa GATED: **R15-17 espera a cerimônia das enc-keys**
+  (decisão do dono pendente). Os não-gated (R15-18..22) podem ser planejados.
+- **(b) Caminho p/ tag v15** — fechar o **resíduo p/ DoD**: PR `sec→main` cfoai/nfideia (fecha os 2
+  FAILs do doctor; cfoai é PARTICULAR) + **re-coleta do agentd** (preenche os 2 n/a do doctor +
+  `supabase_project_id` + `installed_versions` + abre caminho ao frescor-tier do R15-14). SOAK exige
+  `idea_doctor=PASS`.
+- **Net-new diferido (não-bloqueante):** frescor-tier de segurança no `collect.js` → o pilar 3 do
+  card Saúde & Governança troca `aguardando coleta` pelo tier real.
 
 ---
 

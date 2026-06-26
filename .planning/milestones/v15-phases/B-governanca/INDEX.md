@@ -1,6 +1,6 @@
 # Fase B — "Governança visível + Cockpit rico" (Onda 2 do v15) · INDEX
 
-**Milestone:** v15 (DX & Frota) · **Fase:** B · **Status:** 🔵 EM ANDAMENTO (6/8 DONE; 2026-06-26).
+**Milestone:** v15 (DX & Frota) · **Fase:** B · **Status:** ✅ COMPLETA (8/8 DONE; 2026-06-26).
 **Origem:** método-espelho GSD (CLI não resolve fases v15 — mesma razão da Fase A e do v14). Planejado/executado plano-a-plano a partir de `v15-REQUIREMENTS.md` (R15-09..16) e `v15-ROADMAP.md`.
 
 ## Objetivo da fase (goal-backward)
@@ -17,8 +17,8 @@ Overview tem card de governança servido por GET; runbook único passa o gate de
 | B-02 | R15-10 | 1 | — | ✅ pass (code-complete) | `R15-10-ci-gates-PLAN.md` |
 | B-03 | R15-11 | 1 | R15-06 ✅ | ✅ pass | `R15-11-lembrete-selos-PLAN.md` |
 | B-04 | R15-12 | 1 | — | ✅ pass (coleta b+c + exposição (a) GET) | `R15-12-dados-ricos-PLAN.md` |
-| B-05 | R15-13 | 1 | **R15-12(a)** ✅ | 🔵 a fazer | (Flight Recorder 1ª-classe — consome GET) |
-| B-06 | R15-14 | 1 | **R15-12(a)** ✅ | 🔵 a fazer | (card Saúde & Governança GET — consome /soak+/projects) |
+| B-05 | R15-13 | 1 | **R15-12(a)** ✅ | ✅ pass (1ª-classe + microcopy; test-recorder exit 0) | `R15-13-14-ui-pair-SUMMARY.md` |
+| B-06 | R15-14 | 1 | **R15-12(a)** ✅ | ✅ pass (card GET consome /soak real; frescor-tier diferido) | `R15-13-14-ui-pair-SUMMARY.md` |
 | B-07 | R15-15 | 2 | **R15-05** ✅ | ✅ pass (eliminar dup + índice + gate cobertura) | `R15-15-runbook-SUMMARY.md` |
 | B-08 | R15-16 | 1 | — | ✅ pass | `R15-16-hello-world-PLAN.md` |
 
@@ -38,6 +38,14 @@ Independente, dado já no ref `cockpit`, validável por exit-code. ✅ DONE.
 
 ## Carry-forward / achados
 
+- **FASE B COMPLETA (8/8) — R15-13/R15-14 (par de UI) DONE:** o Flight Recorder subiu a 1ª-classe
+  (após o hero) com microcopy LAW vs INTERPRETED visível; o card "Saúde & Governança" consome o
+  `GET /soak` REAL (que NENHUMA tela usava — gap que o R15-12 abriu). Verificado regime-R
+  (render+screenshot+network: `/overview`,`/soak`,`/fleet` 200) + exit-code (tsc/build/test-recorder
+  exit 0). **Frescor-tier de segurança DIFERIDO** (slot honesto `aguardando coleta`): é o único
+  net-new de coleta (mexeria no `collect.js`/agentd + re-coleta do ref cockpit). SUMMARY:
+  `R15-13-14-ui-pair-SUMMARY.md`. **Resíduo p/ tag (não-fase):** PR `sec→main` cfoai/nfideia +
+  re-coleta do agentd (preenche 2 n/a do doctor + supabase_project_id + installed_versions).
 - **R15-15 (runbook único) DONE — interpretação não-literal autorizada pelo dono:** "consolidar
   os 5 docs" foi executado como **eliminar duplicação (INSTALL-WINDOWS.md ⊂ windows-wsl.md, 54%
   verbatim → stub 163→22 linhas) + índice (`docs/guides/README.md`)**, NÃO fusão num monólito
