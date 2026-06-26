@@ -17,7 +17,8 @@ posteriores, atrás do experimento de sandbox (Fase B), e exige `@devops`.
 |----------|------|------|
 | `verify-deploy` / `detect-hotfix` (read-only) | qualquer agente | via skill `/lovable-mcp` |
 | Promover um tool ID mutante de `deny` → `ask` | **@devops** (exclusivo) | edição consciente do settings; **nunca** `allow` silencioso |
-| `send_message` / `deploy_project` / `query_database` / `set_*` | **@devops**, gated, Fase C+/D | fora da v1 |
+| `send_message` / `deploy_project` / `set_*` | **@devops**, gated, Fase C+/D | fora da v1 |
+| `query_database` (SQL de prod) | **opt-in por projeto** — denied por padrão; permitido onde o projeto habilitou DB de prod; **write é gated por aprovação humana do SQL** | ex.: ideiapartner (2026-06-19) |
 
 `@devops` detém MCP add/remove/configure (ver `agent-authority.md`). Nenhum outro agente promove tool.
 
@@ -27,8 +28,11 @@ O servidor Lovable é **High/Critical** na régua `mcp-hygiene` (write em filesy
 DB via `query_database`, escopo de conta inteira). Logo:
 
 1. **Off-by-default** — `disabledMcpServers` lista o servidor; habilite **on-demand** na janela de trabalho.
-2. **Deny das ~18 tools mutantes** — mesmo com o servidor ligado, o harness bloqueia mutação.
-3. **`query_database` em deny PURO** na v1 — sem promoção, nem por @devops, até a Fase C.
+2. **Deny das 18 tools mutantes** — mesmo com o servidor ligado, o harness bloqueia mutação (crédito/deploy/estrutura).
+3. **`query_database` é opt-in por projeto** — denied por padrão, mas **permitido onde o projeto habilitou
+   acesso a DB de prod** (ex.: ideiapartner). Não é deny-obrigatório. Como roda SQL arbitrário (incl.
+   write), o gate real do write passa a ser a **aprovação humana do SQL** (o agente monta, o humano
+   aprova antes de executar), não a deny-list. Mantê-lo no deny continua válido p/ quem não usa DB de prod.
 
 ### Snippet canônico (`.claude/settings.json` do produto)
 
@@ -45,9 +49,11 @@ DB via `query_database`, escopo de conta inteira). Logo:
       "mcp__6f530143-e779-405d-bf42-190cae4e231b__create_project",
       "mcp__6f530143-e779-405d-bf42-190cae4e231b__deploy_project",
       "mcp__6f530143-e779-405d-bf42-190cae4e231b__remix_project",
-      // — DB de produção (deny PURO na v1) —
-      "mcp__6f530143-e779-405d-bf42-190cae4e231b__query_database",
+      // — DB de produção (estrutural) —
       "mcp__6f530143-e779-405d-bf42-190cae4e231b__enable_database",
+      // NOTA: query_database NÃO está aqui — é OPT-IN por projeto. Mantenha-o no deny se
+      // o projeto não usa DB de prod; OMITA-o (como aqui) p/ habilitar SQL de prod via MCP
+      // (write fica gated por aprovação humana do SQL). Ex. habilitado: ideiapartner.
       // — Knowledge / Skills do agente Cloud —
       "mcp__6f530143-e779-405d-bf42-190cae4e231b__set_project_knowledge",
       "mcp__6f530143-e779-405d-bf42-190cae4e231b__set_workspace_knowledge",

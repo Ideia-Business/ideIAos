@@ -495,21 +495,27 @@ else
 fi
 
 # 7e) Contenção Lovable MCP nos produtos (anti-regressão)
-# O server MCP da Lovable expõe 19 tools mutantes (deploy/publish/db-write/...). O §7e EXIGE o deny
-# no prefixo do server ATIVO (claude_ai_Lovable) — NÃO conta o connector-id MORTO 6f530143 (contar o
-# server morto era o verde-falso que R15-06 matou: o PROBE provou deny do prefixo ativo=0 nos 4
-# produtos enquanto o §7e dava PASS pelo velho). v15-A-08: falha-fechada — produto sem deny no server
-# ATIVO dá BAD honesto, não verde-falso. A lista aceita múltiplos prefixos (split "|") p/ múltiplos
-# servers ativos; o connector morto NÃO entra.
+# O server MCP da Lovable expõe tools mutantes (deploy/publish/structural/...). O §7e EXIGE o deny das
+# 18 tools MUTANTES (crédito/deploy/estrutura) no prefixo do server ATIVO (claude_ai_Lovable) — NÃO
+# conta o connector-id MORTO 6f530143 (contar o server morto era o verde-falso que R15-06 matou: o
+# PROBE provou deny do prefixo ativo=0 nos 4 produtos enquanto o §7e dava PASS pelo velho). v15-A-08:
+# falha-fechada — produto sem deny no server ATIVO dá BAD honesto, não verde-falso. A lista aceita
+# múltiplos prefixos (split "|") p/ múltiplos servers ativos; o connector morto NÃO entra.
 # debt: derivar prefixo do server ativo via `claude mcp list` em vez de lista hardcoded (fora R15-06).
-# Cada produto Lovable DEVE ter essas 19 em permissions.deny — em .claude/settings.json (tracked) OU
-# .claude/settings.local.json (quando .claude é gitignored, ex.: ideiapartner). Em 2026-06-18 a
-# contenção regrediu p/ 2/5 (deny uncommitted-on-main se perdeu) e ninguém notou até auditoria manual.
-# Este check é a prevenção. Ref: docs/learnings/2026-06-18-uncommitted-security-config-is-ephemeral.md
+#
+# NOTA (query_database é OPT-IN por projeto, NÃO deny-obrigatório): query_database roda SQL arbitrário
+# de prod e era "deny PURO" na v1. Reclassificado: é opt-in por projeto — denied por padrão, mas
+# PERMITIDO onde o projeto habilitou acesso a DB de prod (ex.: ideiapartner, 2026-06-19; o gate real
+# vira a aprovação humana do SQL, não a deny-list). Por isso o threshold é 18 (as mutantes), NÃO 19:
+# query_database NÃO conta como deny obrigatório. Um produto que o mantém no deny (19) também passa.
+# Cada produto Lovable DEVE ter essas 18 mutantes em permissions.deny — em .claude/settings.json
+# (tracked) OU .claude/settings.local.json (quando .claude é gitignored, ex.: ideiapartner). Em
+# 2026-06-18 a contenção regrediu p/ 2/5 (deny uncommitted-on-main se perdeu) e ninguém notou até
+# auditoria manual. Este check é a prevenção. Ref: docs/learnings/2026-06-18-uncommitted-security-config-is-ephemeral.md
 DEV_DIR="$(dirname "$SETUP_DIR")"
 if [ -d "$DEV_DIR" ]; then
   LOVABLE_OUT="$(
-    /usr/bin/python3 - "$DEV_DIR" "$(basename "$SETUP_DIR")" "claude_ai_Lovable" "19" <<'PYEOF'
+    /usr/bin/python3 - "$DEV_DIR" "$(basename "$SETUP_DIR")" "claude_ai_Lovable" "18" <<'PYEOF'
 import json, sys
 from pathlib import Path
 
@@ -579,7 +585,7 @@ PYEOF
           pass "Lovable MCP contido: $name (deny=$count)"
         fi
       else
-        fail "Lovable MCP SEM contenção: $name (deny=$count, esperado >=19) — copie .permissions.deny de ../lapidai/.claude/settings.json p/ $name/.claude/settings.json (commit na branch work, NUNCA main) ou settings.local.json se .claude for gitignored"
+        fail "Lovable MCP SEM contenção: $name (deny=$count, esperado >=18 — as 18 tools MUTANTES; query_database é opt-in, NÃO conta) — copie as 18 mutantes de ../lapidai/.claude/settings.json p/ $name/.claude/settings.json SEM query_database (commit na branch work, NUNCA main) ou settings.local.json se .claude for gitignored"
       fi
     done <<< "$LOVABLE_OUT"
   else

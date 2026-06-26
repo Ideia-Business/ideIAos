@@ -33,7 +33,7 @@ de metadados via MCP (zero crédito, zero escrita):
 | Confusão comum | Camada correta |
 |----------------|----------------|
 | Executar o playbook de deploy (typecheck → commit → push → merge → handoff) | `/lovable-handoff` |
-| Aplicar migration / rodar SQL em prod | **NINGUÉM na v1** — `query_database` em deny PURO; schema-check é v2 (Fase C) |
+| Aplicar migration / rodar SQL em prod | `query_database` é **opt-in por projeto** (denied por padrão; habilitado onde o projeto usa DB de prod — ex.: ideiapartner). **Write gated por aprovação humana do SQL.** Esta skill não o chama — é read-only. |
 | Dirigir o agente Cloud (`send_message`) / publicar (`deploy_project`) | **@devops**, gated, Fase D (v3) — nunca a partir desta skill |
 | Reconciliar um hotfix detectado de volta ao Git | trabalho de `/lovable-handoff` + decisão humana; esta skill **só reporta** |
 
@@ -146,8 +146,10 @@ IDEIAOS_DIR="${IDEIAOS_DIR:-$HOME/.ideiaos}"
 - **Read-only de verdade:** nenhum verbo chama `send_message`, `deploy_project`, `query_database`,
   `set_*_knowledge`, `remix_project` ou qualquer tool mutante. Se algum passo "precisar" escrever,
   **pare e delegue a @devops** — não há caminho de escrita na v1.
-- **Harness-deny:** as ~18 tools mutantes estão em `permissions.deny`; `query_database` em **deny PURO**.
-  Só `@devops` promove um tool ID a `ask` (prompt humano sempre, nunca `allow` silencioso).
+- **Harness-deny:** as 18 tools mutantes (crédito/deploy/estrutura) estão em `permissions.deny`.
+  `query_database` é **opt-in por projeto** — denied por padrão, permitido onde o projeto habilitou DB
+  de prod (ex.: ideiapartner); como roda SQL arbitrário, o write fica gated por **aprovação humana do
+  SQL**. Só `@devops` promove um tool ID mutante a `ask` (prompt humano sempre, nunca `allow` silencioso).
 - **Escopo (operacional) ≠ contenção (dura):** o resolver de escopo é foco-do-IdeiaOS; o harness-deny
   e o toggle de workspace são a fronteira de capability. Um não substitui o outro.
 
