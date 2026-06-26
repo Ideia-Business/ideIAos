@@ -29,10 +29,13 @@
 # =============================================================================
 set -uo pipefail
 
+# python3 por lookup (R15-01) — caminho não-hardcoded; portável fora de /usr/bin
+PY3="$(command -v python3 2>/dev/null || true)"
+
 INPUT="$(cat 2>/dev/null || echo '{}')"
 
 # Extrai session_id, transcript_path, cwd via python3
-PARSED="$(/usr/bin/python3 -c "
+PARSED="$("$PY3" -c "
 import json, sys
 try:
     d = json.load(sys.stdin)
@@ -52,7 +55,7 @@ CWD="$(echo "$PARSED" | sed -n '3p')"
 [ -z "$CWD" ] && CWD="$PWD"
 
 # Sanitizar SESSION_ID para [a-z0-9-] (T-01-04: evitar path traversal)
-SESSION_SAFE="$(/usr/bin/python3 -c "
+SESSION_SAFE="$("$PY3" -c "
 import re, sys
 raw = sys.argv[1]
 safe = re.sub(r'[^a-z0-9-]', '-', raw.lower())[:32].strip('-') or 'session'
@@ -60,7 +63,7 @@ print(safe)
 " "$SESSION_ID" 2>/dev/null || echo "session")"
 
 # Derivar slug do cwd para nome do arquivo de sessão
-CWD_SLUG="$(/usr/bin/python3 -c "
+CWD_SLUG="$("$PY3" -c "
 import re, os, sys
 cwd = sys.argv[1]
 base = os.path.basename(cwd.rstrip('/'))
@@ -77,7 +80,7 @@ SESSION_FILE="$HOME/.claude/sessions/${DATE}-${SLUG}.tmp"
 # Abordagem defensiva: parse JSONL por linha; fallback grep se falhar (Open Question 1)
 LAST_ASSISTANT=""
 if [ -n "$TRANSCRIPT_PATH" ] && [ -f "$TRANSCRIPT_PATH" ]; then
-  LAST_ASSISTANT="$(/usr/bin/python3 -c "
+  LAST_ASSISTANT="$("$PY3" -c "
 import json, sys
 
 transcript_path = sys.argv[1]
@@ -128,7 +131,7 @@ fi
 TIMESTAMP="$(date '+%Y-%m-%d %H:%M:%S')"
 
 # Escrever SESSION_FILE com 4 seções ECC
-/usr/bin/python3 - "$SESSION_FILE" "$TIMESTAMP" "$CWD" "$LAST_ASSISTANT" <<'PYEOF' 2>/dev/null || true
+"$PY3" - "$SESSION_FILE" "$TIMESTAMP" "$CWD" "$LAST_ASSISTANT" <<'PYEOF' 2>/dev/null || true
 import sys
 
 session_file = sys.argv[1]
@@ -174,7 +177,7 @@ HANDOFF_FILE="$CWD/docs/CONTINUATION_HANDOFF.md"
 if [ -f "$HANDOFF_FILE" ]; then
   BLOCK_MARKER="## Ultima sessao automatica"
 
-  /usr/bin/python3 - "$HANDOFF_FILE" "$DATE" "$SESSION_FILE" <<'PYEOF' 2>/dev/null || true
+  "$PY3" - "$HANDOFF_FILE" "$DATE" "$SESSION_FILE" <<'PYEOF' 2>/dev/null || true
 import sys, re
 
 handoff_file = sys.argv[1]

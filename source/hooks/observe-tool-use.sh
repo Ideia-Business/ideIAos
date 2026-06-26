@@ -12,11 +12,14 @@
 # NUNCA loga: conteúdo de arquivo, diff, comando bash completo, env, secrets.
 #
 # Requisitos: <100ms overhead, fail-silent (exit 0 sempre), cria dirs sob demanda,
-#             não bloqueia o tool use. Sem-jq: só /usr/bin/python3. set -uo pipefail.
+#             não bloqueia o tool use. Sem-jq: só python3 (lookup). set -uo pipefail.
 # Entrada (stdin): JSON PostToolUse { session_id, cwd, tool_name, tool_input, tool_response }
 # Saída: NENHUMA (exit 0 puro).
 # =============================================================================
 set -uo pipefail
+
+# python3 por lookup (R15-01) — caminho não-hardcoded; portável fora de /usr/bin
+PY3="$(command -v python3 2>/dev/null || true)"
 
 # R4-01: Anti-runaway guard — sessões spawned de análise NÃO geram observações
 [ -n "${IDEIAOS_INSTINCT_SPAWN:-}" ] && exit 0
@@ -24,7 +27,7 @@ set -uo pipefail
 INPUT="$(cat 2>/dev/null || echo '{}')"
 
 # Parse e montagem da linha JSONL inteiramente em python3 (rápido, 1 processo).
-LINE="$(/usr/bin/python3 -c '
+LINE="$("$PY3" -c '
 import json, sys, os, re, datetime
 
 try:

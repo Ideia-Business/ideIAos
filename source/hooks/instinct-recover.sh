@@ -14,11 +14,14 @@
 #             (sessão morreu no meio), detecta e trata idempotentemente.
 #
 # Fail-silent: exit 0 em TODO caminho — nunca bloqueia SessionStart.
-# Sem-jq: só /usr/bin/python3 e bash 3.2 builtins.
+# Sem-jq: só python3 (lookup) e bash 3.2 builtins.
 # Breadcrumbs ficam em ~/.ideiaos (FORA do repo) — mesma localização da sentinela.
 # Header markdown "# SOURCE: IdeiaOS v2"; sem comentário HTML.
 # =============================================================================
 set -uo pipefail
+
+# python3 por lookup (R15-01) — caminho não-hardcoded; portável fora de /usr/bin
+PY3="$(command -v python3 2>/dev/null || true)"
 
 # Barreira #1 (R4-01): sessões spawned de análise NÃO executam recovery
 # (o recovery iria re-spawnar sob o contexto filho, que ainda está "vivo")
@@ -32,7 +35,7 @@ INPUT="$(cat 2>/dev/null || echo '{}')"
   # Derivar PROJ do cwd via SessionStart JSON (igual ao slug de observe-tool-use)
   # Usado apenas para logar e como fallback; o project real vem do breadcrumb.
   # ---------------------------------------------------------------------------
-  _CWD="$(/usr/bin/python3 -c "
+  _CWD="$("$PY3" -c "
 import json, sys, os, re
 try:
     d = json.loads('''$INPUT''')
@@ -86,7 +89,7 @@ print(proj)
 
     # ---- Gate idade: pode ainda estar terminando? (evita corrida de término) --
     # Se started_at + 120s (mesmo timeout do spawn) ainda não passou, PULAR.
-    BC_AGE_OK="$(/usr/bin/python3 -c "
+    BC_AGE_OK="$("$PY3" -c "
 import datetime, time
 try:
     dt = datetime.datetime.fromisoformat('$BC_STARTED_AT')
@@ -119,7 +122,7 @@ except Exception:
     BC_OBS_FILE="$BC_OBS_DIR/observations.jsonl"
 
     # Gate #2a: extrair ts da última observação
-    TS_OBS="$(/usr/bin/python3 -c "
+    TS_OBS="$("$PY3" -c "
 import sys, json
 try:
     lines = open('$BC_OBS_FILE').read().strip().splitlines()
@@ -157,7 +160,7 @@ except Exception:
 
     # Gate #3: cooldown 30min (barreira #3 preservada)
     NOW_EPOCH=$(date +%s 2>/dev/null || echo 0)
-    LAST_EPOCH="$(/usr/bin/python3 -c "
+    LAST_EPOCH="$("$PY3" -c "
 import datetime, time
 try:
     ts = open('$BC_LAST_ANALYZED').read().strip()
@@ -179,7 +182,7 @@ except Exception:
     mkdir -p "$HOME/.ideiaos/logs" 2>/dev/null || true
 
     # Reescrever sentinela ANTES do novo spawn (barreira #2 — R4-02)
-    /usr/bin/python3 -c "
+    "$PY3" -c "
 import datetime
 open('$BC_LAST_ANALYZED', 'w').write(datetime.datetime.now().isoformat(timespec='seconds'))
 " 2>/dev/null || true
@@ -195,7 +198,7 @@ open('$BC_LAST_ANALYZED', 'w').write(datetime.datetime.now().isoformat(timespec=
     NEW_PID=$!
 
     # Gravar novo breadcrumb
-    /usr/bin/python3 -c "
+    "$PY3" -c "
 import datetime
 started = datetime.datetime.now().isoformat(timespec='seconds')
 content = 'pid=$NEW_PID\nstarted_at=' + started + '\nproject=$BC_PROJECT\nstatus=running\nlog=$BC_LOG_FILE\n'

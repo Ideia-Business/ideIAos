@@ -39,9 +39,12 @@
 #
 # Entrada (stdin): JSON Stop { session_id, transcript_path, cwd }
 # Saída: NENHUMA (exit 0 puro — sem JSON, sem additionalContext).
-# Sem-jq: só /usr/bin/python3. set -uo pipefail.
+# Sem-jq: só python3 (resolvido por lookup). set -uo pipefail.
 # =============================================================================
 set -uo pipefail
+
+# python3 por lookup (R15-01) — caminho não-hardcoded; portável fora de /usr/bin
+PY3="$(command -v python3 2>/dev/null || true)"
 
 # Anti-runaway: sessões spawned (ex.: instinct-analyze) não exportam memória.
 [ -n "${IDEIAOS_INSTINCT_SPAWN:-}" ] && exit 0
@@ -109,7 +112,7 @@ MEM_DATE="${IDEIAOS_MEM_DATE:-$(date '+%Y-%m-%d' 2>/dev/null || echo 0000-00-00)
 # CREDENCIAIS). Detector próprio em python3 (sem dependência de rg). Retorna 0
 # se o conteúdo PARECE conter segredo (= recusar), 1 se limpo.
 fact_has_secret() {
-  /usr/bin/python3 - "$1" <<'PY' 2>/dev/null
+  "$PY3" - "$1" <<'PY' 2>/dev/null
 import sys, re
 try:
     text = open(sys.argv[1], errors="replace").read()
@@ -280,7 +283,7 @@ do_plumbing_commit() {
 # "- [desc](facts/<file>) — <name>". Lê desc/name do frontmatter de cada blob.
 build_shared_index() {
   local tmpidx="$1"
-  GIT_INDEX_FILE="$tmpidx" /usr/bin/python3 - "$REPO" "$FACTS_PREFIX" "$SLUG_LABEL" <<'PY' 2>/dev/null
+  GIT_INDEX_FILE="$tmpidx" "$PY3" - "$REPO" "$FACTS_PREFIX" "$SLUG_LABEL" <<'PY' 2>/dev/null
 import os, subprocess, sys, re
 
 repo, facts_prefix, label = sys.argv[1], sys.argv[2], sys.argv[3]

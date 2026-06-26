@@ -18,11 +18,27 @@
 # =============================================================================
 set -uo pipefail
 
+# python3 por lookup (R15-01) — caminho não-hardcoded; portável fora de /usr/bin
+PY3="$(command -v python3 2>/dev/null || true)"
+
 # Lê stdin — formato JSON do Claude Code
 INPUT="$(cat 2>/dev/null || echo '{}')"
 
+# python3 ausente: este hook PROTEGE contra erro de tipo — não pode silenciar cego.
+# Mas só avisa se o arquivo for relevante (.ts/.tsx); senão sai 0 em silêncio
+# (evitar warn-every-edit em .md/.json/.png — ruído proibido por C-4).
+if [ -z "$PY3" ]; then
+  _FP="$(printf '%s' "$INPUT" | sed -n 's/.*"file_path"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -1)"
+  case "$_FP" in
+    *.ts|*.tsx)
+      printf '%s\n' '{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":"[IdeiaOS] typecheck-on-edit pulado: python3 não encontrado no PATH — verificação de tipos NÃO executada neste edit. Instale/exponha python3 para reativar."}}'
+      exit 0 ;;
+    *) exit 0 ;;
+  esac
+fi
+
 # Extrai file_path e cwd via python3 (sem dependencia de jq — padrao IdeiaOS)
-PARSED="$(echo "$INPUT" | /usr/bin/python3 -c "
+PARSED="$(echo "$INPUT" | "$PY3" -c "
 import json, sys
 try:
     d = json.load(sys.stdin)
@@ -66,7 +82,7 @@ TSC_OUTPUT="$(cd "$CWD" && "$TSC" --noEmit --incremental 2>&1)" || {
 
   # Serializar JSON de forma segura via python3 json.dumps
   # Evita quebra por aspas, newlines, barras ou caracteres especiais no output do tsc
-  MSG="$(/usr/bin/python3 -c "
+  MSG="$("$PY3" -c "
 import json, sys
 msg = sys.argv[1]
 print(json.dumps({

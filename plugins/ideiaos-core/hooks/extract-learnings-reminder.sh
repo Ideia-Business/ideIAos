@@ -11,11 +11,14 @@
 
 set -uo pipefail
 
+# python3 por lookup (R15-01) — caminho não-hardcoded; portável fora de /usr/bin
+PY3="$(command -v python3 2>/dev/null || true)"
+
 # Lê stdin JSON do harness
 INPUT="$(cat 2>/dev/null || echo '{}')"
 
 # Extrai tool_name, command, file_path e content do tool_input
-PARSED="$(echo "$INPUT" | /usr/bin/python3 -c "
+PARSED="$(echo "$INPUT" | "$PY3" -c "
 import json, sys
 try:
     d = json.load(sys.stdin)

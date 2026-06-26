@@ -21,10 +21,13 @@
 # =============================================================================
 set -uo pipefail
 
+# python3 por lookup (R15-01) — caminho não-hardcoded; portável fora de /usr/bin
+PY3="$(command -v python3 2>/dev/null || true)"
+
 INPUT="$(cat 2>/dev/null || echo '{}')"
 
 # Extrai cwd e trigger via python3 (sem dependência de jq — padrão IdeiaOS)
-PARSED="$(/usr/bin/python3 -c "
+PARSED="$("$PY3" -c "
 import json, sys
 try:
     d = json.load(sys.stdin)
@@ -58,7 +61,7 @@ TIMESTAMP="$(date '+%Y-%m-%d %H:%M')"
 #   - Se já existe, truncar tudo a partir do marcador (remove seção antiga)
 #   - Reanexar nova seção no final
 # Usa sys.argv para evitar interpolação de variáveis shell no código python3 (segurança)
-/usr/bin/python3 - "$STATE_FILE" "$TIMESTAMP" "$TRIGGER" <<'PYEOF' 2>/dev/null || true
+"$PY3" - "$STATE_FILE" "$TIMESTAMP" "$TRIGGER" <<'PYEOF' 2>/dev/null || true
 import sys
 
 state_file = sys.argv[1]
@@ -94,7 +97,7 @@ PYEOF
 # Truncado a < 5000 chars (Pitfall 6)
 MSG="STATE.md atualizado com Compact Snapshot ($TIMESTAMP). Contexto preservado no resumo do /compact. Arquivo: $STATE_FILE"
 
-/usr/bin/python3 -c "
+"$PY3" -c "
 import json, sys
 msg = sys.argv[1]
 print(json.dumps({'systemMessage': msg}))

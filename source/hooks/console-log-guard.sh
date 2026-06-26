@@ -17,13 +17,29 @@
 
 set -uo pipefail
 
+# python3 por lookup (R15-01) — caminho não-hardcoded; portável fora de /usr/bin
+PY3="$(command -v python3 2>/dev/null || true)"
+
 # ---------------------------------------------------------------------------
 # Read and parse stdin JSON
 # ---------------------------------------------------------------------------
 
 INPUT="$(cat 2>/dev/null || echo '{}')"
 
-PARSED="$(echo "$INPUT" | /usr/bin/python3 -c "
+# python3 ausente: este hook PROTEGE contra console.* indo para produção — não
+# pode silenciar cego. Mas só avisa se o arquivo for relevante (.ts/.tsx/.js/.jsx);
+# senão sai 0 em silêncio (evitar warn-every-edit em .md/.json — ruído proibido por C-4).
+if [ -z "$PY3" ]; then
+  _FP="$(printf '%s' "$INPUT" | sed -n 's/.*"file_path"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -1)"
+  case "$_FP" in
+    *.ts|*.tsx|*.js|*.jsx)
+      printf '%s\n' '{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":"[IdeiaOS] console-log-guard pulado: python3 não encontrado no PATH — console.* NÃO verificado neste edit. Instale/exponha python3 para reativar."}}'
+      exit 0 ;;
+    *) exit 0 ;;
+  esac
+fi
+
+PARSED="$(echo "$INPUT" | "$PY3" -c "
 import json, sys
 try:
     d = json.load(sys.stdin)
@@ -75,7 +91,7 @@ MATCHES="$(grep -nE 'console\.(log|debug|info)\(' "$FILE_PATH" 2>/dev/null | hea
 BASENAME="$(basename "$FILE_PATH")"
 
 # Line numbers (comma-separated) — extracted from grep output (format: N:...)
-LINE_NUMS="$(echo "$MATCHES" | /usr/bin/python3 -c "
+LINE_NUMS="$(echo "$MATCHES" | "$PY3" -c "
 import sys
 lines = []
 for l in sys.stdin:
@@ -86,7 +102,7 @@ print(', '.join(lines))
 " 2>/dev/null)"
 
 # Compose message and emit JSON — python3 handles all escaping (RESEARCH: Don't Hand-Roll)
-/usr/bin/python3 -c "
+"$PY3" -c "
 import json, sys
 
 basename = sys.argv[1]

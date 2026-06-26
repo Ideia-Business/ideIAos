@@ -9,18 +9,21 @@
 # marca o fim; /instinct-analyze (skill, plan 05-02) é quem processa depois.
 #
 # Mesmo contrato de privacidade do observe-tool-use: só metadados.
-# Sem-jq: só /usr/bin/python3. set -uo pipefail. exit 0 puro.
+# Sem-jq: só python3 (lookup). set -uo pipefail. exit 0 puro.
 # Entrada (stdin): JSON Stop { session_id, transcript_path, cwd }
 # Saída: NENHUMA (exit 0).
 # =============================================================================
 set -uo pipefail
+
+# python3 por lookup (R15-01) — caminho não-hardcoded; portável fora de /usr/bin
+PY3="$(command -v python3 2>/dev/null || true)"
 
 # R4-01: Anti-runaway guard — sessões spawned de análise NÃO re-spawnam nem gravam obs
 [ -n "${IDEIAOS_INSTINCT_SPAWN:-}" ] && exit 0
 
 INPUT="$(cat 2>/dev/null || echo '{}')"
 
-LINE="$(/usr/bin/python3 -c '
+LINE="$("$PY3" -c '
 import json, sys, os, re, datetime
 try:
     d = json.load(sys.stdin)
@@ -74,7 +77,7 @@ test -s "$OBS_DIR/observations.jsonl" 2>/dev/null || {
   command -v claude >/dev/null 2>&1 || exit 0
 
   # Extrair ts da última observação (última linha não-vazia do jsonl)
-  TS_OBS="$(/usr/bin/python3 -c '
+  TS_OBS="$("$PY3" -c '
 import sys, json
 try:
     lines = open(sys.argv[1]).read().strip().splitlines()
@@ -105,7 +108,7 @@ except Exception:
 
   # R4-02: Cooldown gate — se a sentinela tem <30min, não re-spawnar (rate limit)
   NOW_EPOCH=$(date +%s 2>/dev/null || echo 0)
-  LAST_EPOCH=$(/usr/bin/python3 -c "
+  LAST_EPOCH=$("$PY3" -c "
 import datetime, time
 try:
     ts = open('$LAST_ANALYZED_FILE').read().strip()
@@ -119,7 +122,7 @@ except Exception:
   [ "$ELAPSED" -lt 1800 ] && exit 0
 
   # Gate passou: escrever sentinela ANTES do spawn (R4-02)
-  /usr/bin/python3 -c "
+  "$PY3" -c "
 import datetime
 open('$LAST_ANALYZED_FILE', 'w').write(datetime.datetime.now().isoformat(timespec='seconds'))
 " 2>/dev/null || true
@@ -138,7 +141,7 @@ open('$LAST_ANALYZED_FILE', 'w').write(datetime.datetime.now().isoformat(timespe
 
   # Gravar breadcrumb imediatamente após capturar o PID (R6-02).
   # Formato chave=valor (bash 3.2 + python3 para ISO — sem-jq).
-  /usr/bin/python3 -c "
+  "$PY3" -c "
 import datetime, os
 started = datetime.datetime.now().isoformat(timespec='seconds')
 content = 'pid=$CHILD_PID\nstarted_at=' + started + '\nproject=$PROJ\nstatus=running\nlog=$LOG_FILE\n'

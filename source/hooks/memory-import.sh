@@ -22,12 +22,15 @@
 # Contrato de resiliência: exit 0 em QUALQUER falha (offline, sem origin, sem
 # branch planning, sem memória shared). Nunca bloqueia o SessionStart.
 #
-# Sem-jq: só /usr/bin/python3. set -uo pipefail. exit 0 puro/sempre.
+# Sem-jq: só python3 (resolvido por lookup). set -uo pipefail. exit 0 puro/sempre.
 # Entrada (stdin): JSON SessionStart { session_id, cwd, source }
 # Saída (stdout): JSON { "systemMessage": "..." } com a contagem importada
 #                 (ou nada, se nada mudou / fora de escopo).
 # =============================================================================
 set -uo pipefail
+
+# python3 por lookup (R15-01) — caminho não-hardcoded; portável fora de /usr/bin
+PY3="$(command -v python3 2>/dev/null || true)"
 
 # Anti-runaway: sessões spawned de análise NÃO fazem import (mesma guarda dos
 # Stop hooks de observação — evita custo/loop em background).
@@ -145,7 +148,7 @@ fi
 #   - cópia flat: shared/facts/<file>.md → memory/<file>.md (mesmo formato nativo)
 mkdir -p "$MEM_DIR" 2>/dev/null || { printf '%s\n' "$PLANNING_SHA" > "$SHA_FILE" 2>/dev/null || true; exit 0; }
 
-IMPORTED="$(/usr/bin/python3 - "$FACTS_DIR" "$MEM_DIR" <<'PYEOF' 2>/dev/null || echo 0
+IMPORTED="$("$PY3" - "$FACTS_DIR" "$MEM_DIR" <<'PYEOF' 2>/dev/null || echo 0
 import sys, os, hashlib, shutil
 
 facts_dir = sys.argv[1]
@@ -220,7 +223,7 @@ case "${IMPORTED:-}" in ''|*[!0-9]*) IMPORTED=0 ;; esac
 # Inclui fatos local-only (preservados) + os importados. Formato idêntico ao
 # real: "- [<description>](<file>) — <summary>".
 PROJ_NAME="$(basename "$REPO_ROOT")"
-/usr/bin/python3 - "$MEM_DIR" "$PROJ_NAME" <<'PYEOF' 2>/dev/null || true
+"$PY3" - "$MEM_DIR" "$PROJ_NAME" <<'PYEOF' 2>/dev/null || true
 import sys, os, re
 
 mem_dir   = sys.argv[1]
@@ -305,7 +308,7 @@ if [ -n "$GIT_DIR_PATH" ]; then
     fi
   done
 fi
-/usr/bin/python3 - "$MEM_DIR" "$PROJ_NAME" "$MDC_FILE" <<'PYEOF' 2>/dev/null || true
+"$PY3" - "$MEM_DIR" "$PROJ_NAME" "$MDC_FILE" <<'PYEOF' 2>/dev/null || true
 import sys, os, re
 
 mem_dir   = sys.argv[1]
@@ -374,7 +377,7 @@ printf '%s\n' "$PLANNING_SHA" > "$SHA_FILE" 2>/dev/null || true
 
 # Contagem total de fatos no store nativo (para a mensagem). Conta arquivos .md
 # != MEMORY.md no diretório nativo.
-TOTAL_FACTS="$(/usr/bin/python3 -c '
+TOTAL_FACTS="$("$PY3" -c '
 import os, sys
 d = sys.argv[1]
 try:
@@ -393,7 +396,7 @@ SHORT_SHA="$(printf '%s' "$PLANNING_SHA" | cut -c1-7)"
 MSG="$(printf '🧠 [memory-import] %d fato(s) novo(s)/atualizado(s) importado(s) de %s (%s) para a memória nativa (%d no total). Ponte Cursor regenerada (.cursor/rules/memory-bridge.mdc).' \
   "$IMPORTED" "$PLANNING_REF" "$SHORT_SHA" "$TOTAL_FACTS")"
 
-/usr/bin/python3 -c '
+"$PY3" -c '
 import json, sys
 print(json.dumps({"systemMessage": sys.argv[1]}))
 ' "$MSG" 2>/dev/null || true
