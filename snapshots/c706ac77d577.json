@@ -3,20 +3,25 @@
   "machine_id": "c706ac77d577",
   "agentd_version": "1.0.0",
   "os_version": "26.6",
-  "taken_epoch": 1782505338,
+  "taken_epoch": 1782513231,
   "daemons": [
     {
-      "pid": null,
+      "pid": 868,
       "status": "0",
       "label": "com.ideiaos.envsync"
     },
     {
-      "pid": 46764,
+      "pid": null,
+      "status": "0",
+      "label": "com.ideiaos.soak-v15-oneshot"
+    },
+    {
+      "pid": 870,
       "status": "0",
       "label": "com.ideiaos.cockpit"
     },
     {
-      "pid": null,
+      "pid": 872,
       "status": "0",
       "label": "com.ideiaos.gitautosync"
     },
