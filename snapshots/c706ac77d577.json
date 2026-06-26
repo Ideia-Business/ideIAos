@@ -3,20 +3,20 @@
   "machine_id": "c706ac77d577",
   "agentd_version": "1.0.0",
   "os_version": "26.6",
-  "taken_epoch": 1782471977,
+  "taken_epoch": 1782472879,
   "daemons": [
     {
-      "pid": 757,
+      "pid": null,
       "status": "0",
       "label": "com.ideiaos.envsync"
     },
     {
-      "pid": 760,
+      "pid": 14864,
       "status": "0",
       "label": "com.ideiaos.cockpit"
     },
     {
-      "pid": 762,
+      "pid": null,
       "status": "0",
       "label": "com.ideiaos.gitautosync"
     },
