@@ -88,8 +88,12 @@ const VERBS = {
   pause_autosync:  { cmd: ['bash', 'scripts/autosync-pause.sh', 'on', 'via Cockpit'], arm: true },
   // B2 — retomar autosync (inverso de B1; não-destrutivo)
   resume_autosync: { cmd: ['bash', 'scripts/autosync-pause.sh', 'off'], arm: false },
-  // B3 — re-selar frescor de segurança (carimba selo de integridade → arm)
-  reseal_security: { cmd: ['bash', 'scripts/check-security-freshness.sh', '--record', 'PASS', '@security-reviewer'], arm: true },
+  // B3 — frescor de segurança: SÓ leitura do tier (R15-18). NUNCA carimba via UI.
+  // Carimbar o selo @security-reviewer por clique afirmaria uma revisão humana que não
+  // ocorreu = FRAUDE de gate de integridade (automate-the-reminder-not-the-integrity-stamp).
+  // O re-selar REAL é exceção declarada: exige @security-reviewer no diff + --record no CLI,
+  // FORA do canal /command. Aqui o operador só VÊ o estado (read-only, não-mutante).
+  security_status: { cmd: ['bash', 'scripts/check-security-freshness.sh', '--tier'], arm: false },
   // B4 — forçar um ciclo de sync (idempotente)
   force_sync:      { cmd: ['launchctl', 'kickstart', '-k', `gui/${UID}/com.ideiaos.gitautosync`], arm: false },
   // B5 — kickstart de daemon X (cmd montado a partir de lookup-map fechado; ver handleCommand)
@@ -136,6 +140,19 @@ function zeroLeakScan(stdout) {
   } finally {
     if (tmp) { try { fs.unlinkSync(tmp); } catch { /* ignore */ } }
   }
+}
+
+// ── Auditoria do write-path (R15-18) — registra TODA tentativa de comando no ledger
+// hash-chained local (source/agentd/ledger.sh): aceitas (com exit) E rejeitadas. Wiring
+// NOVO (antes: zero ocorrências). Metadata-only (sem stdout/segredo — credential-isolation).
+// best-effort: uma falha de ledger NUNCA quebra a resposta do canal.
+function recordCommandToLedger(verb, refField, result) {
+  try {
+    spawnSync('bash', [path.join('source', 'agentd', 'ledger.sh'), 'append',
+      'cockpit-operator', 'local-operator', String(verb || 'unknown'),
+      String(refField || '-'), 'command', String(result)],
+      { cwd: ROOT, encoding: 'utf8', timeout: 10000 });
+  } catch { /* auditoria é best-effort — nunca derruba o canal /command */ }
 }
 
 // ── Handler POST /command — fail-closed, NESTA ordem (auth → body → enum → arm → exec → zero-leak).
@@ -197,6 +214,9 @@ function handleCommand(req, res) {
     // (3) ENUM FECHADO — default-deny. Verbo fora do enum → 403 (gate v14.4).
     const v = VERBS[body.verb];
     if (!v) {
+      // gate-negativo (R15-18): verbo inválido é REJEITADO e auditado como 'rejected'
+      // (nunca 'ok') — input inválido jamais vira sucesso no ledger.
+      recordCommandToLedger(typeof body.verb === 'string' ? body.verb : 'non-string', 'denied', 'rejected');
       res.writeHead(403, CMD_CORS);
       res.end(JSON.stringify({
         error: 'verbo fora do allowlist (default-deny) — capacidade exige o gate de v14.4',
@@ -237,6 +257,9 @@ function handleCommand(req, res) {
     // (7) STDOUT VIA ZERO-LEAK (FIX S-03) — varre ANTES do res.end. Nunca cru.
     const combined = (proc.stdout || '') + (proc.stderr ? ('\n' + proc.stderr) : '');
     const scanned = zeroLeakScan(combined);
+
+    // auditoria (R15-18): comando aceito → registra exit-code e ok|fail (metadata-only).
+    recordCommandToLedger(body.verb, 'exit:' + exitCode, exitCode === 0 ? 'ok' : 'fail');
 
     res.writeHead(200, CMD_CORS);
     res.end(JSON.stringify({

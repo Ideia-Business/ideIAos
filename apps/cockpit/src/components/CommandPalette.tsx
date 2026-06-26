@@ -56,7 +56,7 @@ interface Verb {
 const VERBS: Verb[] = [
   { verb: "pause_autosync",  label: "Pausar autosync",      icon: PauseCircle, arm: true,  keywords: "autosync pausar parar sync" },          // B1
   { verb: "resume_autosync", label: "Retomar autosync",     icon: PlayCircle,  arm: false, keywords: "autosync retomar resume voltar sync" }, // B2
-  { verb: "reseal_security", label: "Re-selar segurança",   icon: ShieldCheck, arm: true,  keywords: "segurança selo freshness security ledger" }, // B3
+  { verb: "security_status", label: "Ver frescor de segurança", icon: ShieldCheck, arm: false, keywords: "segurança selo freshness security tier estado" }, // B3 — read-only (R15-18: carimbar via UI = fraude de gate)
   { verb: "force_sync",      label: "Forçar sync agora",    icon: RefreshCw,   arm: false, keywords: "forçar sync agora kickstart autosync" }, // B4
   { verb: "kickstart_daemon",label: "Kickstart daemon cockpit", icon: Power,   arm: false, daemon: "cockpit", keywords: "daemon kickstart cockpit launchctl" }, // B5
   { verb: "run_doctor",      label: "Rodar idea-doctor",    icon: Stethoscope, arm: false, keywords: "doctor saúde diagnóstico health" },     // B6
