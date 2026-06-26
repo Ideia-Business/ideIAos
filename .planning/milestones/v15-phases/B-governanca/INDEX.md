@@ -1,6 +1,6 @@
 # Fase B — "Governança visível + Cockpit rico" (Onda 2 do v15) · INDEX
 
-**Milestone:** v15 (DX & Frota) · **Fase:** B · **Status:** 🔵 EM ANDAMENTO (2/8 — R15-09, R15-10 DONE; 2026-06-26).
+**Milestone:** v15 (DX & Frota) · **Fase:** B · **Status:** 🔵 EM ANDAMENTO (3/8 — R15-09, R15-10, R15-11 DONE; 2026-06-26).
 **Origem:** método-espelho GSD (CLI não resolve fases v15 — mesma razão da Fase A e do v14). Planejado/executado plano-a-plano a partir de `v15-REQUIREMENTS.md` (R15-09..16) e `v15-ROADMAP.md`.
 
 ## Objetivo da fase (goal-backward)
@@ -15,7 +15,7 @@ Overview tem card de governança servido por GET; runbook único passa o gate de
 |-------|-----|------|-----------|----------|---------|
 | B-01 | R15-09 | 1 | — | ✅ pass | `R15-09-fleet-PLAN.md` |
 | B-02 | R15-10 | 1 | — | ✅ pass (code-complete) | `R15-10-ci-gates-PLAN.md` |
-| B-03 | R15-11 | 1 | R15-06 ✅ | 🔵 a fazer | (LaunchAgent lembrete selos + ff-merge) |
+| B-03 | R15-11 | 1 | R15-06 ✅ | ✅ pass | `R15-11-lembrete-selos-PLAN.md` |
 | B-04 | R15-12 | 1 | — | 🔵 a fazer | (dados ricos + **fix coleta doctor** — ver R15-09 carry) |
 | B-05 | R15-13 | 1 | — | 🔵 a fazer | (Flight Recorder 1ª-classe) |
 | B-06 | R15-14 | 1 | — | 🔵 a fazer | (card Saúde & Governança GET) |

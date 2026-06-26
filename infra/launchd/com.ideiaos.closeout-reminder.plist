@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  SOURCE: IdeiaOS v15 (R15-11) — LaunchAgent do lembrete dos gates de fechamento.
+  NOTIFICA, nunca carimba (remind-closeout-gates.sh só lê + osascript; o humano
+  roda --record e o ff-merge). Ativar (per-máquina, de preferência a always-on):
+
+    cp infra/launchd/com.ideiaos.closeout-reminder.plist ~/Library/LaunchAgents/
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.ideiaos.closeout-reminder.plist
+
+  Desativar:
+    launchctl bootout gui/$(id -u)/com.ideiaos.closeout-reminder
+    rm -f ~/Library/LaunchAgents/com.ideiaos.closeout-reminder.plist
+
+  Dispara 1x/dia às 19:00 (fim de expediente — hora de fechar a sessão). Se a
+  máquina estava desligada, o StartCalendarInterval faz catch-up no próximo wake.
+  O job NUNCA bloqueia (exit 0 sempre). Ajuste o ProgramArguments se o repo não
+  estiver em ~/dev/IdeiaOS. launchd não herda PATH → o script usa /usr/bin/git.
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.ideiaos.closeout-reminder</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/Users/gustavolopespaiva/dev/IdeiaOS/scripts/remind-closeout-gates.sh</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key><integer>19</integer>
+    <key>Minute</key><integer>0</integer>
+  </dict>
+  <key>StandardOutPath</key>
+  <string>/tmp/ideiaos-closeout-reminder.log</string>
+  <key>StandardErrorPath</key>
+  <string>/tmp/ideiaos-closeout-reminder.err</string>
+</dict>
+</plist>
