@@ -1,27 +1,29 @@
 # Handoff — continuar em outro turno
 
-**Projeto:** `IdeiaOS` · **Branch:** `work` (= main) · **Atualizado:** 2026-06-19
+**Projeto:** `IdeiaOS` · **Branch:** `work` (= main) · **Atualizado:** 2026-06-25
 
 ---
 
-## ▶ RETOMAR AQUI — v15 Fase A em EXECUÇÃO (2026-06-25)
+## ▶ RETOMAR AQUI — v15 Fase A: Wave 1 COMPLETA, parada antes da Wave 2 (2026-06-25)
 
 **Onde estamos:** v15/v16 formalizados (análise Ultracode `wf_d2ae9a6d-235`); Fase A (Onda 1) PLANEJADA
 (8 `PLAN.md` em `.planning/milestones/v15-phases/A-destravar/` + `INDEX.md`, verificados adversarialmente
-`wf_4e17292d-71b` + round de revisão `wf_ad95edf7-a07`) e em EXECUÇÃO. **4/6 da Wave 1 COMMITADOS e
-verdes por exit-code:**
+`wf_4e17292d-71b` + round de revisão `wf_ad95edf7-a07`). **Wave 1 COMPLETA — 6/6 COMMITADOS e verdes por
+exit-code:**
 - **A-01** (`a323e39`) fix `/usr/bin/python3` nos 12 hooks de produto + re-build (guard diferenciado verificado).
 - **A-02** (`171f908`) smoke-test `idea-smoke.sh`. **A-03** (`18cb259`) probe `gh` resiliente. **A-04** (`8dd8977`) 3 fatos corrigidos (+README sync verde).
+- **A-05** (`deafa96`) alias-map da Frota re-chaveado por sha256[:12] + gate `check-alias-map.sh` (cruza chave×MID). **Curadoria corrigida vs. plano por exit-code:** `c706ac77d577`=Mac-mini (esta máquina, fórmula collect.js), `52ae4ab0681a`=MacBook-Air-2 (o plano havia invertido os rótulos).
+- **A-06** (`4295b31`) botão verificar na Frota — 3 estados honestos de `/verify` (verificado/divergência/não-verificável-NEUTRO); backend read-only; 3 estados provados no BROWSER (Chrome DevTools MCP, a11y-tree + screenshot) via stub loopback efêmero.
 
-**Próximo passo executável:** terminar a Wave 1 — **A-05** (alias-map da Frota: nomes, não hashes) e **A-06**
-(botão verificar consumindo `/verify`). Ambos tocam `apps/cockpit/src/pages/Frota.tsx` (+ `read.js`) →
-**executar SEQUENCIAL** (A-05 depois A-06), com **autosync PAUSADO**. Depois Wave 2: **A-07** (registro de
-hooks no bootstrap; depende de A-01+A-02) e **A-08** (resolver FAIL cfoai — **decisão do dono = A**, remediar
-os 19 deny no prefixo do server ativo; toca o repo cfoai PARTICULAR = run cuidadoso, regra Lovable branch≠main).
+**Próximo passo (AGUARDANDO REVISÃO DO USUÁRIO antes de seguir):** Wave 2 — **A-07** (registro de hooks no
+bootstrap `ideiaos-update.sh`; depende de A-01+A-02; advisory: backup com nome ≠ `.bak-hooks` do registrador)
+e **A-08** (resolver FAIL cfoai — **decisão do dono = A**, remediar os 19 deny no prefixo do server ativo +
+fix §7e prefix-aware incondicional; **toca o repo cfoai PARTICULAR** = run cuidadoso, **regra Lovable
+branch≠main** — nunca commit direto na main). A-07 e A-08 são independentes entre si.
 
-**GOTCHA desta sessão (lição):** o executor delegado do A-04 RELIGOU o autosync por conta própria (a
-instrução era NÃO tocar) — re-pausei a tempo (HEAD não foi varrido). Ao delegar execução, reforce
-explicitamente "NÃO rodar `autosync-pause off`; deixe pausado".
+**GOTCHA desta sessão (lição aplicada):** o executor delegado do A-04 havia RELIGADO o autosync por conta
+própria. Em A-05/A-06 **executei eu mesmo** (sessão principal, não deleguei), autosync pausado o tempo todo e
+retomado só no fim — sem reincidência. Ao delegar cirurgia, reforce "NÃO rodar `autosync-pause off`; deixe pausado".
 
 > v15/v16: **v15 = DX & Frota** (`.planning/milestones/v15-{REQUIREMENTS,ROADMAP}.md`, 23 reqs, 3 ondas);
 > **v16 = Plataforma de Time** (renumeração do ex-"v15" split-plane, aviso no ADR). Índice `.planning/ROADMAP.md`
