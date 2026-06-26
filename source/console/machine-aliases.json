@@ -1,6 +1,5 @@
 {
-  "192": "Mac-mini-de-Gustavo",
-  "MacBook-Air-2": "MacBook-Air-2",
-  "Mac-mini-de-Gustavo": "Mac-mini-de-Gustavo",
-  "MacBook-Air": "MacBook-Air"
+  "_SOURCE": "IdeiaOS v15 | kind: alias-map | chaveado por sha256[:12] (NUNCA hostname — R15-07/collect.js:33). Curadoria provada por exit-code (fórmula collect.js:25-29): c706ac77d577 = esta máquina Mac-mini-de-Gustavo.",
+  "c706ac77d577": "Mac-mini-de-Gustavo",
+  "52ae4ab0681a": "MacBook-Air-2"
 }
