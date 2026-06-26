@@ -1,6 +1,6 @@
 # Fase A — "Destravar & Estancar" (Onda 1 do v15) · INDEX
 
-**Milestone:** v15 (DX & Frota) · **Fase:** A · **Status:** 🟢 Wave 1 EXECUTADA 2026-06-25 (A-01..A-06 commitados, verdes por exit-code) · Wave 2 (A-07/A-08) PENDENTE
+**Milestone:** v15 (DX & Frota) · **Fase:** A · **Status:** ✅ COMPLETA 2026-06-25 (8/8 planos executados, verdes por exit-code). Pendência fora-do-IdeiaOS: commit dos `.claude/settings.json` dos 4 produtos (A-08, @devops/branch work).
 **Origem:** método-espelho GSD (CLI não resolve fases v15 — mesma razão do v14). Planejado por workflow Ultracode `wf_4e17292d-71b` (8 planners + checker adversarial) + round de revisão `wf_ad95edf7-a07` (5 revisers + re-check). 6/8 `pass` na 1ª passada após revisão; A-04/A-07 fechados por 2 fixes cirúrgicos pós-revisão (checksum `| sort` determinístico; string real do grep — No-Invention).
 
 ## Objetivo da fase (goal-backward)

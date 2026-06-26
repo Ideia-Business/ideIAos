@@ -4,26 +4,31 @@
 
 ---
 
-## ▶ RETOMAR AQUI — v15 Fase A: Wave 1 COMPLETA, parada antes da Wave 2 (2026-06-25)
+## ▶ RETOMAR AQUI — v15 Fase A COMPLETA (8/8); pendente: commit dos settings dos produtos (2026-06-25)
 
-**Onde estamos:** v15/v16 formalizados (análise Ultracode `wf_d2ae9a6d-235`); Fase A (Onda 1) PLANEJADA
-(8 `PLAN.md` em `.planning/milestones/v15-phases/A-destravar/` + `INDEX.md`, verificados adversarialmente
-`wf_4e17292d-71b` + round de revisão `wf_ad95edf7-a07`). **Wave 1 COMPLETA — 6/6 COMMITADOS e verdes por
-exit-code:**
-- **A-01** (`a323e39`) fix `/usr/bin/python3` nos 12 hooks de produto + re-build (guard diferenciado verificado).
-- **A-02** (`171f908`) smoke-test `idea-smoke.sh`. **A-03** (`18cb259`) probe `gh` resiliente. **A-04** (`8dd8977`) 3 fatos corrigidos (+README sync verde).
-- **A-05** (`deafa96`) alias-map da Frota re-chaveado por sha256[:12] + gate `check-alias-map.sh` (cruza chave×MID). **Curadoria corrigida vs. plano por exit-code:** `c706ac77d577`=Mac-mini (esta máquina, fórmula collect.js), `52ae4ab0681a`=MacBook-Air-2 (o plano havia invertido os rótulos).
-- **A-06** (`4295b31`) botão verificar na Frota — 3 estados honestos de `/verify` (verificado/divergência/não-verificável-NEUTRO); backend read-only; 3 estados provados no BROWSER (Chrome DevTools MCP, a11y-tree + screenshot) via stub loopback efêmero.
+**Onde estamos:** v15/v16 formalizados (`wf_d2ae9a6d-235`); **Fase A (Onda 1) COMPLETA — 8/8 planos
+executados e verdes por exit-code**, todos commitados no IdeiaOS:
+- **A-01** (`a323e39`) fix `/usr/bin/python3` nos 12 hooks + re-build. **A-02** (`171f908`) `idea-smoke.sh`. **A-03** (`18cb259`) probe `gh`. **A-04** (`8dd8977`) 3 fatos.
+- **A-05** (`deafa96`) alias-map por sha256[:12] + gate chave×MID (curadoria corrigida por exit-code: `c706…`=Mac-mini, `52ae…`=MacBook-Air-2).
+- **A-06** (`4295b31`) botão verificar na Frota — 3 estados provados no browser.
+- **A-07** (`f6f059a`) registro de hooks no bootstrap-mantenedor via `ideiaos-update.sh --hooks-only`; T-01-10 preservado (setup.sh intocado, diff-real); idempotência sandbox+real.
+- **A-08** (`43b32cf`) §7e **exige o server Lovable ATIVO** (não o connector morto `6f530143`) — mata o verde-falso. Decisão do dono: **exigir-ativo + remediar os 4** (a *action* do plano dizia `any`, que NÃO matava o verde-falso — levei a contradição ao dono via AskUserQuestion). PROBE: `VERDE_FALSO=nao`; idea-doctor real = 4 contidos honestos.
 
-**Próximo passo (AGUARDANDO REVISÃO DO USUÁRIO antes de seguir):** Wave 2 — **A-07** (registro de hooks no
-bootstrap `ideiaos-update.sh`; depende de A-01+A-02; advisory: backup com nome ≠ `.bak-hooks` do registrador)
-e **A-08** (resolver FAIL cfoai — **decisão do dono = A**, remediar os 19 deny no prefixo do server ativo +
-fix §7e prefix-aware incondicional; **toca o repo cfoai PARTICULAR** = run cuidadoso, **regra Lovable
-branch≠main** — nunca commit direto na main). A-07 e A-08 são independentes entre si.
+**⏳ PENDENTE (fora do IdeiaOS — operação @devops, NÃO feita por mim):** os 4 `.claude/settings.json`
+(cfoai, ideiapartner, nfideia, lapidai) foram **gravados** com deny do prefixo ativo (19) + velho mantido
+(defense-in-depth), mas **não-commitados**. Persistir:
+- **cfoai-grupori, nfideia** (TRACKED, branch **main** Lovable) → commit em **branch `work`** + push (@devops); cfoai é **PARTICULAR**.
+- **ideiapartner** (`.claude/settings.json` **GITIGNORED**) → já é local-only por design; não precisa commit.
+- **lapidai** (branch **work**) → commit em `work`; está **protegido por pause-file por-repo** (`~/dev/lapidai/.git/autosync-pause`) até o commit controlado — **remover esse pause-file após commitar**.
 
-**GOTCHA desta sessão (lição aplicada):** o executor delegado do A-04 havia RELIGADO o autosync por conta
-própria. Em A-05/A-06 **executei eu mesmo** (sessão principal, não deleguei), autosync pausado o tempo todo e
-retomado só no fim — sem reincidência. Ao delegar cirurgia, reforce "NÃO rodar `autosync-pause off`; deixe pausado".
+**Próximo passo:** (1) decidir/executar o commit dos settings dos produtos acima (com @devops); (2) seguir
+para a Fase B/C do v15 (Onda 2/3) OU fechar o milestone conforme escopo. Autosync GLOBAL está ATIVO; só
+lapidai está pausado por-repo (lembrar de despausar após commit).
+
+**GOTCHA desta sessão (lição aplicada):** A-05..A-08 **executei eu mesmo** (sessão principal, não deleguei),
+autosync pausado durante cada cirurgia e retomado no fim — sem reincidência do religamento que o executor
+delegado do A-04 causara. Em A-08, NÃO segui cegamente a *action* do plano (`any`): a verificação ao vivo
+mostrou que ela não matava o verde-falso → escalei a contradição ao dono.
 
 > v15/v16: **v15 = DX & Frota** (`.planning/milestones/v15-{REQUIREMENTS,ROADMAP}.md`, 23 reqs, 3 ondas);
 > **v16 = Plataforma de Time** (renumeração do ex-"v15" split-plane, aviso no ADR). Índice `.planning/ROADMAP.md`
