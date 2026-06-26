@@ -3,7 +3,7 @@
   "machine_id": "c706ac77d577",
   "agentd_version": "1.0.0",
   "os_version": "26.6",
-  "taken_epoch": 1782489113,
+  "taken_epoch": 1782489601,
   "daemons": [
     {
       "pid": null,
@@ -11,7 +11,7 @@
       "label": "com.ideiaos.envsync"
     },
     {
-      "pid": 74160,
+      "pid": null,
       "status": "0",
       "label": "com.ideiaos.cockpit"
     },
@@ -27,11 +27,162 @@
     }
   ],
   "doctor": {
-    "ok": 0,
-    "warn": 0,
+    "ok": 78,
+    "warn": 3,
     "fail": 0,
-    "exit": -1,
-    "sections": []
+    "exit": 0,
+    "sections": [
+      {
+        "id": "1",
+        "titulo": "Skills globais",
+        "status": "OK",
+        "counts": {
+          "ok": 17,
+          "warn": 0,
+          "fail": 0
+        }
+      },
+      {
+        "id": "2",
+        "titulo": "Drift (cópia global vs fonte do repo)",
+        "status": "WARN",
+        "counts": {
+          "ok": 0,
+          "warn": 2,
+          "fail": 0
+        }
+      },
+      {
+        "id": "3",
+        "titulo": "MCPs (user scope)",
+        "status": "OK",
+        "counts": {
+          "ok": 2,
+          "warn": 0,
+          "fail": 0
+        }
+      },
+      {
+        "id": "4",
+        "titulo": "Overlay — 15 patches",
+        "status": "OK",
+        "counts": {
+          "ok": 19,
+          "warn": 0,
+          "fail": 0
+        }
+      },
+      {
+        "id": "5",
+        "titulo": "Versões vs versions.lock",
+        "status": "OK",
+        "counts": {
+          "ok": 3,
+          "warn": 0,
+          "fail": 0
+        }
+      },
+      {
+        "id": "6",
+        "titulo": "Autosync (LaunchAgent)",
+        "status": "OK",
+        "counts": {
+          "ok": 2,
+          "warn": 0,
+          "fail": 0
+        }
+      },
+      {
+        "id": "7",
+        "titulo": "Security Audit",
+        "status": "OK",
+        "counts": {
+          "ok": 14,
+          "warn": 0,
+          "fail": 0
+        }
+      },
+      {
+        "id": "8",
+        "titulo": "Contexts e funções de shell",
+        "status": "OK",
+        "counts": {
+          "ok": 6,
+          "warn": 0,
+          "fail": 0
+        }
+      },
+      {
+        "id": "9",
+        "titulo": "Memória compartilhada (v5)",
+        "status": "OK",
+        "counts": {
+          "ok": 6,
+          "warn": 0,
+          "fail": 0
+        }
+      },
+      {
+        "id": "10",
+        "titulo": "Membership de plugins (manifesto × build-plugins.sh)",
+        "status": "OK",
+        "counts": {
+          "ok": 1,
+          "warn": 0,
+          "fail": 0
+        }
+      },
+      {
+        "id": "11",
+        "titulo": "Proveniência & superfície de skills",
+        "status": "OK",
+        "counts": {
+          "ok": 2,
+          "warn": 0,
+          "fail": 0
+        }
+      },
+      {
+        "id": "12",
+        "titulo": "Dívida técnica marcada (debt:)",
+        "status": "WARN",
+        "counts": {
+          "ok": 0,
+          "warn": 1,
+          "fail": 0
+        }
+      },
+      {
+        "id": "13",
+        "titulo": "AI-security intel refresh (v12)",
+        "status": "OK",
+        "counts": {
+          "ok": 1,
+          "warn": 0,
+          "fail": 0
+        }
+      },
+      {
+        "id": "14",
+        "titulo": "Security freshness (v13)",
+        "status": "OK",
+        "counts": {
+          "ok": 1,
+          "warn": 0,
+          "fail": 0
+        }
+      },
+      {
+        "id": "15",
+        "titulo": "Cockpit (v14.1)",
+        "status": "OK",
+        "counts": {
+          "ok": 4,
+          "warn": 0,
+          "fail": 0
+        }
+      }
+    ]
   },
   "installed_versions": {
     "aiox-core": "5.2.9",
@@ -78,7 +229,7 @@
     }
   ],
   "security_freshness": {
-    "tier": "unknown"
+    "tier": "ok"
   },
   "projects": [
     {
