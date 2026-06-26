@@ -4,7 +4,7 @@
 
 set -euo pipefail
 
-DEV_SETUP="$HOME/Library/Mobile Documents/com~apple~CloudDocs/Projects/IdeiaOS"
+DEV_SETUP="$HOME/dev/IdeiaOS"
 ALIAS_LINE="alias idea-setup='bash \"$DEV_SETUP/setup.sh\" --lovable \"\$PWD\"'"
 
 # Detectar shell rc

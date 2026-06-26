@@ -35,7 +35,7 @@ Esse é o projeto-alvo. Não faça setup em outro diretório sem confirmação e
 ## Passo 1 — Localizar o `IdeiaOS`
 
 ```bash
-ls "$HOME/Library/Mobile Documents/com~apple~CloudDocs/Projects/IdeiaOS/setup.sh" 2>/dev/null \
+ls "$HOME/dev/IdeiaOS/setup.sh" 2>/dev/null \
   || ls "$HOME/Projects/IdeiaOS/setup.sh" 2>/dev/null \
   || ls "$HOME/ideiaos-setup/setup.sh" 2>/dev/null
 ```

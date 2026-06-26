@@ -26,7 +26,7 @@ Esse é o projeto-alvo. Não modifique outro diretório sem confirmação explí
 ## Passo 1 — Localizar o `IdeiaOS`
 
 ```bash
-DEV_SETUP="$HOME/Library/Mobile Documents/com~apple~CloudDocs/Projects/IdeiaOS"
+DEV_SETUP="$HOME/dev/IdeiaOS"
 if [ ! -d "$DEV_SETUP" ]; then
   echo "❌ IdeiaOS não encontrado. Clone com:"
   echo "   git clone git@github.com:Ideia-Business/IdeiaOS.git \"$DEV_SETUP\""
@@ -196,7 +196,7 @@ Se o usuário preferir CLI:
 
 ```bash
 # Setup completo do projeto atual
-bash "$HOME/Library/Mobile Documents/com~apple~CloudDocs/Projects/IdeiaOS/setup.sh" --project-only --lovable "$PWD"
+bash "$HOME/dev/IdeiaOS/setup.sh" --project-only --lovable "$PWD"
 
 # Ou (se alias configurado em ~/.zshrc)
 idea-setup
