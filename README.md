@@ -164,6 +164,9 @@ Fluxo de ponta a ponta pra um Mac do zero. O bootstrap faz o grosso; só GSD fic
 > dos projetos já vem no `git clone`. No **Windows** há **2 caminhos** — nativo + Git Bash (⚗️
 > consumidor) ou **WSL2** (✅ garantido) — em **[`docs/guides/windows-wsl.md`](docs/guides/windows-wsl.md)**.
 > No **Linux**, o Caminho B a partir do Passo 1. (Autosync via cron/Task Scheduler, não `launchd`.)
+>
+> 📑 **Índice de todos os guias de instalação** (qual doc cobre cada SO/assunto, sem cópias
+> paralelas): **[`docs/guides/README.md`](docs/guides/README.md)**.
 
 ### 1. Pré-requisitos (uma vez — não são auto-instalados)
 ```bash

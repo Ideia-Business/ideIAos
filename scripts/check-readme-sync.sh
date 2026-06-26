@@ -89,6 +89,42 @@ while IFS= read -r f; do
 done < <(find "$REPO_DIR/source/templates" -name "*.tmpl" 2>/dev/null)
 
 echo ""
+echo "📁 Cobertura de gotchas do runbook de instalação (R15-15)"
+# Runbook único de Windows/Linux: docs/guides/windows-wsl.md. INSTALL-WINDOWS.md (raiz) é stub-ponteiro.
+# Gate: (1) cada gotcha aparece >=1 no runbook; (2) o stub NÃO re-duplica o corpo do Caminho B.
+RUNBOOK="$REPO_DIR/docs/guides/windows-wsl.md"
+STUB="$REPO_DIR/INSTALL-WINDOWS.md"
+if [ ! -f "$RUNBOOK" ]; then
+  echo "  ⏭️  windows-wsl.md ausente — skip (repo sem guias de instalação)"
+else
+  # (1) cobertura: cada gotcha presente >=1 vez no runbook único (grep -c)
+  for gotcha in "checkout work" "/mnt/c" "autocrlf"; do
+    TOTAL=$((TOTAL + 1))
+    n="$(grep -c -F -- "$gotcha" "$RUNBOOK" 2>/dev/null)"; n="${n:-0}"
+    if [ "$n" -ge 1 ]; then
+      echo "  ✅ gotcha \"$gotcha\" coberto no runbook (${n}×)"
+      MENTIONED=$((MENTIONED + 1))
+    else
+      echo "  ❌ gotcha \"$gotcha\" AUSENTE no runbook (docs/guides/windows-wsl.md)"
+      MISSING=$((MISSING + 1))
+    fi
+  done
+  # (2) stub-ponteiro não re-duplica o corpo: âncoras de comando do Caminho B só no runbook
+  if [ -f "$STUB" ]; then
+    for anchor in "nvm install --lts" "githubcli-archive-keyring.gpg" "crontab -l"; do
+      TOTAL=$((TOTAL + 1))
+      if grep -qF -- "$anchor" "$STUB" 2>/dev/null; then
+        echo "  ❌ stub INSTALL-WINDOWS.md re-duplica o corpo (\"$anchor\" deve ficar só no runbook)"
+        MISSING=$((MISSING + 1))
+      else
+        echo "  ✅ stub não re-duplica \"$anchor\" (corpo fica só no runbook)"
+        MENTIONED=$((MENTIONED + 1))
+      fi
+    done
+  fi
+fi
+
+echo ""
 echo "═══════════════════════════════════════════════════════════"
 echo "Resumo: $MENTIONED/$TOTAL mencionados · $MISSING faltando"
 echo "═══════════════════════════════════════════════════════════"

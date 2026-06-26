@@ -1,6 +1,6 @@
 # Fase B — "Governança visível + Cockpit rico" (Onda 2 do v15) · INDEX
 
-**Milestone:** v15 (DX & Frota) · **Fase:** B · **Status:** 🔵 EM ANDAMENTO (5/8 DONE; 2026-06-26).
+**Milestone:** v15 (DX & Frota) · **Fase:** B · **Status:** 🔵 EM ANDAMENTO (6/8 DONE; 2026-06-26).
 **Origem:** método-espelho GSD (CLI não resolve fases v15 — mesma razão da Fase A e do v14). Planejado/executado plano-a-plano a partir de `v15-REQUIREMENTS.md` (R15-09..16) e `v15-ROADMAP.md`.
 
 ## Objetivo da fase (goal-backward)
@@ -19,7 +19,7 @@ Overview tem card de governança servido por GET; runbook único passa o gate de
 | B-04 | R15-12 | 1 | — | ✅ pass (coleta b+c + exposição (a) GET) | `R15-12-dados-ricos-PLAN.md` |
 | B-05 | R15-13 | 1 | **R15-12(a)** ✅ | 🔵 a fazer | (Flight Recorder 1ª-classe — consome GET) |
 | B-06 | R15-14 | 1 | **R15-12(a)** ✅ | 🔵 a fazer | (card Saúde & Governança GET — consome /soak+/projects) |
-| B-07 | R15-15 | 2 | **R15-05** ✅ | 🔵 a fazer | (runbook único — HARD-GATE em R15-05) |
+| B-07 | R15-15 | 2 | **R15-05** ✅ | ✅ pass (eliminar dup + índice + gate cobertura) | `R15-15-runbook-SUMMARY.md` |
 | B-08 | R15-16 | 1 | — | ✅ pass | `R15-16-hello-world-PLAN.md` |
 
 ## Grafo de execução
@@ -38,6 +38,13 @@ Independente, dado já no ref `cockpit`, validável por exit-code. ✅ DONE.
 
 ## Carry-forward / achados
 
+- **R15-15 (runbook único) DONE — interpretação não-literal autorizada pelo dono:** "consolidar
+  os 5 docs" foi executado como **eliminar duplicação (INSTALL-WINDOWS.md ⊂ windows-wsl.md, 54%
+  verbatim → stub 163→22 linhas) + índice (`docs/guides/README.md`)**, NÃO fusão num monólito
+  (onboarding/env-setup são heterogêneos, single-source dos seus assuntos). Enforcement durável:
+  `check-readme-sync.sh` ganhou gate de cobertura (gotcha ≥1 no runbook + âncora de corpo ausente
+  no stub), **anti-teatro provado** (exit 1 em input inválido nos 2 sub-gates). SUMMARY:
+  `R15-15-runbook-SUMMARY.md`.
 - **R15-12(a) → R15-13/R15-14 (FRONTEIRA exposição↔render):** R15-12(a) entregou a camada de
   EXPOSIÇÃO GET (`/projects`, `/soak`, `/doctor?cell`, `accounts` no `/fleet`) — provada por
   exit-code (7 gates). O **render** desses 4 dados na SPA é dos requisitos de UI: R15-13 (Flight

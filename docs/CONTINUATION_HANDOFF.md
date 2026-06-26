@@ -1,10 +1,41 @@
 # Handoff — continuar em outro turno
 
-**Projeto:** `IdeiaOS` · **Branch:** `work` (= main) · **Atualizado:** 2026-06-25
+**Projeto:** `IdeiaOS` · **Branch:** `work` (= main) · **Atualizado:** 2026-06-26
 
 ---
 
-## ▶ RETOMAR AQUI — v15 Fase A COMPLETA + Fase B iniciada (R15-09); settings dos produtos PUSHADOS (2026-06-26)
+## ▶ RETOMAR AQUI — v15 Fase B 6/8 (R15-15 runbook DONE); restam SÓ R15-13/R15-14 (par de UI) (2026-06-26)
+
+**Onde estamos:** **Fase B (Onda 2) = 6/8.** Sessão "continuar pós-compact". Autosync pausado na
+cirurgia de docs, **religado ao fim**.
+
+- **✅ R15-15 (runbook único — eliminar duplicação + índice) DONE** (interpretação do dono, NÃO
+  fusão monolítica). Entregue:
+  1. `INSTALL-WINDOWS.md` (raiz) era **54% verbatim** do Caminho B → **stub-ponteiro fino (163→22
+     linhas)**; corpo eliminado (0 gotchas/âncoras residuais).
+  2. `docs/guides/README.md` (**novo**) = índice de instalação por SO/assunto (NÃO funde
+     onboarding/env-setup heterogêneos).
+  3. `docs/guides/windows-wsl.md` confirmado como **runbook único** (6/2/2 dos gotchas).
+  4. `scripts/check-readme-sync.sh` **estendido** (não-novo) com **gate de cobertura** — gotcha ≥1
+     no runbook + âncora de corpo ausente no stub. **Anti-teatro PROVADO** por exit-code: stub que
+     re-duplica → exit 1; runbook sem gotcha → exit 1; caso bom → exit 0. README sync **140/140**.
+  - `+README.md` ponteiro ao índice. SUMMARY: `.planning/.../B-governanca/R15-15-runbook-SUMMARY.md`.
+
+- **Placar Fase B = 6/8:** ✅ R15-09 `--fleet` · R15-10 CI governance · R15-11 lembrete selos ·
+  R15-12 exposição Cockpit · R15-15 runbook · R15-16 hello-world.
+
+**🚦 Próximo passo = R15-13 + R15-14 (o PAR DE UI — fecha a Fase B):**
+- **R15-13** (Flight Recorder 1ª-classe / drill-down) + **R15-14** (card Saúde & Governança) — ambos
+  no `apps/cockpit/` (Overview.tsx) e **consomem os GET do R15-12(a)** (`/soak`, `/projects`,
+  `/doctor?cell`, `accounts` no `/fleet`). **Exigem `frontend-visual-loop` (regime-R: render +
+  screenshot, NÃO exit-code)** → melhor numa sessão dedicada de UI. Dependência ✅ já satisfeita.
+- **Resíduo não-bloqueante p/ a fase, mas bloqueante p/ tag:** PR `sec→main` cfoai/nfideia (fecha os
+  2 FAILs do doctor; decisão do dono — cfoai é PARTICULAR). DoD do v15 exige `idea_doctor=PASS` p/ SOAK.
+- **Fase C (Onda 3):** R15-17 GATED na cerimônia enc-keys (decisão do dono).
+
+---
+
+## ▶ RETOMAR (histórico) — v15 Fase A COMPLETA + Fase B iniciada (R15-09); settings dos produtos PUSHADOS (2026-06-26)
 
 **Onde estamos:** **Fase A (Onda 1) COMPLETA** (8/8, R15-01..08; ver `v15-phases/A-destravar/INDEX.md`).
 **Fase B (Onda 2) INICIADA — R15-09 DONE:**
