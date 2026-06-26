@@ -20,7 +20,34 @@
 
 ---
 
-## ▶ RETOMAR (anterior) — v15 Onda 3 (Fase C) COMPLETA (6/6 não-gated); falta SOAK 2ª máquina + R15-17 GATED p/ tag v15 (2026-06-26)
+## ▶ RETOMAR (manutenção 2026-06-26) — Cockpit daemon ATIVADO na MacBook-Air-2 + fix cwd no collect.js
+
+**Sessão operacional (NÃO muda o milestone v15 — o próximo-passo canônico é o bloco SHIP acima).**
+Disparada por `rodar idea-doctor` → resolver os WARN da §15 Cockpit → `ideiaos-update.sh` → fechamento.
+
+- **✅ Cockpit daemon ativado nesta máquina (582572114c20 = MacBook-Air-2):** LaunchAgent
+  `com.ideiaos.cockpit` instalado e ativo (3+ runs, todos exit 0). Snapshot da máquina gerado +
+  read-model reconstruído (3 máquinas). **Gotcha nvm:** o plist versionado hardcoda
+  `/usr/local/bin/node` (inexistente em máquina nvm) → criado symlink `~/.local/bin/node` + cópia
+  INSTALADA do plist apontando p/ ele (template fica pristine). [[project-cockpit-daemon-nvm-install-and-cwd]].
+- **✅ Bug de cwd no `collect.js` (commit `9d9e129`):** `soakDir` (`process.cwd()`) e a chamada
+  `check-security-freshness.sh` (path relativo) ainda dependiam de cwd — quebravam sob launchd
+  (`safeExec warn` + `security_freshness` ausente do snapshot). R15-12 só ancorara o `versions.lock`.
+  Fix: constante `ROOT` (`__dirname`-based) nos 3 pontos. Provado de `cwd=/tmp` + kickstart real.
+  [[learning-daemon-cwd-fix-needs-whole-file-sweep]].
+- **✅ `ideiaos-update.sh` rodado:** tudo idempotente/canônico; idea-doctor **OK:80 · WARN:1 · FAIL:0**
+  (o único WARN = 3 marcadores `debt:` intencionais — visibilidade, não defeito).
+- **📚 Learning extraído + promovido** (global + vault): daemon-cwd-fix-needs-whole-file-sweep.
+- **⚠️ Housekeeping descoberto (não-bloqueante):** o `MEMORY.md` é **regenerado** pelo `memory-import`
+  a partir das `description:` dos fatos (compactar à mão NÃO persiste). Correção durável = encurtar
+  as descriptions longas OU truncar `label` no gerador (`source/hooks/memory-import.sh:~271`).
+  [[project-memory-index-regenerated-from-fact-descriptions]].
+
+**Carry-forward:** nenhum bloqueio novo. Próximo passo canônico = SOAK span ≥1d (bloco SHIP acima) p/ tag v15.
+
+---
+
+## ▶ RETOMAR (histórico) — v15 Onda 3 (Fase C) COMPLETA (6/6 não-gated); falta SOAK 2ª máquina + R15-17 GATED p/ tag v15 (2026-06-26)
 
 **Sessão "siga" pós-/compact — Onda 3 inteira (R15-18..23, exceto R15-17 GATED) construída e provada por exit-code.**
 Autosync pausado nas cirurgias, daemon re-deployado (HEALED) e **religado ao fim**; `work→main` ff-merge feito.
