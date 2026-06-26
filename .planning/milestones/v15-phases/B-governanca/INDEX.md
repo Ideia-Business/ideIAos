@@ -40,7 +40,13 @@ Independente, dado já no ref `cockpit`, validável por exit-code. ✅ DONE.
   TODOS os snapshots (status VAZIO honesto). **Causa-raiz isolada:** `idea-doctor --json` emite JSON
   inválido — o §12 (debt-markers) vaza as ocorrências para stdout sem guard `JSON_MODE` (linha 742).
   O `collect.js` falha o parse e grava o fallback vazio. **Fix cirúrgico aplicado em commit separado**
-  (bugfix, não-R15-09); R15-12 herda a investigação do resto da coleta (`installed_versions={}`).
+  (bugfix `f80e9c5`, não-R15-09); R15-12 herda a investigação do resto da coleta (`installed_versions={}`).
+- **2 FAILs reais do doctor (agora visíveis) — resíduo do item 1 / R15-06:** `cfoai` e `nfideia`
+  "Lovable MCP SEM contenção (deny=0)" em **`main`** — o fix de segurança vive na branch `sec/lovable-mcp-deny`
+  (pushada para origin), não em main. **Fecham quando o PR `sec→main` for mergeado** (decisão do dono —
+  merge controlado vs. `settings.local.json` gitignored). O DoD do v15 exige `idea_doctor=PASS` p/ o SOAK
+  → estes 2 FAILs precisam fechar antes de tagear o milestone. **Não é regressão do R15-09** (pré-existentes,
+  só estavam mascarados pelo `--json` quebrado).
 
 ## Invariantes (não-negociáveis na execução)
 
