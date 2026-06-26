@@ -13,6 +13,11 @@ const path = require('path');
 const os   = require('os');
 const crypto = require('crypto');
 
+// ROOT do repo IdeiaOS — ancorado em __dirname (collect.js vive em
+// <repo>/source/agentd/), NUNCA process.cwd(): sob launchd o cwd NÃO é o repo
+// (plist do cockpit sem WorkingDirectory). Anti-padrão: depender de cwd num daemon.
+const ROOT = path.resolve(__dirname, '..', '..');
+
 // ---------------------------------------------------------------------------
 // machine_id — derivado 1x via sha256(IOPlatformUUID)[:12], cacheado
 // NUNCA hostname (gotcha alias 192 <-> MacBook-Air-2, gotcha v73)
@@ -55,7 +60,7 @@ function safeExec(cmd, opts) {
 // ---------------------------------------------------------------------------
 function readSoakHeartbeats() {
   try {
-    const soakDir = path.join(process.cwd(), '.planning', 'soak');
+    const soakDir = path.join(ROOT, '.planning', 'soak');
     if (!fs.existsSync(soakDir)) return [];
     const files = fs.readdirSync(soakDir).filter(f => f.endsWith('.log'));
     const heartbeats = [];
@@ -146,7 +151,8 @@ function readDoctor() {
 // ---------------------------------------------------------------------------
 function readSecurityFreshness() {
   try {
-    const raw = safeExec('bash scripts/check-security-freshness.sh --tier 2>/dev/null');
+    const script = path.join(ROOT, 'scripts', 'check-security-freshness.sh');
+    const raw = safeExec('bash ' + script + ' --tier 2>/dev/null', { cwd: ROOT });
     const tier = (raw || '').trim();
     const valid = ['ok', 'warn', 'egregious', 'unbootstrapped'];
     return { tier: valid.includes(tier) ? tier : 'unknown' };
@@ -285,11 +291,10 @@ function readSupabase(repoPath) {
 // ---------------------------------------------------------------------------
 function readVersions() {
   try {
-    // R15-12: ancorado em __dirname (collect.js vive em <repo>/source/agentd/), NÃO
-    // process.cwd() — sob launchd o cwd NÃO é o repo (plist do cockpit sem
-    // WorkingDirectory), então versions.lock não era achado e installed_versions
-    // ficava {} silenciosamente. Anti-padrão: depender de cwd num daemon.
-    const lockPath = path.join(__dirname, '..', '..', 'versions.lock');
+    // R15-12: ancorado em ROOT (__dirname-based), NÃO process.cwd() — sob launchd o
+    // cwd NÃO é o repo (plist do cockpit sem WorkingDirectory), então versions.lock
+    // não era achado e installed_versions ficava {} silenciosamente.
+    const lockPath = path.join(ROOT, 'versions.lock');
     if (!fs.existsSync(lockPath)) return {};
     const lines = fs.readFileSync(lockPath, 'utf8').split('\n');
     const versions = {};
