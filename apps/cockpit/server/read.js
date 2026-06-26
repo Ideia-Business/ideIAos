@@ -443,15 +443,22 @@ function handleFleet(res) {
     `);
 
     const result = machines.map(row => {
-      // installed_versions vem do payload do snapshot (objeto { [key]: version_string }).
+      // installed_versions + accounts (gh) vêm do payload do snapshot.
+      // installed_versions: { [key]: version_string }; accounts: [{host,user,protocol,active}]
+      // — accounts é METADATA-ONLY (sem token; credential-isolation). Vazios se payload
+      // inválido — nunca inventados.
       let installed_versions = {};
+      let accounts = [];
       if (row.payload_json) {
         try {
           const snap = JSON.parse(row.payload_json);
           if (snap.installed_versions && typeof snap.installed_versions === 'object') {
             installed_versions = snap.installed_versions;
           }
-        } catch { /* payload inválido → versões vazias, nunca inventadas */ }
+          if (Array.isArray(snap.accounts)) {
+            accounts = snap.accounts;
+          }
+        } catch { /* payload inválido → vazios, nunca inventados */ }
       }
 
       return {
@@ -463,6 +470,7 @@ function handleFleet(res) {
         last_doctor:        doctorFromPayload(row.payload_json ?? null),
         daemons:            daemonStmt.all(row.machine_id),
         installed_versions,
+        accounts,
       };
     });
 
@@ -506,6 +514,113 @@ function handleVault(res) {
 
     res.writeHead(200, JSON_CORS);
     res.end(JSON.stringify(rows));
+  } catch (e) {
+    res.writeHead(500, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: e.message }));
+  } finally {
+    if (db) try { db.close(); } catch { /* ignore */ }
+  }
+}
+
+// ── Handler GET /projects ──────────────────────────────────────────────────────
+// Lista projetos descobertos por máquina (iteração ~/dev/*/.git no agentd).
+// Expõe supabase_project_id (CKF-07): o vínculo produto↔backend Supabase. METADATA
+// pura — supabase_project_id é o ref PÚBLICO do projeto, não chave (credential-isolation).
+function handleProjects(res) {
+  let db;
+  try {
+    db = openDb();
+  } catch (e) {
+    res.writeHead(503, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: e.message }));
+    return;
+  }
+
+  try {
+    // Colunas explícitas — nenhuma carrega segredo; supabase_project_id é ref público.
+    const rows = db.prepare(`
+      SELECT
+        project_slug,
+        machine_id,
+        path,
+        remote_url,
+        supabase_project_id,
+        is_test_dir,
+        class_reason,
+        last_seen_epoch
+      FROM project
+      ORDER BY project_slug
+    `).all();
+
+    res.writeHead(200, JSON_CORS);
+    res.end(JSON.stringify(rows));
+  } catch (e) {
+    res.writeHead(500, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: e.message }));
+  } finally {
+    if (db) try { db.close(); } catch { /* ignore */ }
+  }
+}
+
+// ── Handler GET /soak ──────────────────────────────────────────────────────────
+// Span REAL de cada milestone em SOAK, agregado do ledger soak_heartbeat.
+// span_seconds = MAX(epoch) - MIN(epoch): o span é o DELTA dos epochs GRAVADOS,
+// NUNCA wall-clock desde o 1º heartbeat (soak-span-is-record-delta-not-wallclock).
+// span_ge_1d materializa o gate real do SOAK (≥1d de span gravado). Expõe também o
+// último veredito idea_doctor/regression por milestone (heartbeat de maior epoch).
+function handleSoak(res) {
+  let db;
+  try {
+    db = openDb();
+  } catch (e) {
+    res.writeHead(503, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: e.message }));
+    return;
+  }
+
+  try {
+    const rows = db.prepare(`
+      SELECT
+        milestone,
+        COUNT(*)                AS heartbeats,
+        COUNT(DISTINCT host)    AS hosts,
+        MIN(epoch)              AS min_epoch,
+        MAX(epoch)              AS max_epoch,
+        MAX(epoch) - MIN(epoch) AS span_seconds
+      FROM soak_heartbeat
+      GROUP BY milestone
+      ORDER BY milestone
+    `).all();
+
+    // Último veredito por milestone (heartbeat de maior epoch).
+    const lastStmt = db.prepare(`
+      SELECT idea_doctor, regression, commit_hash, host, epoch
+      FROM soak_heartbeat
+      WHERE milestone = ?
+      ORDER BY epoch DESC
+      LIMIT 1
+    `);
+
+    const result = rows.map(r => {
+      const last = lastStmt.get(r.milestone) || {};
+      return {
+        milestone:        r.milestone,
+        heartbeats:       r.heartbeats,
+        hosts:            r.hosts,
+        min_epoch:        r.min_epoch,
+        max_epoch:        r.max_epoch,
+        span_seconds:     r.span_seconds,
+        span_ge_1d:       r.span_seconds >= 86400, // gate real do SOAK (span gravado, não wall-clock)
+        last_idea_doctor: last.idea_doctor || '',
+        last_regression:  last.regression  || '',
+        last_commit:      last.commit_hash || '',
+        last_host:        last.host        || '',
+        last_epoch:       last.epoch       ?? null,
+      };
+    });
+
+    res.writeHead(200, JSON_CORS);
+    res.end(JSON.stringify(result));
   } catch (e) {
     res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: e.message }));
@@ -584,6 +699,71 @@ function handleVerify(req, res) {
   }));
 }
 
+// ── Handler GET /doctor?cell=<machine_id> ─────────────────────────────────────
+// Drill-down do idea-doctor da máquina: as sections do snapshot mais recente.
+// section emitida por `idea-doctor --json` (preenche após o fix do --json, bugfix
+// f80e9c5; snapshots pré-fix devolvem sections=[] — HONESTO, nunca inventado).
+// SEGURANÇA (Excessive Agency): machine_id validado contra MID_RE (mesmo allowlist
+// do /verify) ANTES de virar parâmetro do SELECT preparado.
+function handleDoctor(req, res) {
+  const q = new URL(req.url, 'http://127.0.0.1').searchParams;
+  const cell = q.get('cell') || '';
+
+  if (!MID_RE.test(cell)) {
+    res.writeHead(400, JSON_CORS);
+    res.end(JSON.stringify({ error: 'cell inválido (esperado machine_id [0-9a-f]{12})' }));
+    return;
+  }
+
+  let db;
+  try {
+    db = openDb();
+  } catch (e) {
+    res.writeHead(503, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: e.message }));
+    return;
+  }
+
+  try {
+    const row = db.prepare(`
+      SELECT payload_json
+      FROM machine_snapshot
+      WHERE machine_id = ?
+      ORDER BY taken_epoch DESC
+      LIMIT 1
+    `).get(cell);
+
+    if (!row) {
+      res.writeHead(404, JSON_CORS);
+      res.end(JSON.stringify({ error: 'máquina sem snapshot', cell }));
+      return;
+    }
+
+    // doctor default = "nunca rodou" (exit -1, sections []). Nunca inventado.
+    let doctor = { ok: 0, warn: 0, fail: 0, exit: -1, sections: [] };
+    try {
+      const snap = JSON.parse(row.payload_json);
+      if (snap.doctor && typeof snap.doctor === 'object') {
+        doctor = {
+          ok:       snap.doctor.ok   ?? 0,
+          warn:     snap.doctor.warn ?? 0,
+          fail:     snap.doctor.fail ?? 0,
+          exit:     snap.doctor.exit ?? -1,
+          sections: Array.isArray(snap.doctor.sections) ? snap.doctor.sections : [],
+        };
+      }
+    } catch { /* payload inválido → doctor default, nunca inventado */ }
+
+    res.writeHead(200, JSON_CORS);
+    res.end(JSON.stringify({ cell, ...doctor }));
+  } catch (e) {
+    res.writeHead(500, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: e.message }));
+  } finally {
+    if (db) try { db.close(); } catch { /* ignore */ }
+  }
+}
+
 // ── HTTP server ───────────────────────────────────────────────────────────────
 const server = http.createServer((req, res) => {
   if (req.method === 'GET' && req.url === '/machines') {
@@ -600,6 +780,15 @@ const server = http.createServer((req, res) => {
   }
   if (req.method === 'GET' && req.url === '/vault') {
     return handleVault(res);
+  }
+  if (req.method === 'GET' && req.url === '/projects') {
+    return handleProjects(res);
+  }
+  if (req.method === 'GET' && req.url === '/soak') {
+    return handleSoak(res);
+  }
+  if (req.method === 'GET' && req.url.startsWith('/doctor')) {
+    return handleDoctor(req, res);
   }
   // Canal de COMANDO (FIX S-01..S-04) — token efêmero + POST /command autenticado.
   if (req.method === 'GET' && req.url === '/command-token') {

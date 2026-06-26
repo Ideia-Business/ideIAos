@@ -1,6 +1,6 @@
 # Fase B — "Governança visível + Cockpit rico" (Onda 2 do v15) · INDEX
 
-**Milestone:** v15 (DX & Frota) · **Fase:** B · **Status:** 🔵 EM ANDAMENTO (4/8 DONE + R15-12 coleta parcial; 2026-06-26).
+**Milestone:** v15 (DX & Frota) · **Fase:** B · **Status:** 🔵 EM ANDAMENTO (5/8 DONE; 2026-06-26).
 **Origem:** método-espelho GSD (CLI não resolve fases v15 — mesma razão da Fase A e do v14). Planejado/executado plano-a-plano a partir de `v15-REQUIREMENTS.md` (R15-09..16) e `v15-ROADMAP.md`.
 
 ## Objetivo da fase (goal-backward)
@@ -16,16 +16,18 @@ Overview tem card de governança servido por GET; runbook único passa o gate de
 | B-01 | R15-09 | 1 | — | ✅ pass | `R15-09-fleet-PLAN.md` |
 | B-02 | R15-10 | 1 | — | ✅ pass (code-complete) | `R15-10-ci-gates-PLAN.md` |
 | B-03 | R15-11 | 1 | R15-06 ✅ | ✅ pass | `R15-11-lembrete-selos-PLAN.md` |
-| B-04 | R15-12 | 1 | — | 🟡 parcial (coleta b+c DONE; exposição read.js pendente) | `R15-12-dados-ricos-PLAN.md` |
-| B-05 | R15-13 | 1 | — | 🔵 a fazer | (Flight Recorder 1ª-classe) |
-| B-06 | R15-14 | 1 | — | 🔵 a fazer | (card Saúde & Governança GET) |
+| B-04 | R15-12 | 1 | — | ✅ pass (coleta b+c + exposição (a) GET) | `R15-12-dados-ricos-PLAN.md` |
+| B-05 | R15-13 | 1 | **R15-12(a)** ✅ | 🔵 a fazer | (Flight Recorder 1ª-classe — consome GET) |
+| B-06 | R15-14 | 1 | **R15-12(a)** ✅ | 🔵 a fazer | (card Saúde & Governança GET — consome /soak+/projects) |
 | B-07 | R15-15 | 2 | **R15-05** ✅ | 🔵 a fazer | (runbook único — HARD-GATE em R15-05) |
 | B-08 | R15-16 | 1 | — | ✅ pass | `R15-16-hello-world-PLAN.md` |
 
 ## Grafo de execução
 
 - **R15-09** (costura) é independente e o movimento-âncora — feito 1º.
-- **R15-10/12/13/14/16** independentes (paralelizáveis).
+- **R15-10/12/16** independentes (paralelizáveis) — ✅ DONE.
+- **R15-13/R15-14** dependem de **R15-12(a)** (✅) — a exposição GET é a FONTE que a UI deles
+  consome (Flight Recorder drill-down; card governança via `/soak`+`/projects`). Desbloqueados.
 - **R15-11** depende de R15-06 (✅ A-08 fechou) — desbloqueado.
 - **R15-15** HARD-GATE em R15-05 (✅ Fase A) — desbloqueado, mas é Wave 2 (consolida docs já corrigidos).
 
@@ -36,6 +38,12 @@ Independente, dado já no ref `cockpit`, validável por exit-code. ✅ DONE.
 
 ## Carry-forward / achados
 
+- **R15-12(a) → R15-13/R15-14 (FRONTEIRA exposição↔render):** R15-12(a) entregou a camada de
+  EXPOSIÇÃO GET (`/projects`, `/soak`, `/doctor?cell`, `accounts` no `/fleet`) — provada por
+  exit-code (7 gates). O **render** desses 4 dados na SPA é dos requisitos de UI: R15-13 (Flight
+  Recorder/drill-down) e R15-14 (card Saúde & Governança consome `/soak`+`/projects`). Não
+  renderizei aqui (disciplina de escopo). `doctor.sections=[]` e `supabase_project_id=null` hoje
+  são honestos (snapshots pré-fix `--json`); preenchem no próximo ciclo do agentd.
 - **R15-09 → R15-12 (PRIORITÁRIO):** o `--fleet` expôs que `doctor.exit=-1` + `sections=[]` em
   TODOS os snapshots (status VAZIO honesto). **Causa-raiz isolada:** `idea-doctor --json` emite JSON
   inválido — o §12 (debt-markers) vaza as ocorrências para stdout sem guard `JSON_MODE` (linha 742).
