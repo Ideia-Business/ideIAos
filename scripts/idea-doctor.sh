@@ -739,7 +739,11 @@ if [ "${DEBT_N:-0}" -eq 0 ]; then
   pass "nenhum marcador debt: pendente em source/+scripts/"
 else
   warn "$DEBT_N marcador(es) debt: em source/+scripts/ — dívida conhecida (visibilidade, não bloqueia):"
-  printf '%s\n' "$DEBT_HITS" | sed "s#$SETUP_DIR/#       #" | head -10
+  # Guard JSON_MODE: no modo --json o detalhe NÃO pode vazar p/ stdout (quebraria o JSON que o
+  # collect.js parseia → snapshot com doctor.exit=-1; sintoma exposto pelo --fleet/R15-09).
+  if [ "$JSON_MODE" -eq 0 ]; then
+    printf '%s\n' "$DEBT_HITS" | sed "s#$SETUP_DIR/#       #" | head -10
+  fi
 fi
 
 # ── 13) AI-security intel refresh (v12) ──────────────────────────────────────
