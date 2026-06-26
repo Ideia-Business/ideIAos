@@ -713,6 +713,30 @@ fi
 echo "     Uso no Claude Code: /lovable-handoff (em projeto Lovable)"
 
 # ─────────────────────────────────────────────────────────────────────────────
+# ── Deploy data-driven dos hooks Claude Code (R15-21) ────────────────────────
+# Fonte-de-verdade ÚNICA da lista (source/lib/deploy-hooks.sh) + 1 loop, no lugar de
+# ~11 blocos copy-paste de cp/chmod/diff. Adicionar/alterar um hook = 1 linha na lista
+# → reduz o risco de R15-01/02. A metade "registro" (settings.json) segue por-hook abaixo.
+# debt: os blocos `if [ -f "$X_FILE" ]…cp…fi` de DEPLOY abaixo ficaram redundantes
+# (idempotentes — o loop já deployou; viram diff→skip). Remover incrementalmente, deixando
+# só o registro, validando com tests/v15/test-deploy-hooks.sh (gate de igualdade de SET).
+HOOK_DIR="$HOME/.claude/hooks"
+if [ -f "$SETUP_DIR/source/lib/deploy-hooks.sh" ]; then
+  . "$SETUP_DIR/source/lib/deploy-hooks.sh"
+  step "5.4b) Hooks Claude Code — deploy data-driven (R15-21)"
+  while IFS=' ' read -r _hk _tok; do
+    [ -z "$_hk" ] && continue
+    case "$_tok" in
+      INSTALLED) ok "hook $_hk instalado" ;;
+      UPDATED)   ok "hook $_hk atualizado" ;;
+      CURRENT)   : ;;  # já na versão — silencioso
+      MISSING)   warn "hook $_hk ausente na fonte (source/hooks/$_hk.sh)" ;;
+    esac
+  done <<EOF
+$(deploy_all_hooks "$SETUP_DIR/source/hooks" "$HOOK_DIR")
+EOF
+fi
+
 step "5.5) Hook Claude Code — extract-learnings-reminder"
 # Barreira ativa: injeta gate triplo após cada git commit em projeto Fase A.
 # Específico do Claude Code (Cursor/Codex/Gemini têm enforcement via rules+AGENTS.md).
