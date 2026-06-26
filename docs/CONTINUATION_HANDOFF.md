@@ -4,9 +4,13 @@
 
 ---
 
-## ▶ RETOMAR AQUI — "faça tudo até 100%": Fase 1 (frescor-tier) + Fase 3 parcial DONE; faltam PRs outward + Onda 3 (2026-06-26)
+## ▶ RETOMAR AQUI — "faça tudo até 100%": Fase 1 + Fase 3 DONE, **idea_doctor=PASS (DoD ok)**; só falta Onda 3 (pós-/compact) (2026-06-26)
 
-**Sessão "faça tudo, faseado, toque até 100%".** Autosync pausado, **religar ao fim**.
+**Sessão "faça tudo, faseado, toque até 100%".** Autosync religado ao fim; `work→main` ff-merge feito.
+
+> **🎯 DoD do SOAK SATISFEITO:** `idea-doctor` = **ok 78 · warn 3 · fail 0 · exit 0**. Os 3 fails de
+> Lovable-MCP fecharam: ideiapartner (local) + cfoai (PR #44) + nfideia (PR #43, re-ramificado). Os 4
+> produtos contidos (deny=19). **Falta só a Onda 3 + SOAK 2ª-máquina/span p/ tagear v15.**
 
 - **✅ Fase 1 — frescor-tier + re-coleta (commit `80d8074`):** `collect.readSecurityFreshness()`
   (`check-security-freshness --tier`) → `agentd` snapshot → `read.js /overview` agrega pior tier →
@@ -15,19 +19,23 @@
   o `execSync` descartava o stdout → `|| true` + timeout 60s. Re-coleta (`agentd --once`) preencheu
   installed_versions(8)/mcp(6)/supabase(4/8)/security_freshness(ok)/doctor(real). SUMMARY:
   `R15-14-frescor-tier-SUMMARY.md`.
-- **✅ Fase 3 (parte segura) — ideiapartner deny 16→19:** a re-coleta destravou o doctor e revelou
-  **3 fails** (não 2): cfoai/nfideia (deny=0) **+ ideiapartner (deny=16)** — este último o handoff
-  dava como "nada a fazer". As 3 faltantes eram as MAIS perigosas (`deploy_project`,`query_database`,
-  `send_message`). Corrigido LOCAL (`.claude/settings.json` gitignored, não dispara deploy). Doctor:
-  **fail 3→2**, ok 75→76. **NOTA:** é efêmero ([[learning-uncommitted-security-config-ephemeral]]) —
-  `.claude` gitignored no ideiapartner é o mecanismo aceito desse repo, mas regride se o dir for limpo.
-- **⏳ Fase 3 (outward — TEU OK por-repo):** cfoai/nfideia ainda deny=0 → **2 fails restantes**.
-  Branches `sec/lovable-mcp-deny` **pushadas** em ambos; **nenhum PR aberto**. Mergear `sec→main`
-  fecha os 2 fails MAS é outward em repo **Lovable** (main=deploy) e **cfoai é PARTICULAR** → espera
-  confirmação por-repo. É o que falta p/ `idea_doctor=PASS` (DoD do SOAK).
-- **⏳ Onda 3 (R15-18..22) NÃO iniciada:** construção pesada (allowlist write-path, idea update,
-  auto-cura visível, refactor gerador de hooks, pre-op guard anti-race). R15-17 GATED (enc-keys N=2,
-  2ª máquina física). Recomendo **/compact antes** (token-economy: strategic compact pré-long-phase).
+- **✅ Fase 3 — os 3 fails de Lovable-MCP FECHADOS (dono autorizou "abrir+mergear ambos"):**
+  - **ideiapartner deny 16→19** (LOCAL, `.claude/settings.json` gitignored). Achado da re-coleta: o
+    handoff o dava como "nada a fazer", mas faltavam as 3 tools MAIS perigosas (`deploy_project`,
+    `query_database`, `send_message`). Efêmero ([[learning-uncommitted-security-config-ephemeral]]).
+  - **cfoai (PR #44)** — branch `sec/lovable-mcp-deny` era cirúrgica → merge `sec→main` (deploy Lovable).
+  - **nfideia (PR #43)** — ⚠️ a branch `sec/lovable-mcp-deny` estava **STALE** (revertia migrations/
+    hooks que main ganhou) → **re-ramifiquei de main HEAD** (`sec/lovable-mcp-deny-v2`, só settings.json)
+    e mergeei. [[learning-stale-autosync-branch-off-main]]. (A branch stale antiga remota ficou — a
+    deleção foi bloqueada por não-autorizada; housekeeping p/ depois.)
+  - **Doctor: fail 3→0.** Re-coleta final do agentd → snapshot doctor exit:0.
+- **⏳ Onda 3 (R15-18..22) — PRÓXIMA, pós-/compact (dono pediu /compact antes):** construção pesada
+  (allowlist write-path **LOCAL** — wiring NOVO provar por gate-negativo, ledger não wired ao /command;
+  idea update — provar equivalência vs binário legado; auto-cura visível; refactor gerador de hooks
+  — só metade deploy, por último; pre-op guard anti-autosync-race). **R15-17 GATED** (enc-keys N=2 +
+  2ª máquina física — decisão do dono). Plano nos REQUIREMENTS `.planning/milestones/v15-REQUIREMENTS.md`.
+- **Housekeeping pendente:** MEMORY.md em ~21KB (perto do limite 24KB) — compactar p/ <17KB. Branch
+  stale remota `sec/lovable-mcp-deny` em cfoai/nfideia (deletar quando autorizado).
 
 ---
 
