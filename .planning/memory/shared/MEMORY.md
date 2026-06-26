@@ -48,6 +48,7 @@
 - [cfoai-grupori é projeto PARTICULAR do Gustavo — não incluir em artefatos de onboarding/compartilhamento com devs](facts/project_cfoai-particular.md) — project-cfoai-particular
 - [Estrutura Changelog/ no vault Obsidian + protocolo de fechamento atualizado para incluir registro de entregas](facts/project_changelog_vault.md) — project_changelog_vault
 - [Todos os CLAUDE.md dos projetos atualizados com seção \"Segundo Cérebro\" referenciando o vault Obsidian](facts/project_claude_md_vault_awareness.md) — project_claude_md_vault_awareness
+- [Ativar o daemon do Cockpit (com.ideiaos.cockpit) em máquina nvm + bug de cwd residual no collect.js](facts/project_cockpit-daemon-nvm-install-and-cwd.md) — project-cockpit-daemon-nvm-install-and-cwd
 - [DeepSeek V4 Pro: decisão TOMADA (2026-06-16) — habilitar nos PRODUTOS (cfoai/nfideia etc.), não no Claude Code; removido do plano IdeiaOS (escopo de produto)](facts/project_deepseek_v4_enablement_pending.md) — project-deepseek-v4-enablement-pending
 - [No handoff do IdeiaOS o próximo passo real vai na seção \"## Próximo passo\", não na \"## Ultima sessao automatica\" (regenerada pelo hook)](facts/project_handoff_proximo_passo_secao.md) — project_handoff_proximo_passo_secao
 - [Headroom (chopratejas/headroom, Apache-2.0) avaliado 2026-06-21 — veredito: NÃO adotar como proxy/MCP/dependência; minerar 3 padrões nativos. Compressão real mas condicional.](facts/project_headroom-eval-2026-06.md) — headroom-eval-2026-06
