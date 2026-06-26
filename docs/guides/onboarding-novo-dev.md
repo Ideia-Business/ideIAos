@@ -65,6 +65,36 @@ Três acessos precisam existir **antes** — não são auto-instaláveis:
 
 ---
 
+## 0.5 Hello-world — veja o valor em ~10 min (antes do setup completo) 🎁
+
+Você já tem os **acessos da §0**. Antes de investir no setup completo (§1–6), gaste
+~10 min vendo o que o ideIAos faz — **valor antes do custo**. Precisa só de: Claude
+Code logado + o clone do ideIAos.
+
+```bash
+# clone mínimo (se ainda não fez) + abre o Claude Code aqui
+git clone https://github.com/Ideia-Business/ideIAos.git ~/dev/IdeiaOS
+cd ~/dev/IdeiaOS && claude
+```
+
+Dentro do Claude Code, peça à **Deia**:
+
+| Diga | O que acontece |
+|------|----------------|
+| `Deia, primeira vez aqui — me dá um tour` | a Deia te situa e roda **`/code-tour`** (passeio guiado pelo código) |
+| `Deia, o que tem disponível?` | **`/ideiaos-catalog`** lista os módulos vivos (dezenas de skills, agents, hooks e rules — **sem decorar nada**: você pergunta, ela acha) |
+
+**Prova binária de que o básico funciona** (puro bash — roda já no ambiente meio-instalado):
+
+```bash
+bash ~/dev/IdeiaOS/scripts/idea-smoke.sh   # exit 0 = bootstrap mínimo OK
+```
+
+Curtiu? Faça o **setup completo** (§1–6) e veja o **dia a dia** na **§7** — o hello-world
+é o trailer; a §7 é o filme. (Não decore comandos: a Deia roteia em português natural.)
+
+---
+
 ## 1. Pré-requisitos da máquina — **macOS** (uma vez — **não** são auto-instalados)
 
 > 🪟🐧 **Windows/Linux:** as seções **1–6** abaixo são o caminho **macOS**. No Windows/Linux,

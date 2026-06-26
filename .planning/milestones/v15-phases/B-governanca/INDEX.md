@@ -1,6 +1,6 @@
 # Fase B — "Governança visível + Cockpit rico" (Onda 2 do v15) · INDEX
 
-**Milestone:** v15 (DX & Frota) · **Fase:** B · **Status:** 🔵 EM ANDAMENTO (3/8 DONE + R15-12 coleta parcial; 2026-06-26).
+**Milestone:** v15 (DX & Frota) · **Fase:** B · **Status:** 🔵 EM ANDAMENTO (4/8 DONE + R15-12 coleta parcial; 2026-06-26).
 **Origem:** método-espelho GSD (CLI não resolve fases v15 — mesma razão da Fase A e do v14). Planejado/executado plano-a-plano a partir de `v15-REQUIREMENTS.md` (R15-09..16) e `v15-ROADMAP.md`.
 
 ## Objetivo da fase (goal-backward)
@@ -20,7 +20,7 @@ Overview tem card de governança servido por GET; runbook único passa o gate de
 | B-05 | R15-13 | 1 | — | 🔵 a fazer | (Flight Recorder 1ª-classe) |
 | B-06 | R15-14 | 1 | — | 🔵 a fazer | (card Saúde & Governança GET) |
 | B-07 | R15-15 | 2 | **R15-05** ✅ | 🔵 a fazer | (runbook único — HARD-GATE em R15-05) |
-| B-08 | R15-16 | 1 | — | 🔵 a fazer | (hello-world 10 min) |
+| B-08 | R15-16 | 1 | — | ✅ pass | `R15-16-hello-world-PLAN.md` |
 
 ## Grafo de execução
 

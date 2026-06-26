@@ -90,6 +90,7 @@ Use a matriz abaixo para detectar intenção. **Apenas UMA camada deve ser ativa
 | "pesquisa profunda", "decidir entre opções" | **Skill** → `/deep-research` |
 | "entrar em codebase nova", "onboarding" | **Skill** → `/codebase-onboarding` |
 | "explica como esse fluxo funciona" | **Skill** → `/code-tour` |
+| "primeira vez aqui", "me dá um tour", "tour de 10 min", "hello world", "me mostra o valor (antes do setup)", "novo no ideiaos" | **Onboarding** → tour hello-world (~10 min): situa o dev + roda `/code-tour` + `/ideiaos-catalog`, terminando com `idea-smoke.sh` (prova binária). Ver §0.5 de `docs/guides/onboarding-novo-dev.md`. **Vende o valor antes do custo do setup** (§1–6); detalhe do dia a dia na §7. |
 | "migration", "mudar schema com segurança" | **Skill** → `/database-migrations` |
 | "design da API", "contrato de endpoint" | **Skill** → `/api-design` |
 | "acessibilidade", "WCAG ao construir" | **Skill** → `/accessibility` |
