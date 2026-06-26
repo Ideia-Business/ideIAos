@@ -25,6 +25,10 @@ _autosync_surgery_active() {
   pid="$(sed -n 's/^pid=//p' "$S" 2>/dev/null | head -1)"
   started="$(sed -n 's/^started=//p' "$S" 2>/dev/null | head -1)"
   now="$(date +%s)"
+  # sanitiza valores corrompidos (não-numéricos) → ausentes; sob `set -u` (linha 10) uma
+  # sentinela corrompida abortaria o subshell na aritmética. Simetria com surgery-lock.sh.
+  case "${started:-}" in *[!0-9]*|'') started= ;; esac
+  case "${pid:-}" in *[!0-9]*|'') pid= ;; esac
   [ -n "${started:-}" ] && [ $((now - started)) -ge "$ttl" ] && return 1   # TTL → stale
   [ -n "${pid:-}" ] && ! kill -0 "$pid" 2>/dev/null && return 1            # PID morto → stale
   return 0
