@@ -25,7 +25,7 @@ bash scripts/install-alias.sh && source ~/.zshrc   # ou ~/.bashrc
 
 > **Máquina nova do zero?** Use o bootstrap: `bash setup-dev-machine.sh` — clona todos os repos da Ideia, configura o autosync (LaunchAgent) **e** roda o setup global do IdeiaOS + overlay automaticamente.
 >
-> **Manutenção (qualquer dia):** `bash scripts/idea-doctor.sh` (diagnóstico) · `bash scripts/sync-all.sh` (atualiza tudo). Veja [Mantendo o ambiente global sincronizado](#-mantendo-o-ambiente-global-sincronizado-caminho-c--v11).
+> **Manutenção (qualquer dia):** `bash scripts/idea-doctor.sh` (diagnóstico) · `bash scripts/idea-doctor.sh --fleet` (saúde da frota cross-máquina: nome, idade do snapshot, status — agrega o ref `cockpit`) · `bash scripts/sync-all.sh` (atualiza tudo). Veja [Mantendo o ambiente global sincronizado](#-mantendo-o-ambiente-global-sincronizado-caminho-c--v11).
 
 Pronto. Em qualquer projeto, você precisa decorar **um comando** — ou apenas chamar a **Deia** por nome:
 

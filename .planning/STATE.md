@@ -1,20 +1,28 @@
 ---
 gsd_state_version: 1.0
-milestone: v10
-milestone_name: Camada de Integração Lovable MCP
-status: partial
-last_updated: "2026-06-22T00:10:10.900Z"
+milestone: v15
+milestone_name: DX & Frota
+status: in_progress
+last_updated: "2026-06-26"
 progress:
-  total_phases: 4
-  completed_phases: 2
-  total_plans: 4
-  completed_plans: 2
-  percent: 50
+  total_phases: 3
+  completed_phases: 1
+  total_plans: 23
+  completed_plans: 9
+  percent: 39
 ---
 
 # State — IdeiaOS
 
-**Atualizado:** 2026-06-19
+**Atualizado:** 2026-06-26
+
+## Milestone atual — v15: DX & Frota (instalação fácil + gerência da frota)
+
+**Status:** 🔵 EM ANDAMENTO. **Fase A (Onda 1)** ✅ COMPLETA (8/8, R15-01..08). **Fase B (Onda 2)** 🔵 iniciada — **R15-09 `idea-doctor --fleet`** DONE (agregador de saúde cross-máquina sobre o ref `cockpit`; commit `3b05c00` + bugfix `f80e9c5` do `--json` que destravou a coleta do doctor na frota). Restam R15-10..16. **Fase C (Onda 3)** R15-17..23 — R15-17 GATED na cerimônia enc-keys (decisão do dono).
+
+**Pendência aberta (resíduo do item 1 / R15-06):** o fix de contenção Lovable-MCP (deny=19 das tools mutantes) está nas branches `sec/lovable-mcp-deny` de cfoai/nfideia (pushadas) + `work` de lapidai — mas **NÃO em `main`** de cfoai/nfideia → `idea-doctor` mostra **2 FAILs** ali (working-tree de main, deny=0). Fecham via **PR `sec→main` mergeado** (merge controlado vs. `settings.local.json`; decisão do dono pendente). O DoD do v15 exige `idea_doctor=PASS` para o SOAK. Ver [[learning-gate-audits-current-branch-not-other-branch]].
+
+Planejamento: `.planning/milestones/v15-{REQUIREMENTS,ROADMAP}.md` + `v15-phases/{A-destravar,B-governanca}/`.
 
 ## Snapshot
 
@@ -58,6 +66,8 @@ progress:
 - versions.lock blindado (fase 28); guards anti-Pi-drift em check-versions-lock.sh + idea-doctor.sh.
 
 ## Próximo passo
+
+> **v15 (DX & Frota) é o milestone ATIVO — ver "## Milestone atual — v15" no topo.** Imediato: (1) mergear PR `sec→main` em cfoai/nfideia para fechar os 2 FAILs do doctor (decisão do dono); (2) seguir a Fase B (R15-10 CI gates · R15-11 lembrete selos · R15-12 dados ricos + resto da coleta · R15-13/14/15/16). O bloco v10 abaixo é histórico.
 
 **Milestone v10 — Fase A (v1 read-only) SHIPPED 2026-06-18.** Skill `/lovable-mcp` (`verify-deploy` + `detect-hotfix`), helper `source/lib/lovable-mcp.sh` (gateado por `gates.sh`, testado em sandbox), resolver de escopo identity-aware, harness-deny de 19 tools mutantes (+ `query_database` deny puro) no `.claude/settings.json`, rule `source/rules/lovable/mcp-protocol.md`, empacotamento completo (build-plugins/modules.json/plugin-membership/README) e cross-link no `/lovable-handoff`. Gates verdes; verificação adversarial de 4 lentes PASSED após fixes (parser awk, exit-codes, shallow-clone, contagem README). R10-01..05 = DONE.
 

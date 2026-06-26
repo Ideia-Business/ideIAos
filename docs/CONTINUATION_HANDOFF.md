@@ -4,31 +4,24 @@
 
 ---
 
-## ▶ RETOMAR AQUI — v15 Fase A COMPLETA (8/8); pendente: commit dos settings dos produtos (2026-06-25)
+## ▶ RETOMAR AQUI — v15 Fase A COMPLETA + Fase B iniciada (R15-09); settings dos produtos PUSHADOS (2026-06-26)
 
-**Onde estamos:** v15/v16 formalizados (`wf_d2ae9a6d-235`); **Fase A (Onda 1) COMPLETA — 8/8 planos
-executados e verdes por exit-code**, todos commitados no IdeiaOS:
-- **A-01** (`a323e39`) fix `/usr/bin/python3` nos 12 hooks + re-build. **A-02** (`171f908`) `idea-smoke.sh`. **A-03** (`18cb259`) probe `gh`. **A-04** (`8dd8977`) 3 fatos.
-- **A-05** (`deafa96`) alias-map por sha256[:12] + gate chave×MID (curadoria corrigida por exit-code: `c706…`=Mac-mini, `52ae…`=MacBook-Air-2).
-- **A-06** (`4295b31`) botão verificar na Frota — 3 estados provados no browser.
-- **A-07** (`f6f059a`) registro de hooks no bootstrap-mantenedor via `ideiaos-update.sh --hooks-only`; T-01-10 preservado (setup.sh intocado, diff-real); idempotência sandbox+real.
-- **A-08** (`43b32cf`) §7e **exige o server Lovable ATIVO** (não o connector morto `6f530143`) — mata o verde-falso. Decisão do dono: **exigir-ativo + remediar os 4** (a *action* do plano dizia `any`, que NÃO matava o verde-falso — levei a contradição ao dono via AskUserQuestion). PROBE: `VERDE_FALSO=nao`; idea-doctor real = 4 contidos honestos.
+**Onde estamos:** **Fase A (Onda 1) COMPLETA** (8/8, R15-01..08; ver `v15-phases/A-destravar/INDEX.md`).
+**Fase B (Onda 2) INICIADA — R15-09 DONE:**
+- **R15-09** (`3b05c00`) `idea-doctor --fleet` — agregador read-only de saúde cross-máquina sobre o ref `cockpit` (nome via alias-map A-05, idade anti-falso-verde, status honesto DORMANT/VAZIO/FAIL/OK; sem jq, bash 3.2).
+- **bugfix `f80e9c5`** (commit SEPARADO) `idea-doctor --json` não vaza debt-markers (§12 sem guard `JSON_MODE`) — causa-raiz que o `--fleet` expôs (todos os snapshots vinham `doctor.exit=-1`/`sections=[]`). Destrava a coleta do doctor na frota.
+- docs `cb1b2d1` (INDEX Fase B + carry-forwards).
 
-**⏳ PENDENTE (fora do IdeiaOS — operação @devops, NÃO feita por mim):** os 4 `.claude/settings.json`
-(cfoai, ideiapartner, nfideia, lapidai) foram **gravados** com deny do prefixo ativo (19) + velho mantido
-(defense-in-depth), mas **não-commitados**. Persistir:
-- **cfoai-grupori, nfideia** (TRACKED, branch **main** Lovable) → commit em **branch `work`** + push (@devops); cfoai é **PARTICULAR**.
-- **ideiapartner** (`.claude/settings.json` **GITIGNORED**) → já é local-only por design; não precisa commit.
-- **lapidai** (branch **work**) → commit em `work`; está **protegido por pause-file por-repo** (`~/dev/lapidai/.git/autosync-pause`) até o commit controlado — **remover esse pause-file após commitar**.
+**✅ RESOLVIDO (item 1 — settings dos produtos PERSISTIDOS + PUSHADOS via @devops 2026-06-26):**
+- **cfoai-grupori, nfideia** → branch nova `sec/lovable-mcp-deny` (criada de main HEAD, commit cirúrgico só do `settings.json`, deny=19 ativo + velho mantido), **PUSHADA** (`8bf5ca2`/`66f1df51`). **cfoai é PARTICULAR.**
+- **lapidai** → commit `8f08a62c` em `work`, **PUSHADO** (FF); pause-file por-repo removido.
+- **ideiapartner** → `.claude/settings.json` gitignored, local-only (nada a fazer).
 
-**Próximo passo:** (1) decidir/executar o commit dos settings dos produtos acima (com @devops); (2) seguir
-para a Fase B/C do v15 (Onda 2/3) OU fechar o milestone conforme escopo. Autosync GLOBAL está ATIVO; só
-lapidai está pausado por-repo (lembrar de despausar após commit).
+**⏳ PENDENTE (decisão do dono):** abrir/mergear **PR `sec→main`** em cfoai/nfideia. Enquanto não mergear, `idea-doctor` mostra **2 FAILs** (cfoai/nfideia "SEM contenção" em main, deny=0) — o §7e audita o working-tree da branch em checkout (main), e o fix vive em `sec/`. **NÃO é regressão** (estava mascarado pelo `--json` quebrado, agora consertado). O DoD do v15 exige `idea_doctor=PASS` p/ SOAK → fechar via merge controlado OU `settings.local.json`. Ver [[learning-gate-audits-current-branch-not-other-branch]].
 
-**GOTCHA desta sessão (lição aplicada):** A-05..A-08 **executei eu mesmo** (sessão principal, não deleguei),
-autosync pausado durante cada cirurgia e retomado no fim — sem reincidência do religamento que o executor
-delegado do A-04 causara. Em A-08, NÃO segui cegamente a *action* do plano (`any`): a verificação ao vivo
-mostrou que ela não matava o verde-falso → escalei a contradição ao dono.
+**Próximo passo:** (1) PR `sec→main` cfoai/nfideia (fecha os 2 FAILs); (2) seguir Fase B — R15-10 (CI 4 gates repo-puros) · R15-11 (lembrete selos+ff-merge, desbloqueado por R15-06) · R15-12 (dados ricos + resto da coleta incompleta `installed_versions={}`/`readMcp()`) · R15-13/14/15/16. Fase C: R15-17 GATED na cerimônia enc-keys.
+
+**Learnings desta sessão (memória nativa):** [[learning-aggregator-status-from-verdict-not-absence]] · [[learning-gate-audits-current-branch-not-other-branch]] · [[learning-stale-autosync-branch-off-main]].
 
 > v15/v16: **v15 = DX & Frota** (`.planning/milestones/v15-{REQUIREMENTS,ROADMAP}.md`, 23 reqs, 3 ondas);
 > **v16 = Plataforma de Time** (renumeração do ex-"v15" split-plane, aviso no ADR). Índice `.planning/ROADMAP.md`
@@ -530,7 +523,7 @@ _Histórico v7 abaixo:_
 
 > **Lição de segurança:** nfideia É Lovable (`lovable-tagger` + `componentTagger` no vite.config) — cuidar só dos projetos Lovable; IdeiaOS não é Lovable (commit livre). Memória: `feedback-lovable-projects-branch-commit`.
 
-## Ultima sessao automatica (2026-06-25)
+## Ultima sessao automatica (2026-06-26)
 
-- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-25-ideiaos-0dc39c83-3226-4cda-8042-33b2fb9f.tmp`
+- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-26-ideiaos-0dc39c83-3226-4cda-8042-33b2fb9f.tmp`
 - Próximo passo: (definir antes de retomar)
