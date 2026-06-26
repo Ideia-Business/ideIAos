@@ -61,6 +61,13 @@ if [ "$HOOKS_ONLY" -eq 0 ]; then
 step "1/6: sync-all.sh (pull → upstream → setup --global-only → patches → propagate → doctor)"
 bash "$SETUP_DIR/scripts/sync-all.sh" || warn "sync-all terminou com avisos (ver acima)"
 
+# ── [DEPRECATED — R15-19] Patchers in-place do daemon (steps 2/2b/2c/2d) ──────
+# debt: remover os steps 2/2b/2c/2d quando a frota inteira estiver pós-cp-canônico.
+# Estes 4 patchers aplicam deltas in-place (sed/grep/python) no binário deployado.
+# São REDUNDANTES desde o step 2e (R15-19): o cp-da-fonte roda logo depois e
+# SOBRESCREVE o binário inteiro, anulando qualquer patch in-place. Mantidos só como
+# DIAGNÓSTICO legado (avisam de daemon antigo) e fallback se o helper sumir. O caminho
+# canônico de update é `bash scripts/idea-update.sh` (idea update) → redeploy-daemon.sh.
 # ── 2. Guarda do git-autosync (propagação multi-máquina) ─────────────────────
 # Máquinas com git-autosync antigo fazem `git add -A` sem excluir versions.lock,
 # o que já reverteu o pin GSD 2× via árvore stale (2026-06). Patch in-place,
@@ -161,22 +168,21 @@ PYEOF
   fi
 fi
 
-# ── 2e. git-autosync atualizado a partir da fonte canônica (source/autosync) ──
-# Os patchers 2/2b/2c/2d acima são in-place (deixam o binário híbrido). A partir
-# da fase de distribuição, a fonte-de-verdade é source/autosync/git-autosync.sh;
-# aqui sincronizamos o deployado com ela por cópia atômica. Idempotente via cmp.
-step "2e/6: git-autosync sincronizado com a fonte canônica (source/autosync)"
-AS_SRC="$SETUP_DIR/source/autosync/git-autosync.sh"
-if [ ! -f "$AS_SRC" ]; then
-  skip "fonte canônica do daemon ausente (IdeiaOS antigo?)"
-elif [ ! -f "$AUTOSYNC" ]; then
-  skip "git-autosync não instalado — rode setup-dev-machine.sh"
-elif cmp -s "$AS_SRC" "$AUTOSYNC"; then
-  skip "git-autosync já é a versão canônica"
-elif cp "$AS_SRC" "$AUTOSYNC.tmp" && chmod 0755 "$AUTOSYNC.tmp" && mv -f "$AUTOSYNC.tmp" "$AUTOSYNC"; then
-  ok "git-autosync atualizado da fonte canônica (auto-cura planning/cockpit incluída)"
+# ── 2e. git-autosync redeployado da fonte canônica (CAMINHO CANÔNICO — R15-19) ─
+# O cp-da-fonte substitui o binário INTEIRO, curando qualquer drift — e tornando os
+# patchers in-place 2/2b/2c/2d acima redundantes. Helper único redeploy-daemon.sh,
+# o MESMO usado por propagate-if-changed e por idea-update.sh (1 lógica, não 2).
+step "2e/6: git-autosync redeployado da fonte canônica (source/autosync)"
+if [ ! -f "$SETUP_DIR/source/lib/redeploy-daemon.sh" ]; then
+  skip "helper redeploy-daemon ausente (IdeiaOS antigo?)"
 else
-  warn "falha ao atualizar git-autosync — rode setup-dev-machine.sh"
+  . "$SETUP_DIR/source/lib/redeploy-daemon.sh"
+  case "$(redeploy_autosync_daemon "$SETUP_DIR/source/autosync/git-autosync.sh" "$AUTOSYNC")" in
+    ALREADY) skip "git-autosync já é a versão canônica" ;;
+    HEALED)  ok "git-autosync redeployado da fonte canônica (qualquer drift curado)" ;;
+    MISSING) skip "fonte/destino do daemon ausente — rode setup-dev-machine.sh" ;;
+    FAILED)  warn "falha ao redeployar git-autosync — rode setup-dev-machine.sh" ;;
+  esac
 fi
 fi  # fim do bloco [ "$HOOKS_ONLY" -eq 0 ] — steps 1-2e pulados sob --hooks-only
 

@@ -236,21 +236,17 @@ if [ "$NEED_GLOBAL" -eq 1 ]; then
     warn "install-global-patches falhou"
     ERRORS=$((ERRORS + 1))
   fi
-  # Deploy do daemon git-autosync a partir da fonte canônica versionada.
-  # Distribui correções do daemon pela frota AUTOMATICAMENTE (antes só chegavam
-  # re-rodando setup-dev-machine.sh à mão). Atômico (.tmp+mv: o tick em execução
-  # mantém o inode antigo; o novo vale no próximo tick). Idempotente via cmp.
-  AUTOSYNC_SRC="$SETUP_DIR/source/autosync/git-autosync.sh"
-  AUTOSYNC_DST="$HOME/.local/bin/git-autosync"
-  if [ -f "$AUTOSYNC_SRC" ] && [ -d "$(dirname "$AUTOSYNC_DST")" ]; then
-    if cmp -s "$AUTOSYNC_SRC" "$AUTOSYNC_DST" 2>/dev/null; then
-      skip "git-autosync daemon já na versão canônica"
-    elif cp "$AUTOSYNC_SRC" "$AUTOSYNC_DST.tmp" && chmod 0755 "$AUTOSYNC_DST.tmp" && mv -f "$AUTOSYNC_DST.tmp" "$AUTOSYNC_DST"; then
-      ok "git-autosync daemon atualizado (source/autosync → ~/.local/bin)"
-    else
-      warn "falha ao atualizar git-autosync daemon"
-      ERRORS=$((ERRORS + 1))
-    fi
+  # Deploy do daemon git-autosync a partir da fonte canônica versionada — via o
+  # helper único redeploy_autosync_daemon (R15-19; mesma lógica que ideiaos-update
+  # step 2e). Distribui correções pela frota AUTOMATICAMENTE; atômico; idempotente.
+  if [ -f "$SETUP_DIR/source/lib/redeploy-daemon.sh" ]; then
+    . "$SETUP_DIR/source/lib/redeploy-daemon.sh"
+    case "$(redeploy_autosync_daemon "$SETUP_DIR/source/autosync/git-autosync.sh" "$HOME/.local/bin/git-autosync")" in
+      ALREADY) skip "git-autosync daemon já na versão canônica" ;;
+      HEALED)  ok "git-autosync daemon atualizado (source/autosync → ~/.local/bin)" ;;
+      MISSING) : ;;  # fonte/destino ausente — silencioso (igual ao guard antigo)
+      FAILED)  warn "falha ao atualizar git-autosync daemon"; ERRORS=$((ERRORS + 1)) ;;
+    esac
   fi
 fi
 
