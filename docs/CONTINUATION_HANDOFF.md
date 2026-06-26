@@ -4,7 +4,47 @@
 
 ---
 
-## ▶ RETOMAR AQUI — "faça tudo até 100%": Fase 1 + Fase 3 DONE, **idea_doctor=PASS (DoD ok)**; só falta Onda 3 (pós-/compact) (2026-06-26)
+## ▶ RETOMAR AQUI — v15 Onda 3 (Fase C) COMPLETA (6/6 não-gated); falta SOAK 2ª máquina + R15-17 GATED p/ tag v15 (2026-06-26)
+
+**Sessão "siga" pós-/compact — Onda 3 inteira (R15-18..23, exceto R15-17 GATED) construída e provada por exit-code.**
+Autosync pausado nas cirurgias, daemon re-deployado (HEALED) e **religado ao fim**; `work→main` ff-merge feito.
+
+> **🎯 Fase C (Onda 3) = 6/6 não-gated DONE · 60/60 asserts · suíte tests/v15 6/6 · idea-doctor 0 FAIL.**
+> Planos/SUMMARYs em `.planning/milestones/v15-phases/C-write-path/` (INDEX.md). Método-espelho GSD.
+
+- **✅ R15-22 (98dc3fa)** pre-op guard anti-autosync-race: sentinela automática `source/lib/surgery-lock.sh`
+  (posta pelos 3 scripts de edição multi-arquivo) + consumo inline no daemon, **stale-guard falha-segura**
+  (PID morto/TTL → nunca trava o autosync). 9/9.
+- **✅ R15-20 (291fd9e)** auto-cura visível: ledger de propagação local-only (append atômico, sem hash-chain)
+  + heartbeat no `idea-doctor §16` (WARN se última propagação FALHOU). 6/6.
+- **✅ R15-19 (8e608e5)** `idea update`: comando único canônico (`scripts/idea-update.sh`) +
+  `source/lib/redeploy-daemon.sh` (cp-canônico que cura drift) usado por idea-update/propagate/ideiaos-update
+  step 2e — 1 lógica. Patchers in-place 2/2b/2c/2d **deprecados (debt:)**. Prova de CURA num daemon legado. 13/13.
+- **✅ R15-21 (e34f202)** gerador de hooks data-driven: `source/lib/deploy-hooks.sh` (lista única `IDEIAOS_HOOKS`
+  + loop no setup.sh 5.4b); blocos antigos marcados debt: (remoção incremental). Gate de **igualdade de SET**. 8/8.
+- **✅ R15-18 (485ad7d)** allowlist write-path LOCAL: `reseal_security` (carimbava selo @security-reviewer por
+  clique = **fraude de gate**) → `security_status` read-only; ledger hash-chained **wired** ao /command
+  (aceitas+rejeitadas). Gate-negativo provado. SPA alinhada + rebuild. 11/11.
+- **✅ R15-23 (fb8d44d)** proof-gate teardown re-pin local O2: opera por exit-code o invariante de revogação
+  own-fleet (re-pin rotaciona; revoke-local faz teardown; ref **fail-closed** — pin preservado após revogação
+  forjada). Re-pin LOCAL, não a cerimônia N=2. 13/13.
+- **🔒 R15-17 GATED** — `push_cmd_ref` + executor cross-máquina + **cerimônia N=2 das ENC-KEYS** exige 2ª máquina
+  física + decisão do dono. Não-executável autonomamente (carimbar = fraude do gate de integridade).
+
+**⚠️ Atividade paralela observada (não-nociva):** durante a sessão apareceu na `work` o commit **d4102a7**
+("fix(lovable-mcp): query_database opt-in, §7e threshold 19→18") de OUTRA sessão/ator (autosync pausado, então
+não foi ele; minha identidade git). Cadeia LINEAR, `idea-doctor.sh` final tem AMBOS (o fix d4102a7 + meu §16 R15-20),
+sem regressão (regiões diferentes do arquivo). Incluído no ff-merge. + 1 auto-commit `c9c871d` do autosync (só
+`.planning/STATE.md`) na janela de 8s ANTES da minha pausa.
+
+**🚦 Falta para tagear v15:**
+1. **R15-17** (GATED — cerimônia enc-keys N=2 + 2ª máquina física, decisão do dono).
+2. **SOAK** — `bash scripts/check-soak.sh v15 --record` em ≥2 máquinas + span ≥1d (DoD `idea_doctor=PASS` ✅ já ok).
+3. Housekeeping: MEMORY.md perto do limite; branch stale remota `sec/lovable-mcp-deny` em cfoai/nfideia.
+
+---
+
+## ▶ RETOMAR (histórico) — "faça tudo até 100%": Fase 1 + Fase 3 DONE, **idea_doctor=PASS (DoD ok)**; só falta Onda 3 (pós-/compact) (2026-06-26)
 
 **Sessão "faça tudo, faseado, toque até 100%".** Autosync religado ao fim; `work→main` ff-merge feito.
 
@@ -606,5 +646,5 @@ _Histórico v7 abaixo:_
 
 ## Ultima sessao automatica (2026-06-26)
 
-- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-26-ideiaos-0dc39c83-3226-4cda-8042-33b2fb9f.tmp`
+- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-26-ideiaos-21e82152-8f67-47d3-9ee2-f9b96d47.tmp`
 - Próximo passo: (definir antes de retomar)

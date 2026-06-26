@@ -1,6 +1,6 @@
 # Fase C — "Write-path own-fleet + consolidação + prevenção" (Onda 3 do v15) · INDEX
 
-**Milestone:** v15 (DX & Frota) · **Fase:** C · **Status:** 🔵 EM ANDAMENTO.
+**Milestone:** v15 (DX & Frota) · **Fase:** C · **Status:** ✅ COMPLETA (6/6 não-gated DONE 2026-06-26; R15-17 segue GATED).
 **Origem:** método-espelho GSD (CLI não resolve fases v15 — mesma razão das Fases A/B e do v14).
 Planejado/executado plano-a-plano a partir de `v15-REQUIREMENTS.md` (R15-17..23) e `v15-ROADMAP.md`.
 
@@ -14,15 +14,18 @@ local-reversível → reservar poder irreversível (chaves)**. Nenhum invariante
 
 ## Planos (ordem por risco crescente — seguro→sensível)
 
-| Plano | Req | Wave | depends_on | Risco | Veredito | Arquivo |
+| Plano | Req | Wave | depends_on | Risco | Veredito | SUMMARY |
 |-------|-----|------|-----------|-------|----------|---------|
-| C-01 | R15-22 | 1 | — | baixo (prevenção) | 🔵 | `R15-22-preop-guard-PLAN.md` |
-| C-02 | R15-20 | 1 | — | baixo (telemetria local) | 🔵 | `R15-20-autocura-visivel-PLAN.md` |
-| C-03 | R15-19 | 2 | R15-22 | médio (caminho de update) | 🔵 | `R15-19-idea-update-PLAN.md` |
-| C-04 | R15-21 | 3 | R15-19 ✓, R15-01/02 ✓ | médio (gerador de hooks) | 🔵 | `R15-21-refactor-hooks-PLAN.md` |
-| C-05 | R15-18 | 4 | substrato /command ✓ | **alto** (write-path) | 🔵 | `R15-18-allowlist-local-PLAN.md` |
-| C-06 | R15-23 | 4 | pinned-keys ✓ | **alto** (chaves de selo) | 🔵 | `R15-23-repin-local-PLAN.md` |
+| C-01 | R15-22 | 1 | — | baixo (prevenção) | ✅ pass (9/9) | `R15-22-preop-guard-SUMMARY.md` |
+| C-02 | R15-20 | 1 | — | baixo (telemetria local) | ✅ pass (6/6) | `R15-20-autocura-visivel-SUMMARY.md` |
+| C-03 | R15-19 | 2 | R15-22 ✓ | médio (caminho de update) | ✅ pass (13/13) | `R15-19-idea-update-SUMMARY.md` |
+| C-04 | R15-21 | 3 | R15-19 ✓, R15-01/02 ✓ | médio (gerador de hooks) | ✅ pass (8/8) | `R15-21-refactor-hooks-SUMMARY.md` |
+| C-05 | R15-18 | 4 | substrato /command ✓ | **alto** (write-path) | ✅ pass (11/11) | `R15-18-allowlist-local-SUMMARY.md` |
+| C-06 | R15-23 | 4 | pinned-keys ✓ | **alto** (chaves de selo) | ✅ pass (13/13) | `R15-23-repin-local-SUMMARY.md` |
 | — | **R15-17** | — | enc-keys N=2 | — | 🔒 **GATED** (decisão do dono) | — |
+
+**Total: 60/60 asserts por exit-code · suíte `tests/v15/*` 6/6 verde · idea-doctor 0 FAIL.**
+**Daemon re-deployado (HEALED) e surgery guard R15-22 confirmado por grep no binário deployado.**
 
 ## Grafo de execução / waves
 

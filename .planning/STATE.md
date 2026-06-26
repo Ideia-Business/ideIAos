@@ -6,10 +6,10 @@ status: in_progress
 last_updated: "2026-06-26"
 progress:
   total_phases: 3
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 23
-  completed_plans: 16
-  percent: 70
+  completed_plans: 22
+  percent: 96
 ---
 
 # State — IdeiaOS
@@ -18,7 +18,7 @@ progress:
 
 ## Milestone atual — v15: DX & Frota (instalação fácil + gerência da frota)
 
-**Status:** 🔵 EM ANDAMENTO. **Fase A (Onda 1)** ✅ COMPLETA (8/8, R15-01..08). **Fase B (Onda 2)** ✅ **COMPLETA (8/8)** — ✅ R15-09 `--fleet` (+bugfix `f80e9c5` do `--json`) · R15-10 CI governance · R15-11 lembrete selos · R15-12 exposição Cockpit (`461fd7e` — GET `/projects` `/soak` `/doctor` + `accounts` no `/fleet`) · R15-13 Flight Recorder 1ª-classe + microcopy · R15-14 card Saúde & Governança (consome `/soak` real; **frescor-tier ENTREGUE** — `collect.readSecurityFreshness` + re-coleta, commit `80d8074`) · R15-15 runbook (eliminar dup + índice + gate de cobertura, anti-teatro) · R15-16 hello-world. Verificado regime-R (render+screenshot) + exit-code (tsc/build/test-recorder). **🎯 DoD do SOAK SATISFEITO:** `idea-doctor` = **0 fail / exit 0** — os 3 fails de Lovable-MCP fechados (ideiapartner local + cfoai PR #44 + nfideia PR #43 re-ramificado de main HEAD); 4 produtos contidos (deny=19). **Fase C (Onda 3)** R15-17..23 NÃO iniciada (próxima, pós-/compact) — R15-17 GATED na cerimônia enc-keys + 2ª máquina (decisão do dono). **Falta p/ tag v15:** Onda 3 + SOAK (span ≥1d / 2ª máquina).
+**Status:** 🔵 EM ANDAMENTO. **Fase A (Onda 1)** ✅ COMPLETA (8/8, R15-01..08). **Fase B (Onda 2)** ✅ **COMPLETA (8/8)** — ✅ R15-09 `--fleet` (+bugfix `f80e9c5` do `--json`) · R15-10 CI governance · R15-11 lembrete selos · R15-12 exposição Cockpit (`461fd7e` — GET `/projects` `/soak` `/doctor` + `accounts` no `/fleet`) · R15-13 Flight Recorder 1ª-classe + microcopy · R15-14 card Saúde & Governança (consome `/soak` real; **frescor-tier ENTREGUE** — `collect.readSecurityFreshness` + re-coleta, commit `80d8074`) · R15-15 runbook (eliminar dup + índice + gate de cobertura, anti-teatro) · R15-16 hello-world. Verificado regime-R (render+screenshot) + exit-code (tsc/build/test-recorder). **🎯 DoD do SOAK SATISFEITO:** `idea-doctor` = **0 fail / exit 0** — os 3 fails de Lovable-MCP fechados (ideiapartner local + cfoai PR #44 + nfideia PR #43 re-ramificado de main HEAD); 4 produtos contidos (deny=19). **Fase C (Onda 3)** ✅ **COMPLETA (6/6 não-gated, 2026-06-26)** — R15-22 pre-op guard anti-autosync-race (`surgery-lock.sh`, stale-guard falha-segura) · R15-20 auto-cura visível (ledger propagação + doctor §16) · R15-19 `idea update` (comando único + `redeploy-daemon.sh`, in-place deprecados) · R15-21 gerador de hooks data-driven (`deploy-hooks.sh`, igualdade de SET) · R15-18 allowlist write-path LOCAL (reseal→read-only, ledger wired ao /command, gate-negativo) · R15-23 proof-gate re-pin local O2 (teardown + ref fail-closed). **60/60 asserts · suíte `tests/v15` 6/6 · idea-doctor 0 FAIL · daemon re-deployado (HEALED, surgery guard confirmado por grep).** **R15-17 GATED** (cerimônia enc-keys N=2 + 2ª máquina física — decisão do dono). **Falta p/ tag v15:** R15-17 + SOAK (span ≥1d / 2ª máquina; DoD `idea_doctor=PASS` ✅ já ok). Planos/SUMMARYs em `v15-phases/C-write-path/`.
 
 **Pendência aberta (resíduo do item 1 / R15-06):** o fix de contenção Lovable-MCP (deny=19 das tools mutantes) está nas branches `sec/lovable-mcp-deny` de cfoai/nfideia (pushadas) + `work` de lapidai — mas **NÃO em `main`** de cfoai/nfideia → `idea-doctor` mostra **2 FAILs** ali (working-tree de main, deny=0). Fecham via **PR `sec→main` mergeado** (merge controlado vs. `settings.local.json`; decisão do dono pendente). O DoD do v15 exige `idea_doctor=PASS` para o SOAK. Ver [[learning-gate-audits-current-branch-not-other-branch]].
 
