@@ -23,6 +23,7 @@
 #   bash scripts/ideiaos-update.sh                  # tudo
 #   bash scripts/ideiaos-update.sh --no-shell       # não toca no profile do shell
 #   bash scripts/ideiaos-update.sh --no-statusline  # não toca no settings.json
+#   bash scripts/ideiaos-update.sh --hooks-only     # registra só os hooks (step 3); pula o resto
 # =============================================================================
 set -uo pipefail
 
@@ -36,14 +37,23 @@ skip() { echo -e "${CYAN}  ⊙${NC} $*"; }
 warn() { echo -e "${YELLOW}  ⚠${NC}  $*"; }
 step() { echo -e "\n${CYAN}${BOLD}━━━ $* ━━━${NC}"; }
 
-NO_SHELL=0; NO_STATUSLINE=0
+NO_SHELL=0; NO_STATUSLINE=0; HOOKS_ONLY=0
 for arg in "$@"; do
   case "$arg" in
     --no-shell)      NO_SHELL=1 ;;
     --no-statusline) NO_STATUSLINE=1 ;;
+    --hooks-only)    HOOKS_ONLY=1 ;;
   esac
 done
 
+# --hooks-only: registra SÓ os hooks (step 3), pulando sync-all + os patchers do autosync
+# (steps 1-2e) e os steps de shell/statusline (4-5, via NO_SHELL/NO_STATUSLINE). Reusa o
+# registrador idempotente do step 3 — sem duplicar a lógica. Usado pelo setup-dev-machine.sh
+# (bootstrap-mantenedor), onde rodar o script É o consentimento explícito.
+if [ "$HOOKS_ONLY" -eq 1 ]; then NO_SHELL=1; NO_STATUSLINE=1; fi
+
+# Steps 1-2e (sync-all + patchers do autosync) só rodam no fluxo COMPLETO; --hooks-only os pula.
+if [ "$HOOKS_ONLY" -eq 0 ]; then
 # ── 1. sync-all (pull + upstream + setup global + patches + doctor) ──────────
 # Self-update: se o pull do sync-all trouxer versão nova DESTE script, a
 # execução atual continua com a versão antiga — aceitável (as etapas 2-5 são
@@ -168,6 +178,7 @@ elif cp "$AS_SRC" "$AUTOSYNC.tmp" && chmod 0755 "$AUTOSYNC.tmp" && mv -f "$AUTOS
 else
   warn "falha ao atualizar git-autosync — rode setup-dev-machine.sh"
 fi
+fi  # fim do bloco [ "$HOOKS_ONLY" -eq 0 ] — steps 1-2e pulados sob --hooks-only
 
 # ── 3. Registro de hooks IdeiaOS faltantes no settings.json ──────────────────
 # O setup.sh instala os ARQUIVOS dos hooks mas (decisão T-01-10) só imprime o

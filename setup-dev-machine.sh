@@ -255,6 +255,21 @@ else
   warn "IdeiaOS não encontrado em $DEV/IdeiaOS — pulei o setup global"
 fi
 
+# ── 7.5) Registrar hooks IdeiaOS em ~/.claude/settings.json (bootstrap-mantenedor) ──
+# O passo 7 (setup.sh --global-only) DEPLOYA os ARQUIVOS dos hooks mas, por T-01-10,
+# NÃO os registra (só imprime snippet). Aqui o bootstrap-mantenedor registra — rodar
+# este script É o consentimento explícito. Reusa o registrador idempotente existente
+# (scripts/ideiaos-update.sh step 3) via --hooks-only — sem extrair script novo, sem
+# duplicar lógica. O Quickstart-CONSUMIDOR (setup.sh) continua SEM registro silencioso.
+say "Registrando hooks IdeiaOS no settings.json (mantenedor)"
+if [ -f "$DEV/IdeiaOS/scripts/ideiaos-update.sh" ] && [ -f "$HOME/.claude/settings.json" ]; then
+  bash "$DEV/IdeiaOS/scripts/ideiaos-update.sh" --hooks-only \
+    && ok "hooks registrados em ~/.claude/settings.json (idempotente)" \
+    || warn "registro de hooks retornou erro — rode: bash $DEV/IdeiaOS/scripts/ideiaos-update.sh --hooks-only"
+else
+  warn "ideiaos-update.sh ou ~/.claude/settings.json ausente — pulei o registro de hooks"
+fi
+
 # ── 8) Obsidian Second Brain — vault no working-dirs do Claude ────────────────
 # ~/.claude/settings.json não é versionado nem sincronizado via iCloud/git.
 # Sem este passo, máquinas novas não enxergam o vault e o recall-learnings
