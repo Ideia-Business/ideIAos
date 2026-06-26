@@ -8,8 +8,8 @@ progress:
   total_phases: 3
   completed_phases: 1
   total_plans: 23
-  completed_plans: 9
-  percent: 39
+  completed_plans: 13
+  percent: 57
 ---
 
 # State — IdeiaOS
@@ -18,7 +18,7 @@ progress:
 
 ## Milestone atual — v15: DX & Frota (instalação fácil + gerência da frota)
 
-**Status:** 🔵 EM ANDAMENTO. **Fase A (Onda 1)** ✅ COMPLETA (8/8, R15-01..08). **Fase B (Onda 2)** 🔵 iniciada — **R15-09 `idea-doctor --fleet`** DONE (agregador de saúde cross-máquina sobre o ref `cockpit`; commit `3b05c00` + bugfix `f80e9c5` do `--json` que destravou a coleta do doctor na frota). Restam R15-10..16. **Fase C (Onda 3)** R15-17..23 — R15-17 GATED na cerimônia enc-keys (decisão do dono).
+**Status:** 🔵 EM ANDAMENTO. **Fase A (Onda 1)** ✅ COMPLETA (8/8, R15-01..08). **Fase B (Onda 2)** 🔵 **5/8** — ✅ R15-09 `--fleet` (+bugfix `f80e9c5` do `--json`) · R15-10 CI governance · R15-11 lembrete selos · R15-12 exposição Cockpit (`461fd7e` — GET `/projects` `/soak` `/doctor` + `accounts` no `/fleet`) · R15-16 hello-world. **Restam:** R15-13/R15-14 (par de UI no Overview.tsx, consomem os GET do R15-12, exigem frontend-visual-loop) + **R15-15** (runbook — interpretação "eliminar duplicação + índice" DECIDIDA pelo dono; ver handoff). **Fase C (Onda 3)** R15-17..23 — R15-17 GATED na cerimônia enc-keys (decisão do dono).
 
 **Pendência aberta (resíduo do item 1 / R15-06):** o fix de contenção Lovable-MCP (deny=19 das tools mutantes) está nas branches `sec/lovable-mcp-deny` de cfoai/nfideia (pushadas) + `work` de lapidai — mas **NÃO em `main`** de cfoai/nfideia → `idea-doctor` mostra **2 FAILs** ali (working-tree de main, deny=0). Fecham via **PR `sec→main` mergeado** (merge controlado vs. `settings.local.json`; decisão do dono pendente). O DoD do v15 exige `idea_doctor=PASS` para o SOAK. Ver [[learning-gate-audits-current-branch-not-other-branch]].
 
@@ -121,7 +121,7 @@ revisão adversarial e corrigidos (verificados por exit-code, 0 violações anti
 
 ## Compact Snapshot
 
-**Auto-saved:** 2026-06-25 22:59 (PreCompact hook, trigger: manual)
+**Auto-saved:** 2026-06-26 09:57 (PreCompact hook, trigger: manual)
 
 - Snapshot automático antes do /compact.
 - Detalhes da sessão em ~/.claude/sessions/ (session-summary hook).

@@ -234,6 +234,17 @@ Critérios de eval robustos entregues: avaliador híbrido Sinais + LLM-judge, 22
 
 ## Próximo passo
 
+> **▶ RETOMAR AQUI (2026-06-26 — v15 Fase B 5/8; R15-12 exposição DONE; próximo = R15-15 runbook, interpretação JÁ DECIDIDA) — leia primeiro:**
+> Sessão "vamos continuar" (pós-compact). Autosync pausado durante a cirurgia, **religado ao fim**.
+> - **✅ R15-12 (Cockpit — expor dados ricos) DONE** (commit `461fd7e`): camada de exposição GET no `apps/cockpit/server/read.js` — `GET /projects` (supabase_project_id), `GET /soak` (span REAL = MAX-MIN epoch, não wall-clock), `GET /doctor?cell=<mid>` (drill-down sections, MID_RE), `accounts` no `GET /fleet` (gh, metadata-only). **7 gates por exit-code** (incl. input inválido `/doctor?cell=NAO_EH_MID`→400; zero-leak no /fleet). `doctor.sections=[]`/`supabase_project_id=null` hoje são honestos (snapshots pré-fix `--json`; preenchem no próximo ciclo do agentd). SUMMARY: `.planning/milestones/v15-phases/B-governanca/R15-12-dados-ricos-SUMMARY.md`.
+> - **Placar Fase B = 5/8:** ✅ R15-09 `--fleet` · R15-10 CI governance · R15-11 lembrete selos · R15-12 exposição · R15-16 hello-world. Restam: **R15-13** (Flight Recorder 1ª-classe) + **R15-14** (card Saúde & Governança GET) = **par de UI** (Overview.tsx; consomem os GET do R15-12; exigem **frontend-visual-loop**, regime-R) + **R15-15** (runbook).
+> - **🚦 PRÓXIMO = R15-15 (runbook único) — INTERPRETAÇÃO DECIDIDA PELO DONO 2026-06-26: "eliminar duplicação + índice" (NÃO fundir 5 num monólito).** Plano concreto:
+>   1. `docs/guides/windows-wsl.md` = **runbook único de Windows** (single-source dos 3 gotchas: `checkout work`/`/mnt/c`/`autocrlf` — já cobre 6/2/2).
+>   2. `INSTALL-WINDOWS.md` (raiz, **54% verbatim** = 32/59 linhas dup do Caminho B) → **stub-ponteiro fino** p/ `windows-wsl.md` Caminho B. Ninguém o referencia exceto o REQUIREMENTS → impacto baixo.
+>   3. **Índice de instalação** (no onboarding ou doc próprio) que aponta cada aspecto ao seu doc — NÃO funde `onboarding-novo-dev.md`/`env-setup-dev.md` (heterogêneos, zero gotchas).
+>   4. **Estender `scripts/check-readme-sync.sh`** (NÃO criar script novo) com **gate de cobertura**: cada gotcha aparece ≥1 no runbook (grep -c antes/depois), e o stub não re-duplica o corpo.
+>   - Hard-gate R15-05 ✅ satisfeito (A-04 DONE). ⚠️ Sessão longa — **/compact recomendado ANTES de executar R15-15**.
+>
 > **▶ RETOMAR AQUI (2026-06-24 tarde — v14.4 Q5 RATIFICADO + substrato LOCAL B5–B8 construído e adversarialmente verificado; próximo = seal/push_cmd_ref, GATED no owner) — leia primeiro:**
 > Sessão "siga com os pendentes, múltiplos agentes, ultracode". 4 workflows em sequência, tudo por **exit-code**.
 > - **Q5 ratificado** (`docs/decisions/v14.4-command-ref-origin-exposure.md` → **ACEITO 2026-06-24**) após re-review adversarial (`wf_ceb14fd4-9d3`, 8 agentes, refutação). **2 reconciliações de segurança aplicadas ANTES do flip:** (1) canonical do `payload_hash` alinhado ao código real (`sha256` dos bytes do command-file producer-canonical, NÃO um canonical literal de 6 campos) + `target_machine` pinado obrigatório cross-máquina; (2) primitiva de selo nomeada (`age`/X25519) + **B0-bis** (`enc_pubkey` no pin). Step-up reconciliado; SUMMARY bootstrap 45→47.
