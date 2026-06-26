@@ -99,6 +99,30 @@ for rc in "$HOME/.zprofile" "$HOME/.bash_profile"; do
 done
 case ":$PATH:" in *":$BIN_DIR:"*) : ;; *) export PATH="$BIN_DIR:$PATH" ;; esac
 
+# ── 2.6) Probe de acesso ao repo (R15-04: clone resiliente a repo sem acesso) ──
+# Antes de clonar, sonda `gh api repos/<slug>` por EXIT-CODE e classifica em 3
+# estados, ecoando um token determinístico (OK | NOACCESS | INCONCLUSIVE):
+#   OK           → exit 0 (acessível)
+#   NOACCESS     → exit≠0 + stderr contém 'HTTP 404' (repo inexistente OU privado
+#                  sem acesso — o GitHub devolve 404 nos dois p/ não vazar existência)
+#   INCONCLUSIVE → exit≠0 SEM 'HTTP 404' (timeout/SSO/403/rede) — NÃO confirma falta
+#                  de acesso; o chamador tenta o clone mesmo assim.
+# O slug é DERIVADO da URL do array REPOS (não hardcoded). O probe é envolto em
+# `timeout` (shim do Passo 2.5) p/ nunca pendurar o setup. Retorna 0 sempre — a
+# decisão é do chamador via o token, comparado literalmente (sem parsing de NL).
+probe_repo_access() {
+  local url="$1" slug err rc
+  slug=$(printf '%s' "$url" | sed -E 's#^https?://github\.com/##; s#\.git$##')
+  err=$(timeout 20 gh api "repos/$slug" --silent 2>&1 >/dev/null); rc=$?
+  if [ "$rc" -eq 0 ]; then
+    printf 'OK'
+  elif printf '%s' "$err" | grep -qi 'HTTP 404'; then
+    printf 'NOACCESS'
+  else
+    printf 'INCONCLUSIVE'
+  fi
+}
+
 # ── 3) Clonar + branch + deps de cada projeto ─────────────────────────────────
 mkdir -p "$DEV"
 for entry in "${REPOS[@]}"; do
@@ -108,7 +132,32 @@ for entry in "${REPOS[@]}"; do
   if [ -d "$dst/.git" ]; then
     git -C "$dst" fetch --quiet origin && ok "já existe — fetch ok"
   else
-    git clone --quiet "$url" "$dst" && ok "clonado" || { warn "clone falhou — pulando"; continue; }
+    # Repo ainda não clonado: sonda o acesso ANTES de gastar um clone (R15-04).
+    access=$(probe_repo_access "$url")
+    case "$access" in
+      NOACCESS)
+        if [ "$name" = "IdeiaOS" ]; then
+          die "IdeiaOS é obrigatório e não está acessível (HTTP 404) na sua conta gh — verifique 'gh auth status' e acesso ao repo Ideia-Business/ideIAos."
+        fi
+        warn "$name: sem acesso no GitHub (HTTP 404). Se você NÃO trabalha neste projeto, remova a linha de \"$name\" do array REPOS (linhas ~30-36). Pulando."
+        continue
+        ;;
+      INCONCLUSIVE)
+        warn "$name: probe de acesso inconclusivo (rede/SSO/timeout — NÃO confirma falta de acesso). Vou tentar clonar mesmo assim."
+        ;;
+      OK)
+        : # acessível — segue o fluxo normal de clone
+        ;;
+    esac
+    if git clone --quiet "$url" "$dst"; then
+      ok "clonado"
+    else
+      if [ "$name" = "IdeiaOS" ]; then
+        die "IdeiaOS é obrigatório e o clone falhou — sem ele os passos 4-7 não rodam. Verifique rede/credenciais e rode de novo."
+      fi
+      warn "clone falhou — pulando"
+      continue
+    fi
   fi
   # branch de trabalho: usa origin/<branch> se existir, senão cria a partir do default
   if git -C "$dst" checkout "$branch" 2>/dev/null; then
