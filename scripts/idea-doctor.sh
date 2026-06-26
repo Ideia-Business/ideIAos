@@ -416,7 +416,13 @@ else
 fi
 
 # 7e) Contenção Lovable MCP nos produtos (anti-regressão)
-# O server MCP da Lovable (prefixo 6f530143) expõe 19 tools mutantes (deploy/publish/db-write/...).
+# O server MCP da Lovable expõe 19 tools mutantes (deploy/publish/db-write/...). O §7e EXIGE o deny
+# no prefixo do server ATIVO (claude_ai_Lovable) — NÃO conta o connector-id MORTO 6f530143 (contar o
+# server morto era o verde-falso que R15-06 matou: o PROBE provou deny do prefixo ativo=0 nos 4
+# produtos enquanto o §7e dava PASS pelo velho). v15-A-08: falha-fechada — produto sem deny no server
+# ATIVO dá BAD honesto, não verde-falso. A lista aceita múltiplos prefixos (split "|") p/ múltiplos
+# servers ativos; o connector morto NÃO entra.
+# debt: derivar prefixo do server ativo via `claude mcp list` em vez de lista hardcoded (fora R15-06).
 # Cada produto Lovable DEVE ter essas 19 em permissions.deny — em .claude/settings.json (tracked) OU
 # .claude/settings.local.json (quando .claude é gitignored, ex.: ideiapartner). Em 2026-06-18 a
 # contenção regrediu p/ 2/5 (deny uncommitted-on-main se perdeu) e ninguém notou até auditoria manual.
@@ -424,11 +430,11 @@ fi
 DEV_DIR="$(dirname "$SETUP_DIR")"
 if [ -d "$DEV_DIR" ]; then
   LOVABLE_OUT="$(
-    /usr/bin/python3 - "$DEV_DIR" "$(basename "$SETUP_DIR")" "6f530143" "19" <<'PYEOF'
+    /usr/bin/python3 - "$DEV_DIR" "$(basename "$SETUP_DIR")" "claude_ai_Lovable" "19" <<'PYEOF'
 import json, sys
 from pathlib import Path
 
-dev = Path(sys.argv[1]); exclude = sys.argv[2]; prefix = sys.argv[3]; threshold = int(sys.argv[4])
+dev = Path(sys.argv[1]); exclude = sys.argv[2]; prefixes = sys.argv[3].split("|"); threshold = int(sys.argv[4])  # v15-A-08: prefix-aware
 
 def deny_count(p):
     try:
@@ -436,7 +442,7 @@ def deny_count(p):
     except (OSError, ValueError):
         return 0
     deny = (d.get("permissions") or {}).get("deny") or []
-    return sum(1 for x in deny if isinstance(x, str) and prefix in x)
+    return sum(1 for x in deny if isinstance(x, str) and any(p in x for p in prefixes))  # v15-A-08: conta qualquer prefixo aceito
 
 def is_lovable(repo):
     if (repo / ".lovable").is_dir():

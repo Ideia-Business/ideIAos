@@ -1,0 +1,12 @@
+# A-08-PROBE — RE-GRAVADO pela Task 6 (pós-remediação dos 4 + §7e exige-ativo)
+PREFIX_DOCTOR=claude_ai_Lovable   # corrigido v15-A-08: o §7e agora EXIGE o prefixo do server ATIVO (não o morto 6f530143)
+PREFIX_ACTIVE=claude_ai_Lovable
+CFOAI_DENY_OLD=19
+CFOAI_DENY_NEW=19
+IDEIAPARTNER_DENY_OLD=19
+IDEIAPARTNER_DENY_NEW=19
+NFIDEIA_DENY_OLD=19
+NFIDEIA_DENY_NEW=19
+LAPIDAI_DENY_OLD=19
+LAPIDAI_DENY_NEW=19
+VERDE_FALSO=nao
