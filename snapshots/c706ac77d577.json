@@ -3,10 +3,10 @@
   "machine_id": "c706ac77d577",
   "agentd_version": "1.0.0",
   "os_version": "26.6",
-  "taken_epoch": 1782513231,
+  "taken_epoch": 1782514133,
   "daemons": [
     {
-      "pid": 868,
+      "pid": null,
       "status": "0",
       "label": "com.ideiaos.envsync"
     },
@@ -16,12 +16,12 @@
       "label": "com.ideiaos.soak-v15-oneshot"
     },
     {
-      "pid": 870,
+      "pid": 11906,
       "status": "0",
       "label": "com.ideiaos.cockpit"
     },
     {
-      "pid": 872,
+      "pid": null,
       "status": "0",
       "label": "com.ideiaos.gitautosync"
     },
@@ -842,48 +842,6 @@
       "supabase_project_id": "pdljyfyyxufkqejncccv",
       "api_keys": [
         {
-          "var_name": "SUPABASE_PUBLISHABLE_KEY",
-          "present": true,
-          "expected": true,
-          "risk_tier": "sensitive",
-          "mtime_epoch": 1781324822
-        },
-        {
-          "var_name": "SUPABASE_URL",
-          "present": true,
-          "expected": true,
-          "risk_tier": "low",
-          "mtime_epoch": 1781324822
-        },
-        {
-          "var_name": "VITE_NFIDEIA_PHONE_DISPLAY",
-          "present": true,
-          "expected": true,
-          "risk_tier": "low",
-          "mtime_epoch": 1781324822
-        },
-        {
-          "var_name": "VITE_SUPABASE_PROJECT_ID",
-          "present": true,
-          "expected": true,
-          "risk_tier": "low",
-          "mtime_epoch": 1781324822
-        },
-        {
-          "var_name": "VITE_SUPABASE_PUBLISHABLE_KEY",
-          "present": true,
-          "expected": true,
-          "risk_tier": "sensitive",
-          "mtime_epoch": 1781324822
-        },
-        {
-          "var_name": "VITE_SUPABASE_URL",
-          "present": true,
-          "expected": true,
-          "risk_tier": "low",
-          "mtime_epoch": 1781324822
-        },
-        {
           "var_name": "DEEPSEEK_API_KEY",
           "present": true,
           "expected": true,
@@ -923,6 +881,13 @@
           "present": true,
           "expected": true,
           "risk_tier": "sensitive",
+          "mtime_epoch": 1781985387
+        },
+        {
+          "var_name": "SUPABASE_URL",
+          "present": true,
+          "expected": true,
+          "risk_tier": "low",
           "mtime_epoch": 1781985387
         },
         {
