@@ -4,7 +4,34 @@
 
 ---
 
-## ▶ RETOMAR AQUI — v15 Fase B COMPLETA (8/8); próximo = Fase C (GATED) ou tag (2026-06-26)
+## ▶ RETOMAR AQUI — "faça tudo até 100%": Fase 1 (frescor-tier) + Fase 3 parcial DONE; faltam PRs outward + Onda 3 (2026-06-26)
+
+**Sessão "faça tudo, faseado, toque até 100%".** Autosync pausado, **religar ao fim**.
+
+- **✅ Fase 1 — frescor-tier + re-coleta (commit `80d8074`):** `collect.readSecurityFreshness()`
+  (`check-security-freshness --tier`) → `agentd` snapshot → `read.js /overview` agrega pior tier →
+  card R15-14 pilar 3 mostra o tier real (verde "fresco"). **+ Fix de 2 bugs do `readDoctor`** que
+  mantinham o doctor SEMPRE vazio na coleta: (1) timeout 10s<16s; (2) `--json` sai exit 1 em FAIL e
+  o `execSync` descartava o stdout → `|| true` + timeout 60s. Re-coleta (`agentd --once`) preencheu
+  installed_versions(8)/mcp(6)/supabase(4/8)/security_freshness(ok)/doctor(real). SUMMARY:
+  `R15-14-frescor-tier-SUMMARY.md`.
+- **✅ Fase 3 (parte segura) — ideiapartner deny 16→19:** a re-coleta destravou o doctor e revelou
+  **3 fails** (não 2): cfoai/nfideia (deny=0) **+ ideiapartner (deny=16)** — este último o handoff
+  dava como "nada a fazer". As 3 faltantes eram as MAIS perigosas (`deploy_project`,`query_database`,
+  `send_message`). Corrigido LOCAL (`.claude/settings.json` gitignored, não dispara deploy). Doctor:
+  **fail 3→2**, ok 75→76. **NOTA:** é efêmero ([[learning-uncommitted-security-config-ephemeral]]) —
+  `.claude` gitignored no ideiapartner é o mecanismo aceito desse repo, mas regride se o dir for limpo.
+- **⏳ Fase 3 (outward — TEU OK por-repo):** cfoai/nfideia ainda deny=0 → **2 fails restantes**.
+  Branches `sec/lovable-mcp-deny` **pushadas** em ambos; **nenhum PR aberto**. Mergear `sec→main`
+  fecha os 2 fails MAS é outward em repo **Lovable** (main=deploy) e **cfoai é PARTICULAR** → espera
+  confirmação por-repo. É o que falta p/ `idea_doctor=PASS` (DoD do SOAK).
+- **⏳ Onda 3 (R15-18..22) NÃO iniciada:** construção pesada (allowlist write-path, idea update,
+  auto-cura visível, refactor gerador de hooks, pre-op guard anti-race). R15-17 GATED (enc-keys N=2,
+  2ª máquina física). Recomendo **/compact antes** (token-economy: strategic compact pré-long-phase).
+
+---
+
+## ▶ RETOMAR (histórico) — v15 Fase B COMPLETA (8/8); próximo = Fase C (GATED) ou tag (2026-06-26)
 
 **Onde estamos:** **Fase B (Onda 2) ✅ COMPLETA (8/8).** Sessão "continuar pós-compact" → R15-15 +
 par de UI R15-13/R15-14. Autosync pausado nas cirurgias, **religado ao fim**.
