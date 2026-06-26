@@ -383,16 +383,30 @@ function handleOverview(res) {
 
     // Saúde por produto (spec): onde idea-doctor não roda (Lovable), 'n/a' — nunca fabricada.
     const checks = { ok: 0, warn: 0, fail: 0, unknown: 0 };
+    // Frescor de segurança (R15-14): PIOR tier entre os snapshots (egregious>warn>ok).
+    // Lido do payload (security_freshness.tier); 'unknown' honesto se nenhum reportou.
+    const TIER_RANK = { ok: 1, warn: 2, egregious: 3 };
+    let worstTier = null;
     for (const row of rows) {
       const d = doctorFromPayload(row.payload_json ?? null);
       if (d === 'ok')        checks.ok++;
       else if (d === 'warn') checks.warn++;
       else if (d === 'fail') checks.fail++;
       else                   checks.unknown++; // 'unknown' = sub-sinal n/a, não falha
+
+      if (row.payload_json) {
+        try {
+          const t = JSON.parse(row.payload_json)?.security_freshness?.tier;
+          if (t && TIER_RANK[t] && (!worstTier || TIER_RANK[t] > TIER_RANK[worstTier])) {
+            worstTier = t;
+          }
+        } catch { /* payload inválido → ignora, nunca inventa tier */ }
+      }
     }
+    const security_freshness = worstTier || 'unknown';
 
     res.writeHead(200, JSON_CORS);
-    res.end(JSON.stringify({ machines, projects, checks }));
+    res.end(JSON.stringify({ machines, projects, checks, security_freshness }));
   } catch (e) {
     res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: e.message }));

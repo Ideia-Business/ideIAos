@@ -50,6 +50,8 @@ interface OverviewData {
   machines: number;
   projects: number;
   checks: OverviewChecks;
+  /** Pior tier de frescor de segurança entre os snapshots (R15-14). */
+  security_freshness?: string;
 }
 
 // Forma de uma linha de GET /soak (espelha read.js handleSoak).
@@ -146,6 +148,16 @@ export default function Overview({ apiBase }: OverviewProps) {
   const soakLoaded = soakRows.length > 0;
   const span1dCount = soakRows.filter((s) => s.span_ge_1d).length;
   const maxHosts = soakRows.reduce((m, s) => Math.max(m, s.hosts), 0);
+
+  // Frescor de segurança (R15-14): tier real do /overview. 'unknown'/ausente =
+  // honesto "aguardando coleta" (snapshots pré-coleta do tier), nunca fabricado.
+  const freshTier = data?.security_freshness ?? "unknown";
+  const freshMap: Record<string, { variant: "ok" | "warn" | "fail"; label: string; note: string }> = {
+    ok:        { variant: "ok",   label: "fresco",   note: "revisão de segurança recente" },
+    warn:      { variant: "warn", label: "defasado", note: "rode @security-reviewer + --record" },
+    egregious: { variant: "fail", label: "egrégio",  note: "segurança muito defasada — revise já" },
+  };
+  const fresh = freshMap[freshTier]; // undefined p/ unbootstrapped/unknown
 
   return (
     <div className="space-y-6">
@@ -249,11 +261,20 @@ export default function Overview({ apiBase }: OverviewProps) {
                   <Lock className="h-3.5 w-3.5" aria-hidden />
                   Frescor de segurança
                 </div>
-                <Badge variant="warn">aguardando coleta</Badge>
-                <p className="text-xs text-muted-foreground">
-                  tier do <span className="font-mono">check-security-freshness</span> — próximo ciclo
-                  do agentd
-                </p>
+                {fresh ? (
+                  <>
+                    <Badge variant={fresh.variant}>{fresh.label}</Badge>
+                    <p className="text-xs text-muted-foreground">{fresh.note}</p>
+                  </>
+                ) : (
+                  <>
+                    <Badge variant="warn">aguardando coleta</Badge>
+                    <p className="text-xs text-muted-foreground">
+                      tier do <span className="font-mono">check-security-freshness</span> — próximo
+                      ciclo do agentd
+                    </p>
+                  </>
+                )}
               </div>
             </div>
           </CardContent>

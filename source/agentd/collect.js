@@ -114,7 +114,13 @@ function readDaemons() {
 // ---------------------------------------------------------------------------
 function readDoctor() {
   try {
-    const raw = safeExec('bash scripts/idea-doctor.sh --json 2>/dev/null');
+    // Dois motivos pelos quais o doctor vinha vazio na coleta, ambos corrigidos aqui:
+    //   1. ~15s de execução (todos os checks) > default 10s do safeExec → ETIMEDOUT.
+    //      → timeout 60s (folga).
+    //   2. idea-doctor --json sai com exit 1 quando há FAIL (estado normal!); o
+    //      execSync trata non-zero como exceção e DESCARTAVA o JSON válido do stdout.
+    //      → `|| true` força exit 0 preservando o stdout (o exit real vem no JSON.summary.exit).
+    const raw = safeExec('bash scripts/idea-doctor.sh --json 2>/dev/null || true', { timeout: 60000 });
     if (!raw) return { ok: 0, warn: 0, fail: 0, exit: -1, sections: [] };
     const d = JSON.parse(raw);
     // Extrair apenas summary (metadata, sem value)
@@ -129,6 +135,24 @@ function readDoctor() {
   } catch (e) {
     process.stderr.write('[collect] readDoctor: ' + e.message + '\n');
     return { ok: 0, warn: 0, fail: 0, exit: -1, sections: [] };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// readSecurityFreshness — consome `check-security-freshness.sh --tier` (R15-14)
+// O --tier imprime SÓ o token machine-readable no stdout (aviso humano vai p/
+// stderr). Retorna { tier } sem nenhum segredo — só o veredito de frescor.
+// tier ∈ ok | warn | egregious | unbootstrapped | unknown (fallback honesto).
+// ---------------------------------------------------------------------------
+function readSecurityFreshness() {
+  try {
+    const raw = safeExec('bash scripts/check-security-freshness.sh --tier 2>/dev/null');
+    const tier = (raw || '').trim();
+    const valid = ['ok', 'warn', 'egregious', 'unbootstrapped'];
+    return { tier: valid.includes(tier) ? tier : 'unknown' };
+  } catch (e) {
+    process.stderr.write('[collect] readSecurityFreshness: ' + e.message + '\n');
+    return { tier: 'unknown' };
   }
 }
 
@@ -399,6 +423,7 @@ module.exports = {
   readSoakHeartbeats,
   readDaemons,
   readDoctor,
+  readSecurityFreshness,
   readCommits,
   readEnvKeys,
   readMcp,

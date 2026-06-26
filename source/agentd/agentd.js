@@ -82,6 +82,11 @@ async function collectSnapshot() {
   let accounts = [];
   try { accounts = collect.readAccounts(); } catch (e) { process.stderr.write('[agentd] accounts: ' + e.message + '\n'); }
 
+  // security_freshness{} — R15-14: tier do check-security-freshness --tier (o
+  // único net-new de coleta do card "Saúde & Governança"). Só o veredito, sem segredo.
+  let security_freshness = { tier: 'unknown' };
+  try { security_freshness = collect.readSecurityFreshness(); } catch (e) { process.stderr.write('[agentd] security_freshness: ' + e.message + '\n'); }
+
   // projects[] — descoberta dinâmica, NUNCA N=5 hardcoded
   let projects = [];
   try {
@@ -119,6 +124,7 @@ async function collectSnapshot() {
     installed_versions,
     mcp_connections,
     accounts,
+    security_freshness,
     projects
     // INVARIANTE: sem campo "value" em nenhum ponto do snapshot
   };
@@ -137,6 +143,7 @@ function buildMinimalSnapshot() {
     installed_versions: {},
     mcp_connections:    [],
     accounts:           [],
+    security_freshness: { tier: 'unknown' },
     projects:           []
   };
 }
