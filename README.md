@@ -116,13 +116,13 @@ Detalhes completos: cada projeto ideIAos recebe [`docs/ideiaos/DECISION-MATRIX.m
 
 Máquina nova pode instalar os componentes ideIAos via plugin nativo do Claude Code — versionado, com `/plugin update` automático.
 
-> **Pré-requisito de visibilidade:** O marketplace lê diretamente do repositório. Se o repo `Ideia-Business/IdeiaOS` ainda não estiver público no GitHub, use o path local em vez do slug GitHub: `claude plugin marketplace add /caminho/para/IdeiaOS`. **Decisão de tornar o repo público: pendente do usuário.**
+> **Visibilidade:** O marketplace lê diretamente do repositório. O repo `Ideia-Business/ideIAos` é **público** no GitHub, então a **Opção A** (via slug GitHub) é a padrão. A **Opção B** (path local) segue válida para quem já tem o clone na máquina: `claude plugin marketplace add /caminho/para/IdeiaOS`.
 
 ```bash
 # Adicionar o marketplace ideIAos (uma vez)
-# Opção A — via GitHub (quando o repo for público):
-claude plugin marketplace add Ideia-Business/IdeiaOS
-# Opção B — via path local (repo privado ou clone já na máquina):
+# Opção A — via GitHub (repo público; padrão):
+claude plugin marketplace add Ideia-Business/ideIAos
+# Opção B — via path local (clone já na máquina):
 claude plugin marketplace add /caminho/para/IdeiaOS
 
 # Instalar o núcleo (sempre — orquestrador, agents, hooks, skills de workflow)
@@ -221,10 +221,16 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | MCPs (user scope) | config do Claude Code (`claude mcp list`) |
 | Hooks Claude | `~/.claude/hooks/` |
 | Agentes Cursor | `~/.cursor/agents/` |
-| AIOX-core (framework) | `~/dev/.aiox-core/` |
+| AIOX-core (instalado — alvo do overlay) | `~/dev/.aiox-core/` (cópia **debug/instalada** — recebe os 15 patches do `install-global-patches.sh`; ≠ vendor PRISTINE do repo) |
 | Autosync (LaunchAgent) | `~/Library/LaunchAgents/com.ideiaos.gitautosync.plist` |
 
 > ⚠️ **Não auto-instalado:** pré-requisitos (passo 1) e o **plugin GSD** (passo 4, interativo do Claude Code).
+
+> ℹ️ **Por que há 3 cópias do `.aiox-core` (desambiguação, não duplicação):** são 3 papéis LEGÍTIMOS e distintos —
+> (1) **vendor PRISTINE** no repo (`~/dev/IdeiaOS/.aiox-core`): cópia local **ignorada pelo git** (`.gitignore`),
+> nunca editada direto; (2) **debug/instalado** (`~/dev/.aiox-core`): alvo do overlay `install-global-patches.sh`,
+> que aplica os 15 patches aqui (mutável); (3) **runtime npm-global** (`npx aiox-core`, binário CLI `aiox-core@5.x`).
+> É **DESAMBIGUAÇÃO por papel, não unificação** — cada cópia existe por uma razão diferente.
 
 ---
 
@@ -234,7 +240,7 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 
 | Componente | Onde | Para quê |
 |------------|------|----------|
-| **AIOX Core** | npm global via `npx aiox-core` | Orquestrador de agentes IA — base do AIOX |
+| **AIOX Core** | npm global via `npx aiox-core` (**runtime npm-global**; binário CLI `aiox-core@5.x`) | Orquestrador de agentes IA — base do AIOX |
 | **GSD skills** | `~/.claude/skills/gsd-*` | Suite com 60+ comandos GSD (vem com Claude Code via plugins) |
 | **Skill Claude `/idea`** | `~/.claude/skills/idea/` | **Orquestrador ideIAos** — comando único de entrada |
 | **Skill Claude `/ideiaos-setup`** | `~/.claude/skills/ideiaos-setup/` | Audita + completa setup do projeto |
@@ -393,6 +399,7 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | **`scripts/apply-to-all-projects.sh`** | Propaga `setup.sh --project-only` a todos os repos `~/dev/*`. Dry-run por padrão; use `--apply` para executar. `--only proj1,proj2` para filtrar. |
 | **`scripts/export-env-dev.sh`** | Extrai o `.env` **mínimo de dev** (least-privilege) por projeto, para entregar a um dev novo por **canal seguro**. Omite `SERVICE_ROLE_KEY` + tokens de deploy. `--list`/`--keys-only` não tocam valores. Read-only. Ver `docs/guides/env-setup-dev.md`. |
 | **`scripts/check-env-not-tracked.sh`** | Gate anti-segredo-no-git: **falha (exit 1) só se um `.env` versionado contém chave secreta** (`service_role`/`api_key`/`token`/`password`); config/público (`VITE_`/`anon`/`publishable`) e fixtures de teste (`.env.test`/`.e2e`) = WARN, não falha. Read-only, **nunca lê valores**. `IDEIAOS_ENV_GATE_SKIP` pula forks de terceiros. |
+| **`scripts/idea-smoke.sh`** | Smoke-test **puro-bash** (sem python3, sem `.env`) do bootstrap mínimo — prova por exit-code que plugins/hooks/comandos básicos estão de pé, mesmo no ambiente meio-instalado (Windows nativo) onde o `idea-doctor` degrada. Default = build (exit 1 em falha); `--hook` = exit 0 sempre. Fronteira: smoke = "bootstrap mínimo OK?"; doctor = "saúde profunda". (v15 R15-03) |
 | **`scripts/propagate-if-changed.sh`** | Propagação **automática** — após pull no IdeiaOS, detecta diff em templates/skills/setup e roda global + `apply-to-all --apply`. Gatilhos: `git-autosync`, `post-merge` hook, `sync-all.sh`. Log: `~/.local/state/propagate-projects.log`. |
 | **`scripts/ideiaos-update.sh`** | **Atualização de máquina em 1 comando** — sync-all + guardas do git-autosync (versions.lock fora do add -A; **pause-file + conflict-marker**, step 2d) + funções claude-dev/review/research no shell + statusline no settings.json (idempotente, com backup; edita config do usuário por consentimento explícito — diferente do setup.sh/T-01-10) |
 | **`scripts/autosync-pause.sh`** | **Pausa/retoma o git-autosync de forma codificada** (`on`/`off`/`status`) — substitui o `launchctl bootout`/`bootstrap` manual por um pause-file que o autosync respeita; usar durante cirurgia git/infra de IA. O autosync também aborta auto-commit de árvore com conflict markers (`git diff --check`). |
@@ -853,6 +860,10 @@ A simulação testada em 2026-05-30: apagar manualmente os 3 gatilhos do hook �
 └─────────────────────────────────────────────────────────────┘
 ```
 
+> ℹ️ **Sobre `Projects/.aiox-core/` na árvore acima:** é a cópia **instalada via npm upstream** (vanilla), onde o overlay
+> aplica os patches. NÃO confundir com o `.aiox-core` do REPO (`~/dev/IdeiaOS/.aiox-core`), que é **vendor PRISTINE** —
+> cópia local **ignorada pelo git** (`.gitignore`), nunca editada direto; deltas só via overlay na cópia instalada.
+
 **Princípio:** mudanças sempre nascem nos templates do repo ideIAos e propagam pra cada nível via scripts idempotentes. Nada vive "só na sua máquina" — tudo é reproduzível.
 
 ---
@@ -890,6 +901,7 @@ ideIAos/
 │   ├── apply-to-all-projects.sh            ← Propaga setup --project-only a ~/dev/*
 │   ├── export-env-dev.sh                   ← Extrai .env mínimo de dev (least-privilege) p/ entregar a dev novo
 │   ├── check-env-not-tracked.sh            ← Gate anti-segredo: detecta .env versionado em repo-produto (read-only)
+│   ├── idea-smoke.sh                        ← Smoke-test puro-bash do bootstrap mínimo (exit-code; --hook) (v15)
 │   ├── propagate-if-changed.sh             ← Auto-propagação pós-pull (autosync + post-merge + sync-all)
 │   ├── sync-all.sh                         ← Orquestrador (pull → upstream → setup --global-only → overlay → propagate → doctor)
 │   ├── ideiaos-update.sh                   ← Atualização de máquina em 1 comando (sync-all + shell + statusline)
