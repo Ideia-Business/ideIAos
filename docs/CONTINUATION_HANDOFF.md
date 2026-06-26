@@ -4,22 +4,31 @@
 
 ---
 
-## ▶ RETOMAR AQUI — v15/v16 FORMALIZADOS (2026-06-25)
+## ▶ RETOMAR AQUI — v15 Fase A em EXECUÇÃO (2026-06-25)
 
-**O que aconteceu:** análise estratégica Ultracode (`wf_d2ae9a6d-235` — 43 agentes, 5 subsistemas
-mapeados → 32 propostas → 28 sobreviveram à verificação adversarial → síntese + crítico de completude)
-respondeu às 2 perguntas do dono (plataforma fácil de instalar/gerenciar + evoluir o Cockpit). Resultado
-**formalizado em 2 milestones**, decisão de numeração do dono:
-- **v15 = DX & Frota** — `.planning/milestones/v15-REQUIREMENTS.md` + `v15-ROADMAP.md` (23 reqs, 3 ondas A/B/C).
-- **v16 = Plataforma de Time** — `.planning/milestones/v16-REQUIREMENTS.md` (**renumeração do ex-"v15"** split-plane; aviso no topo do ADR `docs/decisions/v15-cockpit-split-plane-control-plane.md`).
-- Índice `.planning/ROADMAP.md` atualizado (v14/v15/v16); decisão "repo PRIVADO" marcada SUPERADA (repo é PÚBLICO).
+**Onde estamos:** v15/v16 formalizados (análise Ultracode `wf_d2ae9a6d-235`); Fase A (Onda 1) PLANEJADA
+(8 `PLAN.md` em `.planning/milestones/v15-phases/A-destravar/` + `INDEX.md`, verificados adversarialmente
+`wf_4e17292d-71b` + round de revisão `wf_ad95edf7-a07`) e em EXECUÇÃO. **4/6 da Wave 1 COMMITADOS e
+verdes por exit-code:**
+- **A-01** (`a323e39`) fix `/usr/bin/python3` nos 12 hooks de produto + re-build (guard diferenciado verificado).
+- **A-02** (`171f908`) smoke-test `idea-smoke.sh`. **A-03** (`18cb259`) probe `gh` resiliente. **A-04** (`8dd8977`) 3 fatos corrigidos (+README sync verde).
 
-**Próximo passo executável:** `/gsd-plan-phase v15-A` (ou método-espelho v14) consumindo o `v15-ROADMAP.md` →
-gerar `PLAN.md` da Onda 1. O **movimento-âncora é R15-01** (fix `/usr/bin/python3` nos 12 hooks de produto +
-re-build dos plugins) — **cirúrgico, validável no macOS por exit-code, independe do teste do Lucas**.
+**Próximo passo executável:** terminar a Wave 1 — **A-05** (alias-map da Frota: nomes, não hashes) e **A-06**
+(botão verificar consumindo `/verify`). Ambos tocam `apps/cockpit/src/pages/Frota.tsx` (+ `read.js`) →
+**executar SEQUENCIAL** (A-05 depois A-06), com **autosync PAUSADO**. Depois Wave 2: **A-07** (registro de
+hooks no bootstrap; depende de A-01+A-02) e **A-08** (resolver FAIL cfoai — **decisão do dono = A**, remediar
+os 19 deny no prefixo do server ativo; toca o repo cfoai PARTICULAR = run cuidadoso, regra Lovable branch≠main).
+
+**GOTCHA desta sessão (lição):** o executor delegado do A-04 RELIGOU o autosync por conta própria (a
+instrução era NÃO tocar) — re-pausei a tempo (HEAD não foi varrido). Ao delegar execução, reforce
+explicitamente "NÃO rodar `autosync-pause off`; deixe pausado".
+
+> v15/v16: **v15 = DX & Frota** (`.planning/milestones/v15-{REQUIREMENTS,ROADMAP}.md`, 23 reqs, 3 ondas);
+> **v16 = Plataforma de Time** (renumeração do ex-"v15" split-plane, aviso no ADR). Índice `.planning/ROADMAP.md`
+> com v14/v15/v16; repo é PÚBLICO (`Ideia-Business/ideIAos`).
 
 **Decisões do dono que gateiam fases (não o milestone):**
-1. **R15-06** — cfoai Lovable-MCP `deny=0`: remediar 19 deny [recomendado] OU allowlist por-nome no `idea-doctor §7e`.
+1. ~~**R15-06** — cfoai Lovable-MCP `deny=0`~~ **RESOLVIDO 2026-06-25 = branch A** (remediar os 19 deny no prefixo do server ativo; fix §7e prefix-aware incondicional). Executado no A-08 (Wave 2).
 2. **R15-17** — cerimônia das **enc-keys (B0-bis)**: a N=2 anterior provou só signing, não as enc-keys do selo (gate do write-path own-fleet).
 3. **Tensão SOAK↔cfoai (crítico §3):** reconciliar se o `idea_doctor=PASS` do SOAK do v14.1 e o FAIL ao-vivo do cfoai medem o mesmo escopo.
 
