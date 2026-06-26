@@ -45,6 +45,25 @@ interface FleetMachine {
   installed_versions: Record<string, string>;
 }
 
+// Shape REAL do GET /verify?cell=<MID> (read.js:577-584) — NUNCA inventar campos.
+// O discriminante do 3º estado é `disk_epoch` (não `disk` nem outro nome).
+interface VerifyResult {
+  cell: string;
+  verified: boolean;
+  served_epoch: number | null;
+  disk_epoch: number | null;
+  recomputed_at_epoch: number;
+  source: string;
+}
+
+// Estado on-demand do botão "verificar" por célula. Erro de FETCH (rede) é um
+// estado DISTINTO dos 3 estados de domínio (verificado / divergência / não-verificável).
+type VerifyCellState =
+  | undefined
+  | "loading"
+  | { result: VerifyResult }
+  | { fetchError: string };
+
 // "último sinal há Xh" — idade HONESTA e TEXTUAL de last_seen_epoch (nunca fluxo simulado).
 function ageLabel(epoch: number | null): string {
   if (epoch == null) return "sem sinal";
@@ -57,6 +76,27 @@ function ageLabel(epoch: number | null): string {
   if (hours < 24) return `último sinal há ${hours}h`;
   const days = Math.floor(hours / 24);
   return `último sinal há ${days}d`;
+}
+
+// Os 3 ESTADOS HONESTOS derivados da DUPLA (verified, disk_epoch) — read.js:574.
+// INVARIANTE-PISO (R15-08): disk_epoch == null => "unverifiable" NEUTRO, NUNCA alarme.
+// Ausência de snapshot no disco é falta de prova, não prova de divergência.
+function verifyState(r: VerifyResult): "verified" | "divergence" | "unverifiable" {
+  if (r.verified === true) return "verified";
+  if (r.disk_epoch != null) return "divergence"; // servido ≠ disco (alarme real)
+  return "unverifiable"; // sem snapshot no disco (neutro)
+}
+
+// "verificado há Xs" — carimbo HONESTO de quando a verdade-contra-o-disco foi
+// recomputada (recomputed_at_epoch), NÃO de last_seen_epoch. Textual, nunca animação.
+function verifiedAgeLabel(recomputedAtEpoch: number): string {
+  const secs = Math.floor(Date.now() / 1000) - recomputedAtEpoch;
+  if (secs < 0) return "verificado agora";
+  if (secs < 60) return `verificado há ${secs}s`;
+  const mins = Math.floor(secs / 60);
+  if (mins < 60) return `verificado há ${mins}min`;
+  const hours = Math.floor(mins / 60);
+  return `verificado há ${hours}h`;
 }
 
 // VERSION-DRIFT por IGUALDADE DE STRING: para uma chave, drift = >1 string DISTINTA
@@ -84,6 +124,29 @@ export default function Frota() {
   const [machines, setMachines] = useState<FleetMachine[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // Estado on-demand do botão "verificar" por máquina (machine_id -> estado).
+  const [verifyByCell, setVerifyByCell] = useState<Record<string, VerifyCellState>>({});
+
+  // Dispara GET /verify?cell=<MID> no INSTANTE do clique (recompute-from-disk, A6
+  // Trust-Rate — nunca cache/load inicial). O machine_id vem do /fleet e já casa o
+  // regex do server; nada além dele é interpolado. Loopback preservado (API_BASE).
+  async function verifyCell(machineId: string) {
+    setVerifyByCell((prev) => ({ ...prev, [machineId]: "loading" }));
+    try {
+      const res = await fetch(`${API_BASE}/verify?cell=${machineId}`);
+      if (!res.ok) {
+        setVerifyByCell((prev) => ({ ...prev, [machineId]: { fetchError: `HTTP ${res.status}` } }));
+        return;
+      }
+      const result = (await res.json()) as VerifyResult;
+      setVerifyByCell((prev) => ({ ...prev, [machineId]: { result } }));
+    } catch (e) {
+      setVerifyByCell((prev) => ({
+        ...prev,
+        [machineId]: { fetchError: e instanceof Error ? e.message : String(e) },
+      }));
+    }
+  }
 
   // Mesmo padrão useEffect/cancelled do App.tsx/Overview (loopback fetch canônico).
   useEffect(() => {
@@ -210,6 +273,7 @@ export default function Frota() {
                 <th className="px-4 py-2 font-medium">agentd_version</th>
                 <th className="px-4 py-2 font-medium">doctor</th>
                 <th className="px-4 py-2 font-medium">frescor</th>
+                <th className="px-4 py-2 font-medium">verificar</th>
               </tr>
             </thead>
             <tbody className="font-mono">
@@ -239,6 +303,72 @@ export default function Frota() {
                   {/* Frescor HONESTO e TEXTUAL — nunca animação de fluxo contínuo */}
                   <td className="px-4 py-2 text-muted-foreground">
                     {ageLabel(m.last_seen_epoch)}
+                  </td>
+                  {/* Botão "verificar" (recompute-from-disk on-demand) + 3 estados honestos.
+                      Cor NUNCA é o único sinal — todo estado tem label textual ao lado. */}
+                  <td className="px-4 py-2">
+                    {(() => {
+                      const st = verifyByCell[m.machine_id];
+                      if (st === undefined) {
+                        return (
+                          <button
+                            type="button"
+                            onClick={() => verifyCell(m.machine_id)}
+                            className="rounded border border-border px-2 py-0.5 text-xs text-foreground hover:bg-muted"
+                          >
+                            verificar
+                          </button>
+                        );
+                      }
+                      if (st === "loading") {
+                        return <span className="text-muted-foreground">verificando…</span>;
+                      }
+                      if ("fetchError" in st) {
+                        // Erro de REDE — neutro, distinto dos 3 estados de domínio.
+                        return (
+                          <span className="flex flex-wrap items-center gap-2">
+                            <span className="text-muted-foreground">
+                              erro de rede ({st.fetchError})
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => verifyCell(m.machine_id)}
+                              className="rounded border border-border px-2 py-0.5 text-xs hover:bg-muted"
+                            >
+                              tentar de novo
+                            </button>
+                          </span>
+                        );
+                      }
+                      const r = st.result;
+                      const state = verifyState(r);
+                      if (state === "verified") {
+                        return (
+                          <span className="flex flex-wrap items-center gap-2">
+                            <Badge variant="ok">verificado</Badge>
+                            <span className="text-muted-foreground">
+                              {verifiedAgeLabel(r.recomputed_at_epoch)}
+                            </span>
+                          </span>
+                        );
+                      }
+                      if (state === "divergence") {
+                        // Alarme REAL — servido ≠ disco.
+                        return (
+                          <span className="flex flex-wrap items-center gap-2">
+                            <Badge variant="fail">divergência</Badge>
+                            <span className="text-muted-foreground">servido ≠ disco</span>
+                          </span>
+                        );
+                      }
+                      // unverifiable — disk_epoch == null => NEUTRO, NUNCA alarme (R15-08).
+                      return (
+                        <span className="flex flex-wrap items-center gap-2">
+                          <Badge variant="default">não-verificável</Badge>
+                          <span className="text-muted-foreground">sem snapshot no disco</span>
+                        </span>
+                      );
+                    })()}
                   </td>
                 </tr>
               ))}
