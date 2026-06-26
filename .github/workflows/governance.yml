@@ -1,0 +1,50 @@
+# SOURCE: IdeiaOS v15 | R15-10 — governança repo-pura no CI
+# Roda os 2 gates repo-puros que FALTAVAM ao evals.yml: check-readme-sync e
+# check-memory-not-on-main. Os outros 2 gates de governança
+# (check-plugin-membership, check-source-headers) JÁ rodam no evals.yml
+# (job structural, steps "Guard — membership" / "Guard — proveniência") — NÃO
+# são duplicados aqui (R15-10: "não re-rodar o que evals.yml já cobre").
+#
+# NÃO roda idea-doctor.sh (27 refs a $HOME — audita a install global de uma
+# máquina-dev) nem check-env-not-tracked.sh (varre $HOME/dev/*): ambos falhariam
+# num runner fresco; ficam FORA do CI por design (rodam local/pre-commit).
+#
+# Triggers: push p/ main (onde a memória NUNCA pode aterrissar e o README vira
+# fonte pública) + pull_request. NÃO roda em push de `work` para não gerar ruído
+# a cada tick do git-autosync. Repo PÚBLICO → GitHub Actions sem billing.
+
+name: Governança — IdeiaOS
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  repo-gates:
+    name: Gates repo-puros (README sync + memória fora da main)
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout do branch NOMEADO (não detached): check-memory-not-on-main.sh usa
+      # `git symbolic-ref --short HEAD` p/ saber o destino — em detached HEAD (default
+      # do checkout) ele veria "" e pularia a inspeção. Com o ref nomeado, um push p/
+      # `main` é inspecionado de verdade.
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+          fetch-depth: 0
+
+      - name: Validação YAML deste workflow
+        run: |
+          python3 -c "import yaml; yaml.safe_load(open('.github/workflows/governance.yml'))"
+          echo "YAML válido"
+
+      - name: Guard — README sincronizado (árvore × README.md)
+        run: bash scripts/check-readme-sync.sh
+
+      - name: Guard — memória nunca na main (.planning/memory/, leak histórico)
+        run: bash scripts/check-memory-not-on-main.sh
