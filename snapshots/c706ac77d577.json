@@ -3,7 +3,7 @@
   "machine_id": "c706ac77d577",
   "agentd_version": "1.0.0",
   "os_version": "26.6",
-  "taken_epoch": 1782523149,
+  "taken_epoch": 1782524050,
   "daemons": [
     {
       "pid": null,
@@ -16,7 +16,7 @@
       "label": "com.ideiaos.soak-v15-oneshot"
     },
     {
-      "pid": 94698,
+      "pid": 21582,
       "status": "0",
       "label": "com.ideiaos.cockpit"
     },
