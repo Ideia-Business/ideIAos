@@ -27,7 +27,7 @@ import { fileURLToPath } from 'node:url';
 import { execFileSync, spawnSync } from 'node:child_process';
 
 // ── Caminhos ─────────────────────────────────────────────────────────────────
-const DB_PATH = path.join(os.homedir(), '.ideiaos', 'console', 'read-model.db');
+const DB_PATH = process.env.COCKPIT_DB || path.join(os.homedir(), '.ideiaos', 'console', 'read-model.db');
 
 // ── ROOT do repo (cwd dos verbos do /command; spawnSync roda os scripts daqui) ─
 // read.js vive em apps/cockpit/server/ → ROOT = ../../../ (raiz do IdeiaOS).
@@ -801,6 +801,91 @@ function handleDoctor(req, res) {
   }
 }
 
+// ── Handler GET /alerts (Atalaia — catálogo doc 77, A1–A11) ───────────────────
+// Gatilhos DETERMINÍSTICOS sobre o read-model + payload do snapshot. Cada alerta:
+// {id, title, severity('crítico'|'atenção'|'info'), status, detail}. status:
+//   'active' (disparado) · 'clear' (saudável) · 'no-data' (insumo não coletado —
+//   HONESTO, nunca fabrica; doc 77 §A.1 "n/a honesto"). NUNCA lê valor de segredo
+//   (só present/risk_tier/committed). READ-only: zero mutação, zero spawn, zero rede.
+function handleAlerts(res) {
+  let db;
+  try { db = openDb(); }
+  catch (e) { res.writeHead(503, JSON_CORS); res.end(JSON.stringify({ error: e.message })); return; }
+  const now = Math.floor(Date.now() / 1000);
+  const alerts = [];
+  const add = (id, title, severity, status, detail) => alerts.push({ id, title, severity, status, detail });
+  try {
+    // Snapshot mais recente por máquina (payload + idade + versão).
+    const snaps = db.prepare(`
+      SELECT m.machine_id, m.canonical_name, m.agentd_version, ms.taken_epoch, ms.payload_json
+      FROM machine m
+      LEFT JOIN machine_snapshot ms ON ms.machine_id = m.machine_id
+        AND ms.taken_epoch = (SELECT MAX(taken_epoch) FROM machine_snapshot WHERE machine_id = m.machine_id)
+    `).all();
+    const nameOf = (s) => s.canonical_name || s.machine_id;
+    const stale = snaps.filter((s) => s.taken_epoch && (now - s.taken_epoch) > 900);
+
+    // A11 — snapshot stale por máquina (>15min âmbar, >3h crítico).
+    if (snaps.length === 0) add('A11', 'Snapshot por máquina', 'atenção', 'no-data', 'sem snapshots no read-model');
+    else if (stale.length === 0) add('A11', 'Snapshot por máquina', 'info', 'clear', `${snaps.length} máquina(s) com sinal fresco (≤15min)`);
+    else { const worst = stale.reduce((a, s) => Math.max(a, now - s.taken_epoch), 0);
+      add('A11', 'Snapshot stale por máquina', worst > 10800 ? 'crítico' : 'atenção', 'active',
+        stale.map((s) => `${nameOf(s)}: há ${Math.round((now - s.taken_epoch) / 60)}min`).join(' · ')); }
+
+    // A3 — autosync/daemon parado (proxy honesto: snapshot não avança → ref parado nessa máquina).
+    if (stale.length > 0) add('A3', 'Autosync/daemon possivelmente parado',
+      stale.some((s) => (now - s.taken_epoch) > 10800) ? 'crítico' : 'atenção', 'active',
+      `ref não avança em: ${stale.map(nameOf).join(', ')}`);
+    else add('A3', 'Autosync/daemon', 'info', 'clear', 'refs avançando');
+
+    // A10 — agentd_version drift entre máquinas (string-equality, NUNCA semver).
+    const versions = [...new Set(snaps.map((s) => s.agentd_version).filter(Boolean))];
+    if (versions.length === 0) add('A10', 'agentd_version drift', 'atenção', 'no-data', 'versão do agentd não reportada');
+    else if (versions.length === 1) add('A10', 'agentd_version', 'info', 'clear', `frota na versão ${versions[0]}`);
+    else add('A10', 'agentd_version drift', 'atenção', 'active', `versões divergentes: ${versions.join(' vs ')}`);
+
+    // A4/A5 — security tier (pior entre os payloads). warn→A4 (âmbar); egregious→A5 (crítico).
+    const TIER = { ok: 1, warn: 2, egregious: 3 };
+    let worstTier = null;
+    for (const s of snaps) { try { const t = JSON.parse(s.payload_json || '{}')?.security_freshness?.tier;
+      if (t && TIER[t] && (!worstTier || TIER[t] > TIER[worstTier])) worstTier = t; } catch { /* payload ilegível */ } }
+    if (!worstTier) {
+      add('A4', 'Security tier → stale', 'atenção', 'no-data', 'tier não coletado (próximo ciclo do agentd)');
+      add('A5', 'Security tier → egrégio', 'crítico', 'no-data', 'tier não coletado (próximo ciclo do agentd)');
+    } else {
+      add('A4', 'Security tier → stale', 'atenção', worstTier === 'warn' ? 'active' : 'clear',
+        worstTier === 'warn' ? 'rode @security-reviewer + --record' : 'tier não-stale');
+      add('A5', 'Security tier → egrégio', 'crítico', worstTier === 'egregious' ? 'active' : 'clear',
+        worstTier === 'egregious' ? 'rode @security-reviewer + --record (trava tag quando --gate ligado)' : 'tier não-egrégio');
+    }
+
+    // A7 — .env exposto no git (api_key committed). crítico se risk crítico/sensível; âmbar se público.
+    const exposed = db.prepare(`SELECT project_slug, var_name, risk_tier FROM api_key WHERE committed = 1`).all();
+    const crit = exposed.filter((r) => r.risk_tier === 'critical' || r.risk_tier === 'sensitive');
+    if (exposed.length === 0) add('A7', '.env exposto no git', 'info', 'clear', 'nenhum segredo tracked');
+    else if (crit.length > 0) add('A7', '.env exposto no git (segredo crítico)', 'crítico', 'active', `${crit.length} var(es) crítica(s) tracked — git rm --cached via PR @devops`);
+    else add('A7', '.env público tracked', 'atenção', 'active', `${exposed.length} var(es) pública(s) tracked (VITE_/anon) — aceitável`);
+
+    // A9 — SOAK pronto-p/-tag (máquinas≥2 E span gravado≥1d por milestone — não wall-clock).
+    const soakRows = db.prepare(`SELECT milestone, COUNT(DISTINCT host) AS hosts, MAX(epoch) - MIN(epoch) AS span FROM soak_heartbeat GROUP BY milestone`).all();
+    const ready = soakRows.filter((r) => r.hosts >= 2 && r.span >= 86400);
+    if (soakRows.length === 0) add('A9', 'SOAK pronto-p/-tag', 'info', 'no-data', 'sem heartbeats de SOAK');
+    else if (ready.length > 0) add('A9', 'SOAK pronto-p/-tag', 'info', 'active', `PRONTO: ${ready.map((r) => r.milestone).join(', ')} (2+ máquinas, span≥1d) — @devops tagueia`);
+    else add('A9', 'SOAK pronto-p/-tag', 'info', 'clear', 'nenhum milestone fechou span≥1d ainda');
+
+    // A1/A2/A6/A8 — insumos que o collector v14 ainda NÃO emite → 'no-data' honesto (doc 77 §A.1).
+    add('A1', 'Drift versions.lock', 'atenção', 'no-data', 'collector não coleta versions.lock×instalado (deferido)');
+    add('A2', 'Regressão deny-list', 'crítico', 'no-data', 'ledger estruturado de contenção (doc 01) não emitido ainda');
+    add('A6', '.env órfão (vs .env.example)', 'atenção', 'no-data', 'diff .env×.env.example não coletado (deferido)');
+    add('A8', '.env.local em iCloud', 'atenção', 'no-data', 'resolução de path iCloud não coletada (deferido)');
+
+    res.writeHead(200, JSON_CORS);
+    res.end(JSON.stringify({ generated_epoch: now, count_active: alerts.filter((a) => a.status === 'active').length, alerts }));
+  } catch (e) {
+    res.writeHead(500, JSON_CORS); res.end(JSON.stringify({ error: e.message }));
+  } finally { if (db) try { db.close(); } catch { /* ignore */ } }
+}
+
 // ── HTTP server ───────────────────────────────────────────────────────────────
 const server = http.createServer((req, res) => {
   if (req.method === 'GET' && req.url === '/machines') {
@@ -823,6 +908,9 @@ const server = http.createServer((req, res) => {
   }
   if (req.method === 'GET' && req.url === '/soak') {
     return handleSoak(res);
+  }
+  if (req.method === 'GET' && req.url === '/alerts') {
+    return handleAlerts(res);
   }
   if (req.method === 'GET' && req.url.startsWith('/doctor')) {
     return handleDoctor(req, res);

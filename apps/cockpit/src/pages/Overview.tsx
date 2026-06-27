@@ -64,6 +64,15 @@ interface SoakRow {
   last_idea_doctor: string;
 }
 
+// Forma de um alerta da Atalaia (espelha read.js handleAlerts / doc 77).
+interface AlertItem {
+  id: string;
+  title: string;
+  severity: "crítico" | "atenção" | "info";
+  status: "active" | "clear" | "no-data";
+  detail: string;
+}
+
 export interface OverviewProps {
   /** Base loopback do read.js (http://127.0.0.1:3073). */
   apiBase: string;
@@ -72,6 +81,7 @@ export interface OverviewProps {
 export default function Overview({ apiBase }: OverviewProps) {
   const [data, setData] = useState<OverviewData | null>(null);
   const [soak, setSoak] = useState<SoakRow[] | null>(null);
+  const [alerts, setAlerts] = useState<AlertItem[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -104,6 +114,16 @@ export default function Overview({ apiBase }: OverviewProps) {
         }
       } catch {
         /* /soak indisponível → card mostra "sem heartbeats", nunca inventa */
+      }
+      // /alerts — Atalaia (best-effort; o card degrada honestamente se faltar).
+      try {
+        const a = await fetch(`${apiBase}/alerts`);
+        if (a.ok) {
+          const j = (await a.json()) as { alerts?: AlertItem[] };
+          if (!cancelled && Array.isArray(j.alerts)) setAlerts(j.alerts);
+        }
+      } catch {
+        /* /alerts indisponível → card Atalaia mostra "indisponível", nunca inventa */
       }
     }
     fetchAll();
@@ -158,6 +178,21 @@ export default function Overview({ apiBase }: OverviewProps) {
     egregious: { variant: "fail", label: "egrégio",  note: "segurança muito defasada — revise já" },
   };
   const fresh = freshMap[freshTier]; // undefined p/ unbootstrapped/unknown
+
+  // Atalaia (doc 77): alertas ativos ordenados por severidade; itens 'no-data'
+  // (insumo não coletado) contados como "deferido" — honesto, nunca fabricado.
+  const alertList = alerts ?? [];
+  const activeAlerts = alertList.filter((a) => a.status === "active");
+  const noData = alertList.filter((a) => a.status === "no-data").length;
+  const sevRank: Record<string, number> = { "crítico": 0, "atenção": 1, "info": 2 };
+  const sevVariant: Record<string, "fail" | "warn" | "ok"> = {
+    "crítico": "fail",
+    "atenção": "warn",
+    "info": "ok",
+  };
+  const activeSorted = [...activeAlerts].sort(
+    (a, b) => (sevRank[a.severity] ?? 9) - (sevRank[b.severity] ?? 9),
+  );
 
   return (
     <div className="space-y-6">
@@ -280,21 +315,45 @@ export default function Overview({ apiBase }: OverviewProps) {
           </CardContent>
         </Card>
 
-        {/* Atenção-Agora */}
-        <Card>
+        {/* ── Atalaia (doc 77) — catálogo de gatilhos DETERMINÍSTICOS sobre o
+              substrato auto-telemetrado (de GET /alerts). READ-only; nenhum
+              gatilho lê valor de segredo; itens sem insumo coletado aparecem
+              como "deferido" (honesto, nunca fabricado). ── */}
+        <Card className="sm:col-span-2 lg:col-span-4">
           <CardHeader className="pb-2">
             <div className="flex items-center gap-2">
               <Bell className="h-4 w-4 text-[oklch(var(--brand))]" aria-hidden />
-              <CardTitle>Atenção-Agora</CardTitle>
+              <CardTitle>Atalaia</CardTitle>
+              <span className="ml-auto font-mono text-[10px] uppercase tracking-wide text-muted-foreground">
+                {alerts === null
+                  ? "indisponível"
+                  : `${activeAlerts.length} ativo(s) · ${noData} deferido(s)`}
+              </span>
             </div>
           </CardHeader>
           <CardContent>
-            {checks.fail + checks.warn > 0 ? (
-              <p className="text-xs text-[oklch(var(--status-warning))]">
-                {checks.fail} fail · {checks.warn} warn
+            {alerts === null ? (
+              <p className="text-xs text-muted-foreground">
+                /alerts indisponível — confirme o read.js rodando
+              </p>
+            ) : activeSorted.length === 0 ? (
+              <p className="text-xs text-muted-foreground">
+                tudo quieto — nenhum gatilho ativo
+                {noData > 0 ? ` (${noData} deferido(s) por coleta)` : ""}
               </p>
             ) : (
-              <p className="text-xs text-muted-foreground">nada exige atenção</p>
+              <ul className="space-y-1.5">
+                {activeSorted.map((a) => (
+                  <li key={a.id} className="flex items-start gap-2 text-xs">
+                    <Badge variant={sevVariant[a.severity] ?? "warn"}>{a.severity}</Badge>
+                    <span className="font-mono text-[10px] text-muted-foreground">{a.id}</span>
+                    <span className="flex-1">
+                      <span className="font-medium">{a.title}</span>
+                      <span className="text-muted-foreground"> — {a.detail}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
             )}
           </CardContent>
         </Card>

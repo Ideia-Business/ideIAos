@@ -292,6 +292,55 @@ PYEOF
   ok "Statusline IdeiaOS configurada (backup em settings.json.bak-statusline)"
 fi
 
+# ── 6. Daemon do Cockpit (ideiaos-agentd) — telemetria da frota viva ──────────
+# Instala+bootstrapa com.ideiaos.cockpit com o node REAL (nvm/homebrew — launchd
+# NÃO herda PATH; o plist versionado hardcoda /usr/local/bin/node, que QUEBRA em
+# máquina nvm) e o caminho REAL do repo nesta máquina. Idempotente. Assim toda
+# máquina que atualiza passa a alimentar o ref `cockpit` (frota viva) — sem passo
+# manual. Opt-out: NO_COCKPIT_DAEMON=1. Pulado sob --hooks-only (é infra).
+if [ "${HOOKS_ONLY:-0}" -eq 0 ] && [ "${NO_COCKPIT_DAEMON:-0}" -eq 0 ]; then
+  step "6/6: daemon do Cockpit (com.ideiaos.cockpit)"
+  CK_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+  CK_AGENTD="$CK_ROOT/source/agentd/agentd.js"
+  if [ -f "$CK_AGENTD" ]; then
+    CK_LABEL="com.ideiaos.cockpit"
+    CK_PLIST="$HOME/Library/LaunchAgents/$CK_LABEL.plist"
+    CK_NODE_DIR="$(ls -d "$HOME"/.nvm/versions/node/*/bin 2>/dev/null | sort -V | tail -1 || true)"
+    [ -n "$CK_NODE_DIR" ] || CK_NODE_DIR="$(dirname "$(command -v node 2>/dev/null || echo /usr/local/bin/node)")"
+    CK_NODE="$CK_NODE_DIR/node"
+    CK_PATH="$CK_NODE_DIR:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+    mkdir -p "$HOME/Library/LaunchAgents"
+    cat > "$CK_PLIST" <<PL
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key><string>$CK_LABEL</string>
+    <key>ProgramArguments</key>
+    <array><string>$CK_NODE</string><string>$CK_AGENTD</string><string>--once</string></array>
+    <key>StartInterval</key><integer>900</integer>
+    <key>RunAtLoad</key><true/>
+    <key>StandardOutPath</key><string>/tmp/ideiaos-cockpit.out.log</string>
+    <key>StandardErrorPath</key><string>/tmp/ideiaos-cockpit.err.log</string>
+    <key>EnvironmentVariables</key><dict><key>PATH</key><string>$CK_PATH</string></dict>
+    <key>AbandonProcessGroup</key><false/>
+</dict>
+</plist>
+PL
+    CK_UID="$(id -u)"
+    launchctl bootout "gui/$CK_UID/$CK_LABEL" 2>/dev/null || true
+    if launchctl bootstrap "gui/$CK_UID" "$CK_PLIST" 2>/dev/null; then
+      launchctl enable "gui/$CK_UID/$CK_LABEL" 2>/dev/null || true
+      launchctl kickstart -k "gui/$CK_UID/$CK_LABEL" 2>/dev/null || true
+      ok "daemon do Cockpit ativo (node=$CK_NODE; a cada 15min + agora)"
+    else
+      warn "bootstrap do Cockpit falhou (não-fatal) — rode manual: launchctl bootstrap gui/$CK_UID $CK_PLIST"
+    fi
+  else
+    warn "agentd.js não encontrado em $CK_AGENTD — pulei o daemon do Cockpit"
+  fi
+fi
+
 echo ""
 echo -e "${GREEN}${BOLD}━━━ Atualização concluída ━━━${NC}"
 echo -e "${YELLOW}⚠ Reinicie o Claude Code (e abra um terminal novo) para tudo surtir efeito.${NC}"
