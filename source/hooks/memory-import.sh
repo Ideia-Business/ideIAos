@@ -269,6 +269,11 @@ lines = [f"# MEMORY.md — {proj_name}", ""]
 for f in files:
     name, desc = front(os.path.join(mem_dir, f))
     label = desc or name or f[:-3]
+    # Cap da linha do índice (R: MEMORY.md bounded): a description COMPLETA fica no
+    # arquivo de fato (recall lê o fato inteiro); o índice é só ponteiro de relevância.
+    # Imune a description verbosa — o índice nunca re-incha. 120 chars preserva sinal.
+    if len(label) > 120:
+        label = label[:117].rstrip() + "…"
     summary = name or ""
     if summary and summary != label:
         lines.append(f"- [{label}]({f}) — {summary}")

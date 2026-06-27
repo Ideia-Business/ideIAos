@@ -320,6 +320,10 @@ def field(blob, key):
 lines = ["# MEMORY.md — %s" % label, ""]
 for fname, sha in entries:
     desc = field(sha, "description") or fname
+    # Cap da linha do índice (bounded MEMORY.md): a description COMPLETA fica no fato
+    # (recall lê o fato inteiro); o índice é ponteiro de relevância. Imune a verbosidade.
+    if len(desc) > 120:
+        desc = desc[:117].rstrip() + "…"
     name = field(sha, "name") or ""
     if name:
         lines.append("- [%s](facts/%s) — %s" % (desc, fname, name))
