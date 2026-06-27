@@ -4,7 +4,7 @@
 
 ---
 
-## ▶ RETOMAR AQUI — v15 AUDITADO SHIP + LOW corrigido; só falta SOAK span ≥1d (re-record 2026-06-27 15:11) p/ tag (2026-06-26)
+## ▶ RETOMAR AQUI — v15 ARMADO PARA AUTO-TAG zero-touch no boot do Mac-mini (dom/seg); auditado SHIP + nfideia re-contido (2026-06-26)
 
 **Sessão "conclua 100% do cockpit" pós-/compact.** Autosync pausado na cirurgia; daemon re-deployado (HEALED) e religado ao fim; `work→main` ff-merge feito.
 
@@ -13,10 +13,20 @@
 - **✅ Fix AR-02 (`17ec199`)** — o stale-guard do surgery-lock (`surgery_active` + cópia inline `_autosync_surgery_active`) abortava o subshell sob `set -uo pipefail` se a sentinela tivesse `started=`/`pid=` não-numérico (corrupção out-of-band). Sanitização numérica `case "${x:-}" in *[!0-9]*|'') x= ;;` nos 2 sites → valor corrompido cai no path de stale (falha-segura). Reproduzido por exit-code (corrompido+pid-morto → STALE; não-aborta); daemon re-deployado canônico (HEALED, binário verificado por grep == fonte); tests/v15 6/6; idea-doctor §6 sem drift.
 - **✅ SOAK 2ª máquina FECHADA** — ledger tem **Mac-mini-de-Gustavo + MacBook-Air-2** (2 distintas). **Span 0d** (delta ~1,4h) é o único pendente.
 
-**🚦 Falta SÓ para tagear v15 (temporizado, não-código):**
-1. **SOAK span ≥1d** — re-record a partir de **2026-06-27 15:11** (24h após o heartbeat mais antigo): `bash scripts/check-soak.sh v15 --record` → span ≥1d → `check-soak.sh v15` exit 0.
-2. Tag via `TAG-READY-v15.md` (ff-merge + `AIOX_ACTIVE_AGENT=devops git tag -a v15.0` + push). **R15-17 GATED** = exclusão de escopo declarada (não bloqueia), igual v10/v14.
-3. Housekeeping: branch stale remota `sec/lovable-mcp-deny` em cfoai/nfideia.
+**🤖 v15.0 ARMADO PARA AUTO-TAG (zero-touch — autorizado pelo dono, noite de 2026-06-26):**
+- LaunchAgent `com.ideiaos.soak-v15-oneshot` (Mac-mini; `RunAtLoad` + 15:17 + trava de horário-alvo
+  `TARGET=1782583866`). O Mac-mini estará DESLIGADO até dom/seg de manhã; **no boot** o runner
+  `~/.local/bin/ideiaos-soak-v15-oneshot.sh`: grava o heartbeat (fecha o span ≥1d) → idea-doctor 0 FAIL →
+  ff-merge work→main → `git tag -a v15.0` + push → notifica → self-remove. **DEFENSIVO:** aborta+notifica
+  se algo não estiver limpo (span não fecha, idea-doctor FAIL, work divergiu) — nunca tagueia estado ruim.
+  **R15-17 GATED** = exclusão de escopo (não bloqueia), igual v10/v14.
+- Atalho opcional: se ligar o MacBook antes, rodar o bundle (re-contém nfideia local + `check-soak v15 --record`)
+  fecha o span mais cedo; o auto-tag ainda dispara no boot do Mac-mini (o runner vê o span fechado e tagueia).
+
+**🩹 Regressão tratada (2026-06-26 noite):** nfideia perdeu a contenção Lovable (deny=0 em main → idea-doctor
+FAIL, bloqueava o re-record). Re-contido DURÁVEL via `settings.local.json` (18 mutantes, local/gitignored —
+sobrevive a deploy Lovable, ≠ `settings.json` que é zerado). idea-doctor 0 FAIL. **Branch stale
+`sec/lovable-mcp-deny` do nfideia DELETADA** (cfoai já estava limpa). Auditoria pré-tag (`wf_6d5aef84-56b`) = SHIP.
 
 ---
 
