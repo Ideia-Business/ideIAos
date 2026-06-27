@@ -1,6 +1,6 @@
 # Handoff — continuar em outro turno
 
-**Projeto:** `IdeiaOS` · **Branch:** `work` (= main) · **Atualizado:** 2026-06-26
+**Projeto:** `IdeiaOS` · **Branch:** `work` (= main) · **Atualizado:** 2026-06-27
 
 ---
 
@@ -12,6 +12,7 @@
 
 - **✅ Fix AR-02 (`17ec199`)** — o stale-guard do surgery-lock (`surgery_active` + cópia inline `_autosync_surgery_active`) abortava o subshell sob `set -uo pipefail` se a sentinela tivesse `started=`/`pid=` não-numérico (corrupção out-of-band). Sanitização numérica `case "${x:-}" in *[!0-9]*|'') x= ;;` nos 2 sites → valor corrompido cai no path de stale (falha-segura). Reproduzido por exit-code (corrompido+pid-morto → STALE; não-aborta); daemon re-deployado canônico (HEALED, binário verificado por grep == fonte); tests/v15 6/6; idea-doctor §6 sem drift.
 - **✅ SOAK 2ª máquina FECHADA** — ledger tem **Mac-mini-de-Gustavo + MacBook-Air-2** (2 distintas). **Span 0d** (delta ~1,4h) é o único pendente.
+- **✅ MEMORY.md durabilidade (`1de7312`)** — causa-raiz do "compactação não colou": o índice é GERADO do `description:` de cada fato (memory-import §7 + memory-export build_shared_index); editar o índice à mão é descartado na regen. Inchava com description-parágrafo (v10/v14 ~1500c). **Fix estrutural:** ambos os geradores **capam o label da linha em 120c** (description completa fica no fato → recall íntegro). 22,9KB→15,9KB, 74/74 entradas, imune a verbosidade futura. tests/v5-memory 4/4. **Entra na v15.0** via auto-tag (DX, testado/gateado). [[learning-soak-span-is-record-delta-not-wallclock]]-style: artefato gerado se corrige na FONTE/gerador, nunca no artefato.
 
 **🤖 v15.0 ARMADO PARA AUTO-TAG (zero-touch — autorizado pelo dono, noite de 2026-06-26):**
 - LaunchAgent `com.ideiaos.soak-v15-oneshot` (Mac-mini; `RunAtLoad` + 15:17 + trava de horário-alvo
