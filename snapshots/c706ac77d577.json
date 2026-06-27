@@ -3,7 +3,7 @@
   "machine_id": "c706ac77d577",
   "agentd_version": "1.0.0",
   "os_version": "26.6",
-  "taken_epoch": 1782532168,
+  "taken_epoch": 1782533070,
   "daemons": [
     {
       "pid": null,
@@ -16,7 +16,7 @@
       "label": "com.ideiaos.soak-v15-oneshot"
     },
     {
-      "pid": 81018,
+      "pid": 11891,
       "status": "0",
       "label": "com.ideiaos.cockpit"
     },
@@ -86,6 +86,14 @@
     "tier": "ok"
   },
   "projects": [
+    {
+      "slug": "EntrepostodaUniao",
+      "path": "/Users/gustavolopespaiva/dev/EntrepostodaUniao",
+      "is_test_dir": true,
+      "remote": null,
+      "supabase_project_id": null,
+      "api_keys": []
+    },
     {
       "slug": "IdeiaOS",
       "path": "/Users/gustavolopespaiva/dev/IdeiaOS",
