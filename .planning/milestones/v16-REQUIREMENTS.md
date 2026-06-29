@@ -33,9 +33,15 @@ Ver a seção "Pendências de segurança" do ADR `v15-cockpit-split-plane-contro
 
 `credential-isolation` AGRAVADO, não relaxado: multi-ator = mais alvos. O **valor** de um segredo nunca transita pelo plano de view/cloud/LLM. Os três ativos que dariam controle total (chave O2, lista pinada, valor de segredo) vivem TODOS em planos locais distintos, nenhum no cloud. Comprometer o plano de view (P3) rende metadata + capacidade de mentir a view — o teto que o invariante permite.
 
-## Pendente para abrir v16 como milestone ATIVO
+## Gates de ativação do v16 — TODOS RESOLVIDOS 2026-06-29 ✅
 
-1. v15 (DX & Frota) shippado (ou ao menos a Fase A+B) — o write-path own-fleet (R15-17) é precondição.
-2. Surgir um **2º dev real não-admin** (gate de necessidade).
-3. Decisão do dono sobre R16-03 (conta GitHub compartilhada vs. contas pessoais).
-4. `/spec` dos SHALL de R16-01/R16-02 merjado no contrato vivo `specs/cockpit/spec.md`.
+1. ✅ v15 (DX & Frota) **shippado** (tag `v15.0`, write-path own-fleet R15-17) — precondição satisfeita.
+2. ✅ **2º dev real não-admin** surgiu (`lucas-abreu56`, confirmado pelo dono) — gate de necessidade aberto.
+3. ✅ **Decisão R16-03 tomada** — ADR `v16-r16-03-github-identity-transport.md` (Opção C híbrido faseado, regime free advisory).
+4. ✅ **`/spec` dos SHALL R16-01/R16-02 merjado** no contrato vivo `specs/cockpit/spec.md` (4 SHALL, 4 gates verdes, delta arquivado `specs/_archive/2026-06-29-v16-ratificacao-split-plane/`).
+
+## Próximo passo (construção F1 — gated, não-bloqueante para a ativação)
+
+- **Dono:** executar o runbook do ADR R16-03 (emitir FG-PATs por-máquina na service account + aposentar o token clássico org-wide). NÃO manuseável pelo agente (credential-isolation).
+- **Técnico:** escolher o motor multi-usuário (Supabase `xdikjgpkiqzgebcjgqmu`) → então a RLS/admissão saem do contrato para código, com o teste NEGATIVO do contrato como gate. F1 read-fan-out depois.
+- **Parqueado por necessidade comprovada:** R16-04 (claims, só após colisão medida), R16-05 (fila Publish advisory), R16-06 (audit-log, só se org virar Enterprise).

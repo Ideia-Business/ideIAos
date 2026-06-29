@@ -4,7 +4,7 @@
 
 ---
 
-## ▶ RETOMAR AQUI — v16 ratificação pure-design DONE (contrato +4 SHALL); decisão R16-03 pendente do dono (2026-06-29)
+## ▶ RETOMAR AQUI — v16 ATIVO: ratificação DONE + R16-03 DECIDIDO (Opção C); construção F1 gated em runbook do dono (2026-06-29)
 
 **Sessão "vamos ao milestone v16, execute com perfeição".** O v16 (Plataforma de Time) é gated; executar
 com perfeição = **ratificar o contrato (pure-design) sem super-construir**. Dois gates destravaram: v15
@@ -20,16 +20,19 @@ SHIPPED ✅ + **2º dev real confirmado** (Lucas = `lucas-abreu56`, não-admin).
   understand + `wf_77cf95b6` refute) · spec-merge OK · spec-analyze 0 defeitos HARD.
 - **🔵 Parqueado (NÃO entrou no contrato):** R16-06 Audit-Log API (inviável: org free→404, só Enterprise);
   R16-04/R16-05 (F3/F4 gated por colisão-medida); step-up-loopback (rebaixado a defesa-em-profundidade).
-- **🟡 DECISÃO R16-03 (transporte GitHub) — PENDENTE DO DONO.** Probe confirmou: org `Ideia-Business` é
-  plano FREE (≠ a conta pessoal `desenvolvimento@`=Pro, que NÃO habilita recursos de org); token em uso é
-  clássico org-wide (BLOCKER #2). Dono confirmou: **todos os devs já têm contas próprias autorizadas**
-  por nível (Gustavo=`gustavolpaiva` admin). **Recomendação: Opção C (híbrido) faseada** — (imediato)
-  emitir FG-PAT escopado por-máquina p/ o autosync na service account + aposentar o token clássico
-  org-wide; (já-pronto) ação humana interativa via contas pessoais; (free) ligar 2FA obrigatório na org.
-  6 perguntas factuais abertas (org vira Team? repos-produto privados? formalizar service account?).
+- **🟢 R16-03 (transporte GitHub) — DECIDIDO 2026-06-29** (ADR `docs/decisions/v16-r16-03-github-identity-transport.md`).
+  Probe: org `Ideia-Business` é FREE (≠ conta pessoal `desenvolvimento@`=Pro, que NÃO habilita recursos de
+  org). Dono confirmou: todos os devs já têm contas próprias autorizadas (Gustavo=`gustavolpaiva` admin).
+  **Decisão = Opção C (híbrido faseado), regime FREE advisory, 2FA adiado:** service account com FG-PAT
+  escopado por-máquina p/ automação (aposentar o token clássico org-wide); contas pessoais p/ ação humana.
+  Trade-off assumido: governança advisory (FG-PAT por-convenção, branch protection só público, sem
+  audit-log) — não compromete a autoridade (sempre pin O2 local). Runbook de execução no ADR.
+- **🎉 v16 ATIVO:** os 4 gates de ativação resolvidos (v15 shippado · 2º dev real · R16-03 decidido · contrato ratificado).
 
-**🚦 Próximo:** decisão do dono sobre R16-03 (direção C confirmada?) → então planejar/construir F1 (gated
-em R16-03 + motor multi-usuário). A ratificação do contrato NÃO depende de R16-03 (autoridade = pin O2 local).
+**🚦 Próximo:** **(dono)** executar o runbook do ADR R16-03 (emitir FG-PATs + aposentar token org-wide — não
+manuseável pelo agente, credential-isolation). **(técnico)** escolher motor multi-usuário (Supabase
+`xdikjgpkiqzgebcjgqmu`) → RLS/admissão saem do contrato p/ código (teste negativo = gate) → F1 read-fan-out.
+R16-04/05 seguem parqueados por necessidade comprovada.
 
 ---
 
