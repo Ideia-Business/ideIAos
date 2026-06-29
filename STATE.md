@@ -32,7 +32,7 @@ Pedido "vamos ao v16, execute com perfeição". O v16 é gated → executar com 
 - **Contrato `specs/cockpit/spec.md` 20 → 24 reqs** — 4 SHALL ADICIONADOS via `/spec` (R-WP12 view-read-only/divergência=alerta pt1+pt2; RLS-por-campo por papel; Admissão por pin O2). Delta arquivado `specs/_archive/2026-06-29-v16-ratificacao-split-plane/`.
 - **4 gates verdes:** spec-validate · **verificação adversarial multi-agente 4/4 MANTER, 0 invenção** (Article IV) · spec-merge · spec-analyze 0 defeitos HARD. Workflows `wf_1d7ecdf6` + `wf_77cf95b6`.
 - **Parqueado:** R16-06 Audit-Log (org free→404, só Enterprise); R16-04/05 (gated por colisão real); step-up-loopback (rebaixado).
-- **🟡 R16-03 (transporte GitHub) pendente do dono** — recomendação Opção C (híbrido faseado): FG-PAT-bot na service account + aposentar token clássico org-wide; contas pessoais (já autorizadas) p/ ação humana; 2FA obrigatório (free). A construção de F1 fica gated; a ratificação NÃO depende disso (autoridade = pin O2 local).
+- **🟢 R16-03 DECIDIDO** (ADR `v16-r16-03-github-identity-transport.md`) — Opção C híbrido faseado, regime FREE advisory, 2FA adiado: service account c/ FG-PAT escopado p/ automação + contas pessoais p/ ação humana; aposentar o token clássico org-wide (runbook do dono). **🎉 v16 ATIVO** (4 gates de ativação resolvidos). Construção F1 gated em runbook + motor multi-usuário; ratificação NÃO depende disso (autoridade = pin O2 local).
 
 ## Sessão 2026-06-29 — 🏷️ v15.0 SHIPPED (tagueada da MacBook-Air-2)
 
