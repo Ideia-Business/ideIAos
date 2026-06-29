@@ -25,6 +25,15 @@
 | **Deploy máquinas** | ✅ MacBook-Air-2 · ✅ Mac mini git-synced (autosync ativo 06-18/06-19); `ideiaos-update.sh` aceito como baixo-risco (rodar quando for usar o mini) |
 | Próximo passo | Ver `docs/CONTINUATION_HANDOFF.md` § Próximo passo |
 
+## Sessão 2026-06-29 (cont.) — v16 ratificação pure-design do contrato split-plane
+
+Pedido "vamos ao v16, execute com perfeição". O v16 é gated → executar com perfeição = ratificar o contrato SEM super-construir. 2 gates destravaram (v15 shippado + 2º dev real Lucas confirmado não-admin).
+
+- **Contrato `specs/cockpit/spec.md` 20 → 24 reqs** — 4 SHALL ADICIONADOS via `/spec` (R-WP12 view-read-only/divergência=alerta pt1+pt2; RLS-por-campo por papel; Admissão por pin O2). Delta arquivado `specs/_archive/2026-06-29-v16-ratificacao-split-plane/`.
+- **4 gates verdes:** spec-validate · **verificação adversarial multi-agente 4/4 MANTER, 0 invenção** (Article IV) · spec-merge · spec-analyze 0 defeitos HARD. Workflows `wf_1d7ecdf6` + `wf_77cf95b6`.
+- **Parqueado:** R16-06 Audit-Log (org free→404, só Enterprise); R16-04/05 (gated por colisão real); step-up-loopback (rebaixado).
+- **🟡 R16-03 (transporte GitHub) pendente do dono** — recomendação Opção C (híbrido faseado): FG-PAT-bot na service account + aposentar token clássico org-wide; contas pessoais (já autorizadas) p/ ação humana; 2FA obrigatório (free). A construção de F1 fica gated; a ratificação NÃO depende disso (autoridade = pin O2 local).
+
 ## Sessão 2026-06-29 — 🏷️ v15.0 SHIPPED (tagueada da MacBook-Air-2)
 
 O auto-tag zero-touch armado no Mac-mini **não disparou** (máquina desligada desde 27/06; SOAK seguia 0d). Dono autorizou destravar daqui. `TAG-READY-v15.md` executado da MacBook-Air-2:

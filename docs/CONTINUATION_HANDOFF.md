@@ -4,7 +4,36 @@
 
 ---
 
-## ▶ RETOMAR AQUI — 🏷️ v15.0 SHIPPED (tag `d7cf626`, 2026-06-29) — tagueada manualmente da MacBook-Air-2
+## ▶ RETOMAR AQUI — v16 ratificação pure-design DONE (contrato +4 SHALL); decisão R16-03 pendente do dono (2026-06-29)
+
+**Sessão "vamos ao milestone v16, execute com perfeição".** O v16 (Plataforma de Time) é gated; executar
+com perfeição = **ratificar o contrato (pure-design) sem super-construir**. Dois gates destravaram: v15
+SHIPPED ✅ + **2º dev real confirmado** (Lucas = `lucas-abreu56`, não-admin). Autosync NÃO foi pausado
+(só edição de specs/docs, sem cirurgia git multi-repo até o closeout).
+
+- **✅ Ratificação do contrato `specs/cockpit/spec.md` (20 → 24 reqs)** — 4 SHALL ADICIONADOS via `/spec`
+  (delta `specs/_archive/2026-06-29-v16-ratificacao-split-plane/`): (1) Plano de View read-only,
+  divergência=ALERTA (R-WP12 pt1); (2) P3 estruturalmente incapaz de autoridade — sem coluna `value`,
+  não assina/pina, exit 9 ALERT, P3≠P4 (R-WP12 pt2); (3) RLS deny-all + mascaramento por-campo por papel
+  (R16-02); (4) Admissão de estação por pin O2 + escopo default-deny (R16-02). **4 gates passaram:**
+  spec-validate exit 0 · **verificação adversarial 4/4 MANTER, 0 invenção** (workflows `wf_1d7ecdf6`
+  understand + `wf_77cf95b6` refute) · spec-merge OK · spec-analyze 0 defeitos HARD.
+- **🔵 Parqueado (NÃO entrou no contrato):** R16-06 Audit-Log API (inviável: org free→404, só Enterprise);
+  R16-04/R16-05 (F3/F4 gated por colisão-medida); step-up-loopback (rebaixado a defesa-em-profundidade).
+- **🟡 DECISÃO R16-03 (transporte GitHub) — PENDENTE DO DONO.** Probe confirmou: org `Ideia-Business` é
+  plano FREE (≠ a conta pessoal `desenvolvimento@`=Pro, que NÃO habilita recursos de org); token em uso é
+  clássico org-wide (BLOCKER #2). Dono confirmou: **todos os devs já têm contas próprias autorizadas**
+  por nível (Gustavo=`gustavolpaiva` admin). **Recomendação: Opção C (híbrido) faseada** — (imediato)
+  emitir FG-PAT escopado por-máquina p/ o autosync na service account + aposentar o token clássico
+  org-wide; (já-pronto) ação humana interativa via contas pessoais; (free) ligar 2FA obrigatório na org.
+  6 perguntas factuais abertas (org vira Team? repos-produto privados? formalizar service account?).
+
+**🚦 Próximo:** decisão do dono sobre R16-03 (direção C confirmada?) → então planejar/construir F1 (gated
+em R16-03 + motor multi-usuário). A ratificação do contrato NÃO depende de R16-03 (autoridade = pin O2 local).
+
+---
+
+## ▶ RETOMAR (histórico) — 🏷️ v15.0 SHIPPED (tag `d7cf626`, 2026-06-29) — tagueada manualmente da MacBook-Air-2
 
 **O auto-tag do Mac-mini NÃO disparou** (a máquina ficou desligada desde 27/06; SOAK seguia 0d). Dono
 autorizou destravar daqui. Procedimento `TAG-READY-v15.md` executado da MacBook-Air-2:
