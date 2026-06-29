@@ -1,10 +1,33 @@
 # Handoff — continuar em outro turno
 
-**Projeto:** `IdeiaOS` · **Branch:** `work` (= main) · **Atualizado:** 2026-06-27
+**Projeto:** `IdeiaOS` · **Branch:** `work` (= main) · **Atualizado:** 2026-06-29
 
 ---
 
-## ▶ RETOMAR AQUI — v15 ARMADO PARA AUTO-TAG zero-touch no boot do Mac-mini (dom/seg); auditado SHIP + nfideia re-contido (2026-06-26)
+## ▶ RETOMAR AQUI — 🏷️ v15.0 SHIPPED (tag `d7cf626`, 2026-06-29) — tagueada manualmente da MacBook-Air-2
+
+**O auto-tag do Mac-mini NÃO disparou** (a máquina ficou desligada desde 27/06; SOAK seguia 0d). Dono
+autorizou destravar daqui. Procedimento `TAG-READY-v15.md` executado da MacBook-Air-2:
+
+- **✅ SOAK fechado:** `check-soak.sh v15 --record` (idea-doctor PASS + regressão PASS) → heartbeat
+  MacBook-Air-2 @ 2026-06-29T14:07 (commit ledger `d7cf626`). Gate: **2 máquinas · span 2d** · exit 0.
+  Gate irmão `check-security-freshness --gate` = tier=ok (advisory).
+- **✅ ff-merge `work→main`** (`80ce4fc..d7cf626`) + **tag anotada `v15.0`** (@devops) **pushada** →
+  `work == origin/main == origin/work == d7cf626`. v15.0 inclui Onda A/B/C (R15-01..23 exceto R15-17
+  GATED) + DX (Cockpit launcher/Atalaia/auto-bootstrap) + MEMORY.md cap. **R15-17 = escopo parcial** (igual v10/v14).
+
+**⚠️ PENDÊNCIA — runner auto-tag órfão no Mac-mini:** o LaunchAgent `com.ideiaos.soak-v15-oneshot`
+segue armado no Mac-mini. No próximo boot ele vai gravar heartbeat + tentar `git tag -a v15.0` →
+**falha (tag já existe)** e (sendo defensivo) aborta+notifica sem self-remove → ruído recorrente.
+**AÇÃO quando o Mac-mini ligar:** remover o LaunchAgent + runner:
+`launchctl bootout gui/$(id -u) ~/Library/LaunchAgents/com.ideiaos.soak-v15-oneshot.plist 2>/dev/null; rm -f ~/Library/LaunchAgents/com.ideiaos.soak-v15-oneshot.plist ~/.local/bin/ideiaos-soak-v15-oneshot.sh`
+
+**🚦 Próximo:** **v16 — Plataforma de Time** (`.planning/milestones/v16-REQUIREMENTS.md`), gated por blockers
+(conta GitHub compartilhada) + 2º dev real. Housekeeping: branch stale remota `sec/lovable-mcp-deny` em cfoai/nfideia.
+
+---
+
+## ▶ RETOMAR (histórico) — v15 ARMADO PARA AUTO-TAG zero-touch no boot do Mac-mini (dom/seg); auditado SHIP + nfideia re-contido (2026-06-26)
 
 **Sessão "conclua 100% do cockpit" pós-/compact.** Autosync pausado na cirurgia; daemon re-deployado (HEALED) e religado ao fim; `work→main` ff-merge feito.
 
