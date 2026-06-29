@@ -25,6 +25,14 @@
 | **Deploy máquinas** | ✅ MacBook-Air-2 · ✅ Mac mini git-synced (autosync ativo 06-18/06-19); `ideiaos-update.sh` aceito como baixo-risco (rodar quando for usar o mini) |
 | Próximo passo | Ver `docs/CONTINUATION_HANDOFF.md` § Próximo passo |
 
+## Sessão 2026-06-29 (fim) — v16: estado de auth GitHub MAPEADO + decisão pendente (frente A/B) p/ F1
+
+Pedido "auxílio para executarmos juntos os próximos passos" → "encerrar marcando os próximos passos, incluindo a decisão a tomar". v16 está **ATIVO**; isto é **construção F1** (gated), não ativação.
+
+- **Estado de auth desta máquina mapeado por exit-code (read-only, token nunca exposto):** conta `gh` = service account compartilhada `DevIdeiaBusiness`; token = `gho_***` OAuth com scopes `read:org,repo,workflow` = **ORG-WIDE**; credential helper `osxkeychain`; autosync delega ao keychain. **Confirma o BLOCKER-CONDICIONAL #2 ao vivo** (1 máquina comprometida = push em toda a org). Repos sincronizados = **5, todos `Ideia-Business`** (`cfoai-grupori`, `IdeiaOS`, `lapidai`, `nfideia`, `ideiapartner`) = escopo exato do FG-PAT.
+- **Runbook R16-03 escopado** p/ esta máquina (5 repos) cravado no handoff; o passo de emitir/colar o token é do **dono** (`credential-isolation`).
+- **❓Decisão pendente (retomar por aqui):** frente **A** (R16-03 FG-PAT agora, juntos — recomendado) · **A'** (só documentar o runbook p/ as 3 máquinas) · **B** (motor RLS `xdikjgpkiqzgebcjgqmu` → F1). Apresentei as 3; o dono pediu p/ encerrar antes de escolher. Nada mutado na auth.
+
 ## Sessão 2026-06-29 (cont.) — v16 ratificação pure-design do contrato split-plane
 
 Pedido "vamos ao v16, execute com perfeição". O v16 é gated → executar com perfeição = ratificar o contrato SEM super-construir. 2 gates destravaram (v15 shippado + 2º dev real Lucas confirmado não-admin).

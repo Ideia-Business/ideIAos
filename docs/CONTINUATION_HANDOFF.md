@@ -4,7 +4,44 @@
 
 ---
 
-## ▶ RETOMAR AQUI — v16 ATIVO: ratificação DONE + R16-03 DECIDIDO (Opção C); construção F1 gated em runbook do dono (2026-06-29)
+## ▶ RETOMAR AQUI — v16: estado de auth MAPEADO + ❓DECISÃO PENDENTE (frente A vs B) antes de F1 (2026-06-29, fim de sessão)
+
+**Sessão "preciso de auxílio para executarmos juntos os próximos passos" → "encerrar marcando os próximos passos".**
+Mapeei o estado real de transporte GitHub desta máquina por exit-code (read-only, token NUNCA exposto —
+`credential-isolation`) para tornar o runbook R16-03 **concreto** em vez de genérico. **Nada foi mutado** na auth.
+
+### 📍 Estado real de auth — MacBook-Air-2 (mapeado, não re-investigar)
+| Item | Valor |
+|------|-------|
+| Conta `gh` ativa | **`DevIdeiaBusiness`** (a service account compartilhada) via keyring |
+| Token ativo | `gho_***` (OAuth do `gh`), scopes **`read:org, repo, workflow`** = **ORG-WIDE** (push em TODOS os repos) |
+| Credential helper | `osxkeychain` (o `git push`/autosync usa o que está no keychain) |
+| Autosync | `source/autosync/git-autosync.sh` **não gerencia auth próprio** → delega ao osxkeychain |
+| Repos sincronizados (`~/.local/state/git-autosync-repos.txt`) | **5, todos `Ideia-Business`:** `cfoai-grupori`, `IdeiaOS` (ideIAos), `lapidai`, `nfideia`, `ideiapartner` |
+| Daemons ativos | `com.ideiaos.{envsync,cockpit,gitautosync}` (todos rodando) |
+
+➡️ **Confirma o BLOCKER-CONDICIONAL #2 AO VIVO:** a credencial desta máquina é org-wide (scope `repo`).
+Comprometer 1 máquina = push em toda a org. É exatamente o que o FG-PAT escopado-por-repo aposenta (ADR R16-03).
+
+### ❓ DECISÃO PENDENTE (o que retomar) — eu apresentei 3 opções; o dono ainda NÃO escolheu (pediu p/ encerrar)
+1. **Frente A — R16-03 agora, juntos (recomendado):** migrar esta máquina do token org-wide → **FG-PAT escopado aos 5 repos**.
+   Interativo: eu preparo/valido por exit-code; **o dono emite e cola** o token no GitHub UI (`credential-isolation` — valor nunca passa pelo agente).
+2. **Frente A' — só documentar o runbook:** eu produzo o runbook por-máquina reproduzível p/ as 3 máquinas (MacBook · Mac-mini · ThinkPad do Lucas), o dono executa no tempo dele.
+3. **Frente B — Motor RLS + F1:** escolher o Supabase dedicado (`xdikjgpkiqzgebcjgqmu`), materializar RLS/admissão do contrato em código (sub-projeto maior); deixa o token org-wide ativo por ora.
+
+### 🧭 Runbook R16-03 JÁ ESCOPADO p/ esta máquina (quando a frente A for escolhida)
+1. **Dono** (GitHub → conta `DevIdeiaBusiness` → Settings → Developer settings → **Fine-grained tokens**): emitir 1 FG-PAT escopado **exatamente** aos 5 repos acima, permissões mínimas (Contents: RW; Workflows: RW se o CI exigir), expiração curta.
+2. Nesta máquina: re-autenticar o git/osxkeychain com o FG-PAT (`gh auth login` ou credential helper) — **sem commitar o valor**.
+3. **Teste negativo por exit-code** (eu rodo): FG-PAT escopado aos 5 NÃO consegue push num repo fora do escopo → prova o blast-radius isolado.
+4. **Revogar o token org-wide** (`gho_`/clássico) **só depois** de validar o autosync com o FG-PAT em todas as máquinas.
+5. Replicar nas outras 2 máquinas (cada dono/dev faz a sua — o runbook é por-máquina).
+
+**🚦 Próximo:** retomar pela **decisão acima** (1/2/3). O resto (motor multi-usuário p/ RLS → F1 read-fan-out;
+R16-04/05 parqueados) segue gated por necessidade comprovada. v16 já está **ATIVO** — isto é construção, não ativação.
+
+---
+
+## ▶ RETOMAR (histórico) — v16 ATIVO: ratificação DONE + R16-03 DECIDIDO (Opção C); construção F1 gated em runbook do dono (2026-06-29)
 
 **Sessão "vamos ao milestone v16, execute com perfeição".** O v16 (Plataforma de Time) é gated; executar
 com perfeição = **ratificar o contrato (pure-design) sem super-construir**. Dois gates destravaram: v15
