@@ -193,8 +193,10 @@ open('$BC_LAST_ANALYZED', 'w').write(datetime.datetime.now().isoformat(timespec=
     # Spawn: mesmo comando de observe-session-end.sh
     # Barreira #1: IDEIAOS_INSTINCT_SPAWN=1 (R4-01)
     # Barreira #4: timeout 120 (R4-01)
+    # --allowedTools (least-privilege): headless bloqueia Bash/Write por padrão;
+    # sem isso a destilação não escreve (log 0-byte). Espelha observe-session-end.sh.
     nohup env IDEIAOS_INSTINCT_SPAWN=1 timeout 120 claude --model claude-haiku-4-5 \
-      -p "/instinct-analyze" >> "$BC_LOG_FILE" 2>&1 &
+      --allowedTools "Read Glob Grep Bash Write Edit" -p "/instinct-analyze" >> "$BC_LOG_FILE" 2>&1 &
     NEW_PID=$!
 
     # Gravar novo breadcrumb

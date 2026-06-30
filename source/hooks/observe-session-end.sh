@@ -134,8 +134,13 @@ open('$LAST_ANALYZED_FILE', 'w').write(datetime.datetime.now().isoformat(timespe
   mkdir -p "$HOME/.ideiaos/instincts" 2>/dev/null || true
 
   # Spawn haiku background com timeout e anti-runaway env (R4-01)
-  # IDEIAOS_INSTINCT_SPAWN=1 garante que os hooks NÃO acumulam obs nem re-spawnam
-  nohup env IDEIAOS_INSTINCT_SPAWN=1 timeout 120 claude --model claude-haiku-4-5 -p "/instinct-analyze" \
+  # IDEIAOS_INSTINCT_SPAWN=1 garante que os hooks NÃO acumulam obs nem re-spawnam.
+  # --allowedTools (least-privilege): em headless o claude bloqueia Bash/Write por
+  # padrão e a skill não escreve instincts (log 0-byte). Concede SÓ as tools que a
+  # destilação precisa — não desarma o sistema de permissões. Escopo já contido por
+  # IDEIAOS_INSTINCT_SPAWN + timeout + alvo ~/.ideiaos (haiku, sem rede).
+  nohup env IDEIAOS_INSTINCT_SPAWN=1 timeout 120 claude --model claude-haiku-4-5 \
+    --allowedTools "Read Glob Grep Bash Write Edit" -p "/instinct-analyze" \
     >> "$LOG_FILE" 2>&1 &
   CHILD_PID=$!
 
