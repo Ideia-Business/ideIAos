@@ -47,7 +47,12 @@ fi
 SEC_DIR="$ROOT/.security"
 LEDGER="$SEC_DIR/review-ledger.log"
 
-# ── Política (defaults) ──────────────────────────────────────────────────────
+# Override opcional por repo (tunagem sem editar o script) — sourced ANTES dos
+# defaults para que os ${VAR:-default} abaixo respeitem o que o policy.sh exporta.
+# (Antes ficava no fim do bloco e era inerte: os defaults já tinham sido lidos.)
+[ -f "$SEC_DIR/policy.sh" ] && . "$SEC_DIR/policy.sh"
+
+# ── Política (defaults; env/policy.sh acima têm precedência) ──────────────────
 WARN_SCORE="${SECFRESH_WARN_SCORE:-10}"
 EGREGIOUS_SCORE="${SECFRESH_EGREGIOUS_SCORE:-20}"
 WARN_DAYS="${SECFRESH_WARN_DAYS:-90}"
@@ -59,9 +64,6 @@ GATE_ENABLED="${SECFRESH_GATE_ENABLED:-0}"
 # bash [[ == glob ]] não é pathname-aware: '*/auth/*' casa 'src/x/auth/y.ts'.
 CRITICAL_GLOBS="${SECFRESH_CRITICAL_GLOBS:-*/auth/* auth/* *Auth.* *migration* */migrations/* *rls* */rls/* .env .env.* */.env */.env.* *credential* *secret* */integrations/* */ai/* */llm/* */security/* security/* *enforce* */supabase/migrations/*}"
 SENSITIVE_GLOBS="${SECFRESH_SENSITIVE_GLOBS:-*/api/* api/* package-lock.json */package-lock.json pnpm-lock.yaml yarn.lock */middleware/* *.sql */functions/* */server/*}"
-
-# Override opcional por repo (tunagem sem editar o script)
-[ -f "$SEC_DIR/policy.sh" ] && . "$SEC_DIR/policy.sh"
 
 GREEN='\033[0;32m'; YELLOW='\033[1;33m'; RED='\033[0;31m'; CYAN='\033[0;36m'; BOLD='\033[1m'; NC='\033[0m'
 ok()   { echo -e "${GREEN}  ✓${NC} $*"; }

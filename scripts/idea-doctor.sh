@@ -925,6 +925,21 @@ else
   warn "deno ausente — IAs caem em verificação estática de edge functions. Instale (idempotente): bash $SETUP_DIR/scripts/install-deno.sh"
 fi
 
+# ── 18) Drift manifesto↔disco (catálogo) ─────────────────────────────────────
+# Fecha o gap "nenhum gate detecta drift manifesto↔disco": órfão 1:1 (hook/skill/
+# agent em source/ sem entrada no manifesto) = WARN acionável. Rules têm catalogação
+# por-conceito (cobertura), reportada à parte pelo próprio script. READ-ONLY.
+step "18) Drift manifesto↔disco (catálogo)"
+if [ -f "$SETUP_DIR/scripts/check-manifest-drift.sh" ]; then
+  if bash "$SETUP_DIR/scripts/check-manifest-drift.sh" --strict --quiet >/dev/null 2>&1; then
+    pass "manifesto em sincronia com o disco (sem órfão hook/skill/agent)"
+  else
+    warn "órfão no manifesto (componente em source/ sem entrada) — rode: bash scripts/check-manifest-drift.sh"
+  fi
+else
+  info "check-manifest-drift.sh ausente — drift manifesto↔disco não auditado"
+fi
+
 # ── Resumo ────────────────────────────────────────────────────────────────────
 if [ "$JSON_MODE" -eq 0 ]; then
   echo -e "\n${CYAN}${BOLD}━━━ Resumo ━━━${NC}"

@@ -967,6 +967,18 @@
       "plugin": null
     },
     {
+      "id": "hook-instinct-recover",
+      "kind": "hook",
+      "description": "SessionStart (R6-02) — detects orphaned /instinct-analyze spawn breadcrumbs (~/.ideiaos/instincts/.spawn-<proj>.state) and treats each exactly once: re-spawn or cleanup; fail-silent (exit 0 always); own deploy path (not plugin-packaged, not deploy-hooks generic)",
+      "source": "source/hooks/instinct-recover.sh",
+      "targets": [
+        "claude"
+      ],
+      "deps": [],
+      "installStrategy": "always",
+      "plugin": null
+    },
+    {
       "id": "skill-memory-sync",
       "kind": "skill",
       "description": "Manual trigger for cross-IDE/cross-machine shared memory (v5) — export (native memory → planning, git plumbing, Lovable-safe) and import (planning → native memory + Cursor bridge); status deferred (v5.x)",
