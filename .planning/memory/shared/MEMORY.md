@@ -75,4 +75,5 @@
 - [Plano maior ECC 100% concluído em 2026-06-12 (v2.0+v3+v4, tags); máquinas liberadas para update; pendências = decisõe…](facts/project_plano_maior_concluido.md) — project-plano-maior-concluido
 - [RESOLVIDO (2026-06-16, commit 66598c1): propagate-if-changed.sh ganhou source/rules/ em PROJECT_PATHS + setup.sh --pr…](facts/project_propagate-rules-gap.md) — propagate-rules-gap
 - [Backend step-up v14.4 (Cockpit) PROVISIONADO no Supabase ref xdikjgpkiqzgebcjgqmu — fatos duráveis p/ retomar N=2/fea…](facts/project_stepup-backend-provisioned.md) — stepup-backend-provisioned
+- [Deno instalado em ~/.local/bin (v2.9.0) — o aviso \"Deno não está instalado\" era o fallback de `deno test` em edge f…](facts/reference_deno-install-local-bin.md) — reference-deno-install-local-bin
 - [Diagnóstico de falhas de CI em massa na org Ideia-Business — billing vs bug real](facts/reference_github_actions_billing_diag.md) — reference-github-actions-billing-diag
