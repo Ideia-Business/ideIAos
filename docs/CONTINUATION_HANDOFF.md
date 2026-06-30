@@ -13,7 +13,12 @@ Sessão paralela ao v16 — fortaleceu o OS sem tocar o motor RLS do P3. Tudo em
 - **`docs/AI-OS-GAP-ANALYSIS.md`** — scorecard 9 dimensões (média **3,67/5**; gargalo = coesão GSD↔AIOX **2/5**) + roadmap faseado até a **Deia-kernel** ([[project-deia-kernel-vision]]: IdeiaOS é o harness central; AIOX/GSD = executores plugáveis). 2 eixos futuros: doc-lifecycle greenfield→brownfield; doc viva por projeto.
 - **Quick wins:** (QW2) `check-manifest-drift.sh` + doctor §18 — achou `ecc/lovable/supabase` fora do manifesto, órfão `instinct-recover` catalogado; (QW3) Security-Freshness **LIGADO na frota** (`SECFRESH_GATE_ENABLED:-1` + re-selo PASS) + **bug do `policy.sh`** corrigido (sourced fora de ordem → override era inerte); (QW1) allowlist least-privilege no spawn de `/instinct-analyze` ([[learning-headless-spawn-needs-allowedtools]]) + doctor §19.
 
-⏳ **Pendência de verificação (QW1):** o loop de instincts produzir `.md` só se confirma em **sessão interativa real** (auto mode bloqueia spawn de child-agent com permissão). `idea-doctor §19` monitora; se 120s não bastar, ajustar timeout em **observe-session-end.sh E instinct-recover.sh** (o gate de idade do recover também usa 120s).
+✅ **PENDÊNCIA QW1 RESOLVIDA 2026-06-30 (sessão interativa real).** A verificação revelou que o `--allowedTools` era **necessário mas não suficiente** — havia uma **segunda barreira, esta fatal**: a **Regra Inviolável #1 (R4-04)** da skill `instinct-analyze` mandava *encerrar imediatamente se `IDEIAOS_INSTINCT_SPAWN` setado*; mas o hook SEMPRE seta essa flag ao invocar a skill → ela abortava na **linha 1**, todo spawn, sempre (logs 0-byte). A flag tinha 2 papéis conflitantes: conter os hooks observadores (correto — `observe-*.sh` fazem early-exit por ela) **e** abortar a própria skill-alvo (errado).
+- **Fix:** reescrita a Regra #1 nas **3 cópias** (`source/skills/`, `plugins/ideiaos-core/skills/`, `~/.claude/skills/` — hash idêntico) — a skill não aborta mais pela flag; anti-runaway é responsabilidade só dos hooks.
+- **Provado por exit-code:** rodando o comando EXATO do hook (com a flag) → `before=0 → after=6` instincts, **6/6 íntegros** (`test -s`), privacidade limpa (0 secrets/paths), **0 runaway** (1 binário claude vivo, 0 re-spawns, sentinela escrito, breadcrumb órfão limpo). `idea-doctor §19` verde (**83 OK/1 WARN/0 FAIL**).
+- **Propagação cross-máquina confirmada:** deploy 5.21b do `setup.sh` é content-aware (`diff -rq`, re-espelha dir inteiro) e a skill está no manifesto (`installStrategy: always`, `targets:[claude]`) → `git pull` + `setup --global-only` propaga o fix; não é version-gated.
+- **Validação adversarial** `wf_153c3893` (3 lentes — completude / anti-runaway / regressão-recover — **todas SEGURO**; veredito `COMPLETO_E_SEGURO`). Único achado não-INFO (LOW): falta de `flock` no breadcrumb `.spawn-<proj>.state` compartilhado entre `observe-session-end.sh` e `instinct-recover.sh` → janela teórica estreitíssima de *lost-update* (NÃO corrupção; pior caso = um `evidence_count` perdido). **Não é regressão deste fix.**
+- 🔧 **Débito opcional (LOW, não-bloqueante):** envolver a escrita de `.spawn-<proj>.state` em `flock` nos dois hooks. Só vale se a recorrência de recovery aumentar. Memória atualizada: [[learning-headless-spawn-needs-allowedtools]] (causa dupla + anti-padrão generalizado "flag-guard de spawn mata o alvo").
 
 ---
 
@@ -825,5 +830,5 @@ _Histórico v7 abaixo:_
 
 ## Ultima sessao automatica (2026-06-30)
 
-- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-30-ideiaos-19ab1412-b5fe-4cb6-9121-cb1fb68f.tmp`
+- Sessão salva em: `/Users/gustavolopespaiva/.claude/sessions/2026-06-30-ideiaos-20e5c7f1-a79a-433a-a0d4-5b4988cd.tmp`
 - Próximo passo: (definir antes de retomar)
