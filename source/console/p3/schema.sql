@@ -538,13 +538,13 @@ commit;
 
 -- =============================================================================
 -- §7 · DECISÕES DE DESIGN MARCADAS (só o dono fecha — refinar via /spec)
---   D1 (mascaramento — ÚNICA que muda comportamento de recon; ambos os reviewers
---       marcaram como decisão de SEGURANÇA, não UX): pós-endurecimento, chave
---       `critical` fora do escopo já é OMITIDA. Resta decidir o catálogo do RESTO:
---       (D1-A, atual) dev vê existência de projetos + chaves non-critical fora do
---       escopo (postura mascarada); (D1-B, mais fechado) deny-all binário total —
---       dev só vê projetos do seu user_project_scope, nada fora. Tensão literal no
---       contrato: L445 pressupõe "ver a linha"; L446 diz "não-listado = negado".
+--   D1 (mascaramento) — DECIDIDO 2026-06-30 (dono): D1-A "catálogo + máscara".
+--       Dev vê existência de projetos + chaves non-critical fora do escopo (postura/
+--       cadência/path mascarados); chave `critical` fora do escopo OMITIDA. É a
+--       leitura literal do contrato L438 ("mascaramento por-campo via view, não
+--       apenas deny-all binário"). Estado atual do DDL = esta decisão (sem mudança).
+--       Reversível p/ D1-B (deny-all binário total) trocando o `where` de api_key_v/
+--       project_v por `app.can_see_project(...)` se a postura de risco mudar.
 --   D2 (ingestão): D2-a (edge + SERVICE_ROLE server-side) RECOMENDADO vs D2-b
 --       (role `ingestor` + JWT machine_id). Decide o passo "re-apontar ingest".
 --   D3 (gestão RBAC): mutação de app_user/user_project_scope/station_enrollment +

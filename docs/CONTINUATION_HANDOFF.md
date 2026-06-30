@@ -1,6 +1,6 @@
 # Handoff — continuar em outro turno
 
-**Projeto:** `IdeiaOS` · **Branch:** `work` (= main) · **Atualizado:** 2026-06-29 (manutenção Mac mini: runner v15 órfão removido)
+**Projeto:** `IdeiaOS` · **Branch:** `work` (= main) · **Atualizado:** 2026-06-30 (v16 F1: schema RLS do P3 escrito + verificado adversarialmente)
 
 ---
 
@@ -16,7 +16,7 @@
 
 ---
 
-## ▶ RETOMAR AQUI — v16 F1: runbook A' DONE + motor B DECIDIDO (Supabase, P3 = projeto NOVO) → aguarda dono provisionar P3 (2026-06-30)
+## ▶ RETOMAR AQUI — v16 F1: schema RLS do P3 ESCRITO + VERIFICADO (2 reviews adversariais incorporados) → gate G1-G7 gated no dono aplicar o schema (2026-06-30)
 
 **Sequência aprovada pelo dono:** `(feito) runbook A' documentado → B (motor → schema RLS → telas) → A executada numa pausa da B`.
 A e B são **independentes**; o dono optou por construir B primeiro, aceitando conscientemente que o token org-wide
@@ -46,12 +46,16 @@ fica ativo durante a B (teto do dano limitado: a autoridade está no pin O2 loca
 
 **🚦 Próximo passo concreto:**
 1. ✅ **(dono) P3 CRIADO 2026-06-30** — ref **`ysttvskswqsvtdftjhfn`** (org IdeiaOS, ≠ `xdikjgpkiqzgebcjgqmu`/step-up → P3≠P4). Chaves no `.env` local do dono, fora do contexto.
-2. **(agente — PRÓXIMO) escrever o `schema.sql` do P3** (Postgres). Fontes-âncora já mapeadas (não re-explorar):
-   - **Read-model atual** = `source/console/schema.sql` (8 tabelas: `machine`, `project`, `api_key` [risk_tier, **SEM value**], `mcp_connection`, `productivity_event`, `soak_heartbeat`, `daemon_status`, `machine_snapshot`).
-   - **Padrão RLS deny-all** = `source/agentd/stepup/schema.sql` (`enable row level security` + policies `using(false)/with check(false)` p/ `authenticated`; só SERVICE_ROLE escreve).
-   - **Contrato** = `specs/cockpit/spec.md` **linhas 433-476** (R16-02 RLS deny-all + mascaramento por-campo: admin vê tudo, dev vê só `user_project_scope`; `risk_tier=critical` + cadência mascarados fora do escopo via view/SECURITY DEFINER; UI lê só anon-key sob RLS, sem INSERT/UPDATE; admissão por pin O2, default-deny; **cenário de teste negativo** = dev fora do escopo NÃO vê nomes critical nem cadência).
-   - **Diferença-chave vs step-up:** o P3 NÃO é deny-all total — devs LEEM via SELECT por papel/escopo + mascaramento por-campo (tabelas RBAC novas: `app_user` role admin/dev + `user_project_scope`). UPSERT por `machine_id` só pela credencial de ingestão.
-   - Sequência depois: schema → **GATE teste negativo** contra backend real → admissão pin O2 → re-apontar ingest → Auth-leitura (contas pessoais) → telas → consolidar `/spec`.
+2. ✅ **(agente) `schema.sql` DO P3 ESCRITO + VERIFICADO + ENDURECIDO 2026-06-30** — [`source/console/p3/schema.sql`](source/console/p3/schema.sql).
+   - **Arquitetura 3-schemas (defesa estrutural):** `data.*` = 12 tabelas-base **não-expostas ao PostgREST**, `ENABLE`+`FORCE` RLS deny-all (8 read-model portadas + `app_user`/`user_project_scope`/`station_enrollment` RBAC + `scope_audit` append-only) · `app.*` = 5 funções de autz `SECURITY DEFINER` com `search_path=''` (`role_of`/`is_member`/`is_admin`/`can_see_project`/`can_see_machine`) · `public.*` = 12 views de apresentação = **único ponto de leitura da UI** (`authenticated`), onde mora o mascaramento por-campo.
+   - **Verificação adversarial = 2 agentes** (`rls-reviewer` veredito BLOQUEAR + `security-reviewer` veredito WARN). **1 CRITICAL + 4 HIGH + vários MED incorporados:** o bypass-raiz `can_see_machine` (snapshot/mcp/eventos machine-level cru furava o escopo-por-projeto pois o payload de máquina ⊃ projetos fora do escopo) → fechado **admin-only**; `api_key_v` critical fora do escopo **OMITIDA** + postura (`present`/`committed`/cadência) mascarada; `machine_v` restrita a `can_see_machine` + fingerprint só admin; nova trilha `scope_audit`; `revoke usage from anon` + `alter default privileges revoke`. **Corretos e intactos:** zero `value`, `search_path=''` sem hijack, FORCE RLS, `station_enrollment` sem-autoridade, fail-closed sob `auth.uid() IS NULL`.
+   - **D1 DECIDIDO (dono, 2026-06-30):** D1-A "catálogo + máscara" (dev vê existência de projetos + chaves non-critical fora do escopo com postura mascarada; critical omitida) — leitura literal do contrato L438.
+   - **Invariantes determinísticos verdes** (exit-code): zero `value`, zero `CREATE POLICY`, 12/12 `ENABLE`+`FORCE` RLS, 12 views, begin/commit. (`psql` ausente nesta máquina → parse real fica nos gates G1-G7.)
+3. **(PRÓXIMO — gated no dono provisionar) GATE G1-G7** (checklist no §7 do `schema.sql`), por exit-code contra o backend REAL `ysttvskswqsvtdftjhfn` — nunca fixture:
+   - **G1** teste NEGATIVO: dev fora do escopo em `api_key_v` → 0 nome critical, 0 cadência, 0 postura, 0 linha critical (cenário spec L445/446). **G2** admin = visão completa. **G3** dev em `machine_snapshot_v`/`mcp_connection_v` → 0 rows. **G4** `auth.uid()` resolve sob `search_path=''`. **G5** Exposed schemas = só `public` (≠ `data`/`app`). **G6** viewowner esperado + toda view tem filtro `app.*`. **G7** anon → 0 rows.
+   - **Dono (fora do contexto do agente):** aplicar o `schema.sql` no P3 (SQL editor as role com GRANT em `data.*`, não superuser ad-hoc — ver invariante S-06 no §5) + emitir a **credencial de ingestão** (D2: edge function + SERVICE_ROLE server-side RECOMENDADO vs role `ingestor`+JWT machine_id) no `.env` local.
+   - **Decisões abertas (refinar via `/spec`, não bloqueiam):** D2 (transporte de ingestão) · D3 (gestão RBAC via edge SERVICE_ROLE) · D5 (mascaramento extra em `project_v`) · D6 (snapshot/eventos por-projeto p/ reabrir a dev).
+   - Sequência depois do gate: admissão pin O2 → re-apontar ingest (SQLite-local → UPSERT por `machine_id` no P3) → Auth-leitura (contas pessoais) → telas → consolidar `/spec` (merge+archive R16-02) + re-selar security-freshness.
 
 A Frente A (executar o runbook FG-PAT) entra em qualquer pausa da B. v16 segue **ATIVO**.
 
