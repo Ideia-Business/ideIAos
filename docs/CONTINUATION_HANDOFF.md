@@ -1,6 +1,18 @@
 # Handoff — continuar em outro turno
 
-**Projeto:** `IdeiaOS` · **Branch:** `work` (= main) · **Atualizado:** 2026-06-29
+**Projeto:** `IdeiaOS` · **Branch:** `work` (= main) · **Atualizado:** 2026-06-29 (manutenção Mac mini: runner v15 órfão removido)
+
+---
+
+## ▶ FECHAMENTO (manutenção, Mac mini, 2026-06-29 noite) — runner v15 órfão REMOVIDO + sync verificado · o "RETOMAR AQUI" real é a seção v16 logo abaixo
+
+**Sessão operacional curta no Mac mini (NÃO muda o milestone nem o próximo passo).** O dono apontou um agendamento local e pediu p/ cancelar se obsoleto.
+
+- **✅ Pendência fechada — LaunchAgent `com.ideiaos.soak-v15-oneshot` órfão REMOVIDO do Mac mini** (plist + `~/.local/bin/ideiaos-soak-v15-oneshot.sh` + log). Era o auto-tag zero-touch do v15.0; como `v15.0` já está tagueada/publicada (`7dbc31a` no origin — confirmado local + remoto), o runner era redundante (se disparasse, veria a tag e só se auto-removeria). `launchctl` confirmou que **não estava carregado**; `bootout` idempotente + `rm`. Resolve a "⚠️ PENDÊNCIA" da seção v15.0 SHIPPED abaixo.
+- **✅ Sync verificado:** `work` local == `origin/work` (`8b7e88a`); `main` local alinhada a `origin/main` (`79d0f62`, FF ref-only); working tree limpo; tag `v15.0` no origin. Os 4 daemons IdeiaOS (`envsync`, `cockpit`, `gitautosync`, `refresh-ai-security`) ativos — o `gitautosync` se autoprovou vivo (commitou o handoff `8b7e88a` durante a própria checagem).
+- **Intacto:** nenhum outro LaunchAgent tocado.
+
+**🚦 Próximo passo (INALTERADO):** a **DECISÃO v16 (frente A = R16-03 FG-PAT · A' = runbook p/ 3 máquinas · B = motor RLS → F1)** — seção logo abaixo.
 
 ---
 
@@ -85,10 +97,10 @@ autorizou destravar daqui. Procedimento `TAG-READY-v15.md` executado da MacBook-
   `work == origin/main == origin/work == d7cf626`. v15.0 inclui Onda A/B/C (R15-01..23 exceto R15-17
   GATED) + DX (Cockpit launcher/Atalaia/auto-bootstrap) + MEMORY.md cap. **R15-17 = escopo parcial** (igual v10/v14).
 
-**⚠️ PENDÊNCIA — runner auto-tag órfão no Mac-mini:** o LaunchAgent `com.ideiaos.soak-v15-oneshot`
-segue armado no Mac-mini. No próximo boot ele vai gravar heartbeat + tentar `git tag -a v15.0` →
-**falha (tag já existe)** e (sendo defensivo) aborta+notifica sem self-remove → ruído recorrente.
-**AÇÃO quando o Mac-mini ligar:** remover o LaunchAgent + runner:
+**✅ RESOLVIDO 2026-06-29 (noite, Mac mini) — runner auto-tag órfão REMOVIDO** (ver "FECHAMENTO" no topo do handoff). _Contexto histórico:_ o LaunchAgent `com.ideiaos.soak-v15-oneshot`
+seguia armado no Mac-mini. No próximo boot gravaria heartbeat + tentaria `git tag -a v15.0` →
+**falha (tag já existe)** e (sendo defensivo) abortaria+notificaria → ruído recorrente.
+**AÇÃO executada quando o Mac-mini ligou:** removido o LaunchAgent + runner:
 `launchctl bootout gui/$(id -u) ~/Library/LaunchAgents/com.ideiaos.soak-v15-oneshot.plist 2>/dev/null; rm -f ~/Library/LaunchAgents/com.ideiaos.soak-v15-oneshot.plist ~/.local/bin/ideiaos-soak-v15-oneshot.sh`
 
 **🚦 Próximo:** **v16 — Plataforma de Time** (`.planning/milestones/v16-REQUIREMENTS.md`), gated por blockers

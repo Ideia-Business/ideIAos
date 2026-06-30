@@ -25,6 +25,13 @@
 | **Deploy máquinas** | ✅ MacBook-Air-2 · ✅ Mac mini git-synced (autosync ativo 06-18/06-19); `ideiaos-update.sh` aceito como baixo-risco (rodar quando for usar o mini) |
 | Próximo passo | Ver `docs/CONTINUATION_HANDOFF.md` § Próximo passo |
 
+## Sessão 2026-06-29 (manutenção, Mac mini, noite) — runner auto-tag v15 órfão REMOVIDO + sync verificado
+
+**Operacional — NÃO muda o milestone v16 nem o próximo passo** (segue a decisão v16 frente A/A'/B). O dono apontou um agendamento local no Mac mini e pediu p/ cancelar se obsoleto.
+
+- **✅ Pendência fechada:** LaunchAgent `com.ideiaos.soak-v15-oneshot` (auto-tag zero-touch do v15.0) **removido** do Mac mini (plist + runner `~/.local/bin/ideiaos-soak-v15-oneshot.sh` + log). `v15.0` já tagueada/publicada (`7dbc31a` no origin, confirmado local+remoto) → runner redundante. Não estava carregado no `launchctl`; `bootout` idempotente + `rm`. Fecha a "⚠️ PENDÊNCIA runner órfão" da Sessão v15.0 SHIPPED.
+- **✅ Sync verificado:** `work`==`origin/work` (`8b7e88a`); `main` local alinhada a `origin/main` (`79d0f62`, FF ref-only); working tree limpo. 4 daemons IdeiaOS ativos (`envsync`/`cockpit`/`gitautosync`/`refresh-ai-security`) — `gitautosync` autoprovou-se vivo (commitou o handoff durante a checagem).
+
 ## Sessão 2026-06-29 (fim) — v16: estado de auth GitHub MAPEADO + decisão pendente (frente A/B) p/ F1
 
 Pedido "auxílio para executarmos juntos os próximos passos" → "encerrar marcando os próximos passos, incluindo a decisão a tomar". v16 está **ATIVO**; isto é **construção F1** (gated), não ativação.
