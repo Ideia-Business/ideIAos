@@ -73,7 +73,7 @@ Precisa de um passo que coloca algo no seu SO ou no Claude Code. Atualiza ao **r
 | **Skills** (`/idea`, `/gsd-*`, design, marketing…) | 47 | `~/.claude/skills/` **e/ou** plugin store | `setup.sh --global-only` copia as `installStrategy: always`; o resto via `claude plugin install ideiaos-core@ideiaos` |
 | **Agents** (`security-reviewer`, `rls-reviewer`…) | 19 | plugin store do Claude Code | `claude plugin install ideiaos-core@ideiaos` (+ `ideiaos-marketing`) — empacotados por `build-plugins.sh` |
 | **Hooks** (Deia trigger, README-sync, typecheck…) | ~15 | `~/.claude/hooks/` **+** registro em `~/.claude/settings.json` | `setup.sh` deploya os `.sh`; **o registro em `settings.json` é MANUAL** (o setup imprime o snippet — nunca auto-edita seu settings) |
-| **Binários** (`git-autosync`, shim `timeout`, **`deno`**) | 3 | `~/.local/bin/` | `setup-dev-machine.sh` (deno via `scripts/install-deno.sh`) |
+| **Binários** (`git-autosync`, shim `timeout`, **`deno`**) | 3 | `~/.local/bin/` | `setup-dev-machine.sh` (máquina nova) **e** `setup.sh` step 6.3 / fase global (refresh recorrente) — ambos via `scripts/install-deno.sh` |
 | **LaunchAgents** (autosync, Cockpit, refresh-ai-security) | 3 | `~/Library/LaunchAgents/` (launchd) | `setup-dev-machine.sh` / infra |
 | **MCPs** (chrome-devtools, context7) | 2 | config do Claude Code (user scope) | `setup.sh --global-only` (`claude mcp add`) |
 | **Overlay** (patches sobre GSD/AIOX instalados) | 15 | nas cópias instaladas de GSD/AIOX | `scripts/install-global-patches.sh` |
@@ -423,7 +423,7 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | Script | O que faz |
 |--------|-----------|
 | `scripts/install-alias.sh` | Adiciona alias `idea-setup` ao seu shell rc (zsh/bash) |
-| `scripts/install-deno.sh` | **Instala o runtime Deno em `~/.local/bin` (idempotente, cross-arch/OS)** — edge functions (Supabase/Lovable) rodam em Deno; sem o binário, IAs caem num fallback de verificação estática e emitem "Deno não está instalado". Idempotência por exit-code (não só `command -v`); download oficial de `dl.deno.land` com verificação de checksum `.sha256sum`; garante `~/.local/bin` no PATH. Chamado pelo `setup-dev-machine.sh §3.5` (máquina nova) e apontado como remediação pelo `idea-doctor §17`. |
+| `scripts/install-deno.sh` | **Instala o runtime Deno em `~/.local/bin` (idempotente, cross-arch/OS)** — edge functions (Supabase/Lovable) rodam em Deno; sem o binário, IAs caem num fallback de verificação estática e emitem "Deno não está instalado". Idempotência por exit-code (não só `command -v`); download oficial de `dl.deno.land` com verificação de checksum `.sha256sum`; garante `~/.local/bin` no PATH. Chamado pelo `setup-dev-machine.sh §3.5` (bootstrap de máquina nova) **e pelo `setup.sh` step 6.3 / fase global** (refresh recorrente — `setup.sh --global-only`, rodado por `sync-all.sh` e pelo branch global da propagação, cobre a frota já existente); apontado como remediação pelo `idea-doctor §17`. |
 | `scripts/install-git-hooks.sh` | Instala pre-commit (README sync + versions.lock) + post-merge (propagação automática) + pre-merge-commit (guarda memória) |
 | `scripts/check-readme-sync.sh` | Audita se README menciona todos os componentes do repo |
 | `scripts/validate-agent-yaml.sh` | Valida o bloco YAML embutido dos agentes AIOX com o parser **autoritativo** (js-yaml do aiox-core → ruby/psych → python3+yaml; skip gracioso se nenhum). Consumido pelo `idea-doctor` (gate read-only) e pelo Patch 14 do overlay (auto-validação + rollback após inserção) |
