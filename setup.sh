@@ -1604,6 +1604,28 @@ done
 
 echo "     Atualizar do upstream: bash scripts/update-design-suite.sh (controlado, sob demanda)"
 
+# ─────────────────────────────────────────────────────────────────────────────
+step "6.3) Runtime Deno (edge functions Supabase/Lovable)"
+# Deno é por-MÁQUINA (~/.local/bin), não por-projeto: instalá-lo na fase global
+# mata o aviso recorrente "Deno não está instalado nesta máquina" em TODOS os
+# projetos de uma vez. Como o branch global da propagação (propagate-if-changed.sh)
+# e o sync-all.sh rodam `setup.sh --global-only`, este ÚNICO ponto cobre máquina
+# nova, refresh manual e a frota inteira no próximo ciclo de sync — não só quem
+# roda o setup do zero. Idempotente (no-op se já presente e executável). Fail-soft:
+# Deno é runtime OPCIONAL (só edge functions) — falha de rede/checksum nunca aborta
+# o setup; idea-doctor §17 reporta a ausência como WARN não-crítico depois.
+if command -v deno >/dev/null 2>&1 && deno --version >/dev/null 2>&1; then
+  ok "Deno já instalado: $(deno --version 2>/dev/null | head -1)"
+elif [ -f "$SETUP_DIR/scripts/install-deno.sh" ]; then
+  if bash "$SETUP_DIR/scripts/install-deno.sh" --quiet; then
+    ok "Deno instalado em ~/.local/bin (edge functions prontas)"
+  else
+    warn "install-deno.sh falhou (rede/checksum?) — rode manualmente: bash scripts/install-deno.sh"
+  fi
+else
+  warn "scripts/install-deno.sh ausente — runtime Deno não instalado nesta máquina"
+fi
+
 else
   step "2-6) Setup global"
   warn "Modo --project-only ativo: pulando AIOX Core + instalação global de agentes/skills"
