@@ -3,7 +3,7 @@
   "machine_id": "c706ac77d577",
   "agentd_version": "1.0.0",
   "os_version": "26.6",
-  "taken_epoch": 1782777304,
+  "taken_epoch": 1782778206,
   "daemons": [
     {
       "pid": null,
@@ -11,17 +11,12 @@
       "label": "com.ideiaos.envsync"
     },
     {
-      "pid": 814,
-      "status": "0",
-      "label": "com.ideiaos.soak-v15-oneshot"
-    },
-    {
-      "pid": 796,
+      "pid": 21941,
       "status": "0",
       "label": "com.ideiaos.cockpit"
     },
     {
-      "pid": 798,
+      "pid": null,
       "status": "0",
       "label": "com.ideiaos.gitautosync"
     },
@@ -849,6 +844,20 @@
       "remote": "https://github.com/Ideia-Business/nfideia.git",
       "supabase_project_id": "pdljyfyyxufkqejncccv",
       "api_keys": [
+        {
+          "var_name": "VITE_SUPABASE_URL",
+          "present": true,
+          "expected": true,
+          "risk_tier": "low",
+          "mtime_epoch": 1782777337
+        },
+        {
+          "var_name": "VITE_SUPABASE_PUBLISHABLE_KEY",
+          "present": true,
+          "expected": true,
+          "risk_tier": "sensitive",
+          "mtime_epoch": 1782777337
+        },
         {
           "var_name": "DEEPSEEK_API_KEY",
           "present": true,
