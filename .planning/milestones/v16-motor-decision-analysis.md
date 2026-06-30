@@ -1,6 +1,6 @@
 # v16 — Análise de decisão do MOTOR multi-usuário (Frente B)
 
-**Status:** 🔵 **ANÁLISE PRÉ-DECISÃO** (alimenta a decisão do dono; vira ADR quando decidida). Produzida 2026-06-29 pelo workflow `wf_631edb5c-e96` (4 lentes independentes + síntese, sobre os arquivos reais — Article IV / No-Invention).
+**Status:** 🟢 **DECIDIDO 2026-06-30** → ADR `docs/decisions/v16-r16-02-motor-plano-view.md` (Opção 1 = Supabase Postgres dedicado; **P3 = projeto NOVO** na org IdeiaOS free, distinto do `xdikjgpkiqzgebcjgqmu`/step-up; free tier; Auth por contas pessoais; hosting da UI na fase de telas). _Achado-chave confirmado:_ o ref `xdikjgpkiqzgebcjgqmu` do `v16-REQUIREMENTS` era o **step-up/P4**, não um projeto livre — reuso violaria S-04; org IdeiaOS free tem folga p/ o 2º projeto (custo zero). Análise produzida 2026-06-29 pelo workflow `wf_631edb5c-e96` (4 lentes independentes + síntese, sobre os arquivos reais — Article IV / No-Invention).
 **Pergunta:** qual motor multi-usuário satisfaz os SHALL de **R16-02** (RLS deny-all + mascaramento por-campo por papel + admissão por pin O2) para o read-fan-out da Frente B?
 **Não confunde com R16-03 (Frente A):** transporte GitHub é eixo ortogonal. Esta é a escolha do **engine do Plano de View (P3)**.
 

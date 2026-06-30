@@ -16,7 +16,7 @@
 
 ---
 
-## ▶ RETOMAR AQUI — v16 F1: runbook A' DONE + análise de motor B pronta (recomenda Supabase dedicado) → aguarda DECISÃO do dono (2026-06-29)
+## ▶ RETOMAR AQUI — v16 F1: runbook A' DONE + motor B DECIDIDO (Supabase, P3 = projeto NOVO) → aguarda dono provisionar P3 (2026-06-30)
 
 **Sequência aprovada pelo dono:** `(feito) runbook A' documentado → B (motor → schema RLS → telas) → A executada numa pausa da B`.
 A e B são **independentes**; o dono optou por construir B primeiro, aceitando conscientemente que o token org-wide
@@ -33,25 +33,26 @@ fica ativo durante a B (teto do dano limitado: a autoridade está no pin O2 loca
   token `gho_***` OAuth **org-wide** (`read:org,repo,workflow`), helper `osxkeychain`, autosync delega ao keychain,
   **5 repos** `Ideia-Business` (`cfoai-grupori`,`IdeiaOS`,`lapidai`,`nfideia`,`ideiapartner`) = escopo do FG-PAT.
 
-### 🟢 Frente B — análise de motor PRONTA, aguarda decisão do dono
-- **Análise:** [`.planning/milestones/v16-motor-decision-analysis.md`](.planning/milestones/v16-motor-decision-analysis.md)
-  (workflow `wf_631edb5c-e96`, 4 lentes independentes + síntese, sobre arquivos reais — Article IV).
-- **Recomendação (convergência forte das 4 lentes): Opção 1 — Supabase Postgres dedicado `xdikjgpkiqzgebcjgqmu`.**
-  É a única que satisfaz cada SHALL de R16-02 no engine (RLS deny-all enforced + mascaramento por-campo via view/
-  SECURITY DEFINER + sem coluna `value`). Descartadas: SQLite+app = **teatro de RLS** (inviável); Postgres
-  self-hosted = mata o propósito (loopback não alcança 3 máquinas); Neon = dominada (fragmenta stack, sem ganho).
-- **❓ DECISÃO PENDENTE do dono (8 itens, ver o doc):** os críticos = **(1) teto de custo mensal** do Plano de View
-  (free vs Pro ~US$25) declarado ANTES de provisionar; **(2) confirmar que `xdikjgpkiqzgebcjgqmu` é o P3-view e é
-  DISTINTO do P4-step-up** (se for o mesmo, R-WP12/S-04 exige um 2º projeto); **(4) hosting da UI** (web-pública vs
-  "UI local + data-source remoto"); **(5) Auth-de-leitura por contas pessoais, não a service account**.
+### 🟢 Frente B — motor DECIDIDO 2026-06-30 (ADR [`v16-r16-02-motor-plano-view.md`](docs/decisions/v16-r16-02-motor-plano-view.md))
+- **Decisão:** **Supabase Postgres dedicado**; **P3 (Plano de View) = projeto NOVO** na org IdeiaOS (free, 2º projeto),
+  **fisicamente distinto** do step-up. Análise (4 lentes convergentes): [`.planning/milestones/v16-motor-decision-analysis.md`](.planning/milestones/v16-motor-decision-analysis.md)
+  (`wf_631edb5c-e96`). Descartadas: SQLite+app = **teatro de RLS**; Postgres self-hosted = mata o propósito; Neon = dominada.
+- **🚨 Achado-chave (RESOLVIDO):** o ref `xdikjgpkiqzgebcjgqmu` que o `v16-REQUIREMENTS` citava como motor de view é, na
+  verdade, o projeto **step-up/P4** (memória `stepup-backend-provisioned` + STATE + painel confirmam) — reuso violaria
+  S-04/R-WP12. Painel: org IdeiaOS **Free, 1 projeto** (Cockpit/step-up) + **folga p/ o 2º** → P3 novo é **grátis**. Ref corrigido no requirements.
+- **Decisões do dono (tomadas):** free tier (cold-start aceito) · Auth-leitura por **contas pessoais** (≠ service account) · hosting da UI **na fase de telas**.
 - **Condições inegociáveis (gate de F1):** SERVICE_ROLE nunca no browser · schema sem `value`/sem INSERT-da-UI ·
-  **teste negativo de RLS por-campo por exit-code contra o backend REAL** (necessário=RLS-enforced; suficiente=teste) ·
-  P3 fisicamente distinto de P4.
-- **Sequência pós-motor (9 passos no doc):** provisionar P3 → schema+RLS deny-all → mascaramento por-campo →
-  **GATE teste negativo** → admissão por pin O2 → re-apontar ingest → Auth-leitura → read-fan-out/telas → consolidar `/spec`.
+  **teste negativo de RLS por-campo por exit-code contra o backend REAL** (necessário=RLS-enforced; suficiente=teste) · P3≠P4.
 
-**🚦 Próximo:** o dono decide os 8 itens do motor (começando pelos 4 críticos). Decidido → vira ADR → provisiona P3 →
-passo 2 da sequência (schema RLS). A Frente A (executar o runbook FG-PAT) entra em qualquer pausa da B. v16 segue **ATIVO**.
+**🚦 Próximo passo concreto:**
+1. **(dono)** criar o projeto P3 — Supabase → org **IdeiaOS** → **New project** (ex. `IdeiaOS - Cockpit View`, região `sa-east-1`)
+   → passar o **ref** (público) p/ registrar no ADR + requirements; configurar SERVICE_ROLE/anon-key/credencial de ingestão
+   **fora do contexto do agente** (credential-isolation).
+2. **(agente)** escrever o **schema** (8 tabelas + guard sem `value`, ENABLE+FORCE RLS deny-all) → mascaramento por-campo
+   (views/SECURITY DEFINER) → **GATE teste negativo** contra o backend real → admissão por pin O2 → re-apontar ingest
+   (SQLite-local → UPSERT por `machine_id`) → Auth-leitura (contas pessoais) → read-fan-out/telas → consolidar `/spec`.
+
+A Frente A (executar o runbook FG-PAT) entra em qualquer pausa da B. v16 segue **ATIVO**.
 
 ---
 
