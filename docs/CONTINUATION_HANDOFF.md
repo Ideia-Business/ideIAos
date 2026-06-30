@@ -1,6 +1,19 @@
 # Handoff — continuar em outro turno
 
-**Projeto:** `IdeiaOS` · **Branch:** `work` (= main) · **Atualizado:** 2026-06-30 (v16 F1: schema RLS do P3 escrito + verificado adversarialmente)
+**Projeto:** `IdeiaOS` · **Branch:** `work` (= main) · **Atualizado:** 2026-06-30 (manutenção transversal do OS — v16 F1 INALTERADO)
+
+---
+
+## ▶ ÚLTIMA SESSÃO (2026-06-30, MacBook-Air-2) — manutenção transversal do OS · ⚠️ NÃO muda o v16 F1 (próximo passo real = seção "RETOMAR AQUI" abaixo)
+
+Sessão paralela ao v16 — fortaleceu o OS sem tocar o motor RLS do P3. Tudo em `work`, mergeado p/ `main`.
+
+- **Deno runtime** instalado (`~/.local/bin`, v2.9.0) + `scripts/install-deno.sh` idempotente — mata o aviso recorrente "Deno não instalado" (era fallback de `deno test` em edge functions). Endurecido por review adversarial (8 achados). Memória [[reference-deno-install-local-bin]].
+- **Doc de anatomia** (máquina×repo×projeto) no README + **3 templates `source/templates/ideiaos/*.tmpl`** (os gerados `docs/ideiaos/*` e `IDEIAOS.md` são GITIGNORED → editar os TEMPLATES, não os gerados — [[learning-generated-docs-gitignored-edit-template]]).
+- **`docs/AI-OS-GAP-ANALYSIS.md`** — scorecard 9 dimensões (média **3,67/5**; gargalo = coesão GSD↔AIOX **2/5**) + roadmap faseado até a **Deia-kernel** ([[project-deia-kernel-vision]]: IdeiaOS é o harness central; AIOX/GSD = executores plugáveis). 2 eixos futuros: doc-lifecycle greenfield→brownfield; doc viva por projeto.
+- **Quick wins:** (QW2) `check-manifest-drift.sh` + doctor §18 — achou `ecc/lovable/supabase` fora do manifesto, órfão `instinct-recover` catalogado; (QW3) Security-Freshness **LIGADO na frota** (`SECFRESH_GATE_ENABLED:-1` + re-selo PASS) + **bug do `policy.sh`** corrigido (sourced fora de ordem → override era inerte); (QW1) allowlist least-privilege no spawn de `/instinct-analyze` ([[learning-headless-spawn-needs-allowedtools]]) + doctor §19.
+
+⏳ **Pendência de verificação (QW1):** o loop de instincts produzir `.md` só se confirma em **sessão interativa real** (auto mode bloqueia spawn de child-agent com permissão). `idea-doctor §19` monitora; se 120s não bastar, ajustar timeout em **observe-session-end.sh E instinct-recover.sh** (o gate de idade do recover também usa 120s).
 
 ---
 
