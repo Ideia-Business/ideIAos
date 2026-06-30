@@ -52,6 +52,7 @@
 - [Todos os CLAUDE.md dos projetos atualizados com seção \"Segundo Cérebro\" referenciando o vault Obsidian](facts/project_claude_md_vault_awareness.md) — project_claude_md_vault_awareness
 - [Ativar o daemon do Cockpit (com.ideiaos.cockpit) em máquina nvm + bug de cwd residual no collect.js](facts/project_cockpit-daemon-nvm-install-and-cwd.md) — project-cockpit-daemon-nvm-install-and-cwd
 - [DeepSeek V4 Pro: decisão TOMADA (2026-06-16) — habilitar nos PRODUTOS (cfoai/nfideia etc.), não no Claude Code; remov…](facts/project_deepseek_v4_enablement_pending.md) — project-deepseek-v4-enablement-pending
+- [Visão arquitetural decisiva — a DEIA/IdeiaOS é o HARNESS CENTRAL (kernel-orquestrador); AIOX e GSD viram executores p…](facts/project_deia-kernel-vision.md) — project-deia-kernel-vision
 - [No handoff do IdeiaOS o próximo passo real vai na seção \"## Próximo passo\", não na \"## Ultima sessao automatica\"…](facts/project_handoff_proximo_passo_secao.md) — project_handoff_proximo_passo_secao
 - [Headroom (chopratejas/headroom, Apache-2.0) avaliado 2026-06-21 — veredito: NÃO adotar como proxy/MCP/dependência; mi…](facts/project_headroom-eval-2026-06.md) — headroom-eval-2026-06
 - [huggingface/cookbook (Apache-2.0) avaliado 2026-06-21 — NÃO absorver como dep/milestone; é recurso de praticante-de-M…](facts/project_hf-cookbook-eval-2026-06.md) — hf-cookbook-eval-2026-06
