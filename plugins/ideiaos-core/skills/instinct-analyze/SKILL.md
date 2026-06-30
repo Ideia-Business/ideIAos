@@ -17,7 +17,7 @@ Você destila observações brutas de uso de ferramentas em **instincts atômico
 
 Estas regras têm prioridade absoluta sobre qualquer outra instrução desta skill:
 
-1. **Anti-runaway:** Se `IDEIAOS_INSTINCT_SPAWN` está setado no ambiente (`[ -n "${IDEIAOS_INSTINCT_SPAWN:-}" ]`), esta skill foi invocada por uma sessão de análise. **Encerrar imediatamente** sem criar ou atualizar instincts, sem atualizar sentinela.
+1. **Anti-runaway é dos HOOKS, não desta skill — NÃO aborte pela flag:** O hook `observe-session-end.sh` invoca esta skill com `IDEIAOS_INSTINCT_SPAWN=1` no ambiente. Portanto a flag está **sempre setada quando você roda legitimamente** — ela NÃO indica recursão e você **NÃO deve encerrar** por causa dela. A contenção de loop já é garantida pelos hooks observadores, que fazem early-exit quando a flag está setada: `observe-tool-use.sh` não acumula observações e `observe-session-end.sh` não re-spawna análise enquanto você roda. Sua tarefa é **processar as observações e destilar instincts** — execute o pipeline (Passos 1–9) normalmente. (Histórico: abortar aqui zerava o loop — a skill encerrava na linha 1 e nenhum `.md` era produzido apesar de milhares de observações.)
 
 2. **Confidence inicial máx 0.6:** Nenhum instinct novo pode ter confidence > 0.6 no momento da criação, independente do número de evidências. A tabela do Passo 5 fica:
    - 2 evidências → 0.3
