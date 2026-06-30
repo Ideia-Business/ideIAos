@@ -17,7 +17,7 @@ Estado real da org Supabase (painel, 2026-06-30): org **IdeiaOS** = **Free Plan,
 ## Decisão
 
 1. **Motor = Supabase Postgres dedicado** (RLS nativa enforced + mascaramento por-campo via view/SECURITY DEFINER + Auth + edge functions).
-2. **P3 (Plano de View) = projeto Supabase NOVO**, criado na **org IdeiaOS (Free)** como **2º projeto**, **fisicamente distinto** do `IdeiaOS - Cockpit` (P4/step-up = `xdikjgpkiqzgebcjgqmu`). O ref do P3 será registrado aqui quando provisionado.
+2. **P3 (Plano de View) = projeto Supabase NOVO**, criado na **org IdeiaOS (Free)** como **2º projeto**, **fisicamente distinto** do `IdeiaOS - Cockpit` (P4/step-up = `xdikjgpkiqzgebcjgqmu`). **Ref do P3 (provisionado 2026-06-30): `ysttvskswqsvtdftjhfn`** — ≠ `xdikjgpkiqzgebcjgqmu` → **P3≠P4 confirmado por ref distinto**. As chaves (`SERVICE_ROLE`/`anon`/DB password) ficam no `.env` local do dono, nunca no contexto do agente.
 3. **Regime free** (escolha do dono): cold-start por inatividade aceito (frescor honesto cobre a latência do 1º acesso). Sem custo recorrente esperado p/ 3 máquinas + N devs lendo.
 4. **Auth-de-leitura por contas pessoais** (`gustavolpaiva`, `lucas-abreu56`) via GitHub OAuth — **não** a service account `DevIdeiaBusiness` (que R16-03 reservou p/ automação/bot).
 5. **Hosting da UI:** decidido na fase de telas (não bloqueia schema/RLS). Default provável: "UI local + data-source remoto".

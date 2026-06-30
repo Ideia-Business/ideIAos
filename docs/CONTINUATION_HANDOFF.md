@@ -45,12 +45,13 @@ fica ativo durante a B (teto do dano limitado: a autoridade está no pin O2 loca
   **teste negativo de RLS por-campo por exit-code contra o backend REAL** (necessário=RLS-enforced; suficiente=teste) · P3≠P4.
 
 **🚦 Próximo passo concreto:**
-1. **(dono)** criar o projeto P3 — Supabase → org **IdeiaOS** → **New project** (ex. `IdeiaOS - Cockpit View`, região `sa-east-1`)
-   → passar o **ref** (público) p/ registrar no ADR + requirements; configurar SERVICE_ROLE/anon-key/credencial de ingestão
-   **fora do contexto do agente** (credential-isolation).
-2. **(agente)** escrever o **schema** (8 tabelas + guard sem `value`, ENABLE+FORCE RLS deny-all) → mascaramento por-campo
-   (views/SECURITY DEFINER) → **GATE teste negativo** contra o backend real → admissão por pin O2 → re-apontar ingest
-   (SQLite-local → UPSERT por `machine_id`) → Auth-leitura (contas pessoais) → read-fan-out/telas → consolidar `/spec`.
+1. ✅ **(dono) P3 CRIADO 2026-06-30** — ref **`ysttvskswqsvtdftjhfn`** (org IdeiaOS, ≠ `xdikjgpkiqzgebcjgqmu`/step-up → P3≠P4). Chaves no `.env` local do dono, fora do contexto.
+2. **(agente — PRÓXIMO) escrever o `schema.sql` do P3** (Postgres). Fontes-âncora já mapeadas (não re-explorar):
+   - **Read-model atual** = `source/console/schema.sql` (8 tabelas: `machine`, `project`, `api_key` [risk_tier, **SEM value**], `mcp_connection`, `productivity_event`, `soak_heartbeat`, `daemon_status`, `machine_snapshot`).
+   - **Padrão RLS deny-all** = `source/agentd/stepup/schema.sql` (`enable row level security` + policies `using(false)/with check(false)` p/ `authenticated`; só SERVICE_ROLE escreve).
+   - **Contrato** = `specs/cockpit/spec.md` **linhas 433-476** (R16-02 RLS deny-all + mascaramento por-campo: admin vê tudo, dev vê só `user_project_scope`; `risk_tier=critical` + cadência mascarados fora do escopo via view/SECURITY DEFINER; UI lê só anon-key sob RLS, sem INSERT/UPDATE; admissão por pin O2, default-deny; **cenário de teste negativo** = dev fora do escopo NÃO vê nomes critical nem cadência).
+   - **Diferença-chave vs step-up:** o P3 NÃO é deny-all total — devs LEEM via SELECT por papel/escopo + mascaramento por-campo (tabelas RBAC novas: `app_user` role admin/dev + `user_project_scope`). UPSERT por `machine_id` só pela credencial de ingestão.
+   - Sequência depois: schema → **GATE teste negativo** contra backend real → admissão pin O2 → re-apontar ingest → Auth-leitura (contas pessoais) → telas → consolidar `/spec`.
 
 A Frente A (executar o runbook FG-PAT) entra em qualquer pausa da B. v16 segue **ATIVO**.
 
