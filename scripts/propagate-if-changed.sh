@@ -108,6 +108,7 @@ GLOBAL_PATHS=(
   'source/contexts/'
   'source/statusline/'
   'source/autosync/'
+  'setup.sh'  # a FASE GLOBAL do orquestrador (steps 2–6.x: skills/MCPs/hooks/deno step 6.3) vive NO arquivo, não em source/ — mudá-la DEVE re-rodar `setup.sh --global-only` na frota. Também em PROJECT_PATHS (fase --project-only). Sem isto, uma mudança só-na-fase-global não acionava o branch global (só pegava carona se outro global-path mudasse no mesmo range).
 )
 
 # Paths cujo diff dispara apply-to-all-projects --apply
