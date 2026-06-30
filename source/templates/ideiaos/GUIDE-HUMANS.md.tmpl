@@ -40,6 +40,22 @@ No Cursor, os equivalentes são: `@ideiaos-checker`, `@claude-continuation`. E n
 
 ---
 
+## Onde vive cada coisa (máquina × repo × projeto)
+
+Confusão comum: "o que fica instalado na minha máquina e o que viaja com o repo?". São **três regimes**:
+
+| Regime | O que é | Some via | Atualiza com |
+|--------|---------|----------|--------------|
+| 🖥️ **Na sua máquina** | skills e agents do Claude Code, hooks (`~/.claude/hooks`), binários em `~/.local/bin` (`git-autosync`, shim `timeout`, **`deno`**), LaunchAgents, MCPs | `setup.sh --global-only`, `setup-dev-machine.sh`, ou `claude plugin install ideiaos-core@ideiaos` | **reinstalar** (não é `git pull`) |
+| 📦 **No repo (viaja no git)** | as **rules** de conduta, os **scripts** (`idea-doctor`, `sync-all`, gates), as libs | já está no clone | `git pull` no IdeiaOS |
+| 🗂️ **No projeto onde você trabalha** | `IDEIAOS.md`, `AGENTS.md`, `.planning/`, `specs/`, regras do Cursor | `setup.sh --project-only` (ou `/ideiaos-setup`) | rodar o setup de projeto de novo |
+
+**Na prática:** skill/agent novo não apareceu? → é "máquina": `bash setup.sh --global-only` (ou reinstale o plugin) — `git pull` sozinho não basta. Mudou rule/script? → `git pull`. Aviso "Deno não instalado"? → `bash scripts/install-deno.sh`. O `idea-doctor` audita os três regimes e diz o comando de correção de cada gap.
+
+> **GSD e AIOX não são do IdeiaOS** — são dependências (GSD = plugin do Claude Code; AIOX = pacote npm). O IdeiaOS **compõe** os dois via `/idea`.
+
+---
+
 ## Fluxos do dia a dia
 
 ### Cheguei agora — o que faço?

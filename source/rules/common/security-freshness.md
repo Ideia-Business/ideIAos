@@ -54,7 +54,7 @@ Gatilho duplo (OR) com tempo porque **dependência apodrece sozinha** (CVE sem m
 ## Onde morde — e o 1º ciclo advisory (R13-07)
 
 - **Nunca** bloqueia PR de feature. O único ponto que trava é o **TAG/release do IdeiaOS**, no tier egrégio, via `check-security-freshness.sh --gate`.
-- **1º ciclo = advisory:** estreia com `SECFRESH_GATE_ENABLED=0` → `--gate` **não bloqueia** (só avisa), mesmo egrégio. Liga-se (`=1`) só após observar um ciclo real e calibrar os limiares. Espírito do SOAK: maturar antes de cravar.
+- **Gate LIGADO (default versionado `=1`, desde v16/2026-06-30):** após o 1º ciclo advisory observado (baseline + 4 selos PASS de `@security-reviewer`, limiares calibrados), o default do script passou a `SECFRESH_GATE_ENABLED:-1` → no tier **egrégio** o `--gate` **bloqueia** o tag. Continua tunável: `SECFRESH_GATE_ENABLED=0` (env ou `.security/policy.sh` local, gitignored) **desliga** por máquina. NB: ligar na frota é o **default do script** (versionado), não o `policy.sh` (que é local-only por convenção).
 
 ### Procedimento pré-tag (compõe com SOAK)
 Antes de `git tag vN.0` no IdeiaOS, rode os dois gates irmãos:

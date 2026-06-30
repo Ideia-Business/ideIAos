@@ -165,6 +165,20 @@ Story-driven com personas de autoridade exclusiva e Constitution gates.
 
 ---
 
+## Anatomia de instalação — 3 regimes (saiba o que NÃO se atualiza com `git pull`)
+
+Ao diagnosticar "componente ausente", classifique o regime antes de recomendar fix:
+
+| Regime | Itens | Vive em | Fix de "ausente" |
+|--------|-------|---------|------------------|
+| 🖥️ **Máquina** | skills, agents, hooks, binários (`git-autosync`/`timeout`/`deno`), LaunchAgents, MCPs, overlay de patches | `~/.claude/{skills,hooks}`, plugin store, `~/.local/bin`, launchd | `bash setup.sh --global-only` · `bash setup-dev-machine.sh` · `claude plugin install ideiaos-core@ideiaos` · `bash scripts/install-deno.sh` |
+| 📦 **Independente** | rules, scripts, libs | `source/rules`→`.claude/rules`, `scripts/`, `source/lib` | `git pull` |
+| 🗂️ **Projeto** | `IDEIAOS.md`, `AGENTS.md`, `.planning/`, `specs/`, `.cursor/rules/` | raiz do projeto-alvo | `bash setup.sh --project-only` |
+
+**Deps upstream (não vendorizadas em `source/`):** GSD = plugin do Claude Code (marketplace); AIOX-Core = npm em `.aiox-core/` (PRISTINE + `install-global-patches.sh`). Por isso `source/` **não** contém `gsd-*` nem as personas AIOX. **Empacotamento:** `build-plugins.sh` copia `source/{agents,skills}` → `plugins/`; o usuário instala via marketplace. **Hooks:** `setup.sh` deploya em `~/.claude/hooks/` mas **NÃO registra em `settings.json`** (nunca auto-edita dotfiles; imprime o snippet).
+
+---
+
 ## Padrões invioláveis (debugging em produção)
 
 Aplique estes 4 padrões SEM EXCEÇÃO em projeto Lovable:

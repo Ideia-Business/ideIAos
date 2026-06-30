@@ -141,6 +141,22 @@ Camada dedicada a criação e revisão de conteúdo: posts, carrosseis, blog, ne
 
 ---
 
+## Anatomia — o que instala onde (3 regimes)
+
+Saber em qual regime cada peça vive evita a confusão "máquina × repo × projeto":
+
+| Regime | O que é | Exemplos | Atualiza com |
+|--------|---------|----------|--------------|
+| 🖥️ **Máquina** (fora do repo) | skills, agents, hooks, binários `~/.local/bin` (git-autosync/timeout/**deno**), LaunchAgents, MCPs, overlay de patches, PATH | `~/.claude/skills`, plugin store, `~/.local/bin`, launchd | **reinstalar** (`setup.sh --global-only`, `setup-dev-machine.sh`, plugin marketplace) |
+| 📦 **Independente** (versionado, viaja no git) | rules, scripts, libs, manifesto, templates | `source/rules`, `scripts/`, `source/lib` | `git pull` |
+| 🗂️ **Por-projeto** (dentro do alvo) | `IDEIAOS.md`, `AGENTS.md`, `.planning/`, `specs/`, `.cursor/rules/` | raiz do projeto-alvo | `setup.sh --project-only` |
+
+**Deps upstream** (não-vendorizadas): **GSD** (plugin do Claude Code via marketplace) e **AIOX-Core** (npm em `.aiox-core/`, PRISTINE + deltas). O IdeiaOS **compõe** os dois via `/idea` + 3 contratos. Detalhe completo no `README.md` do ideIAos (§Anatomia).
+
+> **Nota:** skills/agents chegam pela **máquina** (plugin/`--global-only`), NÃO viajam num `git pull`; rules/scripts viajam no repo; `AGENTS.md`/`.planning/` são por-projeto.
+
+---
+
 ## Fluxos típicos
 
 ### Feature nova — entrada GSD (sem story formal)

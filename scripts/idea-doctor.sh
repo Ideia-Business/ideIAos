@@ -940,6 +940,32 @@ else
   info "check-manifest-drift.sh ausente — drift manifesto↔disco não auditado"
 fi
 
+# ── 19) Loop de instincts (aprendizado contínuo) ─────────────────────────────
+# Antes falhava 100% em silêncio: o spawn headless de /instinct-analyze não tem
+# permissão de Bash/Write, então 0 instincts são escritos apesar de milhares de
+# observações. Esta seção dá VISIBILIDADE (obs>>instincts, breadcrumbs órfãos). READ-ONLY.
+step "19) Loop de instincts (aprendizado)"
+_INST_DIR="$HOME/.ideiaos/instincts"
+_OBS_DIR="$HOME/.ideiaos/observations"
+if [ ! -d "$_OBS_DIR" ]; then
+  info "sem observações ($_OBS_DIR ausente) — loop de instincts inativo nesta máquina"
+else
+  _N_MD="$(find "$_INST_DIR" -name '*.md' 2>/dev/null | wc -l | tr -d ' ')"
+  _N_OBS="$(find "$_OBS_DIR" -name 'observations.jsonl' -size +0c 2>/dev/null | wc -l | tr -d ' ')"
+  _ORPH=0
+  for _s in "$_INST_DIR"/.spawn-*.state; do
+    [ -f "$_s" ] || continue
+    _p="$(grep '^pid=' "$_s" 2>/dev/null | cut -d= -f2)"
+    kill -0 "$_p" 2>/dev/null || _ORPH=$((_ORPH+1))
+  done
+  if [ "$_N_OBS" -gt 0 ] && [ "$_N_MD" -eq 0 ]; then
+    warn "loop de instincts NÃO produz saída: $_N_OBS projeto(s) com observações, 0 instincts .md. Causa: spawn headless de /instinct-analyze sem permissão Bash/Write. Ver docs/AI-OS-GAP-ANALYSIS.md."
+  else
+    pass "instincts: $_N_MD .md a partir de $_N_OBS projeto(s) com observações"
+  fi
+  [ "$_ORPH" -gt 0 ] && warn "$_ORPH breadcrumb(s) de spawn órfão(s) (pid morto) em $_INST_DIR — instinct-recover limpa no próximo SessionStart"
+fi
+
 # ── Resumo ────────────────────────────────────────────────────────────────────
 if [ "$JSON_MODE" -eq 0 ]; then
   echo -e "\n${CYAN}${BOLD}━━━ Resumo ━━━${NC}"

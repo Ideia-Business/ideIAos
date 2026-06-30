@@ -58,7 +58,7 @@ EGREGIOUS_SCORE="${SECFRESH_EGREGIOUS_SCORE:-20}"
 WARN_DAYS="${SECFRESH_WARN_DAYS:-90}"
 EGREGIOUS_DAYS="${SECFRESH_EGREGIOUS_DAYS:-180}"
 CRIT_DAYS="${SECFRESH_CRIT_DAYS:-30}"
-GATE_ENABLED="${SECFRESH_GATE_ENABLED:-0}"
+GATE_ENABLED="${SECFRESH_GATE_ENABLED:-1}"
 
 # Path-globs por superfície (peso). Override via env ou .security/policy.sh.
 # bash [[ == glob ]] não é pathname-aware: '*/auth/*' casa 'src/x/auth/y.ts'.
