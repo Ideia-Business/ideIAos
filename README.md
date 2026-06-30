@@ -376,6 +376,7 @@ Se acusar algo, ele já mostra o comando de correção (quase sempre `bash ~/dev
 | Script | O que faz |
 |--------|-----------|
 | `scripts/install-alias.sh` | Adiciona alias `idea-setup` ao seu shell rc (zsh/bash) |
+| `scripts/install-deno.sh` | **Instala o runtime Deno em `~/.local/bin` (idempotente, cross-arch/OS)** — edge functions (Supabase/Lovable) rodam em Deno; sem o binário, IAs caem num fallback de verificação estática e emitem "Deno não está instalado". Idempotência por exit-code (não só `command -v`); download oficial de `dl.deno.land` com verificação de checksum `.sha256sum`; garante `~/.local/bin` no PATH. Chamado pelo `setup-dev-machine.sh §3.5` (máquina nova) e apontado como remediação pelo `idea-doctor §17`. |
 | `scripts/install-git-hooks.sh` | Instala pre-commit (README sync + versions.lock) + post-merge (propagação automática) + pre-merge-commit (guarda memória) |
 | `scripts/check-readme-sync.sh` | Audita se README menciona todos os componentes do repo |
 | `scripts/validate-agent-yaml.sh` | Valida o bloco YAML embutido dos agentes AIOX com o parser **autoritativo** (js-yaml do aiox-core → ruby/psych → python3+yaml; skip gracioso se nenhum). Consumido pelo `idea-doctor` (gate read-only) e pelo Patch 14 do overlay (auto-validação + rollback após inserção) |

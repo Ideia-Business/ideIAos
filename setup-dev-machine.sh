@@ -92,7 +92,7 @@ TIMEOUT_EOF
 fi
 # Garante ~/.local/bin no PATH (macOS não inclui por padrão) — zsh e bash.
 for rc in "$HOME/.zprofile" "$HOME/.bash_profile"; do
-  if ! grep -qs '\.local/bin' "$rc" 2>/dev/null; then
+  if ! grep -qsE '^[^#]*export PATH=.*\.local/bin' "$rc" 2>/dev/null; then
     printf '\n# IdeiaOS: ~/.local/bin no PATH (timeout shim, git-autosync, etc.)\nexport PATH="$HOME/.local/bin:$PATH"\n' >> "$rc"
     ok "PATH: ~/.local/bin adicionado em $(basename "$rc")"
   fi
@@ -174,6 +174,20 @@ for entry in "${REPOS[@]}"; do
   fi
   [ -f "$dst/.env" ] || warn ".env ausente em $name — copie do outro Mac (AirDrop) se necessário"
 done
+
+# ── 3.5) Runtime Deno (edge functions Supabase/Lovable) ───────────────────────
+# Gêmeo do shim `timeout` (§2.5): IAs chamam `deno test`/`deno check` em edge
+# functions; sem o binário, caem num fallback de verificação estática e emitem
+# "Deno não está instalado nesta máquina". O instalador é idempotente e vive no
+# IdeiaOS (clonado no §3, então a fonte já existe neste ponto).
+say "Garantindo o runtime Deno (edge functions)"
+DENO_INSTALLER="$DEV/IdeiaOS/scripts/install-deno.sh"
+if [ -f "$DENO_INSTALLER" ]; then
+  bash "$DENO_INSTALLER" --quiet && ok "Deno disponível ($(command -v deno 2>/dev/null || echo "$BIN_DIR/deno"))" \
+    || warn "instalação do Deno falhou — rode manualmente: bash $DENO_INSTALLER"
+else
+  warn "instalador do Deno ausente ($DENO_INSTALLER) — clone do IdeiaOS (§3) falhou?"
+fi
 
 # ── 4) Instalar o agente git-autosync (multi-repo) ────────────────────────────
 say "Instalando git-autosync em $SCRIPT_PATH"

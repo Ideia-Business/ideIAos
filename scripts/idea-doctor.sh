@@ -909,6 +909,22 @@ else
   esac
 fi
 
+# ── 17) Runtime Deno (edge functions Supabase/Lovable) ───────────────────────
+# Edge functions rodam em Deno; sem o binário, IAs que tentam `deno test`/`deno
+# check` caem num fallback de verificação estática e emitem o aviso recorrente
+# "Deno não está instalado nesta máquina". READ-ONLY: detecta e aponta o
+# instalador idempotente — o doctor nunca instala (igual às demais seções).
+step "17) Runtime Deno (edge functions)"
+# Gate por EXECUÇÃO real (exit-code), não só por `command -v`: um binário
+# presente-mas-quebrado (arch errada/corrompido) NÃO é falso-verde aqui.
+if command -v deno >/dev/null 2>&1 && deno --version >/dev/null 2>&1; then
+  pass "deno presente: $(deno --version 2>/dev/null | head -1) ($(command -v deno))"
+elif command -v deno >/dev/null 2>&1; then
+  warn "deno presente mas NÃO executa (corrompido/arch errada) — reinstale: bash $SETUP_DIR/scripts/install-deno.sh --force"
+else
+  warn "deno ausente — IAs caem em verificação estática de edge functions. Instale (idempotente): bash $SETUP_DIR/scripts/install-deno.sh"
+fi
+
 # ── Resumo ────────────────────────────────────────────────────────────────────
 if [ "$JSON_MODE" -eq 0 ]; then
   echo -e "\n${CYAN}${BOLD}━━━ Resumo ━━━${NC}"
