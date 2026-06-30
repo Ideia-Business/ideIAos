@@ -57,6 +57,53 @@ Documentação canônica do design: [`docs/IDEIAOS.md`](docs/IDEIAOS.md).
 
 Comparativo com ecossistema GitHub (60+ projetos analisados): [`../mapa-github-ai-dev-tools.md`](../mapa-github-ai-dev-tools.md).
 
+> As camadas hoje são **6** (as 5 acima + **Marketing** — `/marketing`, pipeline estrategista→copywriter→designer→revisor). Transversais: memória/instincts, Cockpit, Security-Freshness, SOAK.
+
+---
+
+## 🧩 Anatomia: o que instala ONDE (a pergunta "o que é o quê")
+
+O IdeiaOS tem **três regimes de instalação**. Saber em qual cada peça vive é o que tira a confusão de "o que roda na máquina × o que viaja no repo".
+
+### 1. 🖥️ Instalável na máquina — vive FORA do repo, no seu sistema/IDE
+Precisa de um passo que coloca algo no seu SO ou no Claude Code. Atualiza ao **reinstalar**, não com `git pull`.
+
+| O que | Quantos | Onde aterrissa | Como instala |
+|-------|---------|----------------|--------------|
+| **Skills** (`/idea`, `/gsd-*`, design, marketing…) | 47 | `~/.claude/skills/` **e/ou** plugin store | `setup.sh --global-only` copia as `installStrategy: always`; o resto via `claude plugin install ideiaos-core@ideiaos` |
+| **Agents** (`security-reviewer`, `rls-reviewer`…) | 19 | plugin store do Claude Code | `claude plugin install ideiaos-core@ideiaos` (+ `ideiaos-marketing`) — empacotados por `build-plugins.sh` |
+| **Hooks** (Deia trigger, README-sync, typecheck…) | ~15 | `~/.claude/hooks/` **+** registro em `~/.claude/settings.json` | `setup.sh` deploya os `.sh`; **o registro em `settings.json` é MANUAL** (o setup imprime o snippet — nunca auto-edita seu settings) |
+| **Binários** (`git-autosync`, shim `timeout`, **`deno`**) | 3 | `~/.local/bin/` | `setup-dev-machine.sh` (deno via `scripts/install-deno.sh`) |
+| **LaunchAgents** (autosync, Cockpit, refresh-ai-security) | 3 | `~/Library/LaunchAgents/` (launchd) | `setup-dev-machine.sh` / infra |
+| **MCPs** (chrome-devtools, context7) | 2 | config do Claude Code (user scope) | `setup.sh --global-only` (`claude mcp add`) |
+| **Overlay** (patches sobre GSD/AIOX instalados) | 15 | nas cópias instaladas de GSD/AIOX | `scripts/install-global-patches.sh` |
+| **PATH + funções de shell + statusline** | — | `.zprofile`/`.bash_profile`/`settings.json` | `setup-dev-machine.sh` / `scripts/ideiaos-update.sh` |
+
+### 2. 📦 Independente de máquina — vive VERSIONADO no repo, viaja no git
+Roda lendo do próprio repo — **nada a instalar**. Atualiza com `git pull`.
+
+| O que | Quantos | Onde | Como roda |
+|-------|---------|------|-----------|
+| **Rules** (disciplina, agent-authority, security…) | 42 | `source/rules/` → `.claude/rules/` | carregadas como contexto pelo Claude Code/Cursor |
+| **Scripts** (doctor, sync, gates, checks) | 38 | `scripts/` | `bash scripts/<x>.sh` direto do repo |
+| **Libs shell** (gates, handoff-packet…) | 7 | `source/lib/` | `source`-eadas pelos scripts |
+| **Manifesto + templates** | — | `manifests/`, `source/templates/` | lidos pelo build/setup |
+
+### 3. 🗂️ Por-projeto — instalado DENTRO de cada projeto-alvo
+Some via `setup.sh --project-only`. É o que torna um projeto "IdeiaOS-aware".
+
+| O que | Onde |
+|-------|------|
+| `IDEIAOS.md`, `AGENTS.md`, `CLAUDE.md`, `.aiox-ai-config.yaml` | raiz do projeto-alvo |
+| `docs/ideiaos/`, `.planning/`, `specs/`, `docs/learnings/` | projeto-alvo |
+| `.cursor/rules/` (e adapters multi-IDE) | projeto-alvo |
+
+### 🔌 Deps upstream (não são do IdeiaOS — ele depende delas)
+- **GSD** (`/gsd-*`): plugin do Claude Code instalado pelo **marketplace** (não vendorizado em `source/`).
+- **AIOX-Core** (`@dev`, `@qa`, personas): pacote **npm** em `.aiox-core/` — mantido **PRISTINE** + deltas via `install-global-patches.sh`.
+
+> **Honestidade sobre drift:** o manifesto `manifests/modules.json` está **defasado** — declara 7 rules (há 42 no disco) e 13 hooks (há 17). **A fonte de verdade é o disco.** Reconciliar o manifesto é um item de saúde aberto (não bloqueia nada hoje).
+
 ---
 
 ## 🔀 Composição AIOX × GSD — Caminho C (v1.1)
