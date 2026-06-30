@@ -196,6 +196,24 @@ create table if not exists data.station_enrollment (
   decided_at           timestamptz,
   decided_by           uuid references data.app_user(user_id)
 );
+-- NB (S-09): sem FK machine_id → data.machine PROPOSITAL — o enrollment O2 pode
+-- preceder o 1º snapshot (admissão é local-first; este registro é só o espelho).
+
+-- ── data.scope_audit — trilha append-only de concessão/revogação de escopo (S-07)
+--    Para um recon-plane de chaves critical, "quem deu/removeu acesso a quê, quando"
+--    é exatamente o que um incidente exige. Escrita SÓ pela edge de mutação (D3);
+--    nunca UPDATE/DELETE (append-only enforçado pela ausência de policy + por ser
+--    admin-only-read). DELETE físico de user_project_scope perderia o rastro — aqui
+--    o evento fica imutável.
+create table if not exists data.scope_audit (
+  id            bigint generated always as identity primary key,
+  action        text not null check (action in ('grant','revoke')),
+  user_id       uuid not null,                -- alvo (sem FK: sobrevive a delete do app_user)
+  project_slug  text not null,
+  actor_id      uuid,                          -- quem executou (admin)
+  at_epoch      bigint not null default extract(epoch from now())::bigint
+);
+create index if not exists idx_scope_audit_user on data.scope_audit (user_id);
 
 -- =============================================================================
 -- §3 · RLS — ENABLE + FORCE em TODAS as tabelas; deny-all por default.
@@ -226,6 +244,8 @@ alter table data.user_project_scope enable row level security;
 alter table data.user_project_scope force  row level security;
 alter table data.station_enrollment enable row level security;
 alter table data.station_enrollment force  row level security;
+alter table data.scope_audit        enable row level security;
+alter table data.scope_audit        force  row level security;
 
 -- =============================================================================
 -- §4 · FUNÇÕES DE AUTORIZAÇÃO (schema app; SECURITY DEFINER; search_path travado)
@@ -305,31 +325,48 @@ grant  execute on function app.can_see_machine(text)  to authenticated;
 
 -- =============================================================================
 -- §5 · VIEWS DE APRESENTAÇÃO (public; SECURITY DEFINER) — ÚNICO ponto de leitura.
---   Modelo de visibilidade (R16-02):
+--   Modelo de visibilidade (R16-02), ENDURECIDO pós-review adversarial:
 --     • admin  → vê tudo, todos os campos.
---     • dev    → vê o CATÁLOGO (existência + metadata operacional) de todos os
---                projetos/máquinas, MAS os campos de RECONNAISSANCE sensível
---                (nome de chave risk_tier=critical, cadência/file_mtime, path,
---                supabase_project_id) só são revelados DENTRO do seu escopo.
---                Fora do escopo → mascarados (NULL). É "mascaramento por-campo
---                via view", NÃO deny-all binário (contrato L435-439). O cenário
---                negativo L445 ("dev faz SELECT sobre projeto fora do escopo →
---                não retorna nome critical nem cadência") materializa-se aqui.
---     • não-membro (authenticated sem app_user) → não vê nada (where is_member()).
+--     • dev    → vê o catálogo de projetos (project_v) + chaves NÃO-critical
+--                (api_key_v) + máquinas dos seus projetos (machine_v), com os
+--                campos de RECONNAISSANCE (nome critical, cadência, postura, path,
+--                infra) revelados SÓ dentro do seu user_project_scope. Fora do
+--                escopo: chave critical OMITIDA; postura/cadência mascaradas.
+--     • por-máquina sensível (snapshot bruto, mcp source_file, eventos
+--                machine-level) → ADMIN-ONLY: o agrupador "máquina" é mais frouxo
+--                que o escopo-por-projeto e o payload cru furava o mascaramento
+--                (F1/F2/F3/S-04). Reabrir a dev exige ingestão POR-PROJETO (D6).
+--     • não-membro (authenticated sem app_user) → não vê nada.
 --
 --   SECURITY DEFINER é deliberado: a view É o ponto de controle de acesso (lê
 --   data.* bypassando a RLS deny-all e aplica escopo+mascaramento na própria
 --   query). O aviso "security definer view" do linter Supabase é INTENCIONAL.
 --   GRANT só a `authenticated` (não `anon`: exige login).
+--
+--   ⚠ OWNER DAS VIEWS (S-06) — INVARIANTE DE DEPLOY: o bypass de RLS de `data.*`
+--   funciona porque a view roda como seu OWNER. O controle de acesso inteiro
+--   reside então na cláusula `where app.*()`/`case` de cada view — uma view sem
+--   filtro vaza tudo. Por isso: (1) este schema DEVE ser aplicado por um role com
+--   GRANT SELECT em `data.*` (não depender de superuser-magic); (2) o gate de
+--   release DEVE verificar `pg_views.viewowner` esperado e que toda view em
+--   `public` tem app.is_member()/is_admin()/can_see_* no corpo (ver §7-gate).
 -- =============================================================================
 
--- ── public.machine_v — catálogo de frota (pouco sensível; visível a membros)
+-- ── public.machine_v — frota visível só onde o dev tem escopo (F6/S-05).
+--    canonical_name+last_seen = cadência de atividade; os/agentd_version = vetor de
+--    fingerprint/exploit → mascarados p/ não-admin. Dev vê só máquinas dos seus
+--    projetos (can_see_machine); admin vê toda a frota com versões.
 create or replace view public.machine_v
 with (security_invoker = off) as
-  select machine_id, canonical_name, os_version, agentd_version,
-         first_seen_epoch, last_seen_epoch
-  from data.machine
-  where app.is_member();
+  select
+    machine_id,
+    canonical_name,
+    case when app.is_admin() then os_version     else null end as os_version,
+    case when app.is_admin() then agentd_version else null end as agentd_version,
+    first_seen_epoch,
+    last_seen_epoch
+  from data.machine m
+  where app.can_see_machine(m.machine_id);
 
 -- ── public.project_v — catálogo de projetos com campos sensíveis mascarados
 create or replace view public.project_v
@@ -349,34 +386,39 @@ with (security_invoker = off) as
   where app.is_member();
 
 -- ── public.api_key_v — o coração do mascaramento por-campo (R16-02)
---    Fora do escopo: nome de chave `critical` e a cadência (file_mtime) → NULL.
---    Mantém visível a POSTURA agregável (present/expected/risk_tier) p/ o catálogo,
---    mas nunca o NOME da chave critical nem a cadência fora do escopo.
+--    Corrigido pós-review adversarial (S-01/S-02/F5): mascarar o NOME não bastava —
+--    present/expected/committed/file_mtime de uma chave `critical` fora do escopo
+--    são recon de POSTURA (quantas critical existem, se foram committadas = sinal de
+--    incidente). Política endurecida:
+--      • risk_tier='critical' FORA do escopo → LINHA OMITIDA por completo (nem a
+--        existência/contagem vaza). Resolve o cenário negativo L445/446 fortemente.
+--      • não-critical FORA do escopo → var_name+risk_tier visíveis (catálogo), mas
+--        a POSTURA (present/expected/committed/file_mtime) é MASCARADA (NULL).
+--      • DENTRO do escopo / admin → tudo.
+--    (Mantém "mascaramento por-campo via view", não deny-all binário total — ver D1.)
 create or replace view public.api_key_v
 with (security_invoker = off) as
   select
     k.project_slug,
-    case
-      when app.can_see_project(k.project_slug) then k.var_name        -- no escopo: revela
-      when k.risk_tier = 'critical'            then null              -- fora + critical: MASCARA o nome
-      else k.var_name                                                 -- fora + não-critical: nome não-sensível
-    end as var_name,
-    k.present,
-    k.expected,
+    k.var_name,                                                       -- só chega aqui se in-scope OU não-critical
+    case when app.can_see_project(k.project_slug) then k.present          else null end as present,
+    case when app.can_see_project(k.project_slug) then k.expected         else null end as expected,
     k.risk_tier,
-    case when app.can_see_project(k.project_slug)
-         then k.file_mtime_epoch else null end as file_mtime_epoch,   -- cadência: mascara fora do escopo
-    k.committed,
+    case when app.can_see_project(k.project_slug) then k.file_mtime_epoch  else null end as file_mtime_epoch,
+    case when app.can_see_project(k.project_slug) then k.committed         else null end as committed,
     app.can_see_project(k.project_slug) as in_scope
   from data.api_key k
-  where app.is_member();
+  where app.is_member()
+    and (app.can_see_project(k.project_slug) or k.risk_tier <> 'critical');  -- critical fora do escopo: OMITIDA
 
--- ── public.mcp_connection_v — por-máquina; visível a quem vê a máquina
+-- ── public.mcp_connection_v — ADMIN-ONLY (F3): source_file é path completo de
+--    config (ex /Users/lucas/.cursor/mcp.json) de TODOS os usuários da máquina —
+--    recon de topologia cross-usuário que can_see_machine não conseguia conter.
 create or replace view public.mcp_connection_v
 with (security_invoker = off) as
   select machine_id, source_file, server_name, enabled, last_seen_epoch
-  from data.mcp_connection m
-  where app.can_see_machine(m.machine_id);
+  from data.mcp_connection
+  where app.is_admin();
 
 -- ── public.daemon_status_v — por-máquina; visível a quem vê a máquina
 create or replace view public.daemon_status_v
@@ -385,14 +427,21 @@ with (security_invoker = off) as
   from data.daemon_status d
   where app.can_see_machine(d.machine_id);
 
--- ── public.machine_snapshot_v — payload bruto; só dentro do escopo da máquina
+-- ── public.machine_snapshot_v — ADMIN-ONLY (F1 CRITICAL / S-04): payload_json é
+--    dump da máquina INTEIRA (todos os projetos dela). can_see_machine (escopo em
+--    1 projeto) deixaria o dump cru furar o escopo-por-projeto — o api_key_v/
+--    project_v mascarariam, mas o snapshot bruto entregaria tudo. Fechado a admin.
+--    (Reabrir a dev exige snapshot POR-PROJETO na ingestão — ver D6.)
 create or replace view public.machine_snapshot_v
 with (security_invoker = off) as
   select machine_id, taken_epoch, agentd_version, payload_json
-  from data.machine_snapshot s
-  where app.can_see_machine(s.machine_id);
+  from data.machine_snapshot
+  where app.is_admin();
 
--- ── public.productivity_event_v — evento de projeto no escopo; machine-level só admin
+-- ── public.productivity_event_v — dev vê SÓ eventos de projeto no seu escopo.
+--    Eventos machine-level (project_slug null) → admin-only (F2): o payload_json
+--    machine-level pode referenciar projetos fora do escopo (ex {"projects":[...]}),
+--    e can_see_machine não os filtra. Removida a cláusula machine-level para dev.
 create or replace view public.productivity_event_v
 with (security_invoker = off) as
   select id, machine_id, event_type, project_slug, epoch, payload_json
@@ -401,7 +450,6 @@ with (security_invoker = off) as
     and (
       app.is_admin()
       or (e.project_slug is not null and app.can_see_project(e.project_slug))
-      or (e.project_slug is null      and app.can_see_machine(e.machine_id))
     );
 
 -- ── public.soak_heartbeat_v — telemetria de OS/milestone: ADMIN-ONLY
@@ -418,12 +466,24 @@ with (security_invoker = off) as
   from data.app_user u
   where app.is_admin() or u.user_id = auth.uid();
 
--- ── public.user_project_scope_v — o dev vê os PRÓPRIOS escopos; admin vê todos
+-- ── public.user_project_scope_v — o dev vê os PRÓPRIOS escopos; admin vê todos.
+--    granted_by (UUID do admin grantor) mascarado p/ não-admin (F8).
 create or replace view public.user_project_scope_v
 with (security_invoker = off) as
-  select user_id, project_slug, granted_by, granted_at
+  select
+    user_id,
+    project_slug,
+    case when app.is_admin() then granted_by else null end as granted_by,
+    granted_at
   from data.user_project_scope s
   where app.is_admin() or s.user_id = auth.uid();
+
+-- ── public.scope_audit_v — trilha de concessão/revogação de escopo: ADMIN-ONLY (S-07)
+create or replace view public.scope_audit_v
+with (security_invoker = off) as
+  select id, action, user_id, project_slug, actor_id, at_epoch
+  from data.scope_audit
+  where app.is_admin();
 
 -- ── public.station_enrollment_v — admissão de estação: ADMIN-ONLY
 --    (dado sensível de pin; o re-pin real é local, este é só o espelho de status)
@@ -441,8 +501,15 @@ grant select on
   public.machine_v, public.project_v, public.api_key_v, public.mcp_connection_v,
   public.daemon_status_v, public.machine_snapshot_v, public.productivity_event_v,
   public.soak_heartbeat_v, public.app_user_v, public.user_project_scope_v,
-  public.station_enrollment_v
+  public.station_enrollment_v, public.scope_audit_v
   to authenticated;
+
+-- Defesa contra enumeração e views futuras vazando a `anon` (F4/S-08):
+--   • anon não loga nesta UI — remove a superfície de introspection de public.
+--   • default privilege: qualquer view CRIADA NO FUTURO em public nasce SEM select
+--     para anon/authenticated (força GRANT explícito + filtro app.* consciente).
+revoke usage on schema public from anon;
+alter default privileges in schema public revoke select on tables from anon, authenticated;
 
 -- =============================================================================
 -- §6 · ESCRITA (ingestão) — fora de anon/authenticated, por design.
@@ -471,20 +538,37 @@ commit;
 
 -- =============================================================================
 -- §7 · DECISÕES DE DESIGN MARCADAS (só o dono fecha — refinar via /spec)
---   D1 (mascaramento): adotada a interpretação "catálogo + mascaramento por-campo"
---       — é a leitura que o cenário negativo L445 exige ("faz SELECT sobre projeto
---       fora do escopo" pressupõe ver a linha; o que se veda são os campos
---       critical/cadência). Alternativa mais-fechada: deny-all binário total (dev
---       nem vê que o projeto existe) — trocar 1 cláusula `where` por view. Confirmar.
+--   D1 (mascaramento — ÚNICA que muda comportamento de recon; ambos os reviewers
+--       marcaram como decisão de SEGURANÇA, não UX): pós-endurecimento, chave
+--       `critical` fora do escopo já é OMITIDA. Resta decidir o catálogo do RESTO:
+--       (D1-A, atual) dev vê existência de projetos + chaves non-critical fora do
+--       escopo (postura mascarada); (D1-B, mais fechado) deny-all binário total —
+--       dev só vê projetos do seu user_project_scope, nada fora. Tensão literal no
+--       contrato: L445 pressupõe "ver a linha"; L446 diz "não-listado = negado".
 --   D2 (ingestão): D2-a (edge + SERVICE_ROLE server-side) RECOMENDADO vs D2-b
 --       (role `ingestor` + JWT machine_id). Decide o passo "re-apontar ingest".
---   D3 (gestão RBAC): mutação de app_user/user_project_scope/station_enrollment
---       pelo admin via edge function SERVICE_ROLE (recomendado — mantém zero policy
---       de escrita na UI) vs policy admin-only de escrita. Hoje: deny-all de escrita.
+--   D3 (gestão RBAC): mutação de app_user/user_project_scope/station_enrollment +
+--       escrita em scope_audit pelo admin via edge function SERVICE_ROLE (recomendado
+--       — mantém zero policy de escrita na UI) vs policy admin-only. Hoje: deny-all.
 --   D4 (tipos): epoch como `bigint` (fidelidade 1:1 com o payload do agentd) vs
 --       `timestamptz` idiomático. Mantido bigint p/ minimizar transformação na ingestão.
 --   D5 (campos mascarados em project_v): path/remote_url/supabase_project_id/
---       class_reason mascarados fora do escopo (conservador — reduz recon de
---       topologia/infra). O contrato cita explicitamente só chave critical+cadência;
---       este fechamento extra é defensável. Confirmar se quer afrouxar.
+--       class_reason mascarados fora do escopo (conservador). Confirmar se afrouxa.
+--   D6 (snapshot/eventos por-projeto): hoje machine_snapshot_v e eventos machine-level
+--       são ADMIN-ONLY (payload cru fura escopo). Para reabrir a DEV, a ingestão
+--       precisa emitir snapshots/eventos POR-PROJETO (com project_slug), trocando o
+--       filtro can_see_machine → can_see_project. Escopo de evolução, não bloqueante.
+--
+-- §7-GATE · CHECKLIST DE RELEASE (por exit-code contra ysttvskswqsvtdftjhfn REAL —
+--   nunca fixture; prove-crypto-against-real-backend-cross-runtime):
+--   [ ] G1 teste NEGATIVO: dev fora do escopo em api_key_v NÃO recebe nome critical,
+--       cadência, postura, nem a LINHA critical (0 rows). (cenário spec L445/446)
+--   [ ] G2 admin em api_key_v/project_v recebe visão completa (cenário L448-451).
+--   [ ] G3 dev em machine_snapshot_v/mcp_connection_v → 0 rows (admin-only).
+--   [ ] G4 auth.uid() resolve o usuário correto sob search_path='' (S-03).
+--   [ ] G5 "Exposed schemas" = só public/graphql_public — `data`/`app` NÃO expostos
+--       (verificar via API; o DDL não consegue garantir — F7).
+--   [ ] G6 pg_views.viewowner = role esperado (não superuser ad-hoc) e toda view em
+--       public tem app.is_member()/is_admin()/can_see_* no corpo (S-06).
+--   [ ] G7 anon (sem login) → 0 rows / 0 introspection em todas as views.
 -- =============================================================================
