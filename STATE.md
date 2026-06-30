@@ -32,13 +32,13 @@
 - **✅ Pendência fechada:** LaunchAgent `com.ideiaos.soak-v15-oneshot` (auto-tag zero-touch do v15.0) **removido** do Mac mini (plist + runner `~/.local/bin/ideiaos-soak-v15-oneshot.sh` + log). `v15.0` já tagueada/publicada (`7dbc31a` no origin, confirmado local+remoto) → runner redundante. Não estava carregado no `launchctl`; `bootout` idempotente + `rm`. Fecha a "⚠️ PENDÊNCIA runner órfão" da Sessão v15.0 SHIPPED.
 - **✅ Sync verificado:** `work`==`origin/work` (`8b7e88a`); `main` local alinhada a `origin/main` (`79d0f62`, FF ref-only); working tree limpo. 4 daemons IdeiaOS ativos (`envsync`/`cockpit`/`gitautosync`/`refresh-ai-security`) — `gitautosync` autoprovou-se vivo (commitou o handoff durante a checagem).
 
-## Sessão 2026-06-29 (fim) — v16: estado de auth GitHub MAPEADO + decisão pendente (frente A/B) p/ F1
+## Sessão 2026-06-29 (fim) — v16 F1: runbook A' DONE + análise de motor B pronta (recomenda Supabase dedicado); aguarda decisão do dono
 
-Pedido "auxílio para executarmos juntos os próximos passos" → "encerrar marcando os próximos passos, incluindo a decisão a tomar". v16 está **ATIVO**; isto é **construção F1** (gated), não ativação.
+Sequência aprovada pelo dono: `(feito) runbook A' → B (motor → schema RLS → telas) → A executada numa pausa`. A e B independentes; dono optou por B primeiro (token org-wide fica ativo durante a B — risco com teto: autoridade é pin O2 local, não GitHub).
 
-- **Estado de auth desta máquina mapeado por exit-code (read-only, token nunca exposto):** conta `gh` = service account compartilhada `DevIdeiaBusiness`; token = `gho_***` OAuth com scopes `read:org,repo,workflow` = **ORG-WIDE**; credential helper `osxkeychain`; autosync delega ao keychain. **Confirma o BLOCKER-CONDICIONAL #2 ao vivo** (1 máquina comprometida = push em toda a org). Repos sincronizados = **5, todos `Ideia-Business`** (`cfoai-grupori`, `IdeiaOS`, `lapidai`, `nfideia`, `ideiapartner`) = escopo exato do FG-PAT.
-- **Runbook R16-03 escopado** p/ esta máquina (5 repos) cravado no handoff; o passo de emitir/colar o token é do **dono** (`credential-isolation`).
-- **❓Decisão pendente (retomar por aqui):** frente **A** (R16-03 FG-PAT agora, juntos — recomendado) · **A'** (só documentar o runbook p/ as 3 máquinas) · **B** (motor RLS `xdikjgpkiqzgebcjgqmu` → F1). Apresentei as 3; o dono pediu p/ encerrar antes de escolher. Nada mutado na auth.
+- **✅ A' DONE** — runbook `docs/guides/r16-03-fg-pat-migration.md` (indexado), produzido pelo workflow `wf_631edb5c-e96` com **verificação adversarial** (2 HIGH + 2 MED + 2 LOW achados e **todos incorporados**: osxkeychain direto, teste negativo anti-falso-verde rede/404/escrita, ator emissor por-máquina, sem arquivo efêmero). Execução = do dono, em qualquer pausa da B. Mapa de auth desta máquina preservado no handoff (não re-investigar).
+- **🟢 B — análise de motor PRONTA** (`.planning/milestones/v16-motor-decision-analysis.md`, 4 lentes + síntese sobre arquivos reais). **Recomendação convergente: Opção 1 — Supabase Postgres dedicado `xdikjgpkiqzgebcjgqmu`** (única que satisfaz cada SHALL de R16-02 no engine). Descartadas: SQLite+app = teatro de RLS; Postgres self-hosted = mata o propósito; Neon = dominada.
+- **❓Decisão do dono pendente (8 itens; críticos: teto de custo, confirmar P3≠P4, hosting da UI, Auth por contas pessoais).** Decidido → ADR → provisiona P3 → schema RLS (passo 2 da sequência de 9). Condições de gate de F1: SERVICE_ROLE fora do browser, schema sem `value`/sem INSERT-da-UI, teste negativo de RLS por-campo contra backend REAL, P3 distinto de P4.
 
 ## Sessão 2026-06-29 (cont.) — v16 ratificação pure-design do contrato split-plane
 

@@ -16,40 +16,42 @@
 
 ---
 
-## ▶ RETOMAR AQUI — v16: estado de auth MAPEADO + ❓DECISÃO PENDENTE (frente A vs B) antes de F1 (2026-06-29, fim de sessão)
+## ▶ RETOMAR AQUI — v16 F1: runbook A' DONE + análise de motor B pronta (recomenda Supabase dedicado) → aguarda DECISÃO do dono (2026-06-29)
 
-**Sessão "preciso de auxílio para executarmos juntos os próximos passos" → "encerrar marcando os próximos passos".**
-Mapeei o estado real de transporte GitHub desta máquina por exit-code (read-only, token NUNCA exposto —
-`credential-isolation`) para tornar o runbook R16-03 **concreto** em vez de genérico. **Nada foi mutado** na auth.
+**Sequência aprovada pelo dono:** `(feito) runbook A' documentado → B (motor → schema RLS → telas) → A executada numa pausa da B`.
+A e B são **independentes**; o dono optou por construir B primeiro, aceitando conscientemente que o token org-wide
+fica ativo durante a B (teto do dano limitado: a autoridade está no pin O2 local, não no GitHub).
 
-### 📍 Estado real de auth — MacBook-Air-2 (mapeado, não re-investigar)
-| Item | Valor |
-|------|-------|
-| Conta `gh` ativa | **`DevIdeiaBusiness`** (a service account compartilhada) via keyring |
-| Token ativo | `gho_***` (OAuth do `gh`), scopes **`read:org, repo, workflow`** = **ORG-WIDE** (push em TODOS os repos) |
-| Credential helper | `osxkeychain` (o `git push`/autosync usa o que está no keychain) |
-| Autosync | `source/autosync/git-autosync.sh` **não gerencia auth próprio** → delega ao osxkeychain |
-| Repos sincronizados (`~/.local/state/git-autosync-repos.txt`) | **5, todos `Ideia-Business`:** `cfoai-grupori`, `IdeiaOS` (ideIAos), `lapidai`, `nfideia`, `ideiapartner` |
-| Daemons ativos | `com.ideiaos.{envsync,cockpit,gitautosync}` (todos rodando) |
+### ✅ Frente A' DONE — runbook de migração FG-PAT documentado
+- **[`docs/guides/r16-03-fg-pat-migration.md`](docs/guides/r16-03-fg-pat-migration.md)** (indexado em `docs/guides/README.md`).
+  Runbook por-máquina reproduzível (token org-wide → FG-PAT escopado), produzido pelo workflow `wf_631edb5c-e96`
+  com **verificação adversarial** (2 HIGH + 2 MED + 2 LOW achados e **todos incorporados**): caminho osxkeychain
+  direto (não `gh auth setup-git`), teste negativo endurecido contra falso-verde (rede/404/escrita), ator emissor
+  por-máquina resolvido (o **dono** emite na sessão local de cada máquina, inclusive SSH no ThinkPad do Lucas —
+  token nunca por mensageria), `rm` efêmero eliminado. **Execução = do dono**, quando quiser (numa pausa da B).
+- 📍 Mapa de auth desta máquina (MacBook-Air-2), não re-investigar: conta `gh` = `DevIdeiaBusiness` (service account),
+  token `gho_***` OAuth **org-wide** (`read:org,repo,workflow`), helper `osxkeychain`, autosync delega ao keychain,
+  **5 repos** `Ideia-Business` (`cfoai-grupori`,`IdeiaOS`,`lapidai`,`nfideia`,`ideiapartner`) = escopo do FG-PAT.
 
-➡️ **Confirma o BLOCKER-CONDICIONAL #2 AO VIVO:** a credencial desta máquina é org-wide (scope `repo`).
-Comprometer 1 máquina = push em toda a org. É exatamente o que o FG-PAT escopado-por-repo aposenta (ADR R16-03).
+### 🟢 Frente B — análise de motor PRONTA, aguarda decisão do dono
+- **Análise:** [`.planning/milestones/v16-motor-decision-analysis.md`](.planning/milestones/v16-motor-decision-analysis.md)
+  (workflow `wf_631edb5c-e96`, 4 lentes independentes + síntese, sobre arquivos reais — Article IV).
+- **Recomendação (convergência forte das 4 lentes): Opção 1 — Supabase Postgres dedicado `xdikjgpkiqzgebcjgqmu`.**
+  É a única que satisfaz cada SHALL de R16-02 no engine (RLS deny-all enforced + mascaramento por-campo via view/
+  SECURITY DEFINER + sem coluna `value`). Descartadas: SQLite+app = **teatro de RLS** (inviável); Postgres
+  self-hosted = mata o propósito (loopback não alcança 3 máquinas); Neon = dominada (fragmenta stack, sem ganho).
+- **❓ DECISÃO PENDENTE do dono (8 itens, ver o doc):** os críticos = **(1) teto de custo mensal** do Plano de View
+  (free vs Pro ~US$25) declarado ANTES de provisionar; **(2) confirmar que `xdikjgpkiqzgebcjgqmu` é o P3-view e é
+  DISTINTO do P4-step-up** (se for o mesmo, R-WP12/S-04 exige um 2º projeto); **(4) hosting da UI** (web-pública vs
+  "UI local + data-source remoto"); **(5) Auth-de-leitura por contas pessoais, não a service account**.
+- **Condições inegociáveis (gate de F1):** SERVICE_ROLE nunca no browser · schema sem `value`/sem INSERT-da-UI ·
+  **teste negativo de RLS por-campo por exit-code contra o backend REAL** (necessário=RLS-enforced; suficiente=teste) ·
+  P3 fisicamente distinto de P4.
+- **Sequência pós-motor (9 passos no doc):** provisionar P3 → schema+RLS deny-all → mascaramento por-campo →
+  **GATE teste negativo** → admissão por pin O2 → re-apontar ingest → Auth-leitura → read-fan-out/telas → consolidar `/spec`.
 
-### ❓ DECISÃO PENDENTE (o que retomar) — eu apresentei 3 opções; o dono ainda NÃO escolheu (pediu p/ encerrar)
-1. **Frente A — R16-03 agora, juntos (recomendado):** migrar esta máquina do token org-wide → **FG-PAT escopado aos 5 repos**.
-   Interativo: eu preparo/valido por exit-code; **o dono emite e cola** o token no GitHub UI (`credential-isolation` — valor nunca passa pelo agente).
-2. **Frente A' — só documentar o runbook:** eu produzo o runbook por-máquina reproduzível p/ as 3 máquinas (MacBook · Mac-mini · ThinkPad do Lucas), o dono executa no tempo dele.
-3. **Frente B — Motor RLS + F1:** escolher o Supabase dedicado (`xdikjgpkiqzgebcjgqmu`), materializar RLS/admissão do contrato em código (sub-projeto maior); deixa o token org-wide ativo por ora.
-
-### 🧭 Runbook R16-03 JÁ ESCOPADO p/ esta máquina (quando a frente A for escolhida)
-1. **Dono** (GitHub → conta `DevIdeiaBusiness` → Settings → Developer settings → **Fine-grained tokens**): emitir 1 FG-PAT escopado **exatamente** aos 5 repos acima, permissões mínimas (Contents: RW; Workflows: RW se o CI exigir), expiração curta.
-2. Nesta máquina: re-autenticar o git/osxkeychain com o FG-PAT (`gh auth login` ou credential helper) — **sem commitar o valor**.
-3. **Teste negativo por exit-code** (eu rodo): FG-PAT escopado aos 5 NÃO consegue push num repo fora do escopo → prova o blast-radius isolado.
-4. **Revogar o token org-wide** (`gho_`/clássico) **só depois** de validar o autosync com o FG-PAT em todas as máquinas.
-5. Replicar nas outras 2 máquinas (cada dono/dev faz a sua — o runbook é por-máquina).
-
-**🚦 Próximo:** retomar pela **decisão acima** (1/2/3). O resto (motor multi-usuário p/ RLS → F1 read-fan-out;
-R16-04/05 parqueados) segue gated por necessidade comprovada. v16 já está **ATIVO** — isto é construção, não ativação.
+**🚦 Próximo:** o dono decide os 8 itens do motor (começando pelos 4 críticos). Decidido → vira ADR → provisiona P3 →
+passo 2 da sequência (schema RLS). A Frente A (executar o runbook FG-PAT) entra em qualquer pausa da B. v16 segue **ATIVO**.
 
 ---
 

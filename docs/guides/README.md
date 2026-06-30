@@ -41,5 +41,9 @@ está em [`windows-wsl.md`](windows-wsl.md); aqui só o resumo do "porquê":
 
 ---
 
-_Outros guias desta pasta não são de instalação_ (ex.: [`hf-cookbook-patterns.md`](hf-cookbook-patterns.md),
-guia de padrões) — este índice cobre apenas instalação e operação.
+_Outros guias desta pasta não são de instalação_ — guias de padrões e runbooks operacionais:
+
+- [`hf-cookbook-patterns.md`](hf-cookbook-patterns.md) — guia de padrões (HF cookbook).
+- [`r16-03-fg-pat-migration.md`](r16-03-fg-pat-migration.md) — **runbook A' (v16):** migração da autenticação
+  GitHub de token org-wide → **FG-PAT escopado por-máquina** (Frente A do gate F1). Execução do dono;
+  tokens nunca pelo contexto do agente ([`credential-isolation`](../../.claude/rules/ideiaos-common-credential-isolation.md)).
