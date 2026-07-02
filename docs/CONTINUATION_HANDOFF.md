@@ -1,10 +1,20 @@
 # Handoff — continuar em outro turno
 
-**Projeto:** `IdeiaOS` · **Branch:** `work` (= main) · **Atualizado:** 2026-06-30 (manutenção transversal do OS — v16 F1 INALTERADO)
+**Projeto:** `IdeiaOS` · **Branch:** `work` (= main) · **Atualizado:** 2026-07-02 (keep-alive Supabase — v16 F1 INALTERADO)
 
 ---
 
-## ▶ ÚLTIMA SESSÃO (2026-06-30, MacBook-Air-2) — manutenção transversal do OS · ⚠️ NÃO muda o v16 F1 (próximo passo real = seção "RETOMAR AQUI" abaixo)
+## ▶ ÚLTIMA SESSÃO (2026-07-02, Mac mini) — keep-alive dos bancos Supabase free-tier · ⚠️ NÃO muda o v16 F1 (próximo passo real = "RETOMAR AQUI" abaixo)
+
+Operacional. O dono recebeu e-mail de pausa automática do projeto Supabase `IdeiaOS - Cockpit` (free-tier pausa após 7d ociosos, enquanto o Cockpit não roda diariamente). Criada rotina de keep-alive.
+
+- **Rotina entregue (commit `b21dce6`):** `.github/workflows/supabase-keepalive.yml` (cron diário 12:17 UTC + `workflow_dispatch`; `curl` SELECT em cada projeto; alvos via secret `SUPABASE_KEEPALIVE_TARGETS`) + `supabase/keepalive.sql` (tabela `public.keepalive`, SELECT `anon`, idempotente) + runbook `docs/guides/supabase-keepalive.md` (+ índice). Validado por exit-code: YAML ruby-parse OK · `bash -n` do bloco `run` OK · dry-run do loop = 2/2 alvos + rejeita linha malformada.
+- **Escopo:** 2 bancos IdeiaOS da org `tflylcjdmjctdzhwzbcm` — `stepup` (`xdikjgpkiqzgebcjgqmu`, PAUSADO) + `view` (`ysttvskswqsvtdftjhfn`, criado 30/06). NFIdeia (`pdljyfyyxufkqejncccv`) é produto/outra org — fora de escopo.
+- **⚠️ 3 AÇÕES DO DONO p/ ativar** (nenhuma manuseável pelo agente — `credential-isolation`): **(1)** despausar `xdikjgpkiqzgebcjgqmu` no dashboard (*Restore*); **(2)** aplicar `supabase/keepalive.sql` no SQL Editor dos 2 projetos; **(3)** criar o secret `SUPABASE_KEEPALIVE_TARGETS` (`LABEL|URL|ANON_KEY` por linha; anon key do dashboard → Settings → API, **nunca** `service_role`). **Verificar:** Actions → supabase-keepalive → *Run workflow* → run verde (`✅ stepup/view — HTTP 200`). Passo a passo: `docs/guides/supabase-keepalive.md`.
+
+---
+
+## ▶ SESSÃO ANTERIOR (2026-06-30, MacBook-Air-2) — manutenção transversal do OS · ⚠️ NÃO muda o v16 F1 (próximo passo real = seção "RETOMAR AQUI" abaixo)
 
 Sessão paralela ao v16 — fortaleceu o OS sem tocar o motor RLS do P3. Tudo em `work`, mergeado p/ `main`.
 
