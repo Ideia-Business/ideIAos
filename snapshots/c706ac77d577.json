@@ -3,7 +3,7 @@
   "machine_id": "c706ac77d577",
   "agentd_version": "1.0.0",
   "os_version": "26.6",
-  "taken_epoch": 1783002020,
+  "taken_epoch": 1783002922,
   "daemons": [
     {
       "pid": null,
@@ -11,7 +11,7 @@
       "label": "com.ideiaos.envsync"
     },
     {
-      "pid": 83211,
+      "pid": 93892,
       "status": "0",
       "label": "com.ideiaos.cockpit"
     },
