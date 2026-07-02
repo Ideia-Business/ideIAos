@@ -1,0 +1,67 @@
+name: supabase-keepalive
+
+# Mantém os projetos Supabase FREE-TIER do IdeiaOS ativos.
+# Free-tier pausa após 7 dias sem requisição à API. Este cron bate uma query REST
+# leve (SELECT na tabela public.keepalive) em cada projeto, todo dia — margem tripla
+# dentro da janela de 7 dias e robusto a atrasos pontuais do agendador do GitHub.
+#
+# Alvos vêm do secret SUPABASE_KEEPALIVE_TARGETS — uma linha por projeto:
+#     LABEL|https://<ref>.supabase.co|<ANON_KEY>
+# Linhas em branco e começando com '#' são ignoradas.
+#
+# Disciplinas: credential-isolation (a anon key NUNCA vive no repo — só no Secret;
+# o GitHub a mascara nos logs) · least-privilege (anon key, jamais service_role) ·
+# CLI-First (curl puro, sem MCP). Ver docs/guides/supabase-keepalive.md.
+
+on:
+  schedule:
+    - cron: '17 12 * * *'   # diário, 12:17 UTC
+  workflow_dispatch: {}       # disparo manual (verificação / força um ping agora)
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supabase-keepalive
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping keepalive de cada projeto Supabase
+        env:
+          TARGETS: ${{ secrets.SUPABASE_KEEPALIVE_TARGETS }}
+        run: |
+          set -euo pipefail
+          if [ -z "${TARGETS:-}" ]; then
+            echo "::error::secret SUPABASE_KEEPALIVE_TARGETS ausente ou vazio"
+            exit 1
+          fi
+          fail=0
+          count=0
+          while IFS='|' read -r label url key; do
+            # ignora linhas em branco e comentários
+            case "${label:-}" in ''|'#'*) continue ;; esac
+            if [ -z "${url:-}" ] || [ -z "${key:-}" ]; then
+              echo "::error::linha malformada para '${label}' (esperado LABEL|URL|ANON_KEY)"
+              fail=1; continue
+            fi
+            count=$((count + 1))
+            # sem -f: queremos o %{http_code} real mesmo em 4xx; || cobre falha de rede/DNS
+            code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 30 \
+                     -H "apikey: ${key}" -H "Authorization: Bearer ${key}" \
+                     "${url%/}/rest/v1/keepalive?select=last_ping&limit=1" || echo "000")
+            if [ "${code}" = "200" ]; then
+              echo "✅ ${label} — HTTP ${code}"
+            else
+              echo "::error::${label} — HTTP ${code} (esperado 200; projeto pausado, key errada, ou keepalive.sql não aplicado?)"
+              fail=1
+            fi
+          done <<< "${TARGETS}"
+          if [ "${count}" -eq 0 ]; then
+            echo "::error::nenhum alvo válido em SUPABASE_KEEPALIVE_TARGETS"
+            exit 1
+          fi
+          echo "— ${count} projeto(s) verificado(s) —"
+          exit "${fail}"

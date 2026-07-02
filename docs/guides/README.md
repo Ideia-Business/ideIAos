@@ -47,3 +47,6 @@ _Outros guias desta pasta não são de instalação_ — guias de padrões e run
 - [`r16-03-fg-pat-migration.md`](r16-03-fg-pat-migration.md) — **runbook A' (v16):** migração da autenticação
   GitHub de token org-wide → **FG-PAT escopado por-máquina** (Frente A do gate F1). Execução do dono;
   tokens nunca pelo contexto do agente ([`credential-isolation`](../../.claude/rules/ideiaos-common-credential-isolation.md)).
+- [`supabase-keepalive.md`](supabase-keepalive.md) — **runbook operacional:** keep-alive dos bancos Supabase
+  free-tier do IdeiaOS (pausa após 7d ociosos). Cron GitHub Actions + `supabase/keepalive.sql`; anon key só
+  em Secret ([`credential-isolation`](../../.claude/rules/ideiaos-common-credential-isolation.md)).
