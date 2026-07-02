@@ -3,7 +3,7 @@
   "machine_id": "c706ac77d577",
   "agentd_version": "1.0.0",
   "os_version": "26.6",
-  "taken_epoch": 1782993905,
+  "taken_epoch": 1782994808,
   "daemons": [
     {
       "pid": null,
@@ -11,12 +11,12 @@
       "label": "com.ideiaos.envsync"
     },
     {
-      "pid": 799,
+      "pid": 13342,
       "status": "0",
       "label": "com.ideiaos.cockpit"
     },
     {
-      "pid": 801,
+      "pid": null,
       "status": "0",
       "label": "com.ideiaos.gitautosync"
     },
