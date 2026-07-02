@@ -3,7 +3,7 @@
   "machine_id": "c706ac77d577",
   "agentd_version": "1.0.0",
   "os_version": "26.6",
-  "taken_epoch": 1782997513,
+  "taken_epoch": 1782998414,
   "daemons": [
     {
       "pid": null,
@@ -11,7 +11,7 @@
       "label": "com.ideiaos.envsync"
     },
     {
-      "pid": 23737,
+      "pid": 31082,
       "status": "0",
       "label": "com.ideiaos.cockpit"
     },
@@ -845,18 +845,25 @@
       "supabase_project_id": "pdljyfyyxufkqejncccv",
       "api_keys": [
         {
-          "var_name": "VITE_SUPABASE_URL",
+          "var_name": "VITE_SUPABASE_PROJECT_ID",
           "present": true,
           "expected": true,
           "risk_tier": "low",
-          "mtime_epoch": 1782777337
+          "mtime_epoch": 1782997666
         },
         {
           "var_name": "VITE_SUPABASE_PUBLISHABLE_KEY",
           "present": true,
           "expected": true,
           "risk_tier": "sensitive",
-          "mtime_epoch": 1782777337
+          "mtime_epoch": 1782997666
+        },
+        {
+          "var_name": "VITE_SUPABASE_URL",
+          "present": true,
+          "expected": true,
+          "risk_tier": "low",
+          "mtime_epoch": 1782997666
         },
         {
           "var_name": "DEEPSEEK_API_KEY",
